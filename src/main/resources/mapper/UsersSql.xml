@@ -1,4 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="data.mapper.UsersMapper">
+    <insert id="createUser" parameterType="UsersDto" useGeneratedKeys="true" keyProperty="id">
+        insert into users (email, name, phone, birth, profileImage, addr, department, team, gender, position, password,
+                           loginId)
+        values (#{email}, #{name}, #{phone}, #{birth}, #{profileImage}, #{addr}, #{department}, #{team}, #{gender},
+                #{position}, #{password}, #{loginId})
+    </insert>
+    <select id="readUserById" parameterType="int" resultType="UsersDto">
+        select *
+        from users
+        where id = #{id}
+          and isDeleted = 0
+    </select>
+    <select id="readUserByLoginId" parameterType="String" resultType="UsersDto">
+        select *
+        from users
+        where loginId = #{loginId}
+          and isDeleted = 0
+    </select>
+    <select id="readAllActiveUsers" resultType="UsersDto">
+        select *
+        from users
+        where isDeleted = 0
+    </select>
+    <select id="readAllDeactivateUsers" resultType="UsersDto">
+        select *
+        from users
+        where isDeleted = 1
+    </select>
+    <select id="readLastLoginId" resultType="String">
+        SELECT loginId
+        FROM users
+        ORDER BY loginId DESC LIMIT 1
+    </select>
+    <update id="updateUser" parameterType="map">
+        update users
+        set password=#{password}
+        where id = #{id}
+    </update>
+    <update id="deactivateUserById" parameterType="int">
+        update users
+        set deletedAt=now(),
+            isDeleted=1
+        where id = #{id}
+    </update>
 </mapper>
