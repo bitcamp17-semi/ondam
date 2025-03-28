@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>파일 업로드</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+<header>
+    <h1>파일 업로드</h1>
+</header>
+
+<main>
+    <!-- 파일 업로드 폼 -->
+    <form action="/api/dataroom/upload" method="post" enctype="multipart/form-data">
+    <div>
+            <label for="title">제목:</label>
+            <input type="text" id="title" name="title" placeholder="파일 제목" required>
+        </div>
+        <div>
+            <label for="description">설명:</label>
+            <textarea id="description" name="description" placeholder="파일 설명 입력" rows="4" required></textarea>
+        </div>
+        <div>
+            <label for="category">카테고리:</label>
+            <select id="category" name="roomId" required>
+                <option value="0">카테고리 선택</option>
+                <option th:each="category : ${categories}" th:value="${category}" th:text="${category}"></option>
+            </select>
+        </div>
+        <div>
+            <label for="file">파일:</label>
+            <input type="file" id="file" name="file" required>
+        </div>
+        <button type="submit">업로드</button>
+    </form>
+    <br>
+    <button type="button" onclick="location.href='@{/}'">돌아가기</button>
+</main>
+</body>
+</html>

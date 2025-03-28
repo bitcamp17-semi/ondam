@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>자료실 파일 목록</title>
+  <link rel="stylesheet" href="/css/styles.css"> <!-- 필요한 CSS 경로 -->
+  <script src="/js/scripts.js" defer></script>   <!-- 필요한 JS 경로 -->
+</head>
+<body>
+<header>
+  <h1>자료실 파일 목록</h1>
+</header>
+<!-- 파일 리스트 페이지에서 업로드 버튼 추가 -->
+<header>
+  <h1>파일 목록</h1>
+  <button type="button" onclick="location.href='@{/upload}'">파일 업로드</button>
+</header>
+<main>
+  <!-- 검색 및 필터 -->
+  <form th:action="@{/api/dataroom}" method="get">
+    <div>
+      <label for="roomId">카테고리 선택:</label>
+      <select name="roomId" id="roomId" th:value="${roomId}">
+        <option value="0" th:selected="${roomId == null || roomId == 0}">전체</option>
+        <option th:each="category : ${categories}"
+                th:value="${category}"
+                th:text="${category}"
+                th:selected="${category == roomId}">
+        </option>
+      </select>
+    </div>
+
+    <div>
+      <label for="keyword">검색:</label>
+      <input type="text" id="keyword" name="keyword" th:value="${keyword}" placeholder="검색어 입력">
+    </div>
+
+    <button type="submit">검색</button>
+  </form>
+
+  <!-- 파일 목록 테이블 -->
+  <section>
+    <table>
+      <thead>
+      <tr>
+        <th>ID</th>
+        <th>제목</th>
+        <th>작성자</th>
+        <th>카테고리</th>
+        <th>생성 날짜</th>
+        <th>상세 보기</th>
+        <th>삭제</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:if="${files.size() == 0}">
+        <th colspan="7">
+          <h2 class="no-data-message">파일 또는 게시글이 없습니다.</h2>
+        </th>
+      </tr>
+      <tr th:each="file : ${files}">
+        <td th:text="${file.id}"></td>
+        <td th:text="${file.title}"></td>
+        <td th:text="${file.name}"></td>
+        <td th:text="${file.roomId}"></td>
+        <td th:text="${#dates.format(file.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+        <td>
+          <a th:href="@{/api/dataroom/detail/{id}(id=${file.id})}">보기</a>
+        </td>
+        <td>
+          <form th:action="@{/api/dataroom/{id}(id=${file.id})}" method="post">
+            <input type="hidden" name="_method" value="delete"> <!-- DELETE 요청 -->
+            <button type="submit">삭제</button>
+          </form>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 페이징 -->
+  <section>
+    <p>
+      현재 페이지: <span th:text="${currentPage}"></span> / 페이지당 항목 수: <span th:text="${pageSize}"></span>
+    </p>
+    <div>
+      <!-- 이전 페이지 -->
+      <a th:if="${currentPage > 1}"
+         th:href="@{/api/dataroom(page=${currentPage - 1}, size=${pageSize}, roomId=${selectedRoomId}, keyword=${keyword})}">
+        이전
+      </a>
+      <!-- 다음 페이지 -->
+      <a th:if="${files.size() == pageSize}"
+         th:href="@{/api/dataroom(page=${currentPage + 1}, size=${pageSize}, roomId=${selectedRoomId}, keyword=${keyword})}">
+        다음
+      </a>
+    </div>
+  </section>
+</main>
+</body>
+</html>

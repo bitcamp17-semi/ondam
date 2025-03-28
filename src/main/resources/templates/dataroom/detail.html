@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>파일 상세 정보</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+<header>
+  <h1>파일 상세 정보</h1>
+</header>
+
+<main>
+  <!-- 상세 정보 표시 -->
+  <section>
+    <h2>파일 정보</h2>
+    <table>
+      <tbody>
+      <tr>
+        <th>파일 ID</th>
+        <td th:text="${file.id}"></td>
+      </tr>
+      <tr>
+        <th>제목</th>
+        <td th:text="${file.title}"></td>
+      </tr>
+      <tr>
+        <th>작성자</th>
+        <td th:text="${file.name}"></td>
+      </tr>
+      <tr>
+        <th>카테고리</th>
+        <td th:text="${file.roomId}"></td>
+      </tr>
+      <tr>
+        <th>업로드 날짜</th>
+        <td th:text="${#dates.format(file.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+      </tr>
+      <tr>
+        <th>파일 경로</th>
+        <td>
+          <a th:href="@{${file.fileUrl}}" th:text="${file.fileUrl}" target="_blank"></a>
+        </td>
+      </tr>
+      <tr>
+        <th>세부 설명</th>
+        <td th:text="${file.description}"></td>
+      </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 뒤로 가기 버튼 -->
+  <section>
+    <a th:href="@{/api/dataroom}" class="button">목록으로 돌아가기</a>
+  </section>
+</main>
+</body>
+</html>
