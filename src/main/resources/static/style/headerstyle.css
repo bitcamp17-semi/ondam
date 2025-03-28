@@ -1,0 +1,216 @@
+.header,
+.header * {
+    box-sizing: border-box;
+}
+.header {
+    background: rgba(245, 245, 245, 0.8);
+    padding: 16px 13px 16px 13px;
+    display: flex;
+    flex-direction: column;
+    gap: 91px;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 1024px;
+    position: relative;
+}
+.frame-7 {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    position: relative;
+}
+.logo {
+    background: #fa7000;
+    border-radius: 25px;
+    flex-shrink: 0;
+    width: 45px;
+    height: 45px;
+    position: relative;
+}
+.ondam-w {
+    width: 44.44%;
+    height: 19.13px;
+    position: absolute;
+    right: 28.89%;
+    left: 26.67%;
+    top: 13px;
+    object-fit: cover;
+    aspect-ratio: 20/19.13;
+}
+.frame-5 {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 50px;
+    position: relative;
+}
+.menubtn{
+    background: rgba(238, 238, 238, 0.8);
+    border-radius: 5px;
+    border-style: solid;
+    border-color: rgba(238, 238, 238, 0.8);
+    border-width: 1px;
+    align-self: stretch;
+    flex-shrink: 0;
+    height: 50px;
+    position: relative;
+}
+.menubtn:hover {
+    cursor: pointer;
+}
+.home {
+    flex-shrink: 0;
+    width: 14px;
+    height: 15.39px;
+    position: absolute;
+    left: 18px;
+    top: 17px;
+    overflow: visible;
+}
+.mail {
+    flex-shrink: 0;
+    width: 19px;
+    height: 15px;
+    position: absolute;
+    left: 16px;
+    top: 78px;
+    overflow: visible;
+}
+.note {
+    flex-shrink: 0;
+    width: 15px;
+    height: 15px;
+    position: absolute;
+    left: 18px;
+    top: 138px;
+    overflow: visible;
+}
+.orgchart {
+    flex-shrink: 0;
+    width: 21px;
+    height: 19px;
+    position: absolute;
+    left: 15px;
+    top: 195.5px;
+    overflow: visible;
+}
+.calander {
+    flex-shrink: 0;
+    width: 17px;
+    height: 19px;
+    position: absolute;
+    left: 17px;
+    top: 256px;
+    overflow: visible;
+}
+.approval {
+    flex-shrink: 0;
+    width: 14.85px;
+    height: 10.61px;
+    position: absolute;
+    left: 18px;
+    top: 320px;
+    overflow: visible;
+}
+.board {
+    flex-shrink: 0;
+    width: 18px;
+    height: 15px;
+    position: absolute;
+    left: 16px;
+    top: 378px;
+    overflow: visible;
+}
+.storage {
+    flex-shrink: 0;
+    width: 20px;
+    height: 14px;
+    position: absolute;
+    left: 15px;
+    top: 438px;
+    overflow: visible;
+}
+.chart {
+    flex-shrink: 0;
+    width: 19px;
+    height: 19px;
+    position: absolute;
+    left: 16px;
+    top: 496px;
+    overflow: visible;
+}
+.info {
+    flex-shrink: 0;
+    width: 18.59px;
+    height: 18.85px;
+    position: absolute;
+    left: 16px;
+    top: 556px;
+    overflow: visible;
+}
+.frame-6 {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 50px;
+    position: relative;
+}
+
+.alarmbtn {
+    background: rgba(238, 238, 238, 0.8);
+    border-radius: 5px;
+    border-style: solid;
+    border-color: rgba(238, 238, 238, 0.8);
+    border-width: 1px;
+    align-self: stretch;
+    flex-shrink: 0;
+    height: 50px;
+    position: relative;
+}
+.rectangle-53 {
+    border-radius: 5px;
+    align-self: stretch;
+    flex-shrink: 0;
+    height: 50px;
+    position: relative;
+    object-fit: cover;
+}
+.logoutbtn {
+    background: rgba(238, 238, 238, 0.8);
+    border-radius: 5px;
+    border-style: solid;
+    border-color: rgba(238, 238, 238, 0.8);
+    border-width: 1px;
+    align-self: stretch;
+    flex-shrink: 0;
+    height: 50px;
+    position: relative;
+}
+.logout {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    position: absolute;
+    left: 17px;
+    top: 137px;
+    overflow: visible;
+}
+.group-2 {
+    flex-shrink: 0;
+    width: 17.5px;
+    height: 18px;
+    position: absolute;
+    left: 16px;
+    top: 15px;
+    overflow: visible;
+}
