@@ -58,4 +58,20 @@ public class LoginController {
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @RequestMapping("/logout")
+    public ResponseEntity<Object> logout(HttpSession session) {
+        Map<String, Object> response = new LinkedHashMap<>();
+        try {
+            session.removeAttribute("userId");
+            session.invalidate();
+            response.put("status", "ok");
+            response.put("result", "logout successful");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("result", "An unexpected error occurred: " + e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

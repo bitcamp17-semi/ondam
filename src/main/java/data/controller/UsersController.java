@@ -1,6 +1,8 @@
 package data.controller;
 
+import data.dto.EmailDto;
 import data.dto.UsersDto;
+import data.service.EmailService;
 import data.service.ObjectStorageService;
 import data.service.UsersService;
 import jakarta.servlet.http.HttpSession;
@@ -10,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 
 import java.text.ParseException;
 import java.util.HashMap;
@@ -23,6 +27,10 @@ public class UsersController {
     UsersService usersService;
     @Autowired
     ObjectStorageService storageService;
+    @Autowired
+    EmailService emailService;
+    @Autowired
+    TemplateEngine templateEngine;
 
     @PostMapping("/createUser")
     public ResponseEntity<Object> createUser(
@@ -40,6 +48,17 @@ public class UsersController {
                 // 사용자 생성 로직
                 boolean isCreated = usersService.createUser(usersDto);
                 if (isCreated) {
+                    Context context = new Context();
+                    context.setVariable("name", usersDto.getName());
+                    context.setVariable("loginId", usersDto.getLoginId());
+                    context.setVariable("loginPage", "http://localhost:8080/login");
+                    String message = templateEngine.process("infoMailForm", context);
+                    EmailDto emailDto = EmailDto.builder()
+                            .to(usersDto.getEmail())
+                            .subject("온담 회원가입 완료 및 로그인 정보 안내")
+                            .message(message)
+                            .build();
+                    emailService.sendMail(emailDto);
                     response.put("status", "ok");
                     response.put("result", usersDto);  // 생성된 사용자 정보 반환
                     return new ResponseEntity<>(response, HttpStatus.CREATED);
