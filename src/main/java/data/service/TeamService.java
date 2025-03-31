@@ -19,4 +19,12 @@ public class TeamService {
     public List<TeamDto> readTeamsByDepId(int departmentId) {
         return teamMapper.readTeamsByDepId(departmentId);
     }
+
+    public void updateTeam(TeamDto teamDto) {
+        teamMapper.updateTeam(teamDto);
+    }
+
+    public void deleteTeam(int id) {
+        teamMapper.deleteTeam(id);
+    }
 }

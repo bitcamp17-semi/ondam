@@ -19,4 +19,12 @@ public class DepartmentService {
     public List<DepartmentDto> readAllDeps() {
         return departmentMapper.readAllDeps();
     }
+
+    public void updateDep(DepartmentDto departmentDto) {
+        departmentMapper.updateDep(departmentDto);
+    }
+
+    public void deleteDep(int id) {
+        departmentMapper.deleteDep(id);
+    }
 }

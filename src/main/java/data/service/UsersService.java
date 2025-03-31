@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import java.sql.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.List;
 
 @Service
 public class UsersService {
@@ -38,6 +39,22 @@ public class UsersService {
 
     public void deactivateUser(int id) {
         usersMapper.deactivateUserById(id);
+    }
+
+    public List<UsersDto> readAllActiveUsers() {
+        return usersMapper.readAllActiveUsers();
+    }
+
+    public List<UsersDto> readAllDeactivateUsers() {
+        return usersMapper.readAllDeactivateUsers();
+    }
+
+    public List<UsersDto> readUsersByDep(String department) {
+        return usersMapper.readUsersByDep(department);
+    }
+
+    public List<UsersDto> readUsersByTeam(String team) {
+        return usersMapper.readUsersByTeam(team);
     }
 
     public Date convertStringToDate(String date) throws ParseException {

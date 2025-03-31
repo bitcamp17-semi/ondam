@@ -9,10 +9,7 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -36,7 +33,7 @@ public class DepartmentTeamController {
         Map<String, Object> response = new LinkedHashMap<String, Object>();
         if (usersService.isAdmin(userId)) {
             try {
-                departmentService.createDep(userId,name);
+                departmentService.createDep(userId, name);
                 response.put("status", "ok");
                 response.put("result", "success");
                 return new ResponseEntity<>(response, HttpStatus.CREATED);
@@ -67,6 +64,50 @@ public class DepartmentTeamController {
         }
     }
 
+    @GetMapping("/updateDep")
+    public ResponseEntity<Object> updateDep(@ModelAttribute DepartmentDto depDto, HttpSession session) {
+        Map<String, Object> response = new LinkedHashMap<>();
+        int userId = Integer.parseInt(session.getAttribute("userId").toString());
+        if (usersService.isAdmin(userId)) {
+            try {
+                departmentService.updateDep(depDto);
+                response.put("status", "ok");
+                response.put("result", "success");
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            } catch (Exception e) {
+                response.put("status", "error");
+                response.put("result", e.getMessage());
+                return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            response.put("status", "fail");
+            response.put("error", "you are not admin");
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("/deleteDep")
+    public ResponseEntity<Object> deleteDep(@RequestParam int id, HttpSession session) {
+        Map<String, Object> response = new LinkedHashMap<>();
+        int userId = Integer.parseInt(session.getAttribute("userId").toString());
+        if (usersService.isAdmin(userId)) {
+            try {
+                departmentService.deleteDep(id);
+                response.put("status", "ok");
+                response.put("result", "success");
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            } catch (Exception e) {
+                response.put("status", "error");
+                response.put("result", e.getMessage());
+                return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            response.put("status", "fail");
+            response.put("error", "you are not admin");
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+    }
+
     @GetMapping("/createTeam")
     public ResponseEntity<Object> createTeam(
             @RequestParam int departmentId,
@@ -74,7 +115,7 @@ public class DepartmentTeamController {
     ) {
         Map<String, Object> response = new LinkedHashMap<>();
         try {
-            teamService.createTeam(departmentId,name);
+            teamService.createTeam(departmentId, name);
             response.put("status", "ok");
             response.put("result", "success");
             return new ResponseEntity<>(response, HttpStatus.CREATED);
@@ -97,6 +138,50 @@ public class DepartmentTeamController {
             response.put("status", "error");
             response.put("result", e.getMessage());
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/updateTeam")
+    public ResponseEntity<Object> updateTeam(@ModelAttribute TeamDto teamDto, HttpSession session) {
+        Map<String, Object> response = new LinkedHashMap<>();
+        int userId = Integer.parseInt(session.getAttribute("userId").toString());
+        if (usersService.isAdmin(userId)) {
+            try {
+                teamService.updateTeam(teamDto);
+                response.put("status", "ok");
+                response.put("result", "success");
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            } catch (Exception e) {
+                response.put("status", "error");
+                response.put("result", e.getMessage());
+                return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            response.put("status", "fail");
+            response.put("error", "you are not admin");
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("/deleteTeam")
+    public ResponseEntity<Object> deleteTeam(@RequestParam int id, HttpSession session) {
+        Map<String, Object> response = new LinkedHashMap<>();
+        int userId = Integer.parseInt(session.getAttribute("userId").toString());
+        if (usersService.isAdmin(userId)) {
+            try {
+                teamService.deleteTeam(id);
+                response.put("status", "ok");
+                response.put("result", "success");
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            } catch (Exception e) {
+                response.put("status", "error");
+                response.put("result", e.getMessage());
+                return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            response.put("status", "fail");
+            response.put("error", "you are not admin");
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
     }
 }
