@@ -1,6 +1,5 @@
 package data.controller;
 
-import data.dto.DataRoomDto;
 import data.dto.FilesDto;
 import data.mapper.DataroomMapper;
 import data.service.DataroomService;
@@ -56,18 +55,19 @@ public class DataroomController {
         if (page < 1) page = 1;
         if (size < 1 || size > 100) size = 10;
 
-        // 데이터 조회
-        List<FilesDto> files = dataroomService.readFilesByRoomId(
-                roomId != null ? roomId : 0,
+        // 서비스 호출을 통해 파일 목록 조회 및 카테고리 정보 가져오기
+        List<FilesDto> files = dataroomService.readDataroomFilesByIdAndKeyword(
+                roomId != null ? roomId : 0,// roomId가 null인 경우 전체 조회 (roomId = 0)
                 keyword,
-                (page - 1) * size,
-                size
+                (page - 1) * size,// 페이지 번호 → 데이터의 시작 위치 계산
+                size // 한 페이지에 가져올 최대 데이터 수
+
         );
-        List<DataRoomDto> categories = dataroomService.readCategories();
+        List<String> categories = dataroomService.readDataroomCategories();
 
         // Model에 값 추가
-        model.addAttribute("files", files);
-        model.addAttribute("categories", categories);
+        model.addAttribute("files", files); //데이터Model에 추가하여 뷰로 전달
+        model.addAttribute("categories", categories); //자료실 카테고리
         model.addAttribute("selectedRoomId", roomId); // 선택된 roomId
         model.addAttribute("keyword", keyword);      // 검색 키워드
         model.addAttribute("currentPage", page);     // 현재 페이지
@@ -76,72 +76,62 @@ public class DataroomController {
 
         return "dataroom/files";
     }
+
     /**
      * 파일 삭제 기능
      * @param id 삭제할 파일의 ID
      * @return 파일 목록으로 리다이렉트
      */
 
-
-
-    @PostMapping("/{id}")
-    public String deleteFilePost(@PathVariable int id) {
-        dataroomService.deleteFileAndCloud(id); // 삭제 로직 처리
-        return "redirect:/api/dataroom"; // 삭제 후 목록 페이지로 리다이렉트
-    }
-
-    @GetMapping("/detail/{id}")
-    public String getFileDetail(@PathVariable int id, Model model) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Object> deleteFile(@PathVariable int id){
+        Map<String, Object> response = new LinkedHashMap<>();
         try {
-            // 1. 파일 상세 조회
-            FilesDto file = dataroomService.readById(id);
-            if (file == null) {
-                throw new IllegalArgumentException("파일이 존재하지 않습니다. ID: " + id);
-            }
-
-            // 2. Presigned URL 생성 및 디버깅
-            String fileURL = objectStorageService.generatePresignedURL(
-                    objectStorageService.getBucketName(),
-                    file.getPath(),
-                    file.getName(),
-                    60
-            );
-            System.out.println("Generated Presigned URL: " + fileURL); // 로그 출력으로 유효성 확인
-
-            // 3. 모델에 데이터 추가
-            model.addAttribute("file", file);
-            model.addAttribute("fileURL", fileURL);
-
-            return "dataroom/detail";
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            model.addAttribute("errorMessage", "파일 상세 정보를 불러오는 중 문제가 발생했습니다.");
-            return "error/404";
+            //서비스 호출
+            dataroomService.deleteDataroomById(id);
+            response.put("status", "ok");
+            response.put("result", "File Successfully Deleted (ID: " + id + ")");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }catch (Exception e){
+            response.put("status", "fail");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
+    // 파일 상세 정보 조회 REST API (Read)
+    @GetMapping("/detail/{id}")
+    public ResponseEntity<Object> getFileDetail(@PathVariable int id) {
+        Map<String, Object> response = new LinkedHashMap<>();
+        try {
+            //디테일 호출
+            FilesDto file = dataroomService.readDataroomById(id);
+            response.put("status", "ok");
+            response.put("result", file);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            // 에러 응답
+            response.put("status", "fail");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
+    // 업로드 페이지 보여주기 (Create 준비)
     @GetMapping("/upload")
     public String showUploadPage(Model model) {
-        // DataRoomDto 타입으로 categories 선언
-        List<DataRoomDto> categories = dataroomService.readCategories();
 
-        // 기본 값 처리
+        List<String> categories = dataroomService.readDataroomCategories();
+        //카테고리가 null일때 기본 카테고리 1,2 가 있음
         if (categories == null || categories.isEmpty()) {
-            // DataRoomDto 객체 생성
-            categories = Arrays.asList(
-                    new DataRoomDto(1, "Category1"),
-                    new DataRoomDto(2, "Category2")
-            );
+            categories = Arrays.asList("Category1", "Category2"); // 기본 값
         }
-
-        // categories를 모델에 추가
         model.addAttribute("categories", categories);
         return "dataroom/upload";
     }
 
-    // 업로드 실행
+
+    // 파일 업로드 저장 처리 REST API (Create)
     @PostMapping("/upload")
     public ResponseEntity<Object> uploadFile(
             @RequestParam("title") String title,

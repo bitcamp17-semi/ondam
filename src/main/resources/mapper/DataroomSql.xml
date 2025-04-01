@@ -1,36 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="data.mapper.DataroomMapper">
-    <!--특정 자료실(roomId)에 속한 파일 목록 조회 -->
-    <select id="readFilesByRoomId" resultType="FilesDto">
+    <!--자료실 ID와 키워드로 파일 목록을 조회 -->
+    <select id="readDataroomFilesByIdAndKeyword" resultType="FilesDto">
         SELECT * FROM files
         WHERE (roomId = #{roomId} OR #{roomId} = 0)
           AND (title LIKE CONCAT('%', #{keyword}, '%')
             OR comment LIKE CONCAT('%', #{keyword}, '%')
             OR name LIKE CONCAT('%', #{keyword}, '%'))
         ORDER BY createdAt DESC
-            LIMIT #{offset}, #{limit};
+        LIMIT #{offset}, #{limit};
     </select>
-    <!--ID로 찾기-->
-    <select id="readById" resultType="FilesDto">
+    <!--특정 ID로 파일 하나의 정보를 조회-->
+    <select id="readDataroomById" resultType="FilesDto">
         SELECT * FROM files
         WHERE id = #{id}
     </select>
 
-    <!-- 자료실 목록 조회 -->
-    <select id="readCategories" resultType="DataroomDto">
-        SELECT DISTINCT id, name
-        FROM data_room
+    <!-- 자료실 모든 카테고리 조회 -->
+    <select id="readDataroomCategories" resultType="String">
+        SELECT DISTINCT name FROM data_room
         ORDER BY name
     </select>
 
-    <!--파일 저장 -->
-    <insert id="createFile">
-        INSERT INTO files (title, comment, roomId, name, path, authorId, type, createdAt,updatedAt)
-        VALUES (#{title}, #{comment}, #{roomId}, #{name}, #{path}, #{authorId}, #{type}, NOW(),NOW())
+    <!--자료실에 새 파일을 생성 -->
+    <insert id="createDataroomFile">
+        INSERT INTO files (title, comment, roomId, name, path, authorId, type, createdAt)
+        VALUES (#{title}, #{comment}, #{roomId}, #{name}, #{path}, #{authorId}, #{type}, NOW())
     </insert>
-    <!--삭제-->
-    <delete id="deleteById">
+    <!--특정 ID의 파일을 삭제-->
+    <delete id="deleteDataroomById">
         DELETE FROM files
         WHERE id = #{id}
     </delete>

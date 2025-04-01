@@ -1,6 +1,5 @@
 package data.service;
 
-import data.dto.DataRoomDto;
 import data.dto.FilesDto;
 import data.mapper.DataroomMapper;
 import org.springframework.stereotype.Service;
@@ -21,7 +20,7 @@ public class DataroomService {
     }
 
     /**
-     * 특정 자료실(roomId)의 파일 목록 조회 (페이징 적용)
+     * (Read) 자료실ID와 검색어로 파일 목록 조회 기능
      *
      * @param roomId  카테고리 ID (0 = 전체)
      * @param keyword 검색어
@@ -29,71 +28,66 @@ public class DataroomService {
      * @param limit   한 페이지에 가져올 데이터 개수
      * @return 파일 목록
      */
-    public List<FilesDto> readFilesByRoomId(int roomId, String keyword, int offset, int limit) {
-        List<FilesDto> files = dataroomMapper.readFilesByRoomId(roomId, keyword, offset, limit);
+
+    public List<FilesDto> readDataroomFilesByIdAndKeyword(int roomId, String keyword, int offset, int limit) {
+        List<FilesDto> files = dataroomMapper.readDataroomFilesByIdAndKeyword(roomId, keyword, offset, limit);
         return files != null ? files : new ArrayList<>();
     }
 
-    // 자료실 목록 가져오기 (카테고리)
-    public List<DataRoomDto> readCategories() {
-        return dataroomMapper.readCategories();
+    //  (Read) 자료실 모든 카테고리 목록 조회 기능
+    public List<String> readDataroomCategories() {
+        return dataroomMapper.readDataroomCategories();
     }
 
-    // 특정 파일 ID로 찾기
-    public FilesDto readById(int id) {
-        FilesDto file = dataroomMapper.readById(id);
+    // (Read) 파일 한 개 상세 조회 기능
+    public FilesDto readDataroomById(int id) {
+        FilesDto file = dataroomMapper.readDataroomById(id);
         if (file == null) {
             throw new IllegalArgumentException("해당 파일이 존재하지 않습니다. ID: " + id);
         }
         return file;
     }
 
-    // 파일 저장
-    public void createFile(FilesDto filesDto) {
+    // (Create) 파일 신규 생성 기능
+    public void createDataroomFile(FilesDto filesDto) {
 
         //db저장
-        dataroomMapper.createFile(filesDto);
+        dataroomMapper.createDataroomFile(filesDto);
     }
 
-    @Transactional
-    public void deleteFileAndCloud(int id) {
-        // 1. DB에서 파일 정보 조회
-        FilesDto file = dataroomMapper.readById(id);
+    // 특정 파일 삭제 기능
+    public void deleteDataroomById(int id) {
+        FilesDto file = dataroomMapper.readDataroomById(id);
         if (file == null) {
             throw new IllegalArgumentException("삭제할 파일이 없습니다. ID: " + id);
         }
-
-        // 2. NCloud (Object Storage)에서 파일 삭제
-        // file.getPath()에 저장된 경로를 이용하여 삭제
-        objectStorageService.deleteFile(objectStorageService.getBucketName(), "dataroom", file.getPath());
-
-        // 3. DB에서 파일 삭제
-        dataroomMapper.deleteById(id);
+        dataroomMapper.deleteDataroomById(id);
     }
+
 
     @Transactional
     public void uploadFileAndSaveToDB(String bucketName, String directoryPath, MultipartFile file,
                                       String title, String description, Integer roomId) {
+
         try {
-            // 1. 파일을 NCloud에 업로드
+            // 1. 파일을 ncloud에 업로드
             String uploadedFilename = objectStorageService.uploadFile(bucketName, directoryPath, file);
             if (uploadedFilename == null) {
                 throw new RuntimeException("네이버 클라우드에 파일 업로드 실패");
             }
 
-
             // 2. 업로드된 파일 정보를 DB에 저장
             FilesDto fileRecord = new FilesDto();
-            fileRecord.setTitle(title); // 제목 설정
-            fileRecord.setComment(description); // 설명
-            fileRecord.setRoomId(roomId); // 카테고리 ID
-            fileRecord.setName(file.getOriginalFilename()); // 파일명
-            fileRecord.setPath(uploadedFilename); // 경로
-            fileRecord.setAuthorId(1); // 작성자 ID
-            fileRecord.setType(file.getContentType()); // MIME 타입           // MIME 타입
+            fileRecord.setTitle(title);                          // 제목
+            fileRecord.setComment(description);                  // 설명
+            fileRecord.setRoomId(roomId);                        // 카테고리 ID
+            fileRecord.setName(uploadedFilename);                // 업로드된 파일명
+            fileRecord.setPath(directoryPath);                   // 업로드 경로
+            fileRecord.setAuthorId(1);                           // 작성자 ID (로그인 구현 시 변경 필요)
+            fileRecord.setType(file.getContentType());           // MIME 타입
 
             // DB 저장
-            dataroomMapper.createFile(fileRecord);
+            dataroomMapper.createDataroomFile(fileRecord);
 
             System.out.println("파일 업로드 및 DB 저장 성공: " + uploadedFilename);
 
