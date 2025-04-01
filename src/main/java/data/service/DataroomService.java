@@ -1,5 +1,6 @@
 package data.service;
 
+import data.dto.DataRoomDto;
 import data.dto.FilesDto;
 import data.mapper.DataroomMapper;
 import org.springframework.stereotype.Service;
@@ -34,7 +35,7 @@ public class DataroomService {
     }
 
     // 자료실 목록 가져오기 (카테고리)
-    public List<String> readCategories() {
+    public List<DataRoomDto> readCategories() {
         return dataroomMapper.readCategories();
     }
 
@@ -54,48 +55,42 @@ public class DataroomService {
         dataroomMapper.createFile(filesDto);
     }
 
-    // 파일 삭제
-    public void deleteFile(int id) {
+    @Transactional
+    public void deleteFileAndCloud(int id) {
+        // 1. DB에서 파일 정보 조회
         FilesDto file = dataroomMapper.readById(id);
         if (file == null) {
             throw new IllegalArgumentException("삭제할 파일이 없습니다. ID: " + id);
         }
+
+        // 2. NCloud (Object Storage)에서 파일 삭제
+        // file.getPath()에 저장된 경로를 이용하여 삭제
+        objectStorageService.deleteFile(objectStorageService.getBucketName(), "dataroom", file.getPath());
+
+        // 3. DB에서 파일 삭제
         dataroomMapper.deleteById(id);
-    }
-
-    public String uploadFileToCloud(String bucketName, String directoryPath, MultipartFile file) {
-        System.out.println("Uploading file to bucket: " + bucketName);
-        System.out.println("Uploading to directory: " + directoryPath);
-        System.out.println("Original filename: " + file.getOriginalFilename());
-        String uploadedFilename = objectStorageService.uploadFile(
-                objectStorageService.getBucketName(),
-                directoryPath,
-                file
-        );
-
-        return uploadedFilename; // 성공 시 업로드된 파일 이름 반환
     }
 
     @Transactional
     public void uploadFileAndSaveToDB(String bucketName, String directoryPath, MultipartFile file,
                                       String title, String description, Integer roomId) {
-
         try {
-            // 1. 파일을 ncloud에 업로드
+            // 1. 파일을 NCloud에 업로드
             String uploadedFilename = objectStorageService.uploadFile(bucketName, directoryPath, file);
             if (uploadedFilename == null) {
                 throw new RuntimeException("네이버 클라우드에 파일 업로드 실패");
             }
 
+
             // 2. 업로드된 파일 정보를 DB에 저장
             FilesDto fileRecord = new FilesDto();
-            fileRecord.setTitle(title);                          // 제목
-            fileRecord.setComment(description);                  // 설명
-            fileRecord.setRoomId(roomId);                        // 카테고리 ID
-            fileRecord.setName(uploadedFilename);                // 업로드된 파일명
-            fileRecord.setPath(directoryPath);                   // 업로드 경로
-            fileRecord.setAuthorId(1);                           // 작성자 ID (로그인 구현 시 변경 필요)
-            fileRecord.setType(file.getContentType());           // MIME 타입
+            fileRecord.setTitle(title); // 제목 설정
+            fileRecord.setComment(description); // 설명
+            fileRecord.setRoomId(roomId); // 카테고리 ID
+            fileRecord.setName(file.getOriginalFilename()); // 파일명
+            fileRecord.setPath(uploadedFilename); // 경로
+            fileRecord.setAuthorId(1); // 작성자 ID
+            fileRecord.setType(file.getContentType()); // MIME 타입           // MIME 타입
 
             // DB 저장
             dataroomMapper.createFile(fileRecord);

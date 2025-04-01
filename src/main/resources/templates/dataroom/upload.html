@@ -14,27 +14,33 @@
 <main>
     <!-- 파일 업로드 폼 -->
     <form action="/api/dataroom/upload" method="post" enctype="multipart/form-data">
-    <div>
+        <div>
             <label for="title">제목:</label>
-            <input type="text" id="title" name="title" placeholder="파일 제목" required>
+            <input type="text" id="title" name="title" placeholder="파일 제목 입력" required>
         </div>
         <div>
             <label for="description">설명:</label>
-            <textarea id="description" name="description" placeholder="파일 설명 입력" rows="4" required></textarea>
+            <textarea id="description" name="description" placeholder="파일 설명 입력"></textarea>
         </div>
         <div>
-            <label for="category">카테고리:</label>
-            <select id="category" name="roomId" required>
-                <option value="0">카테고리 선택</option>
-                <option th:each="category : ${categories}" th:value="${category}" th:text="${category}"></option>
+            <label for="roomId">카테고리:</label>
+            <select id="roomId" name="roomId" required>
+                <!-- categories에서 동적으로 option 생성 -->
+                <option value="" disabled selected>카테고리를 선택하세요</option> <!-- 기본 안내 메시지 -->
+                <option th:each="category : ${categories}"
+                        th:value="${category.id}"
+                        th:text="${category.name}">
+                </option>
             </select>
         </div>
+
         <div>
             <label for="file">파일:</label>
             <input type="file" id="file" name="file" required>
         </div>
         <button type="submit">업로드</button>
     </form>
+
     <br>
     <button type="button" onclick="location.href='@{/}'">돌아가기</button>
 </main>

@@ -19,37 +19,40 @@
       <tbody>
       <tr>
         <th>파일 ID</th>
-        <td th:text="${file.id}"></td>
+        <td th:text="${file.id ?: 'N/A'}"></td>
       </tr>
       <tr>
         <th>제목</th>
-        <td th:text="${file.title}"></td>
+        <td th:text="${file.title ?: '없음'}"></td>
       </tr>
       <tr>
-        <th>작성자</th>
-        <td th:text="${file.name}"></td>
+        <th>파일 이름</th>
+        <td th:text="${file.name ?: '이름 없음'}">파일 이름</td>
       </tr>
       <tr>
         <th>카테고리</th>
-        <td th:text="${file.roomId}"></td>
+        <td th:text="${file.roomId ?: '미정'}"></td>
       </tr>
       <tr>
         <th>업로드 날짜</th>
-        <td th:text="${#dates.format(file.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
-      </tr>
-      <tr>
-        <th>파일 경로</th>
-        <td>
-          <a th:href="@{${file.fileUrl}}" th:text="${file.fileUrl}" target="_blank"></a>
-        </td>
-      </tr>
-      <tr>
-        <th>세부 설명</th>
-        <td th:text="${file.description}"></td>
+        <td th:text="${file.createdAt != null ? #dates.format(file.createdAt, 'yyyy-MM-dd HH:mm') : '알 수 없음'}"></td>
       </tr>
       </tbody>
     </table>
   </section>
+  <!-- Presigned URL을 직접 렌더링 -->
+  <div th:if="${description != null}">
+    <p>Description: <span th:text="${description}"></span></p>
+  </div>
+
+  <div th:if="${fileURL != null}">
+    <a th:href="${fileURL}" download="${file.name}" th:text="'다운로드 ' + ${file.name}"/>
+  </div>
+
+
+  <!--<div th:if="${fileURL != null}">
+    <a th:href="${fileURL}" download th:text="'다운로드 ' + ${file.name}"></a>
+  </div>-->
 
   <!-- 뒤로 가기 버튼 -->
   <section>

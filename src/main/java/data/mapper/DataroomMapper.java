@@ -1,5 +1,6 @@
 package data.mapper;
 
+import data.dto.DataRoomDto;
 import data.dto.FilesDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -15,7 +16,8 @@ import java.util.List;
                                      @Param("limit") int limit);
 
     //카테고리 얻기
-    List<String> readCategories();
+    // DataRoomDto 반환이 되도록
+    public List<DataRoomDto> readCategories();
 
     //특정 ID로 파일 찾기
     FilesDto readById(@Param("id") int id);

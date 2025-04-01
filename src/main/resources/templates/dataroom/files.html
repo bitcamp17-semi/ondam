@@ -14,19 +14,22 @@
 <!-- 파일 리스트 페이지에서 업로드 버튼 추가 -->
 <header>
   <h1>파일 목록</h1>
-  <button type="button" onclick="location.href='@{/upload}'">파일 업로드</button>
+  <button type="button" th:onclick="|location.href='@{/api/dataroom/upload}'|">파일 업로드</button>
 </header>
 <main>
   <!-- 검색 및 필터 -->
   <form th:action="@{/api/dataroom}" method="get">
     <div>
       <label for="roomId">카테고리 선택:</label>
-      <select name="roomId" id="roomId" th:value="${roomId}">
+      <select name="roomId" id="roomId" required>
+        <!-- 전체 옵션 -->
         <option value="0" th:selected="${roomId == null || roomId == 0}">전체</option>
+
+        <!-- 카테고리 옵션 반복 출력 -->
         <option th:each="category : ${categories}"
-                th:value="${category}"
-                th:text="${category}"
-                th:selected="${category == roomId}">
+                th:value="${category.id}"
+                th:text="${category.name}"
+                th:selected="${category.id == roomId}">
         </option>
       </select>
     </div>
@@ -45,8 +48,8 @@
       <thead>
       <tr>
         <th>ID</th>
-        <th>제목</th>
         <th>작성자</th>
+        <th>제목</th>
         <th>카테고리</th>
         <th>생성 날짜</th>
         <th>상세 보기</th>
@@ -60,9 +63,9 @@
         </th>
       </tr>
       <tr th:each="file : ${files}">
-        <td th:text="${file.id}"></td>
+        <td th:text="${file.authorId}"></td>
         <td th:text="${file.title}"></td>
-        <td th:text="${file.name}"></td>
+        <td th:text="${file.title}"></td>
         <td th:text="${file.roomId}"></td>
         <td th:text="${#dates.format(file.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
         <td>
@@ -70,8 +73,8 @@
         </td>
         <td>
           <form th:action="@{/api/dataroom/{id}(id=${file.id})}" method="post">
-            <input type="hidden" name="_method" value="delete"> <!-- DELETE 요청 -->
-            <button type="submit">삭제</button>
+            <input type="hidden" name="_method" value="delete">
+            <button type="submit" class="btn btn-danger">삭제</button>
           </form>
         </td>
       </tr>
