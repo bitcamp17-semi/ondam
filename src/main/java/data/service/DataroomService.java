@@ -1,5 +1,6 @@
 package data.service;
 
+import data.dto.DataRoomDto;
 import data.dto.FilesDto;
 import data.mapper.DataroomMapper;
 import org.springframework.stereotype.Service;
@@ -35,7 +36,7 @@ public class DataroomService {
     }
 
     //  (Read) 자료실 모든 카테고리 목록 조회 기능
-    public List<String> readDataroomCategories() {
+    public List<DataRoomDto> readDataroomCategories() {
         return dataroomMapper.readDataroomCategories();
     }
 
@@ -55,12 +56,19 @@ public class DataroomService {
         dataroomMapper.createDataroomFile(filesDto);
     }
 
-    // 특정 파일 삭제 기능
-    public void deleteDataroomById(int id) {
+    @Transactional
+    public void deleteFileAndCloud(int id) {
+        // 1. DB에서 파일 정보 조회
         FilesDto file = dataroomMapper.readDataroomById(id);
         if (file == null) {
             throw new IllegalArgumentException("삭제할 파일이 없습니다. ID: " + id);
         }
+
+        // 2. NCloud (Object Storage)에서 파일 삭제
+        // file.getPath()에 저장된 경로를 이용하여 삭제
+        objectStorageService.deleteFile(objectStorageService.getBucketName(), "dataroom", file.getPath());
+
+        // 3. DB에서 파일 삭제
         dataroomMapper.deleteDataroomById(id);
     }
 
