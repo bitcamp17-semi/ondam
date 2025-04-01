@@ -58,11 +58,10 @@ public class DataroomController {
 
         // 서비스 호출을 통해 파일 목록 조회 및 카테고리 정보 가져오기
         List<FilesDto> files = dataroomService.readDataroomFilesByIdAndKeyword(
-                roomId != null ? roomId : 0,// roomId가 null인 경우 전체 조회 (roomId = 0)
+                roomId != null ? roomId : 0,
                 keyword,
-                (page - 1) * size,// 페이지 번호 → 데이터의 시작 위치 계산
-                size // 한 페이지에 가져올 최대 데이터 수
-
+                (page - 1) * size,
+                size
         );
         List<DataRoomDto> categories = dataroomService.readDataroomCategories();
 

@@ -29,7 +29,6 @@ public class DataroomService {
      * @param limit   한 페이지에 가져올 데이터 개수
      * @return 파일 목록
      */
-
     public List<FilesDto> readDataroomFilesByIdAndKeyword(int roomId, String keyword, int offset, int limit) {
         List<FilesDto> files = dataroomMapper.readDataroomFilesByIdAndKeyword(roomId, keyword, offset, limit);
         return files != null ? files : new ArrayList<>();
@@ -72,11 +71,9 @@ public class DataroomService {
         dataroomMapper.deleteDataroomById(id);
     }
 
-
     @Transactional
     public void uploadFileAndSaveToDB(String bucketName, String directoryPath, MultipartFile file,
                                       String title, String description, Integer roomId) {
-
         try {
             // 1. 파일을 ncloud에 업로드
             String uploadedFilename = objectStorageService.uploadFile(bucketName, directoryPath, file);
@@ -89,8 +86,8 @@ public class DataroomService {
             fileRecord.setTitle(title);                          // 제목
             fileRecord.setComment(description);                  // 설명
             fileRecord.setRoomId(roomId);                        // 카테고리 ID
-            fileRecord.setName(uploadedFilename);                // 업로드된 파일명
-            fileRecord.setPath(directoryPath);                   // 업로드 경로
+            fileRecord.setName(file.getOriginalFilename());      // 업로드된 파일명
+            fileRecord.setPath(uploadedFilename);                //Ncloud 에 랜덤으로 저장된 값
             fileRecord.setAuthorId(1);                           // 작성자 ID (로그인 구현 시 변경 필요)
             fileRecord.setType(file.getContentType());           // MIME 타입
 

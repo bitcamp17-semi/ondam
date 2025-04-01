@@ -19,7 +19,8 @@
 
     <!-- 자료실 모든 카테고리 조회 -->
     <select id="readDataroomCategories" resultType="DataroomDto">
-        SELECT DISTINCT name FROM data_room
+        SELECT DISTINCT id, name
+        FROM data_room
         ORDER BY name
     </select>
 
