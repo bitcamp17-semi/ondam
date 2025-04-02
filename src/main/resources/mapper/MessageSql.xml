@@ -1,4 +1,72 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="data.mapper.MessageMapper">
+
+
+    <!-- 특정 유저의 받은 메시지 목록 조회 (Read) -->
+    <select id="readMessagesForReceiver" parameterType="int" resultType="data.dto.MessagesDto">
+        SELECT id, content, senderid AS senderId, receiverid AS receiverId,
+               isread AS isRead, createdat AS createdAt, readat AS readAt
+        FROM messages
+        WHERE receiverid = #{receiverId}
+        ORDER BY createdat DESC
+    </select>
+    <!-- 메시지 읽음 처리 (Update) -->
+    <update id="updateMessageAsRead" parameterType="int">
+        UPDATE messages
+        SET isread = TRUE, readat = CURRENT_TIMESTAMP
+        WHERE id = #{id}
+    </update>
+
+
+    <!-- 마지막 방문 시간 업데이트 (Update) -->
+    <update id="updateUserLastVisitTime" parameterType="int">
+        INSERT INTO user_last_message_visit (user_id, last_visit_time)
+        VALUES (#{userId}, CURRENT_TIMESTAMP)
+            ON DUPLICATE KEY UPDATE last_visit_time = CURRENT_TIMESTAMP
+    </update>
+
+    <!-- 메시지 삭제 (Delete) -->
+    <delete id="deleteMessageById" parameterType="int">
+        DELETE FROM messages WHERE id = #{id}
+    </delete>
+
+    <!-- 메시지 작성 (Create) -->
+    <insert id="createMessage" parameterType="data.dto.MessagesDto" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO messages (content, senderid, receiverid, isread, createdat, readat)
+        VALUES (#{content}, #{senderId}, #{receiverId}, #{isRead}, #{createdAt}, #{readAt})
+    </insert>
+
+    <!-- 검색 기능 추가 -->
+    <select id="readSearchMessagesByKeyword" parameterType="map" resultType="MessagesDto">
+        SELECT id, content, senderId AS senderId, receiverId AS receiverId,
+               isRead AS isRead, createdAt AS createdAt, readAt AS readAt
+        FROM messages
+        WHERE (
+            content LIKE CONCAT('%', #{keyword}, '%')
+                OR EXISTS (
+                SELECT 1 FROM users
+                WHERE users.id = senderid
+                  AND username LIKE CONCAT('%', #{keyword}, '%')
+            )
+                OR EXISTS (
+                SELECT 1 FROM users
+                WHERE users.id = receiverid
+                  AND username LIKE CONCAT('%', #{keyword}, '%')
+            )
+            )
+          AND
+            (CASE
+                 WHEN #{category} = 'LATEST' THEN TRUE
+                 WHEN #{category} = 'IMPORTANT' THEN FALSE -- is_important 제거
+                 ELSE TRUE
+                END)
+        ORDER BY createdAt DESC
+    </select>
+    <select id="readMessageDetail" parameterType="int" resultType="MessagesDto">
+        SELECT id, content, senderid AS senderId, receiverid AS receiverId,
+               isread AS isRead, createdat AS createdAt, readat AS readAt
+        FROM messages
+        WHERE id = #{id}
+    </select>
 </mapper>
