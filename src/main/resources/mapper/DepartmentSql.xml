@@ -6,6 +6,21 @@
         values (#{userId}, #{name})
     </insert>
     <select id="readAllDeps" resultType="DepartmentDto">
-        select * from department
+        select *
+        from department
     </select>
+    <update id="updateDep" parameterType="DepartmentDto">
+        update department
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="userId != null">userId = #{userId},</if>
+            updatedAt = now()
+        </set>
+        where id = #{id}
+    </update>
+    <delete id="deleteDep" parameterType="int">
+        delete
+        from department
+        where id = #{id}
+    </delete>
 </mapper>

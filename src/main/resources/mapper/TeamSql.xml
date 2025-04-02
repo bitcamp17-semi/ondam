@@ -10,4 +10,18 @@
         from team
         where departmentId = #{departmentId}
     </select>
+    <update id="updateTeam" parameterType="TeamDto">
+        update department
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="departmentId != null">departmentId = #{departmentId},</if>
+            updatedAt = now()
+        </set>
+        where id = #{id}
+    </update>
+    <delete id="deleteTeam" parameterType="int">
+        delete
+        from team
+        where id = #{id}
+    </delete>
 </mapper>

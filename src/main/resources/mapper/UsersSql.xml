@@ -34,9 +34,27 @@
         FROM users
         ORDER BY loginId DESC LIMIT 1
     </select>
+    <select id="readUsersByDep" parameterType="String" resultType="UsersDto">
+        select *
+        from users
+        where department = #{department}
+    </select>
+    <select id="readUsersByTeam" parameterType="String" resultType="UsersDto">
+        select *
+        from users
+        where team = #{team}
+    </select>
     <update id="updateUser" parameterType="map">
         update users
-        set password=#{password}
+        <set>
+            <if test="password != null">password = #{password},</if>
+            <if test="addr != null">addr = #{addr},</if>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="department != null">department = #{department},</if>
+            <if test="team != null">team = #{team},</if>
+            <if test="position != null">position = #{position},</if>
+            updatedAt = now()
+        </set>
         where id = #{id}
     </update>
     <update id="deactivateUserById" parameterType="int">

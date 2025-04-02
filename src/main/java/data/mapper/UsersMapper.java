@@ -3,6 +3,8 @@ package data.mapper;
 import data.dto.UsersDto;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.List;
+
 @Mapper
 public interface UsersMapper {
     public void createUser(UsersDto usersDto);
@@ -16,4 +18,12 @@ public interface UsersMapper {
     public void updateUser(UsersDto usersDto);
 
     public void deactivateUserById(int id);
+
+    public List<UsersDto> readAllActiveUsers();
+
+    public List<UsersDto> readAllDeactivateUsers();
+
+    public List<UsersDto> readUsersByDep(String department);
+
+    public List<UsersDto> readUsersByTeam(String team);
 }
