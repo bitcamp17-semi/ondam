@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="data.mapper.TeamMapper">
+    <insert id="createTeam" parameterType="map">
+        insert into team (departmentId, name)
+        values (#{departmentId}, #{name})
+    </insert>
+    <select id="readTeamsByDepId" parameterType="int" resultType="TeamDto">
+        select *
+        from team
+        where departmentId = #{departmentId}
+    </select>
+    <update id="updateTeam" parameterType="TeamDto">
+        update department
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="departmentId != null">departmentId = #{departmentId},</if>
+            updatedAt = now()
+        </set>
+        where id = #{id}
+    </update>
+    <delete id="deleteTeam" parameterType="int">
+        delete
+        from team
+        where id = #{id}
+    </delete>
+</mapper>

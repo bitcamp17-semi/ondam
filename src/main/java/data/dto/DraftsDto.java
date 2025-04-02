@@ -10,7 +10,7 @@ import java.sql.Timestamp;
 @Data
 public class DraftsDto {
     public enum DraftStatus {
-        DRAFT, PENDING, APPROVED, REJECTED, CANCELED
+        PENDING, APPROVED, REJECTED, CANCELED
     }
     private int id;
     private String title;
