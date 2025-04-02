@@ -1,6 +1,5 @@
 package data.controller;
 
-import data.dto.ApprovalLogDto;
 import data.dto.DraftTemplatesDto;
 import data.dto.DraftsDto;
 import data.service.ApprovalsService;
@@ -186,7 +185,7 @@ public class DraftController {
     }
 
     // todo : 미완성
-    @GetMapping("/{id}/actions")
+    @GetMapping("/{draftId}/actions")
     public ResponseEntity<Object> actions(
             @PathVariable int draftId,
             @RequestParam String action,
@@ -197,6 +196,9 @@ public class DraftController {
         try {
             approvalsService.updateApprovalsStatus(draftId, userId, action);
             draftService.stringToApprovalLogEnumAndCreateLog(action, draftId, userId);
+            if (approvalsService.readNextApprovalId(draftId, userId) == 0 ) {
+                draftService.updateDraftStatus(draftId, action);
+            }
         } catch (Exception e) {
             response.put("status", "error");
             response.put("result", e.getMessage());
