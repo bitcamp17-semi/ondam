@@ -27,6 +27,7 @@ import com.fasterxml.jackson.databind.util.JSONPObject;
 import com.mysql.cj.xdevapi.JsonArray;
 
 import data.dto.SchedulesDto;
+import data.dto.UsersDto;
 import data.service.SchedulesService;
 import data.service.UsersService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -43,9 +44,13 @@ public class SchedulesController {
 	@GetMapping({"/schedules"})
 	//@ResponseBody
 	public String scheduleMain(Model model) {
+		//전체 일정 읽어오기
 		List<SchedulesDto> list = schedulesService.readAllSche();
+		//전체 user 읽어오기
+		//List<UsersDto> userList=userService;
 	    model.addAttribute("scheduleList", list); // 일정 리스트 모델에 담기
 	    model.addAttribute("today",new Date());
+	    
 	    return "schedules/schedules"; // schedules.html 읽어오기
 	}
 	
@@ -133,7 +138,9 @@ public class SchedulesController {
 	//일정 삭제
 	@GetMapping("/scheDelete")
 	public ResponseEntity<Void> deleteSchedules(@RequestParam(value="id") int id) {
-	    schedulesService.deleteSche(id);
+		Map<String, Object> response = new LinkedHashMap<String, Object>();
+		
+		schedulesService.deleteSche(id);
 	    return new ResponseEntity<>(HttpStatus.OK);
 	}
 	

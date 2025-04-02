@@ -33,6 +33,14 @@
     		accent-color: red;
 		}*/
        
+       /*모달헤더 X 버튼 커스텀*/
+		.btn-close-white {
+    		filter: invert(1); /* 색 반전 = 흰색으로 보이게 */
+    		width: 1.5rem;       /* 버튼 크기 키움 */
+    		height: 1.5rem;
+    		opacity: 1;          /* 흐림 제거 */
+    		background-size: 1.5rem; /* 아이콘 크기 키움 */
+  		}
 </style>
 </head>
 <body>
@@ -44,7 +52,7 @@
       <!-- Modal Header -->
       <div class="modal-header" style="background-color: orange;color: white;">
         <h4 class="modal-title">일정 수정</h4>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
 
       <!-- Modal body -->
@@ -63,7 +71,7 @@
          		<td>
          			<select id="sort" name="sort" class="form-control">
          				<option class="private" th:selected="${dto.sort=='private'}" value="private">내 일정</option>
-         				<option class="group" th:selected="${dto.sort=='group'}" value="group">그룹</option>
+         				<option class="buseo" th:selected="${'group' == dto.sort or 'buseo' == dto.sort}" value="buseo">부서</option>
          				<option class="company" th:selected="${dto.sort=='company'}" value="company">회사</option>
          			</select>
          		</td>
@@ -127,7 +135,7 @@ $('#scheUpdateModal').on('show.bs.modal', function () {
 
     if (isChecked) {
         startTime.val("00:00").prop("disabled", true);
-        endTime.val("00:00").prop("disabled", true);
+        endTime.val("12:00").prop("disabled", true);
     } else {
         startTime.prop("disabled", false);
         endTime.prop("disabled", false);
@@ -142,7 +150,7 @@ $("input[name='isAlltime']").on("change", function () {
 
     if (isChecked) {
         startTimeInput.val("00:00").prop("disabled", true);
-        endTimeInput.val("00:00").prop("disabled", true);
+        endTimeInput.val("12:00").prop("disabled", true);
     } else {
         startTimeInput.val("").prop("disabled", false);
         endTimeInput.val("").prop("disabled", false);
@@ -196,7 +204,7 @@ $("#updateForm").submit(function(e){
          		<td>
          			<select name="sort" disabled="disabled">
          				<option class="private" th:selected="${dto.sort=='private'}" >내 일정</option>
-         				<option class="group" th:selected="${dto.sort=='group'}">그룹</option>
+         				<option class="buseo" th:selected="${'group' == dto.sort or 'buseo' == dto.sort}">부서</option>
          				<option class="company" th:selected="${dto.sort=='company'}">회사</option>
          			</select>
          		</td>
