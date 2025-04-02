@@ -1,4 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="data.mapper.DraftMapper">
+    <insert id="createDraftTemplate" parameterType="DraftTemplatesDto">
+        insert into draft_templates (title, authorId, content, createdAt)
+        values (#{title}, #{authorId}, #{content}, now())
+    </insert>
+    <select id="readDraftTemplate" parameterType="int" resultType="DraftTemplatesDto">
+        select *
+        from draft_templates
+        where id = #{id}
+    </select>
+    <select id="readAllDraftTemplate" parameterType="int" resultType="DraftTemplatesDto">
+        select *
+        from draft_templates
+    </select>
+    <update id="updateDraftTemplate" parameterType="DraftTemplatesDto">
+        update draft_templates
+        <set>
+            <if test="title != null">title = #{title},</if>
+            <if test="content != null">content = #{content},</if>
+            updatedAt = now()
+        </set>
+        where id = #{id}
+    </update>
+    <delete id="deleteDraftTemplate" parameterType="int">
+        delete
+        from draft_templates
+        where id = #{id}
+    </delete>
+    <insert id="createDraft" parameterType="DraftsDto">
+        insert into drafts (title, authorId, content, templateId)
+        values (#{title}, #{authorId}, #{content}, #{templateId})
+    </insert>
+    <select id="readDraft" parameterType="int" resultType="DraftsDto">
+        select *
+        from draft
+        where id = #{id}
+    </select>
+    <select id="readAllDrafts" resultType="DraftsDto">
+        select *
+        from draft
+    </select>
+    <delete id="updateDraftStatus" parameterType="map">
+        update drafts
+        set status = #{status}
+        where id = #{id}
+    </delete>
 </mapper>
