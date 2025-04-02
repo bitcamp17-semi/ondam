@@ -2,101 +2,107 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="data.mapper.ChatLogMapper">
 
-    <!-- 그룹 ID로 채팅 로그 조회 -->
-    <select id="readByGroupId" resultType="ChatLogDto">
-        SELECT 
-            chat_log.id,
-            chat_log.senderid,
-            chat_log.receiverid,
-            chat_log.isread,
-            chat_log.message,
-            chat_log.groupid,
-            chat_log.file,
-            chat_log.createdat,
-            users.name AS sender_name
-        FROM chat_log
-        JOIN users ON chat_log.senderid = users.id
-        WHERE chat_log.groupid = #{groupId}
-        ORDER BY chat_log.createdat
-    </select>
-    
-    <!-- 두 사용자 간의 개인 메시지 조회 -->
-    <select id="readPrivateMessages" resultType="ChatLogDto">
-        SELECT 
-            chat_log.id,
-            chat_log.senderid,
-            chat_log.receiverid,
-            chat_log.isread,
-            chat_log.message,
-            chat_log.groupid,
-            chat_log.file,
-            chat_log.createdat,
-            users_sender.name AS sender_name,
-            users_receiver.name AS receiver_name
-        FROM chat_log
-        JOIN users AS users_sender ON chat_log.senderid = users_sender.id
-        LEFT JOIN users AS users_receiver ON chat_log.receiverid = users_receiver.id
-        WHERE (chat_log.senderid = #{user1Id} AND chat_log.receiverid = #{user2Id})
-           OR (chat_log.senderid = #{user2Id} AND chat_log.receiverid = #{user1Id})
-        ORDER BY chat_log.createdat
-    </select>
-    
-    <!-- 채팅 로그 저장 -->
-    <insert id="createChatLog" parameterType="ChatLogDto" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO chat_log 
-            (senderid, receiverid, isread, message, groupid, file)
-        VALUES 
-            (#{senderId}, #{receiverId}, #{isRead}, #{message}, #{groupId}, #{file})
-    </insert>
-    
-    <!-- 메시지를 읽음 상태로 변경 -->
-    <update id="readChat">
-        UPDATE chat_log 
-        SET isread = true 
-        WHERE receiverid = #{receiverId} 
-          AND senderid = #{senderId} 
-          AND isread = false
-    </update>
-    
-    <!-- 그룹 ID로 채팅 로그 조회 (페이징 처리) -->
-    <select id="readByGroupIdWithPagination" resultType="ChatLogDto">
-        SELECT 
-            chat_log.id,
-            chat_log.senderid,
-            chat_log.receiverid,
-            chat_log.isread,
-            chat_log.message,
-            chat_log.groupid,
-            chat_log.file,
-            chat_log.createdat,
-            users.name AS sender_name
-        FROM chat_log
-        JOIN users ON chat_log.senderid = users.id
-        WHERE chat_log.groupid = #{groupId}
-        ORDER BY chat_log.createdat
-        LIMIT #{pageSize} OFFSET #{offset}
-    </select>
-    
-    <!-- 두 사용자 간의 개인 메시지 조회 (페이징 처리) -->
-    <select id="readPrivateMessagesWithPagination" resultType="ChatLogDto">
-        SELECT 
-            chat_log.id,
-            chat_log.senderid,
-            chat_log.receiverid,
-            chat_log.isread,
-            chat_log.message,
-            chat_log.groupid,
-            chat_log.file,
-            chat_log.createdat,
-            users_sender.name AS sender_name,
-            users_receiver.name AS receiver_name
-        FROM chat_log
-        JOIN users AS users_sender ON chat_log.senderid = users_sender.id
-        LEFT JOIN users AS users_receiver ON chat_log.receiverid = users_receiver.id
-        WHERE (chat_log.senderid = #{user1Id} AND chat_log.receiverid = #{user2Id})
-           OR (chat_log.senderid = #{user2Id} AND chat_log.receiverid = #{user1Id})
-        ORDER BY chat_log.createdat
-        LIMIT #{pageSize} OFFSET #{offset}
-    </select>
+	<!-- 그룹 ID로 채팅 로그 조회 -->
+	<select id="readByGroupId" resultType="ChatLogDto">
+		SELECT
+		chat_log.id,
+		chat_log.senderid,
+		chat_log.receiverid,
+		chat_log.isread,
+		chat_log.message,
+		chat_log.groupid,
+		chat_log.file,
+		chat_log.createdat,
+		users.name AS sender_name
+		FROM chat_log
+		JOIN users ON chat_log.senderid = users.id
+		WHERE chat_log.groupid = #{groupId}
+		ORDER BY chat_log.createdat
+	</select>
+
+	<!-- 두 사용자 간의 개인 메시지 조회 -->
+	<select id="readPrivateMessages" resultType="ChatLogDto">
+		SELECT
+		chat_log.id,
+		chat_log.senderid,
+		chat_log.receiverid,
+		chat_log.isread,
+		chat_log.message,
+		chat_log.groupid,
+		chat_log.file,
+		chat_log.createdat,
+		users_sender.name AS sender_name,
+		users_receiver.name AS receiver_name
+		FROM chat_log
+		JOIN users AS users_sender ON chat_log.senderid = users_sender.id
+		LEFT JOIN users AS users_receiver ON chat_log.receiverid =
+		users_receiver.id
+		WHERE (chat_log.senderid = #{user1Id} AND chat_log.receiverid = #{user2Id})
+		OR (chat_log.senderid = #{user2Id} AND chat_log.receiverid =
+		#{user1Id})
+		ORDER BY chat_log.createdat
+	</select>
+
+	<!-- 채팅 로그 저장 -->
+	<insert id="createChatLog" parameterType="ChatLogDto"
+		useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO chat_log
+		(senderid, receiverid, isread, message, groupid, file, createdat)
+		VALUES
+		(#{senderId}, #{receiverId}, #{isRead}, #{message}, #{groupId}, #{file}, NOW())
+	</insert>
+
+	<!-- 메시지를 읽음 상태로 변경 -->
+	<update id="readChat">
+		UPDATE chat_log
+		SET isread = true
+		WHERE receiverid = #{receiverId}
+		AND senderid = #{senderId}
+		AND isread = false
+	</update>
+
+	<!-- 그룹 ID로 채팅 로그 조회 (페이징 처리) -->
+	<select id="readByGroupIdWithPagination" resultType="ChatLogDto">
+		SELECT
+		chat_log.id,
+		chat_log.senderid,
+		chat_log.receiverid,
+		chat_log.isread,
+		chat_log.message,
+		chat_log.groupid,
+		chat_log.file,
+		chat_log.createdat,
+		users.name AS sender_name
+		FROM chat_log
+		JOIN users ON chat_log.senderid = users.id
+		WHERE chat_log.groupid = #{groupId}
+		ORDER BY chat_log.createdat
+		LIMIT #{pageSize} OFFSET #{offset}
+	</select>
+
+	<!-- 두 사용자 간의 개인 메시지 조회 (페이징 처리) -->
+	<select id="readPrivateMessagesWithPagination"
+		resultType="ChatLogDto">
+		SELECT
+		chat_log.id,
+		chat_log.senderid,
+		chat_log.receiverid,
+		chat_log.isread,
+		chat_log.message,
+		chat_log.groupid,
+		chat_log.file,
+		chat_log.createdat,
+		users_sender.name AS sender_name,
+		users_receiver.name AS receiver_name
+		FROM chat_log
+		JOIN users AS users_sender ON chat_log.senderid = users_sender.id
+		LEFT JOIN users AS users_receiver ON chat_log.receiverid =
+		users_receiver.id
+		WHERE (chat_log.senderid = #{user1Id} AND chat_log.receiverid = #{user2Id})
+		OR (chat_log.senderid = #{user2Id} AND chat_log.receiverid =
+		#{user1Id})
+		ORDER BY chat_log.createdat
+		LIMIT #{pageSize} OFFSET #{offset}
+	</select>
 
 </mapper>
