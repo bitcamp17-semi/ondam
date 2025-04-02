@@ -1,6 +1,7 @@
 package data.service;
 
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -8,6 +9,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import com.amazonaws.HttpMethod;
+import com.amazonaws.services.s3.model.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,11 +19,6 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.BucketCrossOriginConfiguration;
-import com.amazonaws.services.s3.model.CORSRule;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
 
 import config.NaverConfig;
 
@@ -91,8 +89,15 @@ public class ObjectStorageService {
         try (InputStream fileIn = file.getInputStream()) {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_");
             String filename = sdf.format(new Date()) + UUID.randomUUID().toString();
-            String[] splitFileName = file.getOriginalFilename().split("\\.");
-            filename += splitFileName.length > 1 ? "." + splitFileName[splitFileName.length - 1] : "";
+
+            // 확장자 처리 추가 (확장자가 없거나 비어 있으면 기본값 .file 추가)
+            String originalFilename = file.getOriginalFilename();
+            String[] splitFileName = originalFilename != null ? originalFilename.split("\\.") : null;
+            if (splitFileName != null && splitFileName.length > 1) {
+                filename += "." + splitFileName[splitFileName.length - 1];
+            } else {
+                filename += ".file"; // 기본 확장자
+            }
 
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentType(file.getContentType());
@@ -110,6 +115,13 @@ public class ObjectStorageService {
         }
     }
 
+    public String generateFileURL(String bucketName, String filePath) {
+        // NCloud Object Storage 엔드포인트
+        String endpoint = "https://kr.object.ncloudstorage.com";
+        // NCloud URL 형식 반환
+        return endpoint + "/" + bucketName + "/" + filePath; // 버킷 이름과 파일 경로 조합
+    }
+
     public void deleteFile(String bucketName, String directoryPath, String fileName) {
         String path = directoryPath + "/" + fileName;
         boolean isfind = s3Client.doesObjectExist(bucketName, path);
@@ -118,6 +130,65 @@ public class ObjectStorageService {
 //			System.out.println(path + ":삭제완료");
         }
     }
+
+    public String generatePresignedURL(String bucketName, String filePath, String fileName, int expiration) {
+        if (bucketName == null || filePath == null || bucketName.isEmpty() || filePath.isEmpty()) {
+            throw new IllegalArgumentException("유효하지 않은 버킷 이름 또는 파일 경로입니다.");
+        }
+
+        // 파일 경로
+        String fullPath = "dataroom/" + filePath;
+
+        // Ncloud EndPoint
+        String endpoint = "https://kr.object.ncloudstorage.com";
+
+        // Content-Disposition 헤더 설정
+        String contentDisposition;
+        try {
+            // `filename`은 원문 그대로, `filename*`은 UTF-8로 한 번만 인코딩
+            contentDisposition = String.format("attachment; filename=\"%s\"; filename*=UTF-8''%s",
+                    fileName,
+                    java.net.URLEncoder.encode(fileName, "UTF-8")
+            );
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException("파일 이름 UTF-8 인코딩 오류", e);
+        }
+
+        // 최종 URL 생성
+        return String.format("%s/%s/%s?response-content-disposition=%s&response-content-type=%s",
+                endpoint,
+                bucketName,
+                fullPath,
+                encodeURIComponent(contentDisposition), // Content-Disposition 전체를 안전하게 보장
+                encodeURIComponent("application/octet-stream") // MIME type 설정
+        );
+    }
+
+    // URL-safe 처리 메서드
+    private String encodeURIComponent(String value) {
+        try {
+            return java.net.URLEncoder.encode(value, "UTF-8")
+                    .replaceAll("\\+", "%20") // 공백 공간 처리
+                    .replaceAll("%21", "!")
+                    .replaceAll("%27", "'")
+                    .replaceAll("%28", "(")
+                    .replaceAll("%29", ")")
+                    .replaceAll("%7E", "~");
+        } catch (Exception e) {
+            throw new RuntimeException("URL-safe 인코딩 오류", e);
+        }
+    }
+
+    // 파일 이름 추출 메서드
+    private String getOriginalFilename(String filePath) {
+        if (filePath.contains("/")) {
+            return filePath.substring(filePath.lastIndexOf("/") + 1);
+        }
+        return filePath;
+    }
+
+
+
 
     public String getBucketName() {
         return bucketName;
