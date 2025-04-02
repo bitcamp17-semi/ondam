@@ -54,7 +54,7 @@ public class UsersController {
             }
         } else {
             response.put("status", "fail");
-            response.put("error", "your not admin");
+            response.put("error", "you're not admin");
             return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
         }
     }
@@ -95,7 +95,7 @@ public class UsersController {
             }
         } else {
             response.put("status", "fail");
-            response.put("error", "you not admin");
+            response.put("error", "you're not admin");
             return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
         }
     }
