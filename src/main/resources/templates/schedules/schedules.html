@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -28,7 +28,7 @@
        #calendar{
        		width: 80%;
        		height: 900px;
-       		margin: 20px auto;
+       		margin: 10px auto;
        }
        .modal-body td{
        		margin-left:5px;
@@ -75,7 +75,11 @@
     		opacity: 1;          /* 흐림 제거 */
     		background-size: 1.5rem; /* 아이콘 크기 키움 */
   		}
-  		/*그룹추가 모달 css*/
+  		
+  		#scheGroupList{
+  			margin: 10px;
+  			 
+  		}
   		
 </style>
 <script th:inline="javascript">
@@ -462,7 +466,7 @@ document.addEventListener("DOMContentLoaded", function () {
          	<tr>
          		<th>그룹 이름</th>
          		<td>
-         			<input type="text" class="form-control gName" name="name">
+         			<input type="text" class="form-control gName" name="name" required="required">
          		</td>
          	</tr>
          	<tr>
@@ -518,12 +522,22 @@ $(document).ready(function () {
 		<!-- 기본으로 전체 체크된 상태로 노출시키기 -->
 		<a>전체 <input type="checkbox" class="allCheck" checked></a>
 		<a style="color: green;">내 일정  <input type="checkbox" class="private" checked></a>
-		<a style="color: gray;">그룹 일정 <input type="checkbox" class="group" checked></a>
+		<a style="color: gray;">부서/그룹 일정 <input type="checkbox" class="group" checked></a>
 		<a style="color: orange;">회사 일정 <input type="checkbox" class="company" checked></a>
+	</div>
+</div>
+
+<div style="display: flex; justify-content: center; align-items: flex-start;">
+<!-- 그룹 목록 노출시키기 -->
+<input type="hidden" id="userId" th:value="${userId}" />
+<div id="scheGroupList">
+	<div th:each="gList : ${groupList}">
+		<input type="checkbox"><span th:style="|color:${gList.color};|">[[${gList.name}]]</span>
 	</div>
 </div>
 
 <!-- 캘린더 출력 영역 -->
 <div id='calendar'></div>
+</div>
 </body>
 </html>

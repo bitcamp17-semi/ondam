@@ -26,8 +26,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.databind.util.JSONPObject;
 import com.mysql.cj.xdevapi.JsonArray;
 
+import data.dto.ScheduleGroupDto;
 import data.dto.SchedulesDto;
 import data.dto.UsersDto;
+import data.service.ScheduleGroupService;
 import data.service.SchedulesService;
 import data.service.UsersService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -39,17 +41,24 @@ import lombok.RequiredArgsConstructor;
 public class SchedulesController {
 	final SchedulesService schedulesService;
 	final UsersService userService;
+	final ScheduleGroupService scheduleGroupService;
 	
 	//일정관리 페이지 진입
 	@GetMapping({"/schedules"})
 	public String scheduleMain(Model model) {
+		int userId=28;//임시로 로그인한 사용자를 고정
+		
 		//전체 일정 읽어오기
 		List<SchedulesDto> list = schedulesService.readAllSche();
 		//전체 user 읽어오기
 		List<UsersDto> userList=userService.readAllActiveUsers();
+		//내가 그룹장이거나 그룹인원으로 있는 그룹 목록 불러오기
+		List<ScheduleGroupDto> groupList=scheduleGroupService.readAllGroup(userId);
 		
+		model.addAttribute("userId",userId);//로그인이랑 연결되면 추후에 수정할 예정
 	    model.addAttribute("scheduleList", list); // 일정 리스트 모델에 담기
-	    model.addAttribute("userList",userList);
+	    model.addAttribute("userList",userList); //사용자 목록 모델에 담기
+	    model.addAttribute("groupList",groupList); //그룹목록 모델에 담기
 	    model.addAttribute("today",new Date());
 	    
 	    return "schedules/schedules"; // schedules.html 읽어오기
@@ -178,5 +187,5 @@ public class SchedulesController {
 			
 			return "redirect:./scheDetail?id="+dto.getId();
 	}
-	
+	  
 }

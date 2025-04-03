@@ -48,6 +48,10 @@ public class ScheduleGroupController {
 
 	        //scheduleGroupService.scheGroupInsert(groupMap);
 	       scheduleGroupService.scheGroupInsert(groupMap); // 리턴값 받아옴
+	       
+	       //위에서 그룹 아이디를 생성하고 그걸 받아서 그룹 멤버를 저장해야함
+	       //근데 이게 그룹 아이디가 auto_increment로 지정되어 있어서 BigInteger로 형변환을 해주는게 안전함
+	       //만약 bigInteger를 사용하지 않는 경우 지금은 오류 발생하면서 등록되지 않음
 	       //Integer groupId = (Integer) groupMap.get("id");
 	       BigInteger bigId = (BigInteger) groupMap.get("id");
 	       int groupId = bigId.intValue();
@@ -67,15 +71,12 @@ public class ScheduleGroupController {
 	        }
 
 	        scheduleGroupMemberService.scheGroupMemberInsert(memberList);
-	        //return "일정 등록 완료";
 	        
 	        response.put("status", "ok");
             response.put("result", groupId);
             return new ResponseEntity<>(response, HttpStatus.OK);
 	    } catch (Exception e) {
 	    	e.printStackTrace(); // ← 콘솔에 전체 스택 출력
-	        response.put("status", "error");
-	        response.put("result", e.getMessage());
 	    	response.put("status", "error");
             response.put("result", e.getMessage());
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
