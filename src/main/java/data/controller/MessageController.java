@@ -19,7 +19,6 @@ public class MessageController {
     public MessageController(MessageService messageService) {
         this.messageService = messageService;
     }
-
     // 새로운 메시지 확인 (읽지 않은 메시지 여부)
     @GetMapping("/unread")
     public ResponseEntity<Object> hasNewMessages(@RequestParam int receiverId) {

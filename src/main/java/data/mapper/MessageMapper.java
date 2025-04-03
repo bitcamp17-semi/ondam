@@ -2,6 +2,7 @@ package data.mapper;
 
 import data.dto.MessagesDto;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 import java.util.Map;
@@ -9,7 +10,7 @@ import java.util.Map;
 @Mapper
 public interface MessageMapper {
     // 특정 사용자가 받은 메시지 조회 (Read)
-    List<MessagesDto> readMessagesForReceiver(int receiverId);
+    List<MessagesDto> readMessagesForReceiver(@Param("receiverId") int receiverId);
 
     // 메시지 읽음 처리 (Update)
     void updateMessageAsRead(int id);
