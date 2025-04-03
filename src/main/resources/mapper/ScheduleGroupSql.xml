@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="data.mapper.ScheduleGroupMapper">
+	<!-- 그룹 생성 -->
+	<insert id="scheGroupInsert" parameterType="map"  useGeneratedKeys="true" keyProperty="id">
+		insert into schedule_group (name, departmentId, ownerId, color, createdAt)
+		values (#{name},#{departmentId},#{ownerId},#{color},now())
+	</insert>
+</mapper>

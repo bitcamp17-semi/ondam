@@ -42,13 +42,14 @@ public class SchedulesController {
 	
 	//일정관리 페이지 진입
 	@GetMapping({"/schedules"})
-	//@ResponseBody
 	public String scheduleMain(Model model) {
 		//전체 일정 읽어오기
 		List<SchedulesDto> list = schedulesService.readAllSche();
 		//전체 user 읽어오기
-		//List<UsersDto> userList=userService;
+		List<UsersDto> userList=userService.readAllActiveUsers();
+		
 	    model.addAttribute("scheduleList", list); // 일정 리스트 모델에 담기
+	    model.addAttribute("userList",userList);
 	    model.addAttribute("today",new Date());
 	    
 	    return "schedules/schedules"; // schedules.html 읽어오기
@@ -81,7 +82,7 @@ public class SchedulesController {
 	        map.put("userId", dto.getUserId());
 	        map.put("name", dto.getName());
 	        map.put("content", dto.getContent());
-	        map.put("sort", dto.getSort());
+	        map.put("groupId", dto.getGroupId());
 	        map.put("isAlltime", dto.getIsAlltime());
 	        map.put("startTime", startTimestamp);
 	        map.put("endTime", endTimestamp);
