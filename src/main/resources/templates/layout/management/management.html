@@ -2,8 +2,9 @@
 <html xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
-    <link rel="stylesheet" href="../../../static/style/globals.css" />
-    <link rel="stylesheet" href="../../../static/style/management.css" />
+    <link rel="stylesheet" th:href="@{/style/global.css}" />
+    <link rel="stylesheet" th:href="@{/style/management.css}" />
+
 </head>
 <body>
 <div class="management">
@@ -27,12 +28,12 @@
         <div class="section">
             <div class="article">
                 <div class="btnframe">
-                    <div class="arraysettitle">
-                        <button class="arraybtn" onclick="toggleDropdown()">
+                    <div class="arraysettitle dropdown">
+                        <button class="arraybtn dropdownButton">
                             <div class="article2">부서</div>
-                            <img class="polygon-2" src="../../../static/images/polygon-2.svg" />
+                            <div class="polygon-2">▼</div>
                         </button>
-                        <div id="dropdown1" class="dropdown-content">
+                        <div class="dropdown-content">
                             <a href="#">1</a>
                             <a href="#">2</a>
                             <a href="#">3</a>
@@ -64,27 +65,49 @@
                                                 <input type="text" class="article3" placeholder="이름을 입력하세요"></input>
                                             </div>
                                         </div>
+
                                         <div class="arraysettitle3">
                                             <div class="title">부서</div>
-                                            <div class="arraybtn3">
+                                            <div class="dropdown">
+                                            <div class="arraybtn3 dropdownButton">
                                                 <div class="article3">article</div>
-                                                <img class="polygon-2" src="../../../static/images/polygon-2.svg" />
+                                                <div class="polygon-2">▼</div>
+                                            </div>
+                                            <div class="dropdown-content">
+                                                <a href="#">1</a>
+                                                <a href="#">2</a>
+                                                <a href="#">3</a>
                                             </div>
                                         </div>
+                                        </div>
                                         <div class="frame-142">
-                                            <div class="arraysettitle2">
+                                            <div class="dropdown">
+                                            <div class="arraysettitle2 dropdownButton">
                                                 <div class="title">팀</div>
                                                 <div class="arraybtn3">
                                                     <div class="article3">article</div>
-                                                    <img class="polygon-22" src="../../../static/images/polygon-2.svg" />
+                                                    <div class="polygon-2">▼</div>
                                                 </div>
                                             </div>
-                                            <div class="arraysettitle2">
+                                                <div class="dropdown-content">
+                                                    <a href="#">1</a>
+                                                    <a href="#">2</a>
+                                                    <a href="#">3</a>
+                                                </div>
+                                            </div>
+                                            <div class="dropdown">
+                                            <div class="arraysettitle2 dropdownButton">
                                                 <div class="title">직급</div>
                                                 <div class="arraybtn3">
                                                     <div class="article3">article</div>
-                                                    <img class="polygon-23" src="../../../static/images/polygon-2.svg" />
+                                                    <div class="polygon-2">▼</div>
                                                 </div>
+                                                <div class="dropdown-content">
+                                                    <a href="#">1</a>
+                                                    <a href="#">2</a>
+                                                    <a href="#">3</a>
+                                                </div>
+                                            </div>
                                             </div>
                                         </div>
                                         <div class="textsettitle">
@@ -160,22 +183,48 @@
                             }
                         });
 
-                        function toggleDropdown() {
-                            let dropdown = document.getElementById("dropdown1");
-                            if (dropdown.style.display === "block") {
-                                dropdown.style.display = "none";
-                            } else {
-                                dropdown.style.display = "block";
-                            }
-                        }
-                        document.addEventListener("click", function(event) {
-                            let dropdown = document.getElementById("dropdown1");
-                            let button = dropdown.querySelector("button");
-                            if (!dropdown.contains(event.target) && !button.contains(event.target)) {
-                                dropdown.style.display = "none";
+                        document.addEventListener("DOMContentLoaded", function () {
+                            // 모든 드롭다운 버튼과 메뉴 가져오기
+                            let dropdownButtons = document.querySelectorAll(".dropdownButton");
+                            let dropdownMenus = document.querySelectorAll(".dropdown-content");
+
+                            // 버튼 클릭 시 드롭다운 열기/닫기
+                            dropdownButtons.forEach((button, index) => {
+                                button.addEventListener("click", function (event) {
+                                    event.stopPropagation(); // 이벤트 버블링 방지
+                                    let isVisible = dropdownMenus[index].style.display === "block";
+
+                                    closeAllDropdowns(); // 모든 드롭다운 닫기
+
+                                    if (!isVisible) {
+                                        dropdownMenus[index].style.display = "block"; // 현재 버튼의 드롭다운 열기
+                                    }
+                                });
+                            });
+
+                            // 화면 아무 곳이나 클릭하면 모든 드롭다운 닫기
+                            document.addEventListener("click", function () {
+                                closeAllDropdowns();
+                            });
+
+                            // 드롭다운 메뉴에서 항목 클릭 시 버튼 내용 변경
+                            dropdownMenus.forEach((menu, index) => {
+                                menu.querySelectorAll("a").forEach(item => {
+                                    item.addEventListener("click", function (event) {
+                                        event.preventDefault();
+                                        dropdownButtons[index].textContent = item.textContent + " ▼";
+                                        closeAllDropdowns();
+                                    });
+                                });
+                            });
+
+                            // 모든 드롭다운 닫기 함수
+                            function closeAllDropdowns() {
+                                dropdownMenus.forEach(menu => {
+                                    menu.style.display = "none";
+                                });
                             }
                         });
-
                     </script>
                 </div>
                 <div class="tableset">
