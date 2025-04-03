@@ -1,0 +1,213 @@
+.login,
+.login * {
+    box-sizing: border-box;
+}
+.login {
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+}
+.mainlogo {
+    display: flex;
+    flex-direction: row;
+    gap: 11px;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 167px;
+    position: relative;
+}
+.logo {
+    background: #fa7000;
+    border-radius: 25px;
+    flex-shrink: 0;
+    width: 45px;
+    height: 45px;
+    position: relative;
+}
+.ondam-w {
+    width: 44.44%;
+    height: 19.13px;
+    position: absolute;
+    right: 28.89%;
+    left: 26.67%;
+    top: 13px;
+    object-fit: cover;
+    aspect-ratio: 20/19.13;
+}
+.logo2 {
+    flex-shrink: 0;
+    width: 111.5px;
+    height: 48px;
+    position: static;
+}
+.ondam {
+    color: #3f3f3f;
+    text-align: left;
+    font-family: "NotoSans-Bold", sans-serif;
+    font-size: 30px;
+    line-height: 22px;
+    font-weight: 700;
+    position: absolute;
+    left: 56.25px;
+    top: 0px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+.groupware {
+    color: #3f3f3f;
+    text-align: left;
+    font-family: "NotoSans-Bold", sans-serif;
+    font-size: 20px;
+    line-height: 22px;
+    font-weight: 700;
+    position: absolute;
+    left: 55.75px;
+    top: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+.loginbox {
+    background: rgba(245, 245, 245, 0.8);
+    border-radius: 10px;
+    border-style: solid;
+    border-color: rgba(0, 0, 0, 0.05);
+    border-width: 1px;
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    gap: 36px;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 300px;
+    height: 300px;
+    position: relative;
+    box-shadow: 2px 2px 15px 0px rgba(0, 0, 0, 0.1);
+}
+.loginbox2 {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+    justify-content: flex-start;
+    align-self: stretch;
+    flex-shrink: 0;
+    position: relative;
+}
+.idbox {
+    background: #ffffff;
+    border-radius: 5px;
+    border-style: solid;
+    border-color: rgba(0, 0, 0, 0.15);
+    border-width: 0.5px;
+    padding: 6px 11px 6px 11px;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+    justify-content: flex-start;
+    flex-shrink: 0;
+    width: 250px;
+    height: 35px;
+    position: relative;
+}
+.div {
+    color: rgba(0, 0, 0, 0.35);
+    text-align: left;
+    font-family: "NotoSans-Medium", sans-serif;
+    font-size: 12px;
+    line-height: 22px;
+    font-weight: 500;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+.loginbtn {
+    background: #fa7000;
+    border-radius: 5px;
+    border-style: solid;
+    border-color: rgba(0, 0, 0, 0.15);
+    border-width: 1px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    align-self: stretch;
+    flex-shrink: 0;
+    height: 35px;
+    position: relative;
+}
+.div2 {
+    color: #ffffff;
+    text-align: center;
+    font-family: "NotoSans-Bold", sans-serif;
+    font-size: 16px;
+    line-height: 22px;
+    font-weight: 700;
+    position: relative;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.qbox {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+    justify-content: flex-start;
+    align-self: stretch;
+    flex-shrink: 0;
+    position: relative;
+}
+.div3 {
+    color: #686868;
+    text-align: center;
+    font-family: "NotoSans-Regular", sans-serif;
+    font-size: 13px;
+    line-height: 22px;
+    font-weight: 400;
+    position: relative;
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.qbtn {
+    background: #ffffff;
+    border-radius: 5px;
+    border-style: solid;
+    border-color: rgba(0, 0, 0, 0.15);
+    border-width: 0.5px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    align-self: stretch;
+    flex-shrink: 0;
+    height: 35px;
+    position: relative;
+}
+.div4 {
+    color: #454545;
+    text-align: center;
+    font-family: "NotoSans-Regular", sans-serif;
+    font-size: 12px;
+    line-height: 22px;
+    font-weight: 400;
+    position: relative;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
