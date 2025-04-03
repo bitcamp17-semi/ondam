@@ -2,11 +2,11 @@
 <html xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
-    <link rel="stylesheet" href="../../../static/style/globals.css" />
-    <link rel="stylesheet" href="../../../static/style/approval_inbox_file.css" />
+    <link rel="stylesheet" th:href="@{/style/globals.css}" />
+    <link rel="stylesheet" th:href="@{/style/approval_inbox_file.css}" />
 </head>
 <body>
-<div th:replace="header :: header"></div>
+<div th:replace="/layout/header :: header"></div>
 <div class="approval_inbox_file">
     <div class="main">
         <div class="top">
