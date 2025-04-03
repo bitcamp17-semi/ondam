@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../../../static/style/globals.css" />
+    <link rel="stylesheet" href="../../../static/style/management.css" />
+</head>
+<body>
+<div class="management">
+    <div class="main">
+        <div class="top">
+            <div class="nav">
+                <div class="title">
+                    <div class="div">관리페이지</div>
+                </div>
+                <div class="menu">
+                    <div class="div2">인사 관리</div>
+                    <div class="div3">|</div>
+                    <div class="div4">부서 관리</div>
+                    <div class="div3">|</div>
+                    <div class="div4">결재 관리</div>
+                    <div class="div3">|</div>
+                    <div class="div4">퇴사자 관리</div>
+                </div>
+            </div>
+        </div>
+        <div class="section">
+            <div class="article">
+                <div class="btnframe">
+                    <div class="arraysettitle">
+                        <button class="arraybtn" onclick="toggleDropdown()">
+                            <div class="article2">부서</div>
+                            <img class="polygon-2" src="../../../static/images/polygon-2.svg" />
+                        </button>
+                        <div id="dropdown1" class="dropdown-content">
+                            <a href="#">1</a>
+                            <a href="#">2</a>
+                            <a href="#">3</a>
+                        </div>
+                    </div>
+                    <button class="btnwhite" onclick="openModal()">
+                        <div class="div5" >직원 등록</div>
+                    </button>
+                        <!-- 모달 -->
+                    <div class="modal" id="myModal">
+                        <div class="management-modal" id="management-modal">
+                            <div class="frame-82">
+                                <div class="div11">직원 등록</div>
+                            </div>
+                            <div class="frame-111">
+                                <div class="frame-99">
+                                    <img class="rectangle-74" id="previewImage" src="" />
+                                    <input type="file" id="fileInput" class="hidden-file" />
+                                    <div class="frame-56" onclick="openFilePicker()">
+                                        <div class="div12">사진 선택</div>
+                                    </div>
+                                    <p id="fileName">선택된 파일 없음</p>
+                                </div>
+                                <div class="frame-81">
+                                    <div class="frame-75">
+                                        <div class="textsettitle">
+                                            <div class="title">이름</div>
+                                            <div class="text">
+                                                <input type="text" class="article3" placeholder="이름을 입력하세요"></input>
+                                            </div>
+                                        </div>
+                                        <div class="arraysettitle3">
+                                            <div class="title">부서</div>
+                                            <div class="arraybtn3">
+                                                <div class="article3">article</div>
+                                                <img class="polygon-2" src="../../../static/images/polygon-2.svg" />
+                                            </div>
+                                        </div>
+                                        <div class="frame-142">
+                                            <div class="arraysettitle2">
+                                                <div class="title">팀</div>
+                                                <div class="arraybtn3">
+                                                    <div class="article3">article</div>
+                                                    <img class="polygon-22" src="../../../static/images/polygon-2.svg" />
+                                                </div>
+                                            </div>
+                                            <div class="arraysettitle2">
+                                                <div class="title">직급</div>
+                                                <div class="arraybtn3">
+                                                    <div class="article3">article</div>
+                                                    <img class="polygon-23" src="../../../static/images/polygon-2.svg" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="textsettitle">
+                                            <div class="title">전화번호</div>
+                                            <div class="text">
+                                                <input type="text" class="article3" placeholder="전화번호를 입력하세요"></input>
+                                            </div>
+                                        </div>
+                                        <div class="textsettitle">
+                                            <div class="title">이메일</div>
+                                            <div class="text">
+                                                <input type="text" class="article3" placeholder="메일을 입력하세요"></input>
+                                            </div>
+                                        </div>
+                                        <div class="radioset">
+                                            <div class="div13">성별</div>
+                                            <div class="arraybtn2">
+                                                <div class="m">
+                                                    <input name="gender" class="radio" value="1" type="radio" checked/>
+                                                    <div class="div13">남성</div>
+                                                </div>
+                                                <div class="w">
+                                                    <input name="gender" class="radio" value="2" type="radio" />
+                                                    <div class="div13">여성</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="textsettitle">
+                                            <div class="title">주소</div>
+
+                                            <div class="text">
+                                                <input type="text" class="article3" placeholder="주소를 입력하세요"></input>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="frame-53">
+                                <div class="frame-50">
+                                    <div class="div14">등록하기</div>
+                                </div>
+                                <div class="frame-52"  onclick="closeModal()">
+                                    <div class="close">취소</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <script>
+                        function openModal() {
+                            document.getElementById("myModal").style.display = "flex";
+                        }
+                        function closeModal() {
+                            document.getElementById("myModal").style.display = "none";
+                        }
+
+                        function openFilePicker() {
+                            document.getElementById("fileInput").click();
+                        }
+
+                        document.getElementById("fileInput").addEventListener("change",function(event){
+                            let file = event.target.files[0];
+                            let fileNameText = file ? file.name : "선택된 파일 없음";
+                            document.getElementById("fileName").textContent = fileNameText;
+
+                            if(file){
+                                let reader = new FileReader();
+                                reader.onload = function(e){
+                                    let previewImage = document.getElementById("previewImage");
+                                    previewImage.src = e.target.result;
+                                    previewImage.style.display = "block";
+                                };
+                                reader.readAsDataURL(file);
+                            }
+                        });
+
+                        function toggleDropdown() {
+                            let dropdown = document.getElementById("dropdown1");
+                            if (dropdown.style.display === "block") {
+                                dropdown.style.display = "none";
+                            } else {
+                                dropdown.style.display = "block";
+                            }
+                        }
+                        document.addEventListener("click", function(event) {
+                            let dropdown = document.getElementById("dropdown1");
+                            let button = dropdown.querySelector("button");
+                            if (!dropdown.contains(event.target) && !button.contains(event.target)) {
+                                dropdown.style.display = "none";
+                            }
+                        });
+
+                    </script>
+                </div>
+                <div class="tableset">
+                    <div class="tabletitle">
+                        <input class="checkbox" type="checkbox" />
+                        <div class="div6">|</div>
+                        <div class="div7">부서</div>
+                        <div class="div6">|</div>
+                        <div class="div7">이름</div>
+                        <div class="div6">|</div>
+                        <div class="div7">팀</div>
+                        <div class="div6">|</div>
+                        <div class="div8">연락처</div>
+                        <div class="div6">|</div>
+                        <div class="div7">직급</div>
+                        <div class="div6">|</div>
+                        <div class="div8">이메일</div>
+                        <div class="div6">|</div>
+                        <div class="div7">입사일</div>
+                        <div class="div6">|</div>
+                        <div class="div9">사진</div>
+                        <div class="div6">|</div>
+                        <div class="div10">삭제</div>
+                    </div>
+                    <div class="table">
+                        <input class="checkbox" type="checkbox" />
+                        <div class="div6">|</div>
+                        <div class="div7">경영지원부</div>
+                        <div class="div6">|</div>
+                        <div class="div7">홍길동</div>
+                        <div class="div6">|</div>
+                        <div class="div7">인사팀</div>
+                        <div class="div6">|</div>
+                        <div class="_010-8888-9999">010-8888-9999</div>
+                        <div class="div6">|</div>
+                        <div class="div7">사원</div>
+                        <div class="div6">|</div>
+                        <div class="hgd-gmail-com">hgd@gmail.com</div>
+                        <div class="div6">|</div>
+                        <div class="_2024-10-11">2024.10.11</div>
+                        <div class="div6">|</div>
+                        <div class="frame-70">
+                            <img class="rectangle-53" src="rectangle-530.png" />
+                        </div>
+                        <div class="div6">|</div>
+                        <button class="btnwhite2">
+                            <div class="div5">삭제</div>
+                        </button>
+                    </div>
+                    <div class="frame-136"></div>
+                </div>
+                <div class="pagenumset">
+                    <img class="before" src="before0.svg" />
+                    <div class="pagenum">
+                        <div class="_1">1</div>
+                        <div class="_2">2</div>
+                    </div>
+                    <img class="next" src="next0.svg" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="header"></div>
+</div>
+
+</body>
+</html>
