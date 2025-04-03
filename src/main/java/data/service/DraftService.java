@@ -57,10 +57,13 @@ public class DraftService {
         ApprovalsDto.ApprovalStatus approvalStatus = ApprovalsDto.ApprovalStatus.valueOf(status);
     }
 
-    public void stringToApprovalLogEnumAndCreateLog(String action, int draftId, int userId) {
-        ApprovalLogDto.ApprovalAction actionEnum = ApprovalLogDto.ApprovalAction.valueOf(action.toUpperCase());
+    public ApprovalLogDto.ApprovalAction stringToApprovalLogEnum(String status) {
+        return ApprovalLogDto.ApprovalAction.valueOf(status.toUpperCase());
+    }
+
+    public void stringToApprovalLogEnumAndCreateLog(int draftId, int userId, String action) {
         ApprovalLogDto logDto = new ApprovalLogDto();
-        logDto.setAction(actionEnum);
+        logDto.setAction(stringToApprovalLogEnum(action));
         logDto.setDraftId(draftId);
         logDto.setApprovalId(userId);
         approvalsService.createApprovalLog(logDto);
