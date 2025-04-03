@@ -17,6 +17,7 @@
    <!-- tippy 사용 위찬 연결-->
    <script src="https://unpkg.com/@popperjs/core@2"></script>
    <script src="https://unpkg.com/tippy.js@6"></script>
+   <!-- 부트스트랩에서 드롭다운 목록 다중 선택 시 필요한 css,js -->
    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
    
@@ -27,7 +28,6 @@
        }
        #calendar{
        		width: 80%;
-       		height: 900px;
        		margin: 10px auto;
        }
        .modal-body td{
@@ -88,7 +88,8 @@ document.addEventListener("DOMContentLoaded", function () {
 	  const privateCheck = document.querySelector("input.private");
 	  const groupCheck = document.querySelector("input.group");
 	  const companyCheck = document.querySelector("input.company");
-	
+	  const groupListChecks = document.querySelectorAll("#scheGroupList input[type='checkbox']");
+	  
   //일정 목록 노출 : 타임리프로 목록 불러옴
   const scheduleList = /*[[${scheduleList}]]*/ [];
   const events = scheduleList.map(s => {
@@ -105,7 +106,7 @@ document.addEventListener("DOMContentLoaded", function () {
 	    sort: s.sort
 	  };
 	});
-  	
+  
   	  //캘린더 출력 영역   
     	var calendarEl = document.getElementById('calendar');
         var calendar = new FullCalendar.Calendar(calendarEl, {
@@ -232,18 +233,41 @@ document.addEventListener("DOMContentLoaded", function () {
               privateCheck.checked = isChecked;
               groupCheck.checked = isChecked;
               companyCheck.checked = isChecked;
+           	  //전체 체크박스 선택 시 그룹 목록도 체크되도록 수정
+              groupListChecks.forEach(box => {
+              box.checked = isChecked;
+              });
             } else {
               // 개별 체크박스 변경 시 전체 체크박스 상태 자동 업데이트
               allCheck.checked = privateCheck.checked && groupCheck.checked && companyCheck.checked;
             }
-
+            
+            //상단 부서/그룹 체크박스 체크 시 그룹 리스트 체크박스도 전부 체트되도록 설정 
+            if (cb === groupCheck) {
+      			groupListChecks.forEach(box => {
+        		box.checked = groupCheck.checked;
+      			});
+    		}
             // 변경사항 반영하여 필터링
             filterEvents();
           });
         });
         
+        //일정등록 모달에서 구분 그룹으로 선택 시 그룹 목록 셀렉트박스 노출되는 이벤트
+        const sortSelect = document.querySelector("select[name='groupId']");
+		const groupRow = document.getElementById("groupSelectRow");
+
+		sortSelect.addEventListener("change", function () {
+  			const selectedValue = this.value;
+  			if (selectedValue == "group") {
+    			groupRow.style.display = "table-row";
+  			} else {
+    			groupRow.style.display = "none";
+  			}
+		});
         
-        //'하루종일' 체크 시 시작시간, 종료 시간 00:00으로 설정 및 비활성화
+        
+        //'하루종일' 체크 시 시작시간, 종료 시간 12:00으로 설정 및 비활성화
         $("input[name='isAlltime']").on("change", function () {
             let isChecked = $(this).is(":checked");
             let startTimeInput = $("input[name='startTime']");
@@ -269,9 +293,14 @@ document.addEventListener("DOMContentLoaded", function () {
     	      const startTime = document.querySelector("input[name='startTime']").value;
     	      const endDate = document.querySelector("input[name='endDate']").value;
     	      const endTime = document.querySelector("input[name='endTime']").value;
-    	      const sort = document.querySelector("select[name='sort']").value;
     	      const startDateTime = startDate + ' ' + startTime + ':00';
     	      const endDateTime = endDate + ' ' + endTime + ':00';
+    	      
+    	      //구분값
+    	      const groupSort=document.querySelector("select[name='groupID']").value;
+    	      const groupId = groupSort=="group"? 1 : groupSort=="company"? 3 : "";
+    	      
+    	      
     	      const userId = 1; // 현재는 임시로 고정값
     	      
     	   	  // 유효성 검사
@@ -288,7 +317,7 @@ document.addEventListener("DOMContentLoaded", function () {
     	          userId: userId,
     	          name: name,
     	          content: content,
-    	          sort : sort,
+    	          groupId : groupId,
     	          isAlltime: isAlltimeValue,
     	          startDate: startDate,
     	          endDate: endDate,
@@ -304,7 +333,6 @@ document.addEventListener("DOMContentLoaded", function () {
     	          console.error('에러 발생:', error);
     	          alert('일정 등록 실패!');
     	        },
-    	        //여기에 체크박스 이벤트 추가?
     	      });
     	    });
     	
@@ -331,7 +359,11 @@ document.addEventListener("DOMContentLoaded", function () {
     	            color: color // 그룹 컬러를 멤버에게도 적용 (원하는 방식으로 조정 가능)
     	        }))
     	    };
-    		
+    	 	// 유효성 검사
+  	      	if (!name) {
+  	          alert("생성할 그룹명을 입력해주세요.");
+  	          return;
+  	      	}
     		
     		$.ajax({
     			type:"post",
@@ -341,12 +373,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 contentType:"application/json",
                 success:function(){
                     alert("그룹이 등록되었습니다.");
-            
                     location.reload(); // 새로고침
                 },
                 error: function(){
-                	alert("에러 발생!");
-                    alert("error");
+                	alert("오류 발생!");
                 }
     		});
     		
@@ -380,10 +410,18 @@ document.addEventListener("DOMContentLoaded", function () {
          	<tr>
          		<th>구분</th>
          		<td>
-         			<select name="sort">
+         			<select name="groupId">
          				<option class="private" value="private">내 일정</option>
          				<option class="group" value="group">그룹</option>
          				<option class="company" value="company">회사</option>
+         			</select>
+         		</td>
+         	</tr>
+         	<tr id="groupSelectRow" style="display: none;">
+         		<th class="scheGroup">그룹</th>
+         		<td>
+         			<select class="groupCheckItem">
+         				<option th:each="gList : ${groupList}">[[${gList.name}]]</option>
          			</select>
          		</td>
          	</tr>
@@ -418,10 +456,6 @@ document.addEventListener("DOMContentLoaded", function () {
          		<td>
          			<input class="form-control endTime" name="endTime" type="time">
          		</td>
-         	</tr>
-         	<tr>
-         		
-         		
          	</tr>
          </table> 
       </div>
@@ -500,6 +534,7 @@ document.addEventListener("DOMContentLoaded", function () {
   </div>
 </div> 
 <!-- 그룹 추가 모달 끝 -->
+
 <script th:inline="javascript">
 //그룹 추가 모달 > 인원추가 셀렉트박스 이벤트
 $(document).ready(function () {
@@ -531,8 +566,9 @@ $(document).ready(function () {
 <!-- 그룹 목록 노출시키기 -->
 <input type="hidden" id="userId" th:value="${userId}" />
 <div id="scheGroupList">
-	<div th:each="gList : ${groupList}">
-		<input type="checkbox"><span th:style="|color:${gList.color};|">[[${gList.name}]]</span>
+	<div th:each="gList : ${groupList}" class="groupCheckItem">
+		<!-- 기본으로 체크된 상태로 노출시키기 -->
+		<input type="checkbox" checked><span th:style="|color:${gList.color};|" class="scheGroupName">[[${gList.name}]]</span>
 	</div>
 </div>
 

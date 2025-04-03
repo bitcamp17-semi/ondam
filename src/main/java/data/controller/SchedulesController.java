@@ -46,7 +46,7 @@ public class SchedulesController {
 	//일정관리 페이지 진입
 	@GetMapping({"/schedules"})
 	public String scheduleMain(Model model) {
-		int userId=28;//임시로 로그인한 사용자를 고정
+		int userId=1;//임시로 로그인한 사용자를 고정
 		
 		//전체 일정 읽어오기
 		List<SchedulesDto> list = schedulesService.readAllSche();
