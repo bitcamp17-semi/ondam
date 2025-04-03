@@ -49,4 +49,9 @@ public class HtmlController {
     public String approvalWrite() {
         return "layout/approval/approval_write";
     }
+
+    @GetMapping("/admin/management")
+    public String management() {
+        return "layout/management/management";
+    }
 }
