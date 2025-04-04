@@ -9,7 +9,7 @@
 <div th:fragment="header">
 <div class="header">
   <div class="frame">
-    <div class="logo"><img class="ondam-w" src="../../static/images/ondam_W.png" /></div>
+    <div class="logo"><img class="ondam-w" th:src="@{/images/ondam_W.png}" /></div>
   </div>
   <div class="div">
     <div class="div-2"></div>
@@ -22,25 +22,25 @@
     <div class="div-2"></div>
     <div class="div-2"></div>
     <div class="div-2"></div>
-    <img class="home" src="../../static/images/home.svg" />
-    <img class="mail" src="../../static/images/mail.svg" />
-    <img class="note" src="../../static/images/note.svg" />
-    <img class="orgchart" src="../../static/images/orgchart.svg" />
-    <img class="calander" src="../../static/images/calander.svg" />
-    <img class="approval" src="../../static/images/approval.svg" />
-    <img class="board" src="../../static/images/board.svg" />
-    <img class="storage" src="../../static/images/storage.svg" />
-    <img class="chart" src="../../static/images/chart.svg" />
-    <img class="info" src="../../static/images/info.svg" />
+    <img class="home" th:src="@{/images/home.svg}" />
+    <img class="mail" th:src="@{/images/mail.svg}" />
+    <img class="note" th:src="@{/images/note.svg}" />
+    <img class="orgchart" th:src="@{/images/orgchart.svg}" />
+    <img class="calander" th:src="@{/images/calander.svg}" />
+    <img class="approval" th:src="@{/images/approval.svg}" />
+    <img class="board" th:src="@{/images/board.svg}" />
+    <img class="storage" th:src="@{/images/storage.svg}" />
+    <img class="chart" th:src="@{/images/chart.svg}" />
+    <img class="info" th:src="@{/images/info.svg}" />
   </div>
   <div class="div">
     <div class="div-2"></div>
-    <div class="profileimage"><img class="img" src="../../static/images/Rectangle53.png" /></div>
+    <div class="profileimage"><img class="img" th:src="@{/images/Rectangle53.png}" /></div>
     <div class="div-2"></div>
-    <img class="logout" src="../../static/images/logout.svg" />
+    <img class="logout" th:src="@{/images/logout.svg}" />
     <div class="group">
       <div class="overlap-group">
-        <img class="alarm" src="../static/images/alarm.svg" />
+        <img class="alarm" th:src="@{/images/alarm.svg}" />
         <div class="ellipse"></div>
       </div>
     </div>
