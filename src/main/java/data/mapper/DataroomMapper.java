@@ -1,5 +1,6 @@
 package data.mapper;
 
+import data.dto.DataRoomDto;
 import data.dto.FilesDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -15,7 +16,7 @@ import java.util.List;
                                      @Param("limit") int limit);
 
     // 모든 자료실 카테고리 조회 (Read)
-    List<String> readDataroomCategories();
+    List<DataRoomDto> readDataroomCategories();
 
     // 특정 ID로 파일 한 개 조회 (Read)
     FilesDto readDataroomById(@Param("id") int id);

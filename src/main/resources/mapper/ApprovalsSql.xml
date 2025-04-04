@@ -40,7 +40,7 @@
         insert into approval_log (approvalId, action, approvalTime)
         values #{approvalId}, #{action}, now()
     </insert>
-    <select id="readApprovalLogByDraft" parameterType="map" resultMap="ApprovalLogDto">
+    <select id="readApprovalLogByDraft" parameterType="map" resultType="ApprovalLogDto">
         SELECT
         al.approvalId,
         al.draftId,

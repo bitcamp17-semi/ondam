@@ -1,23 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="data.mapper.ChatGroupsMapper">
-    <!-- ID로 채팅 그룹 조회 -->
-    <select id="readById" resultType="ChatGroupsDto">
-        select * from chat_groups where id = #{id}
-    </select>    
-    <!-- 사용자 ID로 참여 중인 채팅 그룹 조회 (junction 테이블 조인) -->
-    <select id="readByUserId" resultType="ChatGroupsDto">
-        select chat_groups.* from chat_groups
-        join junction_chat_users_groups on chat_groups.id = junction_chat_users_groups.groupid
-        where junction_chat_users_groups.userid = #{userId}
-    </select>    
-    <!-- 채팅 그룹 저장 -->
-    <insert id="createGroupChat" parameterType="ChatGroupsDto" useGeneratedKeys="true" keyProperty="id">
+   <!-- 그룹 생성 (Create) -->
+    <insert id="createChatGroup" parameterType="ChatGroupsDto">
         insert into chat_groups (name) values (#{name})
-    </insert>    
-    <!-- 사용자를 그룹에 추가 (junction 테이블 삽입) -->
-    <insert id="createUserToGroup">
-        insert into junction_chat_users_groups (userId, groupId)
-        values (#{userId}, #{groupId})
     </insert>
+
+    <!-- 그룹 조회 (Read) -->
+    <select id="readChatGroupById" parameterType="int" resultType="ChatGroupsDto">
+        select id, name from chat_groups where id = #{id}
+    </select>
+
+    <!-- 모든 그룹 조회 (Read) -->
+    <select id="readAllChatGroups" resultType="ChatGroupsDto">
+        select id, name from chat_groups
+    </select>
+
+    <!-- 그룹 수정 (Update) -->
+    <update id="updateChatGroup" parameterType="ChatGroupsDto">
+        update chat_groups set name = #{name} where id = #{id}
+    </update>
+    <!-- 그룹 삭제 (Delete) -->
+    <delete id="deleteChatGroup" parameterType="int">
+        delete from chat_groups where id = #{id}
+    </delete>
 </mapper>
