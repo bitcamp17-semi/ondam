@@ -49,6 +49,8 @@ public class ScheduleGroupController {
 	        //scheduleGroupService.scheGroupInsert(groupMap);
 	       scheduleGroupService.scheGroupInsert(groupMap); // 리턴값 받아옴
 	       
+	       System.out.println("그룹 생성 후 반환된 groupId: " + groupMap.get("id"));
+	       
 	       //위에서 그룹 아이디를 생성하고 그걸 받아서 그룹 멤버를 저장해야함
 	       //근데 이게 그룹 아이디가 auto_increment로 지정되어 있어서 BigInteger로 형변환을 해주는게 안전함
 	       //만약 bigInteger를 사용하지 않는 경우 지금은 오류 발생하면서 등록되지 않음

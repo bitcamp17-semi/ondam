@@ -14,6 +14,28 @@
 	LEFT JOIN semi.schedule_group_members sgm ON sg.id = sgm.groupId
 	WHERE sg.ownerId = #{userId}
    		OR sgm.userId = #{userId}
-	ORDER BY sg.createdAt DESC;
+	</select>
+	
+	<!-- 그룹명이 '개인일정'이고 'ownerId'가 본인 일정이 있는지 확인 -->
+	<select id="readPrivateGroup" resultType="ScheduleGroupDto">
+		SELECT * FROM schedule_group 
+		WHERE ownerId = #{ownerId} 
+  		AND name = '개인일정' 
+	</select>
+	
+	<!-- 그룹명이 '회사일정'이고 멤버로 사용자가 있는지 확인 -->
+	<select id="readCompanyGroupMember" resultType="ScheduleGroupDto">
+	SELECT * FROM schedule_group g
+	LEFT JOIN schedule_group_members m ON g.id = m.groupId AND m.userId = #{userId}
+	WHERE g.name = '회사일정'
+	</select>
+	
+	<!-- 그룹명이 '회사일정'인 groupId 조회 -->
+	<select id="readCompanyGroupId" resultType="int">
+	SELECT groupId FROM schedule_group g
+	LEFT JOIN  schedule_group_members m 
+    on g.id = m.groupId
+    WHERE g.name='회사일정'
+	limit 1
 	</select>
 </mapper>

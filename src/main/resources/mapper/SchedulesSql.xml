@@ -3,8 +3,8 @@
 <mapper namespace="data.mapper.SchedulesMapper">
 	<!-- 일정 등록 -->
 	<insert id="scheduleInsert" parameterType="map">
-		insert into schedules (userId,name,content,sort,isAlltime,startTime,endTime,startDate,endDate)
-		values (#{userId},#{name},#{content},#{sort},#{isAlltime},#{startTime},#{endTime},#{startDate},#{endDate})
+		insert into schedules (userId,name,content,groupId,isAlltime,startTime,endTime,startDate,endDate)
+		values (#{userId},#{name},#{content},#{groupId},#{isAlltime},#{startTime},#{endTime},#{startDate},#{endDate})
 	</insert>
 	
 	<!-- 전체 일정 검색-->

@@ -3,6 +3,7 @@ package data.controller;
 import java.io.Console;
 import java.io.PrintWriter;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -27,8 +28,11 @@ import com.fasterxml.jackson.databind.util.JSONPObject;
 import com.mysql.cj.xdevapi.JsonArray;
 
 import data.dto.ScheduleGroupDto;
+import data.dto.ScheduleGroupMembersDto;
 import data.dto.SchedulesDto;
 import data.dto.UsersDto;
+import data.mapper.ScheduleGroupMapper;
+import data.service.ScheduleGroupMembersService;
 import data.service.ScheduleGroupService;
 import data.service.SchedulesService;
 import data.service.UsersService;
@@ -42,11 +46,44 @@ public class SchedulesController {
 	final SchedulesService schedulesService;
 	final UsersService userService;
 	final ScheduleGroupService scheduleGroupService;
+	final ScheduleGroupMembersService scheduleGroupMemberService;
 	
 	//일정관리 페이지 진입
 	@GetMapping({"/schedules"})
 	public String scheduleMain(Model model) {
 		int userId=1;//임시로 로그인한 사용자를 고정
+		
+		//로그인 시 로그인한 계정이 그룹장이며 그룹이름이 '개인일정'인 그룹
+		//있는지 체크 후 없으면 그룹 자동 생성
+		ScheduleGroupDto privateExisting=scheduleGroupService.readPrivateGroup(userId);
+		if (privateExisting == null) {
+			Map<String, Object> map = new HashMap<>();
+	        map.put("name", "개인일정");
+	        map.put("color", "#28a745"); // 초록계열
+	        map.put("ownerId", userId);//dto.setOwnerId(userId);
+	        //map.put("departmentId", "");//dto.setDepartmentId(null);
+
+	        scheduleGroupService.scheGroupInsert(map);
+	    }
+		
+		//로그한 계정이 '회사그룹'의 멤버로 없다면 멤버로 등록 시키기
+		ScheduleGroupDto companyMemExist=scheduleGroupService.readCompanyGroupMember(userId);
+		if(companyMemExist==null)
+		{
+			//'회사그룹'의 그룹 id 저장
+			int groupId=scheduleGroupService.readCompanyGroupId();
+			
+			Map<String, Object> memberMap = new HashMap<>();
+			memberMap.put("userId",userId);
+			memberMap.put("groupId",groupId);
+			memberMap.put("color","orange");
+			
+			// Map 하나만 등록하더라도 리스트로 감싸서 넘기기 > scheGroupMemberInsert list를 반환하도록 되어있음
+			List<Map<String, Object>> memberList = new ArrayList<>();
+			memberList.add(memberMap);
+			
+			scheduleGroupMemberService.scheGroupMemberInsert(memberList);
+		}
 		
 		//전체 일정 읽어오기
 		List<SchedulesDto> list = schedulesService.readAllSche();
@@ -105,6 +142,7 @@ public class SchedulesController {
             response.put("result", map);
             return new ResponseEntity<>(response, HttpStatus.OK);
 	    } catch (Exception e) {
+	    	e.printStackTrace();
 	    	response.put("status", "error");
             response.put("result", e.getMessage());
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);

@@ -18,7 +18,7 @@ public class SchedulesDto {
     private String endTime;//HH:mm
     private String startDate;//yyyy-MM-dd
     private String endDate;//yyyy-MM-dd
-    private int groupId;
+    private Integer groupId;
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
     private Timestamp createdAt;
     //작성자

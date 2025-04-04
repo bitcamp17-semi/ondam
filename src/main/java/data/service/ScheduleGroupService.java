@@ -23,4 +23,22 @@ public class ScheduleGroupService {
 	public List<ScheduleGroupDto> readAllGroup(int userId){
 		return scheduleGroupMapper.readAllGroup(userId);
 	}
+	
+	//그룹명이 '개인일정'이고 'ownerId'가 본인 일정이 있는지 확인
+	public ScheduleGroupDto readPrivateGroup(int userId)
+	{
+		return scheduleGroupMapper.readPrivateGroup(userId);
+	}
+	
+	//그룹명이 '회사일정'이고 멤버로 사용자가 있는지 확인
+	public ScheduleGroupDto readCompanyGroupMember(int userId)
+	{
+		return scheduleGroupMapper.readCompanyGroupMember(userId);
+	}
+	
+	//그룹명이 '회사일정'인 groupId 조회
+	public int readCompanyGroupId()
+	{
+		return scheduleGroupMapper.readCompanyGroupId();
+	}
 }

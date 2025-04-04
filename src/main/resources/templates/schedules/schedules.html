@@ -37,8 +37,7 @@
     		width: 80%;
     		margin: 20px auto;
 		}
-       
-       
+
        /* 토요일, 일요일 컬러 */
        .fc-day-sun a, .fc-day-sat a { 
   			color: red;
@@ -78,9 +77,21 @@
   		
   		#scheGroupList{
   			margin: 10px;
-  			 
   		}
-  		
+  		/*그룹 추가 모달 > 멤버 셀렉트 목록에서 마우스 따라 다니는 영역 css*/
+  		.select2-container--default .select2-results__option--highlighted.select2-results__option--selectable {
+  			background-color: orange;
+  			color: white;
+  		}
+  		/*그룹 추가 모달 > 멤버 선택한 경우 셀렉트박스 상단에 영역 css*/
+  		.select2-container--default .select2-selection--multiple .select2-selection__choice{
+  			background-color: orange;
+  			color: white;
+  		}
+  		/*그룹 추가 모달 > 멤버 선택한 경우 셀렉트박스 상단에 X아이콘 css*/
+  		.select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+  			color:white;
+  		}
 </style>
 <script th:inline="javascript">
 document.addEventListener("DOMContentLoaded", function () {
@@ -96,6 +107,7 @@ document.addEventListener("DOMContentLoaded", function () {
 	  return {
 		id : s.id,
 	    title: s.name,
+	    groupId: s.groupId,
 	    start: s.startTime.replace(' ', 'T'),
 	    end: s.endTime.replace(' ', 'T'),
 	    allDay: s.alltime,
@@ -162,6 +174,7 @@ document.addEventListener("DOMContentLoaded", function () {
                   	myModal.show();
        			},
      		},
+     		//그룹 추가 버튼 노출
      		addGroupSchedule: {
      			text: "그룹 추가",
      			click: function () {
@@ -208,64 +221,38 @@ document.addEventListener("DOMContentLoaded", function () {
         });
         calendar.render();
 		
-     	// 체크박스 필터 이벤트 함수
-        function filterEvents() {
-          const showPrivate = privateCheck.checked;
-          const showGroup = groupCheck.checked;
-          const showCompany = companyCheck.checked;
+        //체크박스 이벤트 추가하자
+        function filterEventsByGroup() {
+  			const checkedGroupIds = Array.from(document.querySelectorAll("#scheGroupList .groupCheckItem input[type='checkbox']:checked"))
+    			.map((cb, index) => {
+      			// gList의 index 순서를 이용해서 groupList의 groupId를 찾기
+      			return parseInt(groupList[index].id); // → groupList는 서버에서 내려준 그룹 정보 배열
+    			});
 
-          const filtered = events.filter(event =>
-            (event.groupId === '0' && showPrivate) ||
-            (event.groupId === '1' && showGroup) //||
-            //(event.groupId === 'company' && showCompany)
-          );
+  			const filteredEvents = events.filter(event =>
+    			checkedGroupIds.includes(event.groupId)
+  			);
 
-          calendar.removeAllEvents();
-          calendar.addEventSource(filtered);
-        }
+  			calendar.removeAllEvents();
+ 			calendar.addEventSource(filteredEvents);
+		}
+     	// 체크박스 연동 기능
+        	const allCheckBox = document.querySelector(".allCheck");
+        	const groupCheckBoxes = document.querySelectorAll("#scheGroupList .groupCheckItem input[type='checkbox']");
 
-        // 전체 체크박스 이벤트 및 개별 체크박스 이벤트 연결
-        [allCheck, privateCheck, groupCheck, companyCheck].forEach(cb => {
+        allCheckBox.addEventListener("change", function () {
+          	const checked = allCheckBox.checked;
+          	groupCheckBoxes.forEach(cb => cb.checked = checked);
+          	filterEventsByGroup();
+        });
+
+        groupCheckBoxes.forEach(cb => {
           cb.addEventListener("change", () => {
-            // 전체 체크박스가 변경되면 모든 체크박스 동기화
-            if (cb === allCheck) {
-              const isChecked = allCheck.checked;
-              privateCheck.checked = isChecked;
-              groupCheck.checked = isChecked;
-              companyCheck.checked = isChecked;
-           	  //전체 체크박스 선택 시 그룹 목록도 체크되도록 수정
-              groupListChecks.forEach(box => {
-              box.checked = isChecked;
-              });
-            } else {
-              // 개별 체크박스 변경 시 전체 체크박스 상태 자동 업데이트
-              allCheck.checked = privateCheck.checked && groupCheck.checked && companyCheck.checked;
-            }
-            
-            //상단 부서/그룹 체크박스 체크 시 그룹 리스트 체크박스도 전부 체트되도록 설정 
-            if (cb === groupCheck) {
-      			groupListChecks.forEach(box => {
-        		box.checked = groupCheck.checked;
-      			});
-    		}
-            // 변경사항 반영하여 필터링
-            filterEvents();
+            const allChecked = Array.from(groupCheckBoxes).every(cb => cb.checked);
+            allCheckBox.checked = allChecked;
+            filterEventsByGroup();
           });
         });
-        
-        //일정등록 모달에서 구분 그룹으로 선택 시 그룹 목록 셀렉트박스 노출되는 이벤트
-        const sortSelect = document.querySelector("select[name='groupId']");
-		const groupRow = document.getElementById("groupSelectRow");
-
-		sortSelect.addEventListener("change", function () {
-  			const selectedValue = this.value;
-  			if (selectedValue == "group") {
-    			groupRow.style.display = "table-row";
-  			} else {
-    			groupRow.style.display = "none";
-  			}
-		});
-        
         
         //'하루종일' 체크 시 시작시간, 종료 시간 12:00으로 설정 및 비활성화
         $("input[name='isAlltime']").on("change", function () {
@@ -295,11 +282,7 @@ document.addEventListener("DOMContentLoaded", function () {
     	      const endTime = document.querySelector("input[name='endTime']").value;
     	      const startDateTime = startDate + ' ' + startTime + ':00';
     	      const endDateTime = endDate + ' ' + endTime + ':00';
-    	      
-    	      //구분값
-    	      const groupSort=document.querySelector("select[name='groupID']").value;
-    	      const groupId = groupSort=="group"? 1 : groupSort=="company"? 3 : "";
-    	      
+    	      const groupId=parseInt(document.querySelector("select[name='groupId']").value);
     	      
     	      const userId = 1; // 현재는 임시로 고정값
     	      
@@ -332,6 +315,7 @@ document.addEventListener("DOMContentLoaded", function () {
     	        error: function (xhr, status, error) {
     	          console.error('에러 발생:', error);
     	          alert('일정 등록 실패!');
+    	          console.log("groupId:", groupId, "type:", typeof groupId);
     	        },
     	      });
     	    });
@@ -359,6 +343,7 @@ document.addEventListener("DOMContentLoaded", function () {
     	            color: color // 그룹 컬러를 멤버에게도 적용 (원하는 방식으로 조정 가능)
     	        }))
     	    };
+    	 	
     	 	// 유효성 검사
   	      	if (!name) {
   	          alert("생성할 그룹명을 입력해주세요.");
@@ -408,20 +393,13 @@ document.addEventListener("DOMContentLoaded", function () {
          		</td>
          	</tr>
          	<tr>
-         		<th>구분</th>
+         		<th class="scheGroup">일정 그룹</th>
          		<td>
-         			<select name="groupId">
-         				<option class="private" value="private">내 일정</option>
-         				<option class="group" value="group">그룹</option>
-         				<option class="company" value="company">회사</option>
-         			</select>
-         		</td>
-         	</tr>
-         	<tr id="groupSelectRow" style="display: none;">
-         		<th class="scheGroup">그룹</th>
-         		<td>
-         			<select class="groupCheckItem">
-         				<option th:each="gList : ${groupList}">[[${gList.name}]]</option>
+         			<select class="groupCheckItem" name="groupId">
+         				<option th:each="gList : ${groupList}"
+         						th:value="${gList.id}"
+         						th:text="${gList.name}">
+         				</option>
          			</select>
          		</td>
          	</tr>
@@ -540,7 +518,6 @@ document.addEventListener("DOMContentLoaded", function () {
 $(document).ready(function () {
     $('.groupMembers').select2({
       placeholder: "멤버를 선택하세요",
-      //width: '100%',
       height:'20px',
       closeOnSelect: false, // 하나 선택할 때마다 드롭다운 안 닫히게
       dropdownParent: $('#calGroupAddModal') // 부트스트랩 모달 안에서는 이 설정이 중요!
@@ -553,22 +530,17 @@ $(document).ready(function () {
 <div id='scheTitle'>
 	<h2>Scheduler</h2>
 	<span style="color: gray;">오늘은 [[${#calendars.format(today, 'yyyy년 MM월 dd일')}]] 입니다.</span>
-	<div class="titleSort">
-		<!-- 기본으로 전체 체크된 상태로 노출시키기 -->
-		<a>전체 <input type="checkbox" class="allCheck" checked></a>
-		<a style="color: green;">내 일정  <input type="checkbox" class="private" checked></a>
-		<a style="color: gray;">부서/그룹 일정 <input type="checkbox" class="group" checked></a>
-		<a style="color: orange;">회사 일정 <input type="checkbox" class="company" checked></a>
-	</div>
 </div>
 
 <div style="display: flex; justify-content: center; align-items: flex-start;">
+
 <!-- 그룹 목록 노출시키기 -->
 <input type="hidden" id="userId" th:value="${userId}" />
 <div id="scheGroupList">
+	<a><input type="checkbox" class="allCheck" checked>&nbsp;전체</a>
 	<div th:each="gList : ${groupList}" class="groupCheckItem">
 		<!-- 기본으로 체크된 상태로 노출시키기 -->
-		<input type="checkbox" checked><span th:style="|color:${gList.color};|" class="scheGroupName">[[${gList.name}]]</span>
+		<input type="checkbox" checked><span th:style="|color:${gList.color};|" class="scheGroupName">&nbsp;[[${gList.name}]]</span>
 	</div>
 </div>
 
