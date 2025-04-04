@@ -54,4 +54,7 @@ public class HtmlController {
     public String management() {
         return "layout/management/management";
     }
+
+    @GetMapping("/draft/messageInBox")
+    public String messageInBox() { return "layout/message/message_inbox"; }
 }

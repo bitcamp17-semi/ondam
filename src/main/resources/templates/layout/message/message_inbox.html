@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+  <link rel="stylesheet" th:href="@{/style/globals.css}"/>
+  <link rel="stylesheet" th:href="@{/style/message_inbox.css}"/>
+  <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+</head>
+<body>
+<div class="fullbox">
+<div class="header"></div>
+<div class="main">
+    <div class="nav">
+        <div class="navtitle">
+            쪽지 보관함
+        </div>
+        <div class="navbar">
+            <div id="navlist1">+ 쪽지쓰기</div>
+            <div id="navlist2">받은 쪽지함</div>
+            <div id="navlist3">보낸 쪽지함</div>
+        </div>
+    </div>
+    <div class="section">
+        <div class="leftarticle">
+            <div id="totalcount">총 n 개의 쪽지가 있습니다.</div>
+            <div class="searchbox">
+                <input type="text" placeholder="검색어를 입력하세요" id="searchinsert"></input>
+                <button id="searchbtn">검색</button>
+            </div>
+            <div id="arraybtn">최신순</div>
+            <div class="getmessage">
+                <div id="messagetitle">ㅇㅇㅇㅇㅇㅇ</div>
+                <div id="messagename">dddd</div>
+                <div id="messagearticle">dddddd</div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</body>
+</html>

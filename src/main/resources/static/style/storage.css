@@ -1,0 +1,281 @@
+.storage,
+.storage * {
+    box-sizing: border-box;
+}
+.storage {
+    background: #ffffff;
+    height: 1080px;
+    position: relative;
+    overflow: hidden;
+}
+.main {
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    gap: 0px;
+    align-items: flex-start;
+    justify-content: flex-start;
+    width: 1840px;
+    position: absolute;
+    left: 80px;
+    top: 0px;
+}
+.top {
+    background: #ffffff;
+    padding: 1px 60px 1px 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+    justify-content: flex-end;
+    align-self: stretch;
+    flex-shrink: 0;
+    height: 150px;
+    position: relative;
+    overflow: hidden;
+}
+.nav {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    align-items: flex-start;
+    justify-content: flex-start;
+    align-self: stretch;
+    flex-shrink: 0;
+    position: relative;
+}
+.title {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: flex-start;
+    justify-content: flex-start;
+    align-self: stretch;
+    flex-shrink: 0;
+    position: relative;
+}
+
+.div {
+    color: #3f3f3f;
+    text-align: left;
+    font-family: "NotoSans-Bold", sans-serif;
+    font-size: 30px;
+    line-height: 30px;
+    font-weight: 700;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.menu {
+    display: flex;
+    flex-direction: row;
+    gap: 30px;
+    align-items: flex-start;
+    justify-content: flex-start;
+    align-self: stretch;
+    flex-shrink: 0;
+    position: relative;
+}
+.div2 {
+    color: #3f3f3f;
+    text-align: left;
+    font-family: "NotoSans-Bold", sans-serif;
+    font-size: 16px;
+    line-height: 22px;
+    font-weight: 700;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+.section {
+    background: #ffffff;
+    padding: 50px 60px 50px 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+    align-self: stretch;
+    flex-shrink: 0;
+    height: 930px;
+    position: relative;
+    overflow: hidden;
+}
+.article {
+    background: #ffffff;
+    border-radius: 15px;
+    border-style: solid;
+    border-color: rgba(0, 0, 0, 0.05);
+    border-width: 1px;
+    padding: 20px;
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    align-items: flex-start;
+    justify-content: flex-start;
+    align-self: stretch;
+    flex-shrink: 0;
+    height: 800px;
+    position: relative;
+    overflow: hidden;
+}
+.frame-126 {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+    justify-content: flex-start;
+    align-self: stretch;
+    flex-shrink: 0;
+    width: 300px;
+    position: relative;
+    overflow: hidden;
+}
+.btnframe {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    align-items: flex-start;
+    justify-content: flex-start;
+    align-self: stretch;
+    flex-shrink: 0;
+    position: relative;
+}
+.btnwhite {
+    background: #ffffff;
+    border-radius: 8px;
+    border-style: solid;
+    border-color: rgba(0, 0, 0, 0.15);
+    border-width: 1px;
+    padding: 10px 20px 10px 20px;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    align-content: center;
+    flex-shrink: 0;
+    height: 40px;
+    position: relative;
+}
+.div3 {
+    color: #686868;
+    text-align: center;
+    font-family: "NotoSans-Regular", sans-serif;
+    font-size: 16px;
+    line-height: 22px;
+    font-weight: 400;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.tableset {
+    display: flex;
+    flex-direction: column;
+    gap: 0px;
+    align-items: flex-start;
+    justify-content: flex-start;
+    align-self: stretch;
+    flex: 1;
+    position: relative;
+}
+.tabletitle {
+    background: #f7f7f7;
+    border-style: solid;
+    border-color: rgba(238, 238, 238, 0.8);
+    border-width: 0px 0px 1px 0px;
+    padding: 15px 30px 15px 30px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    align-self: stretch;
+    flex-shrink: 0;
+    height: 59px;
+    position: relative;
+}
+.div4 {
+    color: #3f3f3f;
+    text-align: left;
+    font-family: "NotoSans-Regular", sans-serif;
+    font-size: 16px;
+    line-height: 22px;
+    font-weight: 400;
+    position: relative;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+.table {
+    border-style: solid;
+    border-color: rgba(238, 238, 238, 0.8);
+    border-width: 0px 0px 1px 0px;
+    padding: 15px 30px 15px 30px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    align-self: stretch;
+    flex: 1;
+    position: relative;
+}
+.frame-127 {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+    justify-content: flex-start;
+    align-self: stretch;
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+}
+.btnframe2 {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    align-self: stretch;
+    flex-shrink: 0;
+    position: relative;
+}
+.frame-146 {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    align-items: center;
+    justify-content: flex-start;
+    flex-shrink: 0;
+    position: relative;
+}
+.table2 {
+    border-style: solid;
+    border-color: rgba(238, 238, 238, 0.8);
+    border-width: 0px 0px 1px 0px;
+    padding: 15px 30px 15px 30px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    align-self: stretch;
+    flex-shrink: 0;
+    height: 59px;
+    position: relative;
+}
+.header {
+    background: #ffffff;
+    width: 80px;
+    height: 1080px;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    overflow: hidden;
+}
