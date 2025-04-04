@@ -52,7 +52,9 @@ public class MessageService {
     public MessagesDto readMessageDetail(int messageId) {
         return messageMapper.readMessageDetail(messageId);
     }
-
+    public void markMessageAsImportant(int messageId, boolean isImportant) {
+        messageMapper.updateMessageImportance(messageId, isImportant);
+    }
 
 
 }

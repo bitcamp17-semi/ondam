@@ -11,6 +11,7 @@
         ORDER BY createdAt DESC
             LIMIT #{offset}, #{limit};
     </select>
+
     <!--특정 ID로 파일 하나의 정보를 조회-->
     <select id="readDataroomById" resultType="FilesDto">
         SELECT * FROM files
@@ -33,4 +34,9 @@
         DELETE FROM files
         WHERE id = #{id}
     </delete>
+    <select id="getDataroomListByDepartment" resultType="DataroomDto">
+        SELECT * FROM dataroom
+        WHERE name = #{department}
+    </select>
+
 </mapper>

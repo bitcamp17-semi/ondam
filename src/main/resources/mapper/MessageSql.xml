@@ -8,7 +8,7 @@
         SELECT id, content, senderid AS senderId, receiverid AS receiverId,
                isread AS isRead, createdat AS createdAt, readat AS readAt
         FROM messages
-        WHERE receiverid = #{receiverid}
+        WHERE receiverid = #{receiverId}
         ORDER BY createdat DESC
     </select>
     <!-- 메시지 읽음 처리 (Update) -->
@@ -78,4 +78,10 @@
         FROM messages
         WHERE id = #{id}
     </select>
+    <update id="updateMessageImportance" parameterType="map">
+        UPDATE messages
+        SET isImportant = #{isImportant}
+        WHERE id = #{id}
+    </update>
+
 </mapper>

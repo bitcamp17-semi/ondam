@@ -28,4 +28,7 @@ public interface MessageMapper {
     List<MessagesDto> readMessages(Map<String, Object> params);
 
     MessagesDto readMessageDetail(int id);
+
+    void updateMessageImportance(@Param("id") int id, @Param("isImportant") boolean isImportant);
+
 }

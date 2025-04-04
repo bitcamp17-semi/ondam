@@ -154,5 +154,24 @@ public class MessageController {
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @PostMapping("/important/{messageId}")
+    public ResponseEntity<Object> markMessageAsImportant(
+            @PathVariable int messageId,
+            @RequestParam boolean isImportant) {
+        Map<String, Object> response = new LinkedHashMap<>();
+        try {
+            messageService.markMessageAsImportant(messageId, isImportant);
+            response.put("status", "ok");
+            response.put("message", "Message importance updated.");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("message", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
 }
 
