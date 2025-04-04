@@ -4,6 +4,7 @@
     <meta charset="utf-8"/>
     <link rel="stylesheet" th:href="@{/style/global.css}"/>
     <link rel="stylesheet" th:href="@{/style/management.css}"/>
+    <link rel="stylesheet" th:href="@{/style/header.css}" />
     <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
 </head>
 <style>
@@ -12,7 +13,6 @@
     }
 </style>
 <body>
-<div th:replace="/layout/header :: header"></div>
 <div class="management">
     <div class="main">
         <div class="top">
@@ -200,7 +200,7 @@
             </div>
         </div>
     </div>
-    <div class="header"></div>
+    <div th:replace="layout/header :: header"></div>
 </div>
 
 </body>
