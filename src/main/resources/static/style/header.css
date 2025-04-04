@@ -1,0 +1,194 @@
+.header {
+    display: flex;
+    flex-direction: column;
+    min-width: 64.44px;
+    height: 1080px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 25px 13px;
+    position: relative;
+    background-color: #f5f5f5;
+}
+
+.header .frame {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    position: relative;
+    flex: 0 0 auto;
+}
+
+.header .logo {
+    position: relative;
+    width: 45px;
+    height: 45px;
+    background-color: #fa7000;
+    border-radius: 25px;
+}
+
+.header .ondam-w {
+    position: absolute;
+    width: 20px;
+    height: 19px;
+    top: 13px;
+    left: 12px;
+    object-fit: cover;
+}
+
+.header .div {
+    display: flex;
+    width: 50px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    position: relative;
+    flex: 0 0 auto;
+}
+
+.header .div-2 {
+    position: relative;
+    align-self: stretch;
+    width: 100%;
+    height: 50px;
+    background-color: #eeeeee;
+    border-radius: 5px;
+    border: 1px solid;
+    border-color: #eeeeeecc;
+}
+
+.header .home {
+    position: absolute;
+    width: 14px;
+    height: 15px;
+    top: 17px;
+    left: 18px;
+}
+
+.header .mail {
+    position: absolute;
+    width: 19px;
+    height: 15px;
+    top: 78px;
+    left: 16px;
+}
+
+.header .note {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    top: 138px;
+    left: 16px;
+}
+
+.header .orgchart {
+    position: absolute;
+    width: 21px;
+    height: 19px;
+    top: 196px;
+    left: 15px;
+}
+
+.header .calander {
+    position: absolute;
+    width: 17px;
+    height: 19px;
+    top: 256px;
+    left: 17px;
+}
+
+.header .approval {
+    position: absolute;
+    width: 15px;
+    height: 11px;
+    top: 320px;
+    left: 18px;
+}
+
+.header .board {
+    position: absolute;
+    width: 18px;
+    height: 15px;
+    top: 378px;
+    left: 16px;
+}
+
+.header .storage {
+    position: absolute;
+    width: 20px;
+    height: 14px;
+    top: 438px;
+    left: 15px;
+}
+
+.header .chart {
+    position: absolute;
+    width: 19px;
+    height: 19px;
+    top: 496px;
+    left: 16px;
+}
+
+.header .info {
+    position: absolute;
+    width: 19px;
+    height: 19px;
+    top: 556px;
+    left: 16px;
+}
+
+.header .profileimage {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+    flex: 0 0 auto;
+}
+
+.header .img {
+    position: relative;
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+}
+
+.header .logout {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    top: 137px;
+    left: 17px;
+}
+
+.header .group {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    top: 15px;
+    left: 16px;
+}
+
+.header .overlap-group {
+    position: relative;
+    height: 19px;
+}
+
+.header .alarm {
+    position: absolute;
+    width: 16px;
+    height: 19px;
+    top: 0;
+    left: 0;
+}
+
+.header .ellipse {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    top: 0;
+    left: 10px;
+    background-color: #ff5e5e;
+    border-radius: 4px;
+}

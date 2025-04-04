@@ -1,11 +1,6 @@
 package data.mapper;
 
-import data.dto.MessagesDto;
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-
-import java.util.List;
-import java.util.Map;
 
 @Mapper
 public interface MessageMapper {
@@ -30,5 +25,6 @@ public interface MessageMapper {
     MessagesDto readMessageDetail(int id);
 
     void updateMessageImportance(@Param("id") int id, @Param("isImportant") boolean isImportant);
+
 
 }

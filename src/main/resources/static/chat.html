@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${title}">실시간 채팅</title>
+    <style>
+        .chat-container {
+            height: 500px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+        }
+        .message {
+            margin: 5px;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <h1 th:text="${title}"></h1>
+    <div class="chat-container" id="chatContainer">
+        <div id="messages"></div>
+    </div>
+    <input type="text" id="messageInput" placeholder="메시지를 입력하세요">
+    <button onclick="sendMessage()">전송</button>
+
+    <script>
+        const socket = new WebSocket('ws://' + window.location.host + '/ws/chat');
+
+        socket.onopen = function() {
+            console.log('WebSocket 연결 성공!');
+        };
+
+        socket.onmessage = function(event) {
+            const messages = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message';
+            messageDiv.textContent = event.data;
+            messages.appendChild(messageDiv);
+        };
+
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            if (message) {
+                socket.send(message);
+                input.value = '';
+            }
+        }
+    </script>
+</body>
+</html>
