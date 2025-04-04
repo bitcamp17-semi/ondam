@@ -81,6 +81,21 @@ public class UsersController {
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    @GetMapping("/readUserById")
+    public ResponseEntity<Object> getUserById(HttpSession session) {
+        Map<String, Object> response = new LinkedHashMap<>();
+        try {
+            response.put("status", "ok");
+            UsersDto usersDto = usersService.readUserById((Integer) session.getAttribute("userId"));
+            usersDto.setPassword(null);
+            response.put("result", usersDto);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            response.put("status", "fail");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     @PostMapping("/deactivateUser")
     public ResponseEntity<Object> deactivateUser(@RequestParam int userId, HttpSession session) {
