@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" th:href="@{/style/globals.css}" />
+    <link rel="stylesheet" th:href="@{/style/login.css}" />
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+</head>
+<body>
+<div class="login">
+    <div class="mainlogo">
+        <div class="logo">
+            <img class="ondam-w" th:src="@{/images/ondam_W.png}" />
+        </div>
+        <div class="logo2">
+            <div class="ondam">Ondam</div>
+            <div class="groupware">Groupware</div>
+        </div>
+    </div>
+    <div class="loginbox">
+        <div class="loginbox2">
+            <div class="idbox">
+                <input type="text" id="loginId" placeholder="아이디 입력" class="input-field"/>
+            </div>
+            <div class="idbox">
+                <input type="password" id="password" placeholder="비밀번호 입력" class="input-field"/>
+            </div>
+        </div>
+        <button class="loginbtn" id="loginBtn">
+            <div class="div2">로그인하기</div>
+        </button>
+        <div class="qbox">
+            <div class="div3">아이디와 비밀번호를 잊으셨나요?</div>
+            <button class="qbtn">
+                <div class="div4">문의하기</div>
+            </button>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+<script>
+    $(document).ready(function () {
+        // 로그인 여부 체크
+        $.ajax({
+            type: "GET",
+            url: "/api/checkLogin",
+            dataType: "json",
+            success: function (res) {
+                if (res.status === "ok") {
+                    alert("이미 로그인된 상태입니다.");
+                    history.back(); // 이전 페이지로 이동
+                }
+            },
+            error: function () {
+                console.warn("로그인 상태 확인 실패 (무시 가능)");
+            }
+        });
+
+        // 로그인 버튼 클릭 이벤트
+        $("#loginBtn").click(function () {
+            const loginId = $("#loginId").val().trim();
+            const password = $("#password").val().trim();
+
+            if (!loginId || !password) {
+                alert("아이디와 비밀번호를 입력하세요.");
+                return;
+            }
+
+            $.ajax({
+                type: "POST",
+                url: "/api/login",
+                data: { loginId: loginId, password: password },
+                dataType: "json",
+                success: function (response) {
+                    if (response.status === "ok") {
+                        alert("로그인 성공!");
+                        window.location.href = "/admin/management";
+                    } else {
+                        alert("로그인 실패: " + response.result);
+                    }
+                },
+                error: function (xhr) {
+                    alert("로그인 실패. (" + xhr.status + ")");
+                }
+            });
+        });
+    });
+
+</script>

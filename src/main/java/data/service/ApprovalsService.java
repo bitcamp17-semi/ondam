@@ -36,4 +36,13 @@ public class ApprovalsService {
     public List<ApprovalLogDto> readApprovalLogByDraft(int draftId) {
         return approvalsMapper.readApprovalLogByDraft(draftId);
     };
+
+    public int readNextApprovalId(int draftId, int userId) {
+        Integer nextApprover = approvalsMapper.readNextApprovalId(draftId, userId);
+        if (nextApprover == null) {
+            return 0;
+        } else {
+            return nextApprover;
+        }
+    }
 }
