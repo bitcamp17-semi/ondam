@@ -20,8 +20,8 @@ public class LoginController {
 
     @PostMapping("/login")
     public ResponseEntity<Object> login(
-            @RequestParam String loginId,
-            @RequestParam String password,
+            @RequestParam(value = "loginId") String loginId,
+            @RequestParam(value = "password") String password,
             HttpSession session) {
         Map<String, Object> response = new LinkedHashMap<>();
         try {

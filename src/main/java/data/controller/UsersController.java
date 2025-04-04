@@ -83,7 +83,7 @@ public class UsersController {
     }
 
     @PostMapping("/deactivateUser")
-    public ResponseEntity<Object> deactivateUser(@RequestParam int userId, HttpSession session) {
+    public ResponseEntity<Object> deactivateUser(@RequestParam(value = "userId") int userId, HttpSession session) {
         Map<String, Object> response = new LinkedHashMap<String, Object>();
         if (usersService.isAdmin((Integer) session.getAttribute("userId"))) {
             try {
@@ -103,7 +103,7 @@ public class UsersController {
         }
     }
     @GetMapping("/readUsersByDep")
-    public ResponseEntity<Object> readUsersByDep(@RequestParam String department) {
+    public ResponseEntity<Object> readUsersByDep(@RequestParam(value = "department") String department) {
         Map<String, Object> response = new HashMap<>();
         try {
             List<UsersDto> list = usersService.readUsersByDep(department);
