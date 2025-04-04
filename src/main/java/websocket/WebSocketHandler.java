@@ -1,57 +1,37 @@
 package websocket;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
+import org.springframework.stereotype.Controller;
+
 import data.dto.ChatLogDto;
 import data.service.ChatLogService;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
-import org.springframework.web.socket.CloseStatus;
-import org.springframework.web.socket.TextMessage;
-import org.springframework.web.socket.WebSocketSession;
-import org.springframework.web.socket.handler.TextWebSocketHandler;
 
-import java.util.concurrent.CopyOnWriteArraySet;
+@Controller
+public class WebSocketHandler {
 
-@Slf4j
-@Component // Spring 관리 빈으로 등록
-@RequiredArgsConstructor // Lombok을 사용하여 생성자 자동 생성
-public class WebSocketHandler extends TextWebSocketHandler {
+	@Autowired
+    private SimpMessagingTemplate messagingTemplate; // 메시지 전송을 위한 템플릿
 
-    private final ObjectMapper objectMapper; // JSON 변환을 위한 ObjectMapper
-    private final ChatLogService chatLogService; // ChatLogService 주입
-    private final CopyOnWriteArraySet<WebSocketSession> sessions = new CopyOnWriteArraySet<>();
+    @Autowired
+    private ChatLogService chatLogService; // 채팅 로그 저장 서비스
 
-    @Override
-    public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        log.info("새로운 연결: {}", session.getId());
-        sessions.add(session);
-    }
-
-    @Override
-    protected void handleTextMessage(WebSocketSession session, TextMessage message) {
-        try {
-        	// JSON 메시지 로깅
-        	log.info("수신된 JSON 메시지: {}", message.getPayload());
-        	
-            // JSON 메시지를 ChatLogDto로 변환
-            ChatLogDto chatLogDto = objectMapper.readValue(message.getPayload(), ChatLogDto.class);
-
-            // 채팅 로그 저장
-            chatLogService.saveChatLog(chatLogDto);
-
-            // 메시지 브로드캐스트
-            for (WebSocketSession webSocketSession : sessions) {
-                webSocketSession.sendMessage(message);
-            }
-        } catch (Exception e) {
-            log.error("메시지 처리 오류: {}", e.getMessage());
+    // 클라이언트가 /app/sendMessage로 메시지를 보내면 이 메서드가 호출됨
+    @MessageMapping("/sendMessage")
+    public void handleMessage(@Payload ChatLogDto chatLog, StompHeaderAccessor headerAccessor) {
+        // WebSocketInterceptor에서 추가한 사용자 정보 확인
+        if (headerAccessor.getUser() != null) {
+            String userId = headerAccessor.getUser().getName();
+            chatLog.setSenderId(Integer.parseInt(userId));
         }
-    }
 
-    @Override
-    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-        log.info("연결 종료: {}", session.getId());
-        sessions.remove(session);
+        // 데이터베이스에 채팅 로그 저장
+        chatLogService.createChatLog(chatLog);
+
+        // 해당 그룹의 모든 사용자에게 메시지 브로드캐스트
+        messagingTemplate.convertAndSend("/topic/group/" + chatLog.getGroupId(), chatLog);
     }
 }
