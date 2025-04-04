@@ -17,8 +17,8 @@ public class UsersService {
     UsersMapper usersMapper;
 
     public boolean createUser(UsersDto usersDto) throws ParseException {
-        String birth = String.valueOf(usersDto.getBirth());
-        usersDto.setBirth(convertStringToDate(birth));
+//        String birth = String.valueOf(usersDto.getBirth());
+//        usersDto.setBirth(convertStringToDate(birth));
         usersDto.setPassword(hashingPassword("0000"));
         usersDto.setLoginId(generateLoginId());
         usersMapper.createUser(usersDto);

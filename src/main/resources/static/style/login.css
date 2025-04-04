@@ -211,3 +211,6 @@
     align-items: center;
     justify-content: center;
 }
+.input-field {
+    border: none;
+}
