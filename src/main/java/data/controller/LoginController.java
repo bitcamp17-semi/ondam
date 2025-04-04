@@ -7,10 +7,7 @@ import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -72,6 +69,20 @@ public class LoginController {
             response.put("status", "error");
             response.put("result", "An unexpected error occurred: " + e.getMessage());
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/checkLogin")
+    public ResponseEntity<Map<String, Object>> checkLogin(HttpSession session) {
+        Map<String, Object> response = new LinkedHashMap<>();
+        if (session.getAttribute("userId") != null) {
+            response.put("status", "ok");
+            response.put("result", "logged in");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } else {
+            response.put("status", "error");
+            response.put("result", "not logged in");
+            return new ResponseEntity<>(response, HttpStatus.OK);
         }
     }
 }
