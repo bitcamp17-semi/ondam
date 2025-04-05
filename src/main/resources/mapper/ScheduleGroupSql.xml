@@ -24,18 +24,17 @@
 	</select>
 	
 	<!-- 그룹명이 '회사일정'이고 멤버로 사용자가 있는지 확인 -->
-	<select id="readCompanyGroupMember" resultType="ScheduleGroupDto">
-	SELECT * FROM schedule_group g
-	LEFT JOIN schedule_group_members m ON g.id = m.groupId AND m.userId = #{userId}
-	WHERE g.name = '회사일정'
+	<select id="readCompanyGroupMember" resultType="Integer">
+		SELECT userId FROM schedule_group g
+		LEFT JOIN schedule_group_members m ON g.id = m.groupId AND m.userId = #{userId}
+		WHERE g.name = '회사일정'
 	</select>
 	
 	<!-- 그룹명이 '회사일정'인 groupId 조회 -->
-	<select id="readCompanyGroupId" resultType="int">
-	SELECT groupId FROM schedule_group g
-	LEFT JOIN  schedule_group_members m 
-    on g.id = m.groupId
-    WHERE g.name='회사일정'
-	limit 1
+	<select id="readCompanyGroupId" resultType="Integer">
+		SELECT g.id
+    	FROM schedule_group g
+    	WHERE g.name = '회사일정'
+    	LIMIT 1
 	</select>
 </mapper>

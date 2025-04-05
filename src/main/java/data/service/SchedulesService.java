@@ -21,8 +21,8 @@ public class SchedulesService {
     }
 	
 	//전체 일정검색
-	public List<SchedulesDto> readAllSche(){
-		return schedulesMapper.readAllSche();
+	public List<SchedulesDto> readAllSche(int userId){
+		return schedulesMapper.readAllSche(userId);
 	}
 	
 	//일정 하나 검색
@@ -42,5 +42,4 @@ public class SchedulesService {
 	{
 		schedulesMapper.updateSchedule(dto);
 	}
-	
 }

@@ -43,13 +43,13 @@
   			color: red;
 		}
 
-		/*버튼 크기 및 사이즈 설정*/
+		/*캘린더 영역 내 버튼 크기 및 사이즈 설정*/
 		.fc .fc-button {
   			background-color: orange;
   			color: #f5f5f5;
   			border: none;
 		}
-		/*버튼 마우스 오버 시*/
+		/*캘린더 영역 내 버튼 마우스 오버 시*/
 		.fc .fc-button:hover {
   			background-color:darkorange;
 		}
@@ -93,23 +93,22 @@
   			color:white;
   		}
 </style>
+
+
 <script th:inline="javascript">
+const loginUserId = /*[[${userId}]]*/ 0;
+const loginUserRole = 'admin'; // 필요 시 서버에서 내려주는 값으로 교체
+const groupMemberMap = /*[[${groupMemberMap}]]*/ {};
+
 document.addEventListener("DOMContentLoaded", function () {
 	  const allCheck = document.querySelector(".allCheck");
 	  const privateCheck = document.querySelector("input.private");
 	  const groupCheck = document.querySelector("input.group");
 	  const companyCheck = document.querySelector("input.company");
 	  const groupListChecks = document.querySelectorAll("#scheGroupList input[type='checkbox']");
-	  
-  //일정 목록 노출 : 타임리프로 목록 불러옴
-  const scheduleList = /*[[${scheduleList}]]*/ [];
-  //그룹 목록 노출 : 타임리프로 목록 불러오기
- /*  const groupList = /*[[${groupList}]]*/ [];
-  /* function getGroupColor(groupId) {
-	    const group = groupList.find(g => g.id === groupId);
-	    return group ? group.color : 'gray';
-	}* */
-  const events = scheduleList.map(s => {
+	  //일정 목록 노출 : 타임리프로 목록 불러옴
+  	  const scheduleList = /*[[${scheduleList}]]*/ [];
+  	  const events = scheduleList.map(s => {
 	  return {
 		id : s.id,
 	    title: s.name,
@@ -117,11 +116,8 @@ document.addEventListener("DOMContentLoaded", function () {
 	    start: s.startTime.replace(' ', 'T'),
 	    end: s.endTime.replace(' ', 'T'),
 	    allDay: s.alltime,
-	    //borderColor랑 backgroundColor를 group이 가진 색으로 설정하자
-	    //borderColor: groupColor,
-    	//backgroundColor: groupColor,
-	    content: s.content,  
-	    sort: s.sort
+	    content: s.content, 
+	    color: s.color
 	  };
 	});
   
@@ -169,7 +165,6 @@ document.addEventListener("DOMContentLoaded", function () {
        			text: "일정 등록",
        			click: function () {
          			//alert("일정 등록 하세요!");
-         				
          			//하루종일 체크 시 이벤트 설정
        				const allDay = event.allDay; 
                   	document.querySelector("#calAddModal .modal-title");
@@ -217,7 +212,6 @@ document.addEventListener("DOMContentLoaded", function () {
             eventClick: function(info) {
             	var event = info.event;
 				var id = event.id;
-            	
 				//상세페이지 이동
 				window.location.href = './scheDetail?id=' + id;
 			}
@@ -273,6 +267,57 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
         
+        //일정상세 모달 노출 이벤트
+		document.querySelectorAll(".scheGroupName").forEach(nameEl => {
+    		nameEl.addEventListener("click", function () {
+        		const groupId = this.dataset.groupId;
+        		const groupName = this.dataset.groupName;
+        		const groupColor = this.dataset.groupColor;
+        		const departmentId = this.dataset.departmentId;
+
+        		const modal = document.getElementById("calGroupDetailModal");
+        		const nameInput = modal.querySelector("input[name='name']");
+        		const colorInput = modal.querySelector("input[name='color']");
+        		const ownerInput = modal.querySelector("input[name='ownerId']");
+        		const deptInput = modal.querySelector("input[name='departmentId']");
+        		const memberSelect = $(modal).find("select[name='groupMembers']");
+        		const updateBtn = modal.querySelector(".scheGroupUpdatebtn");
+				
+        		// 기본값 설정
+        		nameInput.value = groupName;
+                colorInput.value = groupColor;
+                ownerInput.value = loginUserId;
+                deptInput.value = departmentId;
+        		
+        		// 입력 상태 설정 함수
+        		const setInputsEnabled = (enabled) => {
+           			nameInput.disabled = !enabled;
+            		colorInput.disabled = !enabled;
+            		memberSelect.prop("disabled", !enabled);
+            		updateBtn.style.display = enabled ? "inline-block" : "none";
+        		};
+
+        		// 권한/그룹이름에 따라 필드 제어
+        		if (groupName === '개인일정') {
+            		setInputsEnabled(false);
+        		} else if (groupName === '회사일정') {
+           		 	setInputsEnabled(loginUserRole === 'admin');
+        		} else {
+            		setInputsEnabled(true);
+        		}
+				
+        		// 멤버 설정 (서버에서 내려준 map 활용)
+                const memberIds = groupMemberMap[groupId];
+                if (memberIds) {
+                    memberSelect.val(memberIds).trigger("change");
+                } else {
+                    memberSelect.val([]).trigger("change");
+                }
+        		
+        		new bootstrap.Modal(modal).show();
+    		});
+		});
+        
         //일정등록 모달 > 등록 버튼 클릭 시 동작
     	const registerBtn = document.querySelector("#calAddModal .scheAddbtn");
     	registerBtn.addEventListener('click', function () {
@@ -288,7 +333,7 @@ document.addEventListener("DOMContentLoaded", function () {
     	      const endDateTime = endDate + ' ' + endTime + ':00';
     	      const groupId=parseInt(document.querySelector("select[name='groupId']").value);
     	      
-    	      const userId = 1; // 현재는 임시로 고정값
+    	      const userId = 40; // 현재는 임시로 고정값
     	      
     	   	  // 유효성 검사
     	      if (!startDate || !startTime || !endDate || !endTime) {
@@ -495,7 +540,6 @@ document.addEventListener("DOMContentLoaded", function () {
          		<th>인원 추가</th>
          		<td >
          			 <select class="groupMembers" name="groupMembers" multiple="multiple" style="width: 100%;">
-  						
   						<option th:each="user : ${userList}"
      						     th:value="${user.id}"
         						 th:text="${user.name + ' (' + user.department + ')'}">
@@ -516,6 +560,70 @@ document.addEventListener("DOMContentLoaded", function () {
   </div>
 </div> 
 <!-- 그룹 추가 모달 끝 -->
+
+<!-- 그룹 상세 모달 -->
+<div class="modal" id="calGroupDetailModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header" style="background-color: orange;color: white;">
+        <h4 class="modal-title">그룹 수정</h4>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+         <table class="form-control">
+         	<!-- 이부분은 로그인 기능 구현되면 활성화시켜서 로그인된 아이디를 받아서 저장할 예정-->
+         	<tr>
+         		<th>그룹장</th>
+         		<th hidden>부서ID</th>
+         		<td>
+         			<!-- 추후에 로그인되어있는 사용자 이름을 출력시킬 예정 -->
+         			<input class="form-control ownerId" name="ownerId" value="1" hidden>
+         		</td>
+         		<td>
+         			<input class="form-control departmentId" name="departmentId" hidden>
+         		</td>
+         	</tr>
+         	<tr>
+         		<th>그룹 이름</th>
+         		<td>
+         			<input type="text" class="form-control gName" name="name" required="required">
+         		</td>
+         	</tr>
+         	<tr>
+         		<th>그룹 색상</th>
+         		<td>
+         			<input type="color" class="form-control gColor" name="color" >
+         		</td>
+         	</tr>
+         	<tr>
+         		<th>인원 추가</th>
+         		<td >
+         			 <select class="groupMembers" name="groupMembers" multiple="multiple" style="width: 100%;">
+  						
+  						<option th:each="user : ${userList}"
+     						     th:value="${user.id}"
+        						 th:text="${user.name + ' (' + user.department + ')'}">
+  						</option>
+					</select>
+         		</td>
+         	</tr>         	
+         </table> 
+      </div>
+		
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success scheGroupUpdatebtn" data-bs-dismiss="modal">수정</button>
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">닫기</button>
+      </div>
+
+    </div>
+  </div>
+</div> 
+<!-- 그룹 상세 모달 끝 -->
 
 <script th:inline="javascript">
 //그룹 추가 모달 > 인원추가 셀렉트박스 이벤트
@@ -544,7 +652,13 @@ $(document).ready(function () {
 	<a><input type="checkbox" class="allCheck" checked>&nbsp;전체</a>
 	<div th:each="gList : ${groupList}" class="groupCheckItem">
 		<!-- 기본으로 체크된 상태로 노출시키기 -->
-		<input type="checkbox" checked><span th:style="|color:${gList.color};|" class="scheGroupName">&nbsp;[[${gList.name}]]</span>
+		<input type="checkbox" checked><span th:style="|color:${gList.color};|"
+      										 class="scheGroupName"
+      										th:data-group-id="${gList.id}"
+      										th:data-group-name="${gList.name}"
+      										th:data-group-color="${gList.color}"
+      										th:data-department-id="${gList.departmentId}"
+      										style="cursor: pointer;">&nbsp;[[${gList.name}]]</span>
 	</div>
 </div>
 

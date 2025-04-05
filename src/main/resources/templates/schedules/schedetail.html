@@ -67,12 +67,14 @@
          		</td>
          	</tr>
          	<tr>
-         		<th>구분</th>
-         		<td>
-         			<select id="sort" name="sort" class="form-control">
-         				<option class="private" th:selected="${dto.sort=='private'}" value="private">내 일정</option>
-         				<option class="buseo" th:selected="${'group' == dto.sort or 'buseo' == dto.sort}" value="buseo">부서</option>
-         				<option class="company" th:selected="${dto.sort=='company'}" value="company">회사</option>
+         		<th class="scheGroup">일정 그룹</th>
+         		<td colspan="3">
+         			<select class="form-control groupCheckItem" name="groupId">
+         				<option th:each="gList : ${groupList}"
+         						th:value="${gList.id}"
+         						th:text="${gList.name}"
+         						th:selected="${gList.name == groupName}">
+         				</option>
          			</select>
          		</td>
          	</tr>
@@ -166,7 +168,7 @@ $("#updateForm").submit(function(e){
 	
     form.append("id", '[[${dto.id}]]');
     form.append("isAlltime", isAlltimeValue);
-    form.append("sort",$("#sort").val());
+	form.append("groupId", $("select[name='groupId']").val());
     form.append("name",$("#name").val());
     form.append("content",$("#content").val());
     form.append("startDate",$("#startDate").val());
@@ -200,12 +202,14 @@ $("#updateForm").submit(function(e){
          		</td>
          	</tr>
          	<tr>
-         		<th>구분</th>
-         		<td>
-         			<select name="sort" disabled="disabled">
-         				<option class="private" th:selected="${dto.sort=='private'}" >내 일정</option>
-         				<option class="buseo" th:selected="${'group' == dto.sort or 'buseo' == dto.sort}">부서</option>
-         				<option class="company" th:selected="${dto.sort=='company'}">회사</option>
+         		<th class="scheGroup">일정 그룹</th>
+         		<td colspan="3">
+         			<select class="groupCheckItem" name="groupId" disabled="disabled">
+         				<option th:each="gList : ${groupList}"
+         						th:value="${gList.id}"
+         						th:text="${gList.name}"
+         						th:selected="${gList.name == groupName}">
+         				</option>
          			</select>
          		</td>
          	</tr>

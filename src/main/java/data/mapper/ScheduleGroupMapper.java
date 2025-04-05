@@ -19,8 +19,8 @@ public interface ScheduleGroupMapper {
 	public ScheduleGroupDto readPrivateGroup(int userId);
 	
 	//그룹명이 '회사일정'이고 멤버로 사용자가 있는지 확인
-	public ScheduleGroupDto readCompanyGroupMember(int userId);
+	public Integer readCompanyGroupMember(int userId);
 	
 	//그룹명이 '회사일정'인 groupId 조회
-	public int readCompanyGroupId();
+	public Integer readCompanyGroupId();
 }

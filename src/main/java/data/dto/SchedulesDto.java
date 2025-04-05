@@ -23,4 +23,8 @@ public class SchedulesDto {
     private Timestamp createdAt;
     //작성자
     private String writer;
+    //그룹명
+    private String groupName;
+    //그룹이 가진 색상
+    private String color;
 }

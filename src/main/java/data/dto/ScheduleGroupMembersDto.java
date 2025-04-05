@@ -17,4 +17,7 @@ public class ScheduleGroupMembersDto {
 	private String color;
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/Seoul")
     private Timestamp createdAt;
+	
+	//멤버 이름
+	private String userName;
 }
