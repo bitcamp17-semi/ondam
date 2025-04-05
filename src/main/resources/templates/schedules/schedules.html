@@ -103,6 +103,12 @@ document.addEventListener("DOMContentLoaded", function () {
 	  
   //일정 목록 노출 : 타임리프로 목록 불러옴
   const scheduleList = /*[[${scheduleList}]]*/ [];
+  //그룹 목록 노출 : 타임리프로 목록 불러오기
+ /*  const groupList = /*[[${groupList}]]*/ [];
+  /* function getGroupColor(groupId) {
+	    const group = groupList.find(g => g.id === groupId);
+	    return group ? group.color : 'gray';
+	}* */
   const events = scheduleList.map(s => {
 	  return {
 		id : s.id,
@@ -111,9 +117,9 @@ document.addEventListener("DOMContentLoaded", function () {
 	    start: s.startTime.replace(' ', 'T'),
 	    end: s.endTime.replace(' ', 'T'),
 	    allDay: s.alltime,
-	    //구분이 내 일정이면 배경, 테두리 green, 그룹이면 'gray' 나머지의 경우(회사)는 orange로 설정
-	    borderColor:s.groupId == '0' ? 'green' : s.sort=='1'? 'gray' : 'orange',
-	    backgroundColor: s.groupId == '0' ? 'green' : s.sort=='1'? 'gray' : 'orange',
+	    //borderColor랑 backgroundColor를 group이 가진 색으로 설정하자
+	    //borderColor: groupColor,
+    	//backgroundColor: groupColor,
 	    content: s.content,  
 	    sort: s.sort
 	  };
@@ -137,8 +143,6 @@ document.addEventListener("DOMContentLoaded", function () {
 			},
 			footerToolbar: {
 			      start: "timeGridDay,dayGridMonth,dayGridWeek",
-			      /*center: "",
-			      end: "",*/
 			},
 			
       		//달력에서 '일' 글자 제거하는 내용

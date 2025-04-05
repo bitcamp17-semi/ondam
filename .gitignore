@@ -16,7 +16,7 @@ build/
 bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
-.metadata/
+.metadata
 
 ### IntelliJ IDEA ###
 .idea

@@ -19,4 +19,6 @@ public interface ApprovalsMapper {
     public List<ApprovalsDto> readApprovalsByTemplate(int TemplateId);
 
     public List<ApprovalLogDto> readApprovalLogByDraft(int draftId);
+
+    public Integer readNextApprovalId(int draftId, int userId);
 }

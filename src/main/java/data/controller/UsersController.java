@@ -10,7 +10,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -97,6 +100,20 @@ public class UsersController {
             response.put("status", "fail");
             response.put("error", "you're not admin");
             return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+        }
+    }
+    @GetMapping("/readUsersByDep")
+    public ResponseEntity<Object> readUsersByDep(@RequestParam String department) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            List<UsersDto> list = usersService.readUsersByDep(department);
+            response.put("status", "ok");
+            response.put("result", list);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
