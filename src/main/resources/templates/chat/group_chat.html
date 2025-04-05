@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${group.name} + ' 채팅'"></title>
+</head>
+<body>
+    <div th:replace="~{chat/chatmain :: content}">
+        <div class="main-content">
+            <div class="chat-area" id="chatArea">
+                <h2 th:text="${group.name}"></h2>
+                <div th:each="log : ${chatLogs}" class="message">
+                    <span class="sender" th:text="${log.senderId}"></span>: 
+                    <span th:text="${log.message}"></span>
+                    <small th:text="${log.createdAt}"></small>
+                </div>
+            </div>
+            <div class="input-area">
+                <input type="text" id="messageInput" placeholder="메시지를 입력하세요..." onkeypress="if(event.keyCode==13) sendMessage();">
+            </div>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        // WebSocket 연결 설정
+        var sock = new SockJS('/chat-websocket');
+        var stompClient = Stomp.over(sock);
+
+        // STOMP 클라이언트 연결
+        stompClient.connect({}, function(frame) {
+            console.log('Connected: ' + frame);
+            // 현재 그룹의 메시지를 구독
+            stompClient.subscribe('/topic/group/' + /*[[${group?.id}]]*/ null, function(message) {
+                var chatLog = JSON.parse(message.body);
+                showMessage(chatLog);
+            });
+        });
+
+        // 메시지 표시 함수
+        function showMessage(chatLog) {
+            var chatArea = document.getElementById('chatArea');
+            var messageDiv = document.createElement('div');
+            messageDiv.className = 'message';
+            messageDiv.innerHTML = '<span class="sender">' + chatLog.senderId + '</span>: ' + chatLog.message + ' <small>' + new Date().toLocaleString() + '</small>';
+            chatArea.appendChild(messageDiv);
+            chatArea.scrollTop = chatArea.scrollHeight; // 스크롤을 맨 아래로 이동
+        }
+
+        // 메시지 전송 함수
+        function sendMessage() {
+            var messageInput = document.getElementById('messageInput');
+            var message = messageInput.value;
+            if (message.trim() === '') return;
+
+            // ChatLogDTO 객체 생성
+            var chatLog = {
+                senderId: /*[[${user?.id}]]*/ null,  // null-safe 연산자 사용
+                groupId: /*[[${group?.id}]]*/ null,
+                message: message
+            };
+
+            // 서버로 메시지 전송
+            stompClient.send('/app/sendMessage', {}, JSON.stringify(chatLog));
+            messageInput.value = ''; // 입력창 초기화
+        }
+    </script>
+</body>
+</html>

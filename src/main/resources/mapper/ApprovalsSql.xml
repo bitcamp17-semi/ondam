@@ -52,15 +52,16 @@
         values #{approvalId}, #{action}, now()
     </insert>
     <select id="readApprovalLogByDraft" parameterType="map" resultType="ApprovalLogDto">
-        SELECT al.approvalId,
-               al.draftId,
-               al.action,
-               al.approvalTime,
-               a.`order`
+        SELECT
+        al.approvalId,
+        al.draftId,
+        al.action,
+        al.approvalTime,
+        a.`order`
         FROM approval_log al
-                 JOIN approvals a
-                      ON al.approvalId = a.userId
-                          AND al.draftId = a.draftId
+        JOIN approvals a
+        ON al.approvalId = a.userId
+        AND al.draftId = a.draftId
         WHERE al.draftId = #{draftId};
     </select>
 </mapper>

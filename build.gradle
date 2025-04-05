@@ -30,9 +30,15 @@ repositories {
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:3.2.1'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.4'
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    // STOMP WebSocket
+    implementation 'org.webjars:webjars-locator-core'
+    implementation 'org.webjars:stomp-websocket:2.3.3-1'
+    implementation 'org.webjars:sockjs-client:1.1.2'    
+    
     implementation group: 'io.awspring.cloud', name: 'spring-cloud-starter-aws', version: '2.4.4'
     implementation group: 'com.amazonaws', name: 'aws-java-sdk-s3', version: '1.12.416'
     compileOnly 'org.projectlombok:lombok'

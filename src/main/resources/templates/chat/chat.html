@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div th:replace="~{chat/chatmain :: content}">
+        <div class="main-content">
+            <div class="chat-area">
+                <h2>그룹을 선택하세요</h2>
+                <!-- URL 수정: /chat/group/new → /chat/groups/new -->
+                <p>왼쪽에서 그룹을 선택하거나 <a th:href="@{/chat/groups/new}">새 그룹을 생성</a>하세요.</p>
+                <ul>
+                    <li th:each="group : ${chatGroups}">
+                        <!-- URL 수정: /chat/group/{id} → /chat/groups/{id} -->
+                        <a th:href="@{/chat/groups/{id}(id=${group.id})}" th:text="${group.name}"></a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
