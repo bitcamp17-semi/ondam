@@ -424,6 +424,7 @@
     width: 50px;
     height: 40px;
     position: relative;
+    cursor: pointer;
 }
 .frame-136 {
     flex-shrink: 0;
