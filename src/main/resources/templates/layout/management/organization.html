@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>jQuery 드롭다운 & 조직도</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        /* ======= 드롭다운 스타일 ======= */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+            width: 150px; /* 버튼 크기 유지 */
+            margin: 10px;
+        }
+
+        .dropdown-btn {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%; /* 버튼 크기와 동일하게 */
+            background-color: white;
+            border: 1px solid #ddd;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .dropdown-menu a {
+            display: block;
+            padding: 10px;
+            text-decoration: none;
+            color: black;
+        }
+
+        .dropdown-menu a:hover {
+            background-color: #f1f1f1;
+        }
+
+        /* ======= 조직도 스타일 ======= */
+        ul {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+
+        .tree li {
+            cursor: pointer;
+            margin: 5px 0;
+            position: relative;
+        }
+
+        .tree li::before {
+            content: "▶"; /* 접기 아이콘 */
+            position: absolute;
+            left: -15px;
+            font-size: 12px;
+        }
+
+        .tree li.open::before {
+            content: "▼"; /* 펼치기 아이콘 */
+        }
+
+        .tree ul {
+            display: none; /* 기본적으로 하위 메뉴 숨김 */
+        }
+
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltip-text {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 105%; /* 오른쪽에 위치 */
+            transform: translateY(-50%);
+            background-color: #fff;
+            color: #fff;
+            padding: 6px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            z-index: 10;
+        }
+
+        .tooltip.active .tooltip-text {
+            display: block;
+        }
+
+        button {
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+        .tooltip-text,
+        .tooltip-text * {
+            box-sizing: border-box;
+        }
+        .tooltip-text {
+            width: 311px;
+            height: 199px;
+            position: relative;
+        }
+        .rectangle-75 {
+            background: #f7f7f7;
+            border-radius: 5px;
+            width: 300px;
+            height: 178px;
+            position: absolute;
+            left: 11px;
+            top: 21px;
+        }
+        .loginbtn {
+            background: #fa7000;
+            border-radius: 5px;
+            border-style: solid;
+            border-color: rgba(0, 0, 0, 0.15);
+            border-width: 1px;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            width: 261px;
+            height: 35px;
+            position: absolute;
+            left: 29px;
+            top: 152px;
+        }
+        .btn {
+            color: #ffffff;
+            text-align: center;
+            font-family: "NotoSans-Bold", sans-serif;
+            font-size: 16px;
+            line-height: 22px;
+            font-weight: 700;
+            position: relative;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .rectangle-76 {
+            background: #f7f7f7;
+            border-radius: 5px;
+            width: 140px;
+            height: 140px;
+            position: absolute;
+            left: 23px;
+            top: 0px;
+        }
+        .profileimage {
+            border-radius: 5px;
+            width: 125px;
+            height: 125px;
+            position: absolute;
+            left: 31px;
+            top: 8px;
+            object-fit: cover;
+        }
+
+        .name {
+            color: #3f3f3f;
+            text-align: left;
+            font-family: "NotoSans-Bold", sans-serif;
+            font-size: 16px;
+            line-height: 22px;
+            font-weight: 700;
+            position: absolute;
+            left: 217px;
+            top: 57px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+        .phone {
+            color: #3f3f3f;
+            text-align: left;
+            font-family: "NotoSans-Regular", sans-serif;
+            font-size: 12px;
+            line-height: 22px;
+            font-weight: 400;
+            position: absolute;
+            left: 184px;
+            top: 88px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+        .team {
+            color: #3f3f3f;
+            text-align: left;
+            font-family: "NotoSans-Regular", sans-serif;
+            font-size: 12px;
+            line-height: 22px;
+            font-weight: 400;
+            position: absolute;
+            left: 176px;
+            top: 57px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+        .date {
+            color: #3f3f3f;
+            text-align: left;
+            font-family: "NotoSans-Regular", sans-serif;
+            font-size: 12px;
+            line-height: 22px;
+            font-weight: 400;
+            position: absolute;
+            left: 177px;
+            top: 108px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+    </style>
+</head>
+<body>
+
+<!-- ===== 드롭다운 영역 ===== -->
+<h2>드롭다운 메뉴</h2>
+<div class="dropdown">
+    <button class="dropdown-btn">메뉴 1</button>
+    <div class="dropdown-menu">
+        <a href="#">옵션 1-1</a>
+        <a href="#">옵션 1-2</a>
+        <a href="#">옵션 1-3</a>
+    </div>
+</div>
+
+<div class="dropdown">
+    <button class="dropdown-btn">메뉴 2</button>
+    <div class="dropdown-menu">
+        <a href="#">옵션 2-1</a>
+        <a href="#">옵션 2-2</a>
+        <a href="#">옵션 2-3</a>
+    </div>
+</div>
+
+<div class="dropdown">
+    <button class="dropdown-btn">메뉴 3</button>
+    <div class="dropdown-menu">
+        <a href="#">옵션 3-1</a>
+        <a href="#">옵션 3-2</a>
+        <a href="#">옵션 3-3</a>
+    </div>
+</div>
+
+<!-- ===== 조직도 영역 ===== -->
+<h2>조직도</h2>
+<ul class="tree">
+    <li class="parent">대표이사 홍길동
+        <ul>
+            <li class="parent">기획팀
+                <ul>
+                    <li>기획팀장 김철수</li>
+                    <li>기획팀원 이영희</li>
+                </ul>
+            </li>
+            <li class="parent">개발팀
+                <ul>
+                    <li>개발팀장 박준형</li>
+                    <li>개발팀원 정다은</li>
+                </ul>
+            </li>
+            <li class="parent">디자인팀
+                <ul>
+                    <li>디자인팀장 오수민</li>
+                    <li>디자인팀원 강민지</li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+</ul>
+
+<script>
+    $(document).ready(function () {
+        // ===== 드롭다운 기능 =====
+        $(".dropdown-btn").click(function (event) {
+            event.stopPropagation();
+            let menu = $(this).next(".dropdown-menu");
+
+            $(".dropdown-menu").not(menu).hide(); // 다른 메뉴 닫기
+            menu.toggle(); // 현재 메뉴 열기/닫기
+        });
+
+        // 화면 아무 곳이나 클릭하면 닫힘
+        $(document).click(function () {
+            $(".dropdown-menu").hide();
+        });
+
+        // 버튼 내부 클릭해도 닫히지 않도록 설정
+        $(".dropdown").click(function (event) {
+            event.stopPropagation();
+        });
+
+        // 선택한 옵션을 버튼에 표시
+        $(".dropdown-menu a").click(function () {
+            let selectedText = $(this).text();
+            $(this).closest(".dropdown").find(".dropdown-btn").text(selectedText);
+            $(this).closest(".dropdown-menu").hide(); // 선택 후 닫기
+        });
+
+        // ===== 조직도 기능 =====
+        $(".parent").click(function (event) {
+            event.stopPropagation(); // 부모 요소로 이벤트 전파 방지
+            $(this).toggleClass("open");
+            $(this).children("ul").slideToggle();
+        });
+    });
+</script>
+
+
+
+<div class="tooltip" id="myTooltip">
+    <button onclick="toggleTooltip()">툴팁 보기</button>
+    <div class="tooltip-text">
+            <div class="rectangle-75"></div>
+            <button class="loginbtn">
+                <div class="btn">개인정보 수정하기</div>
+            </button>
+            <div class="rectangle-76"></div>
+            <img class="profileimage" src="profileimage0.png" />
+            <div class="name">ㅇㅇ사원</div>
+            <div class="phone">010-1111-2222</div>
+            <div class="team">인사팀</div>
+            <div class="date">입사일 : 2025.04.04</div>
+
+    </div>
+</div>
+
+<script>
+    function toggleTooltip() {
+        const tooltip = document.getElementById('myTooltip');
+        tooltip.classList.toggle('active');
+    }
+
+    // 바깥 클릭 시 닫기
+    document.addEventListener('click', function(e) {
+        const tooltip = document.getElementById('myTooltip');
+        if (!tooltip.contains(e.target)) {
+            tooltip.classList.remove('active');
+        }
+    });
+</script>
+
+</body>
+</html>
