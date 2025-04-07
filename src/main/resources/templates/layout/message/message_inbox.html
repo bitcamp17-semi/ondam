@@ -5,13 +5,14 @@
     <title>Title</title>
     <link rel="stylesheet" th:href="@{/style/globals.css}"/>
     <link rel="stylesheet" th:href="@{/style/message_inbox.css}"/>
-    <link rel="stylesheet" th:href="@{/style/pages.css}"/>
+    <link rel="stylesheet" th:href="@{/style/header.css}" />
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
     <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
 </head>
 <body>
 <div class="fullbox">
-    <div class="header"></div>
+    <div th:replace="~{layout/header :: header}"></div>
     <div id="modal-overlay">
         <form id="modal-form">
             <div id="modal-content">
@@ -142,16 +143,20 @@
             $(this).closest(".dropdown-menu").hide(); // 선택 후 닫기
         });
 
-        // ====모달 =====
-
+        // ===== 모달 열기 =====
         $('#navlist1').click(function () {
             $('#modal-overlay').css("display", "flex"); // 모달 표시
         });
 
+        // ===== 모달 닫기 =====
         $('#close-modal').click(function () {
             $('#modal-overlay').css("display", "none"); // 모달 숨김
         });
 
+        // ===== 모달 내 form 기본 제출 막기 =====
+        $("#modal-form").on("submit", function(e) {
+            e.preventDefault(); // 페이지 리로드 방지
+        });
     });
 </script>
 </body>

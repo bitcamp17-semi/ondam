@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" th:href="@{/style/globals.css}"/>
+    <link rel="stylesheet" th:href="@{/style/management_org.css}"/>
+    <link rel="stylesheet" th:href="@{/style/header.css}"/>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+</head>
+<body>
+<div class="fullbox">
+    <div th:replace="~{layout/header :: header}"></div>
+    <div class="main">
+        <div class="nav">
+            <div class="navtitle">
+                관리페이지
+            </div>
+            <div class="navbar">
+                <div id="navlist1">인사관리</div>
+                <div id="navlist2">부서관리</div>
+                <div id="navlist3">결재관리</div>
+                <div id="navlist4">퇴사자관리</div>
+            </div>
+        </div>
+        <div class="section">
+            <div class="leftarticle">
+                <div id="orgtitle">조직도</div>
+                <div class="orgaddbox">
+                    <span>부서 / 팀</span>
+                    <button id="addbtn">+</button>
+                    <button id="deletebtn">-</button>
+                </div>
+
+                <div class="orgchart">
+                    <ul class="tree">
+                        <li class="parent">Ondam
+                            <ul>
+                                <li class="parent" id="buseo">경영지원부
+                                    <ul>
+                                        <li>인사팀</li>
+                                        <li>기획팀</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="rightarticle">
+                <span>인사팀(n)</span>
+                <div class="righttop">
+                    <input type="checkbox"/>
+                    <button id="rightdeletebtn">delete</button>
+                </div>
+                <div class="rightmain">
+                    <div class="teamlist">
+                        <div class="teamsawon">
+                            <input type="checkbox"/>
+                            <div class="sawonprofile">
+                                <img src="">
+                                <div class="teamsawonprofile">
+                                    <h3>사원명</h3>
+                                    <b>사원id</b>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="sawonupdate">
+                    <div class="sawon">
+                        <div class="sawonphoto">
+                            <img id="previewImage" src=""/>
+                            <input type="file" id="fileInput" class="hidden-file"/>
+                            <div class="photoselectbtn" onclick="openFilePicker()">
+                                <div class="photoselect">사진 선택</div>
+                            </div>
+                            <p id="fileName">선택된 파일 없음</p>
+                        </div>
+                        <div class="sawoninfo">
+                            <div class="sawonname">
+                                <span>이름</span>
+                                <input type="text" id="name" value=""/>
+                            </div>
+                            <div class="sawonbuseo">
+                                <span>부서</span>
+                                <div class="dropdown">
+                                    <div class="arraybtn1 dropdown-btn">
+                                        <div class="article1 buseo">부서</div>
+                                    </div>
+                                    <div class="dropdown-menu">
+                                        <a href="#">옵션 1-1</a>
+                                        <a href="#">옵션 1-2</a>
+                                        <a href="#">옵션 1-3</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="sawonteam">
+                                <span>팀</span>
+                                <div class="dropdown">
+                                    <div class="arraybtn2 dropdown-btn">
+                                        <div class="article2 team">부서</div>
+                                    </div>
+                                    <div class="dropdown-menu">
+                                        <a href="#">옵션 2-1</a>
+                                        <a href="#">옵션 2-2</a>
+                                        <a href="#">옵션 2-3</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="sawonposition">
+                                <span>직급</span>
+                                <div class="dropdown">
+                                    <div class="arraybtn3 dropdown-btn">
+                                        <div class="article3 position">직급</div>
+                                    </div>
+                                    <div class="dropdown-menu">
+                                        <a href="#">옵션 3-1</a>
+                                        <a href="#">옵션 3-2</a>
+                                        <a href="#">옵션 3-3</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="sawonphone">
+                                <span>전화번호</span>
+                                <input type="text" id="phone" value=""/>
+                            </div>
+                            <div class="sawonmail">
+                                <span>메일</span>
+                                <input type="text" id="mail" value=""/>
+                            </div>
+                        </div>
+                    </div>
+                        <div class="updatebtnset">
+                            <button class="sawonupdatebtn">수정하기</button>
+                            <button class="sawondeletebtn">사원정보 삭제</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        // ===== 조직도 기능 =====
+        $(".parent").click(function (event) {
+            event.stopPropagation(); // 부모 요소로 이벤트 전파 방지
+            $(this).toggleClass("open");
+            $(this).children("ul").slideToggle();
+        });
+        // 파일 선택기 열기
+        $("#filePickerBtn").click(function () {
+            openFilePicker();
+        });
+
+        // 파일 선택 이벤트
+        $("#fileInput").change(function (event) {
+            let file = event.target.files[0];
+            let fileNameText = file ? file.name : "선택된 파일 없음";
+            $("#fileName").text(fileNameText);
+
+            if (file) {
+                let reader = new FileReader();
+                reader.onload = function (e) {
+                    $("#previewImage").attr("src", e.target.result).show();
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // ===== 드롭다운 기능 =====
+        $(".dropdown-btn").click(function (event) {
+            event.stopPropagation();
+            let dropdownContent = $(this).siblings(".dropdown-menu");
+            $(".dropdown-menu").not(dropdownContent).hide();
+            dropdownContent.toggle();
+        });
+
+        $(document).click(function () {
+            $(".dropdown-menu").hide();
+        });
+
+        // 선택한 옵션을 버튼에 표시
+        $(".dropdown-menu a").click(function () {
+            let selectedText = $(this).text();
+            $(this).closest(".dropdown").find(".dropdown-btn").text(selectedText);
+            $(this).closest(".dropdown-menu").hide(); // 선택 후 닫기
+        });
+
+    });
+</script>
+</body>
+</html>
