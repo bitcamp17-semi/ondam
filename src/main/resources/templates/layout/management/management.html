@@ -35,13 +35,18 @@
         <div class="section">
             <div class="article">
                 <div class="btnframe">
-                    <div class="arraysettitle dropdown">
-                        <button class="arraybtn dropdownButton">
-                            <div class="article2">부서</div>
-                            <div class="polygon-2">▼</div>
-                        </button>
-                        <div class="dropdown-content">
+                    <div style="display: flex">
+                        <div class="arraysettitle dropdown">
+                            <button class="arraybtn dropdownButton">
+                                <div class="article2">부서</div>
+                                <div class="polygon-2">▼</div>
+                            </button>
+                            <div class="dropdown-content">
+                            </div>
                         </div>
+                        <button class="btnred" id="delete-selected">
+                            <div class="div5" style="color: white">선택 삭제</div>
+                        </button>
                     </div>
                     <button class="btnwhite" onclick="openModal()">
                         <div class="div5">직원 등록</div>
@@ -165,7 +170,7 @@
                 </div>
                 <div class="tableset">
                     <div class="tabletitle">
-                        <input class="checkbox" type="checkbox"/>
+                        <input class="checkbox" id="head-check" type="checkbox"/>
                         <div class="div6">|</div>
                         <div class="div7">부서</div>
                         <div class="div6">|</div>
@@ -193,8 +198,8 @@
                 <div class="pagenumset">
                     <i class="bi bi-arrow-left leftbtn page-arrow"></i>
                     <div class="pagenum">
-<!--                        <div class="_1">1</div>-->
-<!--                        <div class="_2">2</div>-->
+                        <!--                        <div class="_1">1</div>-->
+                        <!--                        <div class="_2">2</div>-->
                     </div>
                     <i class="bi bi-arrow-right rightbtn page-arrow"></i>
                 </div>
@@ -213,6 +218,50 @@
     $(document).ready(function () {
         loadDepartments();
         loadUsers();
+        const $headCheck = $('#head-check');
+
+        // 전체 선택/해제
+        $headCheck.on('change', function () {
+            const isChecked = $(this).is(':checked');
+            $(".user-check").prop('checked', isChecked);
+        });
+        // 개별 체크박스 상태 변화 시 전체 선택 체크 여부 확인
+        $(document).on('change', '.user-check', function () {
+            const total = $(".user-check").length;
+            const checked = $('.user-check:checked').length;
+            $headCheck.prop('checked', total > 0 && total === checked);
+        });
+        $('#delete-selected').on('click', function () {
+            const selectedIds = $('.user-check:checked').map(function () {
+                return $(this).data('user-id');
+            }).get();
+            if (selectedIds.length === 0) {
+                alert('삭제할 사용자를 선택해주세요.');
+                return;
+            }
+            // 쿼리 파라미터 형식으로 만들어야 @RequestParam 매핑 가능
+            const params = new URLSearchParams();
+            selectedIds.forEach(id => params.append('userList', id));
+            if (confirm("삭제하시겠습니까?")) {
+                $.ajax({
+                    url: '/api/users/deactivateUsers',
+                    type: 'POST',
+                    data: params.toString(), // x-www-form-urlencoded
+                    contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+                    success: function (res) {
+                        if (res.status === "ok") {
+                            alert('삭제가 완료되었습니다.');
+                            location.reload(); // 또는 선택된 row만 제거도 가능
+                        } else {
+                            alert('삭제 실패');
+                        }
+                    },
+                    error: function () {
+                        alert('서버 오류가 발생했습니다.');
+                    }
+                });
+            }
+        });
 
         // 드롭다운 버튼 이벤트
         $(".dropdownButton").click(function (event) {
@@ -319,7 +368,7 @@
                             let createdAt = user.createdAt.split(" ")[0];
                             let row = `
                         <div class="table">
-                            <input class="checkbox" type="checkbox" />
+                            <input class="checkbox user-check" type="checkbox" data-user-id="${user.id}"/>
                             <div class="div6">|</div>
                             <div class="div7">${user.department}</div>
                             <div class="div6">|</div>
@@ -536,6 +585,7 @@
         });
     }
 
+    $("#head-check")
 
 
 </script>
