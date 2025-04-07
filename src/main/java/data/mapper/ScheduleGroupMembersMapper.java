@@ -13,4 +13,6 @@ public interface ScheduleGroupMembersMapper {
 	public void scheGroupMemberInsert(Map<String,Object> map);
 	//그룹아이디가 가진 그룹멤버 조회
 	public List<ScheduleGroupMembersDto> readGroupMemByGroupId(int groupId);
+	//그룹멤버 전체 삭제
+	public void deleteScheGroupMem(int groupId);
 }

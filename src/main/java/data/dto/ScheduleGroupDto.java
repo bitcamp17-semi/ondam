@@ -1,6 +1,7 @@
 package data.dto;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 import org.apache.ibatis.type.Alias;
 
@@ -18,5 +19,7 @@ public class ScheduleGroupDto {
 	private String color;
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/Seoul")
     private Timestamp createdAt;
-	
+	//그룹장 이름
+	private String ownerName;
+	private List<ScheduleGroupMembersDto> members;
 }

@@ -41,4 +41,16 @@ public class ScheduleGroupService {
 	{
 		return scheduleGroupMapper.readCompanyGroupId();
 	}
+	
+	//그룹 수정
+	public void updateSchGroup(ScheduleGroupDto dto) 
+	{
+		scheduleGroupMapper.updateSchGroup(dto);
+	}
+	
+	//그룹 삭제
+	public void deleteScheGroup(int groupId)
+	{
+		scheduleGroupMapper.deleteScheGroup(groupId);
+	}
 }

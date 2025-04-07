@@ -37,4 +37,14 @@
     	WHERE g.name = '회사일정'
     	LIMIT 1
 	</select>
+	
+	<!-- 그룹 수정 -->
+	<update id="updateSchGroup" parameterType="ScheduleGroupDto" >
+		update schedule_group set name=#{name},color=#{color} where id=#{id}
+	</update>
+	
+	<!-- 그룹 삭제 -->
+	<delete id="deleteScheGroup" parameterType="int">
+		delete from schedule_group where id=#{id}
+	</delete>
 </mapper>

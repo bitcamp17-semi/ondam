@@ -16,4 +16,8 @@
 		JOIN users u ON m.userId = u.id
 		WHERE m.groupId = #{groupId};
 	</select>
+	<!-- 그룹멤버 삭제 -->
+	<delete id="deleteScheGroupMem" parameterType="int">
+		delete from schedule_group_members where groupId=#{groupId}
+	</delete>
 </mapper>

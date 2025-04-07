@@ -46,31 +46,37 @@ public class SchedulesController {
 	//일정관리 페이지 진입
 	@GetMapping({"/schedules"})
 	public String scheduleMain(Model model, HttpSession session) {
-		int userId=1;//임시로 로그인한 사용자를 고정
+		//int userId=1;//임시로 로그인한 사용자를 고정
 		
-		//세선으로부터 아이디 얻기
-		//String myid=(String)session.getAttribute("loginid");
-		//session.setAttribute("user", myid);
-		//System.out.println("세션에 저장된 사용자 정보: " + myid);
-
+		//세션에 저장된 userId 받기
+		Integer sUserId=(Integer)session.getAttribute("userId");
+		//System.out.println("로그인한 userId확인"+sUserId);
+		
+		if (sUserId == null) {
+		    return "redirect:/login";
+		}
+		
 		//아이디를 통해서 유저 테이블의 작성자 얻기
-		String writer=userService.readUserById(userId).getName();
+		String writer=userService.readUserById(sUserId).getName();
+		
+		//그룹장이름
+		//String ownerName=;
 		
 		//로그인 시 로그인한 계정이 그룹장이며 그룹이름이 '개인일정'인 그룹
 		//있는지 체크 후 없으면 그룹 자동 생성
-		ScheduleGroupDto privateExisting=scheduleGroupService.readPrivateGroup(userId);
+		ScheduleGroupDto privateExisting=scheduleGroupService.readPrivateGroup(sUserId);
 		if (privateExisting == null) {
 			Map<String, Object> map = new HashMap<>();
 	        map.put("name", "개인일정");
 	        map.put("color", "#28a745"); // 초록계열
-	        map.put("ownerId", userId);//dto.setOwnerId(userId);
+	        map.put("ownerId", sUserId);//dto.setOwnerId(userId);
 	        //map.put("departmentId", "");//dto.setDepartmentId(null);
 
 	        scheduleGroupService.scheGroupInsert(map);
 	    }
 		
 		//로그한 계정이 '회사그룹'의 멤버로 없다면 멤버로 등록 시키기
-		Integer companyMemExist=scheduleGroupService.readCompanyGroupMember(userId);
+		Integer companyMemExist=scheduleGroupService.readCompanyGroupMember(sUserId);
 		if(companyMemExist==null)
 		{
 			//'회사그룹'의 그룹 id 저장
@@ -78,14 +84,14 @@ public class SchedulesController {
 			
 			if (groupId != null) { // 예외 대비해서 한 번 더 체크
 				Map<String, Object> memberMap = new HashMap<>();
-				memberMap.put("userId",userId);
+				memberMap.put("userId",sUserId);
 				memberMap.put("groupId",groupId);
 				memberMap.put("color","#ffa500");
 			
 				// Map 하나만 등록하더라도 리스트로 감싸서 넘기기 > scheGroupMemberInsert list를 반환하도록 되어있음
 				List<Map<String, Object>> memberList = new ArrayList<>();
 				memberList.add(memberMap);
-
+				
 				scheduleGroupMemberService.scheGroupMemberInsert(memberList);
 				System.out.println("회사일정 그룹에 사용자 자동 추가 완료");
 			}else {
@@ -94,12 +100,16 @@ public class SchedulesController {
 		}
 		
 		//전체 일정 읽어오기
-		List<SchedulesDto> list = schedulesService.readAllSche(userId);
+		List<SchedulesDto> list = schedulesService.readAllSche(sUserId);
 		//전체 user 읽어오기
 		List<UsersDto> userList=userService.readAllActiveUsers();
 		//내가 그룹장이거나 그룹인원으로 있는 그룹 목록 불러오기
-		List<ScheduleGroupDto> groupList=scheduleGroupService.readAllGroup(userId);
-		
+		List<ScheduleGroupDto> groupList=scheduleGroupService.readAllGroup(sUserId);
+		for (ScheduleGroupDto group : groupList) {
+		    int ownerId = group.getOwnerId();
+		    String ownerName = userService.readUserById(ownerId).getName();
+		    group.setOwnerName(ownerName); // ScheduleGroupDto에 ownerName 필드 필요
+		}
 		// 4. 모든 그룹에 대해 그룹 멤버 조회 후 Map으로 담기
 	    Map<Integer, List<Integer>> groupMemberMap = new HashMap<>();
 	    for (ScheduleGroupDto group : groupList) {
@@ -111,11 +121,11 @@ public class SchedulesController {
 	        groupMemberMap.put(group.getId(), memberIds);
 	    }
 		
-		model.addAttribute("userId",userId);//로그인이랑 연결되면 추후에 수정할 예정
+		model.addAttribute("userId",sUserId);
 	    model.addAttribute("scheduleList", list); // 일정 리스트 모델에 담기
 	    model.addAttribute("userList",userList); //사용자 목록 모델에 담기
 	    model.addAttribute("groupList",groupList); //그룹목록 모델에 담기
-	    model.addAttribute("groupMemberMap", groupMemberMap); // 💡 멤버 ID 목록 map 추가
+	    model.addAttribute("groupMemberMap", groupMemberMap); // 멤버 ID 목록 map 추가
 	    model.addAttribute("today",new Date());
 	    
 	    return "schedules/schedules"; // schedules.html 읽어오기
@@ -125,10 +135,17 @@ public class SchedulesController {
 	@PostMapping("/scheduleinsert")
 	@ResponseBody
 	public ResponseEntity<Object> scheduleInsert(
-			@RequestBody SchedulesDto dto
+			@RequestBody SchedulesDto dto,
+			HttpSession session
 			)
 	{
 		Map<String, Object> response = new LinkedHashMap<>();
+		
+		//세션에 저장된 userId 받기
+		int sUserId=(Integer)session.getAttribute("userId");
+		//세선에 저장된 userId의 name을 writer에 저장
+		String writer=userService.readUserById(sUserId).getName();
+		
 		try {
 			String startTimeStr = dto.getStartDate() + " " + dto.getStartTime();
 	        String endTimeStr = dto.getEndDate() + " " + dto.getEndTime();
@@ -147,6 +164,7 @@ public class SchedulesController {
 	        Map<String, Object> map = new HashMap<>();
 	        map.put("userId", dto.getUserId());
 	        map.put("name", dto.getName());
+	        map.put("writer", writer);
 	        map.put("content", dto.getContent());
 	        map.put("groupId", dto.getGroupId());
 	        map.put("isAlltime", dto.getIsAlltime());
@@ -168,23 +186,15 @@ public class SchedulesController {
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
 	    }
 	}
-	
-	/*
-	 * //전체 일정 조회
-	 * 
-	 * @GetMapping("/schedulelist")
-	 * 
-	 * @ResponseBody public ResponseEntity<List<SchedulesDto>> getAllSchedules() {
-	 * int userId=40;//임시로 로그인한 사용자를 고정 List<SchedulesDto> schedules =
-	 * schedulesService.readAllSche(userId); return new ResponseEntity<>(schedules,
-	 * HttpStatus.OK); }
-	 */
-	
+
 	//일정 상세
 	@GetMapping("/scheDetail")
-	public String Detail(@RequestParam(value="id") int id,Model model)
+	public String Detail(@RequestParam(value="id") int id,Model model,HttpSession session)
 	{
-		int userId=1;//임시로 로그인한 사용자를 고정
+		//int userId=1;//임시로 로그인한 사용자를 고정
+		//세션에 저장된 userId 받기
+		int sUserId=(Integer)session.getAttribute("userId");
+		//System.out.println("로그인한 userId확인"+userId);
 		
 		SchedulesDto dto=schedulesService.readOneSche(id);
 		
@@ -201,10 +211,14 @@ public class SchedulesController {
 		String endTime=endDateParts[1];
 	    
 		//내가 그룹장이거나 그룹인원으로 있는 그룹 목록 불러오기
-		List<ScheduleGroupDto> groupList=scheduleGroupService.readAllGroup(userId);
+		List<ScheduleGroupDto> groupList=scheduleGroupService.readAllGroup(sUserId);
 		String groupName = dto.getGroupName();
 		
+		//작성자가 가진userId
+		dto.setWriterId(dto.getUserId());
+		
 		model.addAttribute("dto",dto);
+		model.addAttribute("userId",sUserId);//로그인한 사용자
 		model.addAttribute("StartDate", startDate); //시작날짜
 		model.addAttribute("StartTime",startTime); //시작 시간
 		model.addAttribute("endDate",endDate);//마감 날짜

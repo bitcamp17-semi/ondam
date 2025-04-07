@@ -11,8 +11,11 @@ import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import data.dto.ScheGroupMemberInserDto;
@@ -67,7 +70,7 @@ public class ScheduleGroupController {
 	        for (ScheGroupMemberInserDto member : body.getMembers()) {
 	            Map<String, Object> memberMap = new HashMap<>();
 	            memberMap.put("userId", member.getUserId());
-	            memberMap.put("groupId", groupId); // 외래키 설정
+	            memberMap.put("groupId", groupId);
 	            memberMap.put("color", member.getColor());
 	            memberList.add(memberMap);
 	        }
@@ -83,5 +86,58 @@ public class ScheduleGroupController {
             response.put("result", e.getMessage());
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
 	    }
+	}
+	
+	//그룹 수정
+	@PostMapping("/updateScheGroup")
+	@ResponseBody
+	public ResponseEntity<Object> updateScheGroup(
+			@RequestBody ScheduleGroupDto dto
+			)
+	{
+		Map<String, Object> response = new LinkedHashMap<>();
+	    try {
+	        
+	    	//기존에 저장된 데이터 불러오기
+	    	String name=dto.getName();
+	    	String color=dto.getColor();
+	    	int groupId=dto.getId();
+	    	
+	    	// 그룹 정보 업데이트
+	        scheduleGroupService.updateSchGroup(dto);
+	        
+	        // 2. 기존 멤버 삭제
+	        scheduleGroupMemberService.deleteScheGroupMem(groupId);
+
+	        // 3. 새로운 멤버 추가
+	        List<Map<String, Object>> members = new ArrayList<>();
+	        for (ScheduleGroupMembersDto m : dto.getMembers()) {
+	            Map<String, Object> map = new HashMap<>();
+	            map.put("userId", m.getUserId());
+	            map.put("groupId", dto.getId());
+	            map.put("color", m.getColor());
+	            members.add(map);
+	        }
+	        scheduleGroupMemberService.scheGroupMemberInsert(members);
+	        
+	        
+	        response.put("status", "ok");
+            response.put("resuilt", dto);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+	    } catch (Exception e) {
+	    	e.printStackTrace(); //콘솔에 전체 스택 출력
+	    	response.put("status", "error");
+            response.put("result", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+	    }
+	}
+	
+	//그룹 삭제
+	@GetMapping("/scheGroupDel")
+	public ResponseEntity<Void> deleteScheGroup(@RequestParam(value="id") int id) {
+		Map<String, Object> response = new LinkedHashMap<String, Object>();
+		
+		scheduleGroupService.deleteScheGroup(id);
+	    return new ResponseEntity<>(HttpStatus.OK);
 	}
 }

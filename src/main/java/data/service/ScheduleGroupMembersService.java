@@ -27,4 +27,9 @@ public class ScheduleGroupMembersService {
 	public List<ScheduleGroupMembersDto> readGroupMemByGroupId(int groupId) {
 		return scheduleGroupMemberMapper.readGroupMemByGroupId(groupId);
 	}
+	
+	//그룹멤버 전체 삭제
+	public void deleteScheGroupMem(int groupId) {
+		scheduleGroupMemberMapper.deleteScheGroupMem(groupId);
+	}
 }

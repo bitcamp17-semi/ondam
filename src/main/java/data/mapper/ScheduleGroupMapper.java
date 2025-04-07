@@ -23,4 +23,10 @@ public interface ScheduleGroupMapper {
 	
 	//그룹명이 '회사일정'인 groupId 조회
 	public Integer readCompanyGroupId();
+	
+	//그룹 수정
+	public void updateSchGroup(ScheduleGroupDto dto);
+	
+	//그룹 삭제
+	public void deleteScheGroup(int groupId);
 }
