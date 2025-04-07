@@ -2,10 +2,11 @@
 <html xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8"/>
-    <link rel="stylesheet" th:href="@{/style/global.css}"/>
+    <link rel="stylesheet" th:href="@{/style/globals.css}"/>
     <link rel="stylesheet" th:href="@{/style/management.css}"/>
-    <link rel="stylesheet" th:href="@{/style/header.css}" />
+    <link rel="stylesheet" th:href="@{/style/header.css}"/>
     <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
 </head>
 <style>
     #userTableBody {
@@ -96,7 +97,7 @@
                                                 <div class="arraysettitle2" id="position">
                                                     <div class="title">직급</div>
                                                     <div class="arraybtn3 dropdownButton">
-                                                        <div class="article3">직급</div>
+                                                        <div class="article3">사원</div>
                                                         <div class="polygon-2">▼</div>
                                                     </div>
                                                     <div class="dropdown-content">
@@ -190,12 +191,12 @@
                     <div class="frame-136"></div>
                 </div>
                 <div class="pagenumset">
-                    <img class="before" src="before0.svg"/>
+                    <i class="bi bi-arrow-left leftbtn page-arrow"></i>
                     <div class="pagenum">
-                        <div class="_1">1</div>
-                        <div class="_2">2</div>
+<!--                        <div class="_1">1</div>-->
+<!--                        <div class="_2">2</div>-->
                     </div>
-                    <img class="next" src="next0.svg"/>
+                    <i class="bi bi-arrow-right rightbtn page-arrow"></i>
                 </div>
             </div>
         </div>
@@ -206,6 +207,9 @@
 </body>
 </html>
 <script>
+    const pageSize = 10; // 고정된 페이지 사이즈
+    let currentDep = ''; // 현재 선택된 부서
+    let currentPage = 1; // 현재 페이지
     $(document).ready(function () {
         loadDepartments();
         loadUsers();
@@ -238,13 +242,14 @@
 
             // 드롭다운 버튼 class에 따라 분기
             if (dropdownButton.hasClass("article2")) {
-                loadUsers(); // 메인화면 부서 선택
+                currentDep = selectedText
+                currentPage = 1;
+                loadUsers(currentDep, currentPage); // 메인화면 부서 선택
             } else if (dropdownButton.hasClass("buseo")) {
                 $("#teamDropdown .article3").text("팀");
                 readTeamsByDep(selectedId);  // ✅ 부서 ID 전달
             }
         });
-
 
 
         // 파일 선택기 열기
@@ -292,21 +297,24 @@
     }
 
     // 유저 목록 불러오기
-    function loadUsers() {
+    function loadUsers(dep, page) {
+        console.log("dd")
         let dropdownButton = $(".arraybtn .article2");
         let department = dropdownButton.attr("data-selected-value");
-        if (department != null) {
+        if (dep != null) {
             $.ajax({
                 url: '/api/users/readUsersByDep',
                 type: 'GET',
-                data: {department: department},
+                data: {department: dep, page: page, size: pageSize},
                 success: function (response) {
                     if (response.status === "ok") {
-                        let users = response.result;
+                        let users = response.result.list;
                         $("#tableBody").html("");
                         let tableBody = $('#userTableBody');
                         tableBody.empty();
-
+                        if (users.length === 0) {
+                            tableBody.append(`<div class="no-users">해당 부서에 등록된 직원이 없습니다.</div>`);
+                        }
                         users.forEach(user => {
                             let createdAt = user.createdAt.split(" ")[0];
                             let row = `
@@ -338,6 +346,9 @@
                         `;
                             tableBody.append(row);
                         });
+                        let totalCnt = response.result.totalCnt;
+                        let totalPages = Math.ceil(totalCnt / 10);
+                        renderPagination(dep, totalPages, page);
                     } else {
                         alert("데이터를 불러오는 데 실패했습니다.");
                     }
@@ -384,7 +395,7 @@
         $.ajax({
             url: "/api/dep/readTeams",
             type: "GET",
-            data: { departmentId: departmentId },
+            data: {departmentId: departmentId},
             success: function (response) {
                 if (response.status === "ok") {
                     console.log("팀 목록:", response.result);
@@ -466,14 +477,13 @@
     }
 
 
-
     // 유저 삭제 함수
     function deleteUser(userId) {
         if (confirm("정말 삭제하시겠습니까?")) {
             $.ajax({
                 url: "/api/users/deactivateUser",
                 type: "POST",
-                data: { userId: userId },
+                data: {userId: userId},
                 success: function (res) {
                     if (res.status === "ok") {
                         location.reload();
@@ -487,5 +497,45 @@
             });
         }
     }
+
+    function renderPagination(dep, totalPages, currentPage) {
+        let pageNumContainer = $(".pagenum");
+        pageNumContainer.empty();
+
+        // 페이지 번호 생성
+        for (let i = 1; i <= totalPages; i++) {
+            let pageDiv = $(`<div>${i}</div>`);
+
+            // 클래스 부여
+            if (i === currentPage) {
+                pageDiv.addClass("currentPage");
+            } else {
+                pageDiv.addClass("otherPage");
+            }
+
+            // 클릭 이벤트
+            pageDiv.on("click", function () {
+                loadUsers(dep, i);
+            });
+
+            pageNumContainer.append(pageDiv);
+        }
+
+        // 왼쪽 화살표 (이전)
+        $(".leftbtn").off("click").on("click", function () {
+            if (currentPage > 1) {
+                loadUsers(dep, currentPage - 1);
+            }
+        });
+
+        // 오른쪽 화살표 (다음)
+        $(".rightbtn").off("click").on("click", function () {
+            if (currentPage < totalPages) {
+                loadUsers(dep, currentPage + 1);
+            }
+        });
+    }
+
+
 
 </script>

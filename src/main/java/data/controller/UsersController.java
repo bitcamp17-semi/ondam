@@ -115,12 +115,19 @@ public class UsersController {
         }
     }
     @GetMapping("/readUsersByDep")
-    public ResponseEntity<Object> readUsersByDep(@RequestParam(value = "department") String department) {
+    public ResponseEntity<Object> readUsersByDep(@RequestParam(value = "department") String department,
+                                                 @RequestParam(defaultValue = "1") int page,
+                                                 @RequestParam(defaultValue = "10") int size) {
         Map<String, Object> response = new HashMap<>();
         try {
-            List<UsersDto> list = usersService.readUsersByDep(department);
+            Map<String, Object> result = new HashMap<>();
+            int offset = (page - 1) * size;
+            List<UsersDto> list = usersService.readUsersByDep(department, offset, size);
+            int totalCnt = usersService.readCountUsersByDep(department);
+            result.put("totalCnt", totalCnt);
+            result.put("list", list);
             response.put("status", "ok");
-            response.put("result", list);
+            response.put("result", result);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             response.put("status", "error");

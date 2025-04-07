@@ -23,7 +23,11 @@ public interface UsersMapper {
 
     public List<UsersDto> readAllDeactivateUsers();
 
-    public List<UsersDto> readUsersByDep(String department);
+    public List<UsersDto> readUsersByDep(String department, int offset, int size);
+
+    public int readCountUsersByDep(String department);
 
     public List<UsersDto> readUsersByTeam(String team);
+
+    public void deleteUser(int id);
 }
