@@ -78,6 +78,7 @@ public class UsersController {
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
     @GetMapping("/readUserById")
     public ResponseEntity<Object> getUserById(HttpSession session) {
         Map<String, Object> response = new LinkedHashMap<>();
@@ -114,11 +115,12 @@ public class UsersController {
             return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
         }
     }
+
     @GetMapping("/readUsersByDep")
     public ResponseEntity<Object> readUsersByDep(@RequestParam(value = "department") String department,
                                                  @RequestParam(defaultValue = "1") int page,
                                                  @RequestParam(defaultValue = "10") int size) {
-        Map<String, Object> response = new HashMap<>();
+        Map<String, Object> response = new LinkedHashMap<>();
         try {
             Map<String, Object> result = new HashMap<>();
             int offset = (page - 1) * size;
@@ -131,6 +133,52 @@ public class UsersController {
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             response.put("status", "error");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/deleteUser")
+    public ResponseEntity<Object> deleteUser(@RequestParam(value = "userId") int userId) {
+        Map<String, Object> response = new LinkedHashMap<>();
+        try {
+            usersService.deleteUser(userId);
+            response.put("status", "ok");
+            response.put("result", "delete user");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            response.put("status", "fail");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/deactivateUsers")
+    public ResponseEntity<Object> deactivateUsers(@RequestParam(value = "userList") List<Integer> userList) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            for (Integer userId : userList) {
+                usersService.deactivateUser(userId);
+            }
+            response.put("status", "ok");
+            response.put("result", "deactivate users");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            response.put("status", "fail");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @PostMapping("/deleteUsers")
+    public ResponseEntity<Object> deleteUsers(@RequestParam(value = "userList") List<Integer> userList) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            usersService.deleteUsers(userList);
+            response.put("status", "ok");
+            response.put("result", "deactivate users");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            response.put("status", "fail");
             response.put("error", e.getMessage());
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
