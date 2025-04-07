@@ -34,10 +34,18 @@
         FROM users
         ORDER BY loginId DESC LIMIT 1
     </select>
-    <select id="readUsersByDep" parameterType="String" resultType="UsersDto">
+    <select id="readUsersByDep" parameterType="map" resultType="UsersDto">
         select *
         from users
         where department = #{department}
+          and isDeleted = 0
+            LIMIT #{size}
+        OFFSET #{offset}
+    </select>
+    <select id="readCountUsersByDep" parameterType="String" resultType="int">
+        SELECT COUNT(*)
+        FROM users
+        WHERE department = #{department}
           and isDeleted = 0
     </select>
     <select id="readUsersByTeam" parameterType="String" resultType="UsersDto">
@@ -65,4 +73,9 @@
             isDeleted=1
         where id = #{id}
     </update>
+    <delete id="deleteUser" parameterType="int">
+        delete
+        from users
+        where id = #{id}
+    </delete>
 </mapper>

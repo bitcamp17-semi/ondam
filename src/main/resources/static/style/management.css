@@ -237,6 +237,7 @@
     flex: 1;
     width: 1680px;
     position: relative;
+    height: 50vh;
 }
 .tabletitle {
     background: #f7f7f7;
@@ -436,11 +437,30 @@
 .pagenumset {
     display: flex;
     flex-direction: row;
-    gap: 45px;
+    /*gap: 45px;*/
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
     position: relative;
+}
+.pagenumset > * {
+    cursor: pointer;
+}
+.page-arrow {
+    padding: 6px 12px;
+    border-radius: 6px;
+    transition: background-color 0.2s;
+}
+.page-arrow:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+.pagenum > * {
+    padding: 6px 12px;
+    border-radius: 6px;
+    transition: background-color 0.2s;
+}
+.pagenum > *:hover {
+    background-color: rgba(0, 0, 0, 0.1);
 }
 .before {
     flex-shrink: 0;
@@ -453,14 +473,14 @@
 .pagenum {
     display: flex;
     flex-direction: row;
-    gap: 20px;
+    /*gap: 20px;*/
     align-items: center;
     justify-content: flex-start;
     flex-shrink: 0;
     position: relative;
 }
-._1 {
-    color: #3f3f3f;
+.currentPage {
+    /*color: #3f3f3f;*/
     text-align: left;
     font-family: "NotoSans-Bold", sans-serif;
     font-size: 16px;
@@ -470,8 +490,11 @@
     display: flex;
     align-items: center;
     justify-content: flex-start;
+    background-color: #fa7000;
+    color: white;
+    border-radius: 4px;
 }
-._2 {
+.otherPage {
     color: #686868;
     text-align: left;
     font-family: "NotoSans-Regular", sans-serif;
@@ -914,4 +937,15 @@
 .dropdown-content a:hover {
     background-color: #fa7000;
     color: white;
+}
+.no-users {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-55%, -50%);
+    text-align: center;
+    font-size: 1.1rem;
+    color: #888;
+    border-radius: 10px;
+    margin: 20px;
 }
