@@ -48,6 +48,7 @@
 .navbar {
     display: flex;
     align-items: flex-start;
+    justify-content: flex-start;
     gap: 30px;
     position: relative;
     align-self: stretch;
@@ -93,7 +94,7 @@
     flex-direction: column;
     height: 100%;
     max-height: 610px;
-    width: 300px;
+    width: 250px;
 }
 
 #orgtitle{
@@ -107,11 +108,11 @@
     width: 100%;
     border-bottom: rgba(0, 0, 0, 0.05) 1px solid;
 }
-#addbtn{
+.addbtn{
     border: rgba(0, 0, 0, 0.15) 1px solid;
     border-radius: 5px;
     height: 35px;
-    width: 13%;
+    width: 100px;
     background-color: white;
     color: #686868;
     cursor: pointer;
@@ -136,29 +137,38 @@
     padding-left: 20px;
 }
 
+.tree {
+    list-style-type: none;
+    padding-left: 20px;
+}
+
 .tree li {
-    cursor: pointer;
-    margin: 20px 0;
+    margin: 10px 0;
     position: relative;
 }
 
-.tree li::before {
-    content: "+"; /* 접기 아이콘 */
+.node-label {
+    padding-right: 24px; /* 삭제버튼 공간 확보 */
+    cursor: pointer;
+    position: relative;
+    display: inline-block;
+}
+
+.delete-icon {
     position: absolute;
-    left: -15px;
-    font-size: 12px;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #dc3545;
+    font-size: 16px;
+    cursor: pointer;
 }
 
-.tree li.open::before {
-    content: "-"; /* 펼치기 아이콘 */
-}
-
-.tree ul {
-    display: none; /* 기본적으로 하위 메뉴 숨김 */
-}
-
-.tree #buseo li::before {
-    content: none;
+.toggle-icon {
+    margin-right: 6px;
+    font-size: 14px;
+    color: #007bff;
+    cursor: pointer;
 }
 
 /*inbox right*/
@@ -409,4 +419,86 @@
     justify-content: center;
     position: relative;
     flex-direction: row;
+}
+
+/* 모달 css*/
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* 어두운 배경 */
+    display: none; /* flex 레이아웃 사용 */
+    justify-content: center;
+    align-items: center;
+    transition: visibility 0s, opacity 0.3s; /* 애니메이션 효과 */
+    z-index: 10000;
+}
+
+.modal-content {
+    background-color: white;
+    padding: 30px;
+    border-radius: 10px;
+    width: 400px;
+    display: flex;
+    flex-direction: column;
+}
+.modal-content span{
+    font-size: 12px;
+}
+.modal-content h2 {
+    font-size: 20px;
+    font-weight: bold;
+    color: #3f3f3f;
+    margin-bottom: 15px;
+}
+
+#modaldepartment{
+    width: 100%;
+}
+
+.modalteamtitle{
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    width: 100%;
+    margin-top: 10px;
+}
+.modaltitle{
+    margin-top: 5px;
+    width: 100%;
+    border: rgba(0, 0, 0, 0.15) 1px solid;
+    padding: 10px;
+    border-radius: 5px;
+    height: 30px;
+}
+
+.buttonset{
+    margin-top: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.submit-modal{
+    width: 150px;
+    height: 35px;
+    background-color: #fa7000;
+    color: white;
+    border: rgba(0, 0, 0, 0.05) 1px solid;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+}
+.close-modal{
+    width: 100px;
+    height: 35px;
+    background-color: white;
+    border: rgba(0, 0, 0, 0.15) 1px solid;
+    border-radius: 5px;
+    color: #686868;
+    font-size: 14px;
+    cursor: pointer;
 }
