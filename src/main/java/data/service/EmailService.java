@@ -38,10 +38,11 @@ public class EmailService {
         }
     }
 
-    public void signUpMail(String name, String loginId, String email) {
+    public void signUpMail(String name, String loginId, String email, String password) {
         Context context = new Context();
         context.setVariable("name", name);
         context.setVariable("loginId", loginId);
+        context.setVariable("loginPassword", password);
         context.setVariable("loginPage", serverUrl+"/login");
         String message = templateEngine.process("infoMailForm", context);
         EmailDto emailDto = EmailDto.builder()

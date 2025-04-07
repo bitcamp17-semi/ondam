@@ -23,8 +23,6 @@ public class UsersController {
     UsersService usersService;
     @Autowired
     ObjectStorageService storageService;
-    @Autowired
-    EmailService emailService;
 
     @PostMapping("/createUser")
     public ResponseEntity<Object> createUser(
@@ -42,7 +40,6 @@ public class UsersController {
                 // 사용자 생성 로직
                 boolean isCreated = usersService.createUser(usersDto);
                 if (isCreated) {
-                    emailService.signUpMail(usersDto.getName(), usersDto.getLoginId(), usersDto.getEmail()); // 가입 안내 메일 발송
                     response.put("status", "ok");
                     response.put("result", usersDto);  // 생성된 사용자 정보 반환
                     return new ResponseEntity<>(response, HttpStatus.CREATED);
