@@ -25,6 +25,11 @@ public class HtmlController {
         return "layout/approval/approval_done_file";
     }
 
+    @GetMapping("/draft/approvalDoneFileWrite")
+    public String approvalDoneFileWrite() {
+        return "layout/approval/approval_done_file_write";
+    }
+
     @GetMapping("/draft/approvalInbox")
     public String approvalInbox() {
         return "layout/approval/approval_inbox";

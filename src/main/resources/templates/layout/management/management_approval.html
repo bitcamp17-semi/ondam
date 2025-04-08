@@ -34,12 +34,17 @@
         </div>
         <div class="section">
             <div class="btnset">
-                <select id="template-list">
-                    <option disabled selected>수정할 문서 선택</option>
-                </select>
-                <button class="whitebtn" id="addApproverBtn">결재라인 추가</button>
-                <button class="orangebtn" id="submitBtn">저장하기</button>
-
+                <div class="leftbtn">
+                    <select id="template-list">
+                        <option disabled selected>수정할 문서 선택</option>
+                    </select>
+                    <button class="whitebtn" id="addApproverBtn">결재라인 추가</button>
+                </div>
+                <div class="rightbtn">
+                    <button class="whitebtn" id="deleteBtn">삭제</button>
+                    <button class="whitebtn" id="updateBtn">수정하기</button>
+                    <button class="orangebtn" id="submitBtn">저장하기</button>
+                </div>
             </div>
             <div class="approvallist">
                 <div class="approvalmain">
@@ -83,9 +88,9 @@
 
     //더미유저
     const dummyUsers = [
-        { id: 1, name: "김철수", department: "개발팀" },
-        { id: 2, name: "이영희", department: "디자인팀" },
-        { id: 3, name: "박민수", department: "기획팀" }
+        {id: 1, name: "김철수", department: "개발팀"},
+        {id: 2, name: "이영희", department: "디자인팀"},
+        {id: 3, name: "박민수", department: "기획팀"}
     ];
 
     // Quill 에디터 초기화
@@ -94,12 +99,13 @@
         placeholder: '내용을 입력하세요...',
         modules: {
             toolbar: [
-                [{ header: [1, 2, false] }],
+                [{header: [1, 2, false]}],
                 ['bold', 'italic', 'underline'],
                 ['image', 'code-block']
             ]
         }
     });
+
     // 템플릿 목록 불러오기
     function loadTemplateList() {
         $.ajax({
@@ -109,7 +115,7 @@
                 $('#template-list').empty().append('<option disabled selected>템플릿 선택</option>');
                 templates.forEach(function (template) {
                     $('#template-list').append(
-                        $('<option>', { value: template.id, text: template.title })
+                        $('<option>', {value: template.id, text: template.title})
                     );
                 });
             }
@@ -179,6 +185,7 @@
         renderUserList("all");
         $('.user-modal').show();
     }
+
     $('#addApproverBtn').on('click', function () {
         openUserModal();  // ← 모달 열기 함수 호출
     });
