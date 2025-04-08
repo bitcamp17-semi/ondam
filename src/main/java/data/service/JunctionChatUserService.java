@@ -14,23 +14,28 @@ public class JunctionChatUserService {
     @Autowired
     private JunctionChatUsersGroupsMapper juncChatUsersGroupsMapper;
 
-    // 사용자-그룹 관계 생성 (Create)
+    // C: 사용자-그룹 관계 생성
     public void createJunction(JuncChatUsersGroupsDto junction) {
-    	juncChatUsersGroupsMapper.createJunction(junction);
+        juncChatUsersGroupsMapper.createJunction(junction);
     }
 
-    // 사용자-그룹 관계 조회 (Read)
+    // R: 사용자 ID로 관계 조회
     public List<JuncChatUsersGroupsDto> readJunctionByUserId(int userId) {
         return juncChatUsersGroupsMapper.readJunctionByUserId(userId);
     }
 
-    // 그룹에 속한 사용자 조회 (Read)
+    // R: 그룹 ID로 사용자 목록 조회
     public List<JuncChatUsersGroupsDto> readUsersByGroupId(int groupId) {
         return juncChatUsersGroupsMapper.readUsersByGroupId(groupId);
     }
 
-    // 사용자-그룹 관계 삭제 (Delete)
+    // D: 관계 삭제
     public void deleteJunction(JuncChatUsersGroupsDto junction) {
-    	juncChatUsersGroupsMapper.deleteJunction(junction);
+        juncChatUsersGroupsMapper.deleteJunction(junction);
+    }
+    
+    //사용자 초대    
+    public void createUserGroupLink(JuncChatUsersGroupsDto dto) {
+    	juncChatUsersGroupsMapper.createUserGroupLink(dto);
     }
 }

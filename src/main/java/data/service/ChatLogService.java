@@ -1,5 +1,7 @@
 package data.service;
 
+import java.sql.Timestamp;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -7,33 +9,31 @@ import org.springframework.stereotype.Service;
 import data.dto.ChatLogDto;
 import data.mapper.ChatLogMapper;
 
-import java.sql.Timestamp;
-import java.util.List;
-
 @Service
 public class ChatLogService {
 
     @Autowired
     private ChatLogMapper chatLogMapper;
 
-    // 메시지 생성 (Create)
+    // C: 메시지 생성
     public void createChatLog(ChatLogDto chatLog) {
-        chatLog.setCreatedAt(new Timestamp(System.currentTimeMillis())); // 생성 시간 설정
+        chatLog.setCreatedAt(new Timestamp(System.currentTimeMillis()));
         chatLogMapper.createChatLog(chatLog);
     }
 
-    // 그룹 내 메시지 조회 (Read)
+    // R: 그룹 메시지 조회
     public List<ChatLogDto> readChatLogsByGroupId(int groupId) {
         return chatLogMapper.readChatLogsByGroupId(groupId);
     }
 
-    // 메시지 수정 (Update)
+    // U: 메시지 수정
     public void updateChatLog(ChatLogDto chatLog) {
         chatLogMapper.updateChatLog(chatLog);
     }
 
-    // 메시지 삭제 (Delete)
+    // D: 메시지 삭제
     public void deleteChatLog(long id) {
         chatLogMapper.deleteChatLog(id);
-    }
+    }   
+ 
 }

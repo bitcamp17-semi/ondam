@@ -1,5 +1,7 @@
 package data.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -9,66 +11,71 @@ import data.dto.JuncChatUsersGroupsDto;
 import data.mapper.ChatGroupsMapper;
 import data.mapper.JunctionChatUsersGroupsMapper;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 @Service
 public class ChatGroupsService {
 
-	@Autowired
-    private ChatGroupsMapper chatGroupMapper; // 그룹 관련 매퍼
+    @Autowired
+    private ChatGroupsMapper chatGroupsMapper;
 
     @Autowired
-    private JunctionChatUsersGroupsMapper junctionMapper; // 사용자-그룹 관계 매퍼
+    private JunctionChatUsersGroupsMapper junctionMapper;
 
-    // 그룹 생성 (Create)
+ // C: 그룹 생성
     public void createChatGroup(ChatGroupsDto chatGroup) {
-        chatGroupMapper.createChatGroup(chatGroup); // 매퍼를 통해 그룹 생성
+        chatGroupsMapper.createChatGroup(chatGroup);
     }
 
-    // ID로 그룹 조회 (Read)
+    // R: 그룹 ID로 조회
     public ChatGroupsDto readChatGroupById(int id) {
-        return chatGroupMapper.readChatGroupById(id); // 매퍼를 통해 ID로 그룹 조회
+        return chatGroupsMapper.readChatGroupById(id);
     }
 
-    // 모든 그룹 조회 (Read)
+    // R: 전체 그룹 조회
     public List<ChatGroupsDto> readAllChatGroups() {
-        return chatGroupMapper.readAllChatGroups(); // 매퍼를 통해 모든 그룹 조회
+        return chatGroupsMapper.readAllChatGroups();
     }
 
-    // 그룹 수정 (Update)
+    // U: 그룹 수정
     public void updateChatGroup(ChatGroupsDto chatGroup) {
-        chatGroupMapper.updateChatGroup(chatGroup); // 매퍼를 통해 그룹 정보 수정
+        chatGroupsMapper.updateChatGroup(chatGroup);
     }
 
-    // 그룹 삭제 (Delete)
+    // D: 그룹 삭제
     public void deleteChatGroup(int id) {
-        chatGroupMapper.deleteChatGroup(id); // 매퍼를 통해 그룹 삭제
+        chatGroupsMapper.deleteChatGroup(id);
     }
-
-    // 사용자가 속한 그룹 ID 목록 조회 (Read)
+    
+    public ChatGroupsDto readGroupById(int groupId) {
+        return chatGroupsMapper.readGroupById(groupId);
+    }
+    
+    public List<ChatGroupsDto> readGroupsByUserId(int userId) {
+        return chatGroupsMapper.readGroupsByUserId(userId);
+    }
+    
+    // R: 사용자가 가입한 그룹 ID 조회
     public List<Integer> readGroupIdsByUserId(int userId) {
-        // junction 테이블에서 사용자가 속한 그룹 목록 조회
         List<JuncChatUsersGroupsDto> junctions = junctionMapper.readJunctionByUserId(userId);
-        // 그룹 ID만 추출하여 반환
         return junctions.stream()
                 .map(JuncChatUsersGroupsDto::getGroupId)
                 .collect(Collectors.toList());
     }
 
-    // 사용자-그룹 관계 추가 (Create, 그룹 가입)
+    // C: 사용자-그룹 관계 생성
     public void createJunction(int userId, int groupId) {
+        if (!junctionMapper.readExistsJunction(userId, groupId)) {
+            JuncChatUsersGroupsDto junction = new JuncChatUsersGroupsDto();
+            junction.setUserId(userId);
+            junction.setGroupId(groupId);
+            junctionMapper.createJunction(junction);
+        }
+    }
+
+    // D: 사용자-그룹 관계 삭제
+    public void deleteJunction(int userId, int groupId) {
         JuncChatUsersGroupsDto junction = new JuncChatUsersGroupsDto();
         junction.setUserId(userId);
         junction.setGroupId(groupId);
-        junctionMapper.createJunction(junction); // junction 테이블에 사용자-그룹 관계 추가
-    }
-
-    // 사용자-그룹 관계 삭제 (Delete, 그룹 탈퇴)
-    public void deleteJunction(int userId, int groupId) {
-    	JuncChatUsersGroupsDto junction = new JuncChatUsersGroupsDto();
-        junction.setUserId(userId);
-        junction.setGroupId(groupId);
-        junctionMapper.deleteJunction(junction); // junction 테이블에서 사용자-그룹 관계 삭제
+        junctionMapper.deleteJunction(junction);
     }
 }

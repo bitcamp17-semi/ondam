@@ -3,6 +3,7 @@ package data.dto;
 import lombok.Data;
 
 import java.sql.Timestamp;
+import java.time.LocalDate;
 
 import org.apache.ibatis.type.Alias;
 
@@ -11,5 +12,6 @@ import org.apache.ibatis.type.Alias;
 public class ChatGroupsDto {
     private int id;
     private String name;
-    private Timestamp createdAt;
+    private LocalDate createdAt;
+    private int createdBy;
 }
