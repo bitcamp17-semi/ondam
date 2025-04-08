@@ -77,6 +77,10 @@ public class UsersService {
         }
     }
 
+    public List<UsersDto> readUsersByName(String name) {
+        return usersMapper.readUsersByName(name);
+    }
+
     public Date convertStringToDate(String date) throws ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         java.util.Date utilDate = sdf.parse(date);

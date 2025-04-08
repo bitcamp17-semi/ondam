@@ -199,4 +199,19 @@ public class UsersController {
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @GetMapping("/readUsersByName")
+    public ResponseEntity<Object> readUsersByName(@RequestParam(value = "name") String name) {
+        Map<String, Object> response = new LinkedHashMap<>();
+        try {
+            List<UsersDto> list = usersService.readUsersByName(name);
+            response.put("status", "ok");
+            response.put("result", list);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            response.put("status", "fail");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }
