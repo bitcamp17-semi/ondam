@@ -1,6 +1,7 @@
 package data.service;
 
 import data.dto.MessagesDto;
+import data.dto.UsersDto;
 import data.mapper.MessageMapper;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +20,7 @@ public class MessageService {
 
 
     // 특정 사용자가 받은 메시지 조회 (Read)
-    public List<MessagesDto> getMessagesForReceiver(int receiverId) {
+    public List<MessagesDto> readMessagesForReceiver(int receiverId) {
         return messageMapper.readMessagesForReceiver(receiverId);
     }
 
@@ -57,6 +58,12 @@ public class MessageService {
     }
     public boolean readCountUnreadMessages(int receiverId) {
         return messageMapper.readCountUnreadMessages(receiverId) > 0;
+    }
+    public List<String> readAllDepartment() {
+        return messageMapper.readAllDepartment();
+    }
+    public List<UsersDto> readUsersByDepartment(String department) {
+        return messageMapper.readUsersByDepartment(department);
     }
 
 

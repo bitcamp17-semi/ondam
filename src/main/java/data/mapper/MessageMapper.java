@@ -1,6 +1,7 @@
 package data.mapper;
 
 import data.dto.MessagesDto;
+import data.dto.UsersDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -32,6 +33,9 @@ public interface MessageMapper {
     void updateMessageImportance(@Param("id") int id, @Param("isImportant") boolean isImportant);
 
     int readCountUnreadMessages(int receiverId);
+    List<String> readAllDepartment();
+
+    List<UsersDto> readUsersByDepartment(String department);
 
 
 }

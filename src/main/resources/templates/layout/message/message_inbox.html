@@ -17,6 +17,8 @@
         <form id="modal-form">
             <div id="modal-content">
                 <h2>쪽지쓰기</h2>
+                <input type="hidden" id="selectedUserId" name="selectedUserId" />
+                <input type="hidden" id="userId" th:value="${session.loginUser != null ? session.loginUser.userId : ''}" />
                 <div class="selectset">
                     <div class="dropdown" id="modaldepartment">
                         <span>부서</span>
@@ -46,8 +48,8 @@
                     <textarea id="modalsection" placeholder="내용을 입력해주세요"></textarea>
                 </div>
                 <div id="buttonset">
-                <button type="submit" id="submit-modal">전송하기</button>
-                <button type="button" id="close-modal">닫기</button>
+                    <button type="submit" id="submit-modal">전송하기</button>
+                    <button type="button" id="close-modal">닫기</button>
                 </div>
             </div>
         </form>
@@ -67,17 +69,19 @@
             <div class="leftarticle">
                 <div id="totalcount">총 n 개의 쪽지가 있습니다.</div>
                 <div class="searchbox">
-                    <input type="text" placeholder="검색어를 입력하세요" id="searchinsert"></input>
+                    <input type="text" placeholder="검색어를 입력하세요" id="searchinsert"/>
                     <button id="searchbtn">검색</button>
                 </div>
                 <div class="dropdown">
                     <button class="dropdown-btn">정렬방식</button>
                     <div class="dropdown-menu">
-                        <a href="#">옵션 1-1</a>
-                        <a href="#">옵션 1-2</a>
-                        <a href="#">옵션 1-3</a>
+                        <a href="#" data-filter="all">전체보기</a>
+                        <a href="#" data-filter="unread">안 읽은 메세지</a>
+
                     </div>
                 </div>
+                <input type="hidden" id="receiverId"
+                       th:value="${session.loginUser?.userId}" />
                 <div class="messages">
                     <div class="getmessage">
                         <div class="getmessage_first">
@@ -119,6 +123,12 @@
 </div>
 <script>
     $(document).ready(function () {
+        const receiverId = $("#receiverId").val();
+        console.log("receiverId:", receiverId);
+        const userId = $("#userId").val();
+        console.log("userId: " + userId);
+
+
         // ===== 즐겨찾기 색칠 토글 기능 =====
         $('.heart').click(function () {
             $(this).toggleClass('bi-suit-heart bi-suit-heart-fill');
@@ -154,10 +164,142 @@
         });
 
         // ===== 모달 내 form 기본 제출 막기 =====
-        $("#modal-form").on("submit", function(e) {
+        $("#modal-form").on("submit", function (e) {
             e.preventDefault(); // 페이지 리로드 방지
         });
+
+
+        $.ajax({
+            url: "/messages/departments",
+            method: "get",
+            success: function (departments) {
+                let $deptMenu = $("#modaldepartment .dropdown-menu");
+                $deptMenu.empty();
+                departments.forEach(dep => {
+                    $deptMenu.append(`<a href="#" class="dept-option">${dep}</a>`);
+                });
+            }
+        });
+        $(document).on("click", ".dept-option", function (e) {
+            let selectedDep = $(this).text();
+            $("#modaldepartment .dropdown-btn").text(selectedDep);
+
+            $.ajax({
+                url: "/messages/userByDepartment",
+                method: "get",
+                data: {department: selectedDep},
+                success: function (users) {
+                    let $nameMenu = $("#modalname .dropdown-menu");
+                    $nameMenu.empty();
+                    users.forEach(user => {
+                        $nameMenu.append(`<a href="#" class="user-option" data-userid="${user.id}">${user.name}</a>`);
+                    });
+
+                }
+            });
+        });
+
+        let selectedUserId = null;
+        $(document).on("click", ".user-option", function () {
+            let name = $(this).text();
+            let userId = $(this).data("userid");
+            selectedUserId = $(this).data("userid");
+            $("#modalname .dropdown-btn").text(name);
+            $("#selectedUserId").val(userId); // ✅ 여기 고침
+            console.log("선택한 이름:", name);
+            console.log("선택한 ID:", userId);
+        });
+
+
+        $(document).on("click", "#submit-modal", function (e) {
+
+            const selectedUserId = $("#selectedUserId").val();
+            const title = $("#modaltitle").val();
+            const content = $("#modalsection").val();
+            console.log(selectedUserId, title, content);
+            if (!selectedUserId || !title || !content) {
+                alert("모든 항목을 작성해주세요.");
+                return;
+            }
+
+            // AJAX 요청 보내기
+            $.ajax({
+                url: "/messages/createMessage",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({
+                    receiverId: selectedUserId,
+                    title: title,
+                    content: content
+                }),
+                success: function (response) {
+                    alert("쪽지를 보냈습니다.");
+                    // 모달 닫고 초기화
+                    $("#modal-overlay").hide();
+                    $("#modaltitle").val("");
+                    $("#modalsection").val("");
+                    $("#selectedUserId").val("");
+                    $("#selectedUserName").text("이름 선택");
+                },
+                error: function () {
+                    alert("쪽지 보내기에 실패했습니다.");
+                }
+            });
+        })
+        $.ajax({
+            url: "/messages/list",
+            data: { receiverId: receiverId },
+            method: "GET",
+            success: function (data) {
+                console.log("서버에서 받아온 데이터:", data);
+                const container = $(".messages");
+                $("#totalcount").text(`총 ${data.length}개의 쪽지가 있습니다.`);
+
+                container.on("click", ".getmessage", function () {
+                    const $this = $(this);
+                    $("#rightmaintitle").text($this.data("title"));
+                    $("#rightmaincontents").text($this.data("content"));
+                    $("#profilename").text($this.data("name"));
+                    $("#writedate").text($this.data("date"));
+                });
+
+                data.forEach(msg => {
+                    const isRead = msg.isRead ? "read" : "unread";
+                    const html = `
+                        <div class="getmessage ${isRead}"
+                            data-title="${msg.title}"
+                            data-date="${formatDate(msg.createdAt)}"
+                            data-name="${msg.senderName}"
+                            data-content="${msg.content}">
+                            <div class="getmessage_first">
+                                <div>${msg.title}</div>
+                                <div>${formatDate(msg.createdAt)}</div>
+                            </div>
+                            <div>${msg.senderName}</div>
+                        </div>
+                    `;
+                    container.append(html);
+                });
+            },
+            error: function (xhr, status, error) {
+                console.error("🔥 AJAX 오류 발생 🔥");
+                console.log("상태 코드:", xhr.status);
+                console.log("응답 텍스트:", xhr.responseText);
+                console.log("에러 메시지:", error);
+            }
+
+        });
+
+        function formatDate(dateStr) {
+            const d = new Date(dateStr);
+            return `${d.getFullYear().toString().slice(2)}.${d.getMonth() + 1}.${d.getDate()}`;
+        }
+
+
+
     });
+
+
 </script>
 </body>
 </html>
