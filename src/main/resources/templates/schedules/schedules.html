@@ -89,6 +89,11 @@
   		.select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
   			color:white;
   		}
+  		#scheGroupList>a, .groupCheckItem {
+    		margin-bottom: 5px;
+    		padding: 2px;
+    		border-radius: 5px;
+		}
 </style>
 
 
@@ -461,7 +466,8 @@ document.addEventListener("DOMContentLoaded", function () {
          			<select class="groupCheckItem" name="groupId">
          				<option th:each="gList : ${groupList}"
          						th:value="${gList.id}"
-         						th:text="${gList.name}">
+         						th:text="${gList.name}"
+         						th:disabled="${gList.name == '회사일정' and userId != 1}">
          				</option>
          			</select>
          		</td>
@@ -530,7 +536,8 @@ document.addEventListener("DOMContentLoaded", function () {
          	<tr>
          		<th>그룹장</th>
          		<td>
-         			<input class="form-control ownerId" name="ownerId" th:value="${userId}" disabled="disabled">
+         			<input type="hidden" class="form-control ownerId" name="ownerId" th:value="${userId}" disabled="disabled">
+         			<input class="form-control ownerId" name="ownerName" th:value="${ownerName}" disabled="disabled">
          		</td>
          	</tr>
          	<tr>

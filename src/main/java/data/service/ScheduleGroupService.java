@@ -20,7 +20,8 @@ public class ScheduleGroupService {
 	}
 	
 	//내가 그룹장이거나 그룹 인원인 그룹목록 조회 
-	public List<ScheduleGroupDto> readAllGroup(int userId){
+	public List<ScheduleGroupDto> readAllGroup(int userId)
+	{
 		return scheduleGroupMapper.readAllGroup(userId);
 	}
 	

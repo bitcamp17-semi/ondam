@@ -106,10 +106,10 @@ public class ScheduleGroupController {
 	    	// 그룹 정보 업데이트
 	        scheduleGroupService.updateSchGroup(dto);
 	        
-	        // 2. 기존 멤버 삭제
+	        //기존 멤버 삭제 (수정은 여러개를 한번에 수정 불가능해서 삭제 > 추가로 해야함)
 	        scheduleGroupMemberService.deleteScheGroupMem(groupId);
 
-	        // 3. 새로운 멤버 추가
+	        //새로운 멤버 추가
 	        List<Map<String, Object>> members = new ArrayList<>();
 	        for (ScheduleGroupMembersDto m : dto.getMembers()) {
 	            Map<String, Object> map = new HashMap<>();

@@ -60,7 +60,7 @@ public class SchedulesController {
 		String writer=userService.readUserById(sUserId).getName();
 		
 		//그룹장이름
-		//String ownerName=;
+		String ownerName=userService.readUserById(sUserId).getName();
 		
 		//로그인 시 로그인한 계정이 그룹장이며 그룹이름이 '개인일정'인 그룹
 		//있는지 체크 후 없으면 그룹 자동 생성
@@ -107,10 +107,10 @@ public class SchedulesController {
 		List<ScheduleGroupDto> groupList=scheduleGroupService.readAllGroup(sUserId);
 		for (ScheduleGroupDto group : groupList) {
 		    int ownerId = group.getOwnerId();
-		    String ownerName = userService.readUserById(ownerId).getName();
-		    group.setOwnerName(ownerName); // ScheduleGroupDto에 ownerName 필드 필요
+		    String gownerName = userService.readUserById(ownerId).getName();
+		    group.setOwnerName(gownerName); // ScheduleGroupDto에 ownerName 필드 필요
 		}
-		// 4. 모든 그룹에 대해 그룹 멤버 조회 후 Map으로 담기
+		// 모든 그룹에 대해 그룹 멤버 조회 후 Map으로 담기
 	    Map<Integer, List<Integer>> groupMemberMap = new HashMap<>();
 	    for (ScheduleGroupDto group : groupList) {
 	        List<ScheduleGroupMembersDto> members = scheduleGroupMemberService.readGroupMemByGroupId(group.getId());
@@ -126,6 +126,7 @@ public class SchedulesController {
 	    model.addAttribute("userList",userList); //사용자 목록 모델에 담기
 	    model.addAttribute("groupList",groupList); //그룹목록 모델에 담기
 	    model.addAttribute("groupMemberMap", groupMemberMap); // 멤버 ID 목록 map 추가
+	    model.addAttribute("ownerName",ownerName);//로그인한 사용자가 가진 name을 ownerName으로 프론트에서 불러오기
 	    model.addAttribute("today",new Date());
 	    
 	    return "schedules/schedules"; // schedules.html 읽어오기
