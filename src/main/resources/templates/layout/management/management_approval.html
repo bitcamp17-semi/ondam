@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" th:href="@{/style/globals.css}"/>
+    <link rel="stylesheet" th:href="@{/style/management_approval.css}"/>
+    <link rel="stylesheet" th:href="@{/style/header.css}"/>
+
+    <!-- Quill 에디터 CSS -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <!-- Quill 에디터 JS -->
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+</head>
+<body>
+<div class="fullbox">
+    <div th:replace="~{layout/header :: header}"></div>
+    <div class="main">
+        <div class="nav">
+            <div class="navtitle">
+                관리페이지
+            </div>
+            <div class="navbar">
+                <div id="navlist1">인사관리</div>
+                <div id="navlist2">부서관리</div>
+                <div id="navlist3">전자결재관리</div>
+                <div id="navlist4">퇴사자관리</div>
+            </div>
+        </div>
+        <div class="section">
+            <div class="btnset">
+                <select id="template-list">
+                    <option disabled selected>수정할 문서 선택</option>
+                </select>
+                <button class="whitebtn" id="addApproverBtn">결재라인 추가</button>
+                <button class="orangebtn" id="submitBtn">저장하기</button>
+
+            </div>
+            <div class="approvallist">
+                <div class="approvalmain">
+                    <div class="editor-wrapper">
+                        <input type="text" id="titleInput" placeholder="제목을 입력하세요">
+                        <div id="editor-toolbar">
+                            <!-- 툴바 버튼들 -->
+                        </div>
+                        <div id="editor-container">
+                            <!-- 여기에 Quill 생성 -->
+                        </div>
+                    </div>
+                    <div class="approvalline">
+                        <!-- 프로필 추가될 영역 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-backdrop"></div>
+<div class="user-modal">
+    <div class="modal-content">
+        <h3>결재자 선택</h3>
+        <select id="departmentSelect">
+            <option value="all">전체</option>
+            <option value="인사팀">인사팀</option>
+            <option value="개발팀">개발팀</option>
+            <option value="마케팅팀">마케팅팀</option>
+        </select>
+        <div id="userList" style="margin-top: 10px;">
+            <!-- 유저 목록 -->
+        </div>
+        <div class="modalBtn">
+            <button id="addSelectedUsers">등록하기</button>
+            <button id="closeModal">닫기</button>
+        </div>
+    </div>
+</div>
+<script>
+
+    //더미유저
+    const dummyUsers = [
+        { id: 1, name: "김철수", department: "개발팀" },
+        { id: 2, name: "이영희", department: "디자인팀" },
+        { id: 3, name: "박민수", department: "기획팀" }
+    ];
+
+    // Quill 에디터 초기화
+    var quill = new Quill('#editor-container', {
+        theme: 'snow',
+        placeholder: '내용을 입력하세요...',
+        modules: {
+            toolbar: [
+                [{ header: [1, 2, false] }],
+                ['bold', 'italic', 'underline'],
+                ['image', 'code-block']
+            ]
+        }
+    });
+    // 템플릿 목록 불러오기
+    function loadTemplateList() {
+        $.ajax({
+            url: '/template/list',
+            method: 'GET',
+            success: function (templates) {
+                $('#template-list').empty().append('<option disabled selected>템플릿 선택</option>');
+                templates.forEach(function (template) {
+                    $('#template-list').append(
+                        $('<option>', { value: template.id, text: template.title })
+                    );
+                });
+            }
+        });
+    }
+
+    // 템플릿 선택 시 내용 불러오기
+    $('#template-list').on('change', function () {
+        const id = $(this).val();
+
+        $.ajax({
+            url: '/template/load/' + id,
+            method: 'GET',
+            success: function (data) {
+                quill.root.innerHTML = data.content;
+            },
+            error: function () {
+                alert('템플릿 불러오기 실패');
+            }
+        });
+    });
+
+    //  페이지 로딩 시 템플릿 목록 자동 불러오기
+    $(document).ready(function () {
+        loadTemplateList();
+    });
+
+    // 드래그 정렬 기능
+    $(function () {
+        $(".approvalline").sortable({
+            axis: "x",
+            containment: "parent"
+        });
+    });
+
+    // 삭제 버튼 클릭 시 해당 profileset 제거
+    $(document).on("click", ".removebtn", function () {
+        $(this).closest(".profileset").remove();
+    });
+
+    let selectedUsers = []; // 선택된 유저 저장
+
+    // 유저 목록 렌더링
+    function renderUserList(dept = "all") {
+        $('#userList').empty();
+        dummyUsers
+            .filter(user => dept === "all" || user.department === dept)
+            .forEach(user => {
+                $('#userList').append(`
+                <div class="user-item"
+                     data-id="${user.id}"
+                     data-name="${user.name}"
+                     data-pos="${user.position}"
+                     data-img="${user.img}">
+                    <img src="${user.img}" />
+                    <span>${user.name} (${user.position}) - ${user.department}</span>
+                </div>
+            `);
+            });
+    }
+
+
+    // 모달 열기
+    function openUserModal() {
+        $('.modal-backdrop, .user-modal').fadeIn();
+        $('#departmentSelect').val('all');
+        renderUserList("all");
+        $('.user-modal').show();
+    }
+    $('#addApproverBtn').on('click', function () {
+        openUserModal();  // ← 모달 열기 함수 호출
+    });
+
+    // 등록하기 버튼 클릭
+    $('#addSelectedUsers').on('click', function () {
+        selectedUsers = [];
+
+        // 체크된 유저 수집
+        $('#userList .user-item.selected').each(function () {
+            const userDiv = $(this).closest('.user-item');
+            selectedUsers.push({
+                id: userDiv.data('id'),
+                name: userDiv.data('name'),
+                pos: userDiv.data('pos'),
+                img: userDiv.data('img')
+            });
+        });
+
+        // 결재라인에 추가
+        selectedUsers.forEach(user => {
+            const html = `
+            <div class="profileset">
+                <div class="lineprofile">
+                    <img src="${user.img}">
+                    <span>${user.name} ${user.pos}</span>
+                </div>
+                <div class="linebtn">미승인</div>
+            </div>
+        `;
+            $('.approvalline').append(html);
+        });
+
+        $('.user-modal').hide();
+        $('.modal-backdrop, .user-modal').fadeOut();
+    });
+    //모달 닫기
+    $('#closeModal').on('click', function () {
+        $('.modal-backdrop, .user-modal').fadeOut();
+        $('.user-modal').hide();
+        $('#userList').empty();
+    });
+    // 토글방식
+    $(document).on("click", ".user-item", function () {
+        $(this).toggleClass("selected");
+    });
+</script>
+</body>
+</html>
