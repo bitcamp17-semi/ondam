@@ -29,6 +29,8 @@ public interface UsersMapper {
 
     public List<UsersDto> readUsersByTeam(String team);
 
+    public List<UsersDto> readUsersByTeamId(int teamId);
+
     public void deleteUser(int id);
 
     public List<UsersDto> readUsersByName(String name);

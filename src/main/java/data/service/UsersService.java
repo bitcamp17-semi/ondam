@@ -66,6 +66,9 @@ public class UsersService {
     public List<UsersDto> readUsersByTeam(String team) {
         return usersMapper.readUsersByTeam(team);
     }
+    public List<UsersDto> readUsersByTeamId(int teamId) {
+        return usersMapper.readUsersByTeamId(teamId);
+    }
 
     public void deleteUser(int id) {
         usersMapper.deleteUser(id);

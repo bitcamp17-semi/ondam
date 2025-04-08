@@ -54,6 +54,15 @@
         where team = #{team}
           and isDeleted = 0
     </select>
+    <select id="readUsersByTeamId" parameterType="int" resultType="UsersDto">
+        SELECT *
+        FROM users
+        WHERE id IN (
+            SELECT userId
+            FROM junction_users_teams
+            WHERE teamId = #{teamId}
+        )
+    </select>
     <select id="readUsersByName" parameterType="String" resultType="UsersDto">
         SELECT *
         FROM users
