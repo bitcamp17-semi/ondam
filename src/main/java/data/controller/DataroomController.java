@@ -2,9 +2,12 @@ package data.controller;
 
 import data.dto.DataRoomDto;
 import data.dto.FilesDto;
+import data.dto.UsersDto;
 import data.mapper.DataroomMapper;
+import data.mapper.UsersMapper;
 import data.service.DataroomService;
 import data.service.ObjectStorageService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +31,8 @@ public class DataroomController {
     private ObjectStorageService objectStorageService;
     @Autowired
     private DataroomMapper dataroomMapper;
+    @Autowired
+    private UsersMapper usersMapper;
 
     /**
      * 파일 목록 + 카테고리 및 검색 기능 처리 (페이징 적용)
@@ -39,11 +44,19 @@ public class DataroomController {
      * @return 파일 목록 페이지
      */
     @GetMapping
-    public String getFilesList(@RequestParam(value = "roomId", required = false) Integer roomId,
+    public String getFilesList(HttpSession session, @RequestParam(value = "roomId", required = false) Integer roomId,
                                @RequestParam(value = "keyword", required = false, defaultValue = "") String keyword,
                                @RequestParam(value = "page", required = false, defaultValue = "1") int page,
                                @RequestParam(value = "size", required = false, defaultValue = "10") int size,
                                Model model) {
+
+
+        int userid = (int) session.getAttribute("userid");
+        UsersDto user = usersMapper.readUserById(userid);
+        if(user == null) {
+            return "redirect:/login";
+        }
+
         // 페이지 및 사이즈 값 검증
         if (page < 1) page = 1;
         if (size < 1 || size > 100) size = 10;
@@ -66,6 +79,7 @@ public class DataroomController {
         model.addAttribute("currentPage", page);     // 현재 페이지
         model.addAttribute("pageSize", size);        // 페이지 크기
         model.addAttribute("roomId", roomId);        // roomId를 명시적으로 추가
+        model.addAttribute("department", user.getDepartment()); //user의 department 를 가져옴
 
         return "dataroom/files";
     }

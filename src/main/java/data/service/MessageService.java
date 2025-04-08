@@ -42,18 +42,21 @@ public class MessageService {
         messageMapper.createMessage(messageDto);
     }
     // 검색 기능
-    public List<MessagesDto> readMessages(String keyword, String category) {
+    public List<MessagesDto> readSearchMessagesByKeyword(String keyword, String category) {
         Map<String, Object> params = new HashMap<>();
         params.put("keyword", keyword.trim());
         params.put("category", category.trim());
-        return messageMapper.readMessages(params);
+        return messageMapper.readSearchMessagesByKeyword(params);
     }
-    // 쪽지 상세 조회(Service)
+    // 쪽지 상세 조회(Service)=
     public MessagesDto readMessageDetail(int messageId) {
         return messageMapper.readMessageDetail(messageId);
     }
     public void markMessageAsImportant(int messageId, boolean isImportant) {
         messageMapper.updateMessageImportance(messageId, isImportant);
+    }
+    public boolean readCountUnreadMessages(int receiverId) {
+        return messageMapper.readCountUnreadMessages(receiverId) > 0;
     }
 
 

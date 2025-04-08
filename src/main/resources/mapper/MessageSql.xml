@@ -39,30 +39,29 @@
 
     <!-- 검색 기능 추가 -->
     <select id="readSearchMessagesByKeyword" parameterType="map" resultType="MessagesDto">
-        /*SELECT id, content, senderId AS senderId, receiverId AS receiverId,
-               isRead AS isRead, createdAt AS createdAt, readAt AS readAt
+        SELECT id, content, senderId, receiverId,
+               isRead, createdAt, readAt
         FROM messages
         WHERE (
             content LIKE CONCAT('%', #{keyword}, '%')
-                OR in (
-                SELECT 1 FROM users
-                WHERE users.id = senderid
-                  AND username LIKE CONCAT('%', #{keyword}, '%')
+                OR senderId IN (
+                SELECT id FROM users
+                WHERE username LIKE CONCAT('%', #{keyword}, '%')
             )
-                OR in (
-                SELECT 1 FROM users
-                WHERE users.id = receiverid
-                  AND username LIKE CONCAT('%', #{keyword}, '%')
+                OR receiverId IN (
+                SELECT id FROM users
+                WHERE username LIKE CONCAT('%', #{keyword}, '%')
             )
             )
-          AND
-            (CASE
-                 WHEN #{category} = 'LATEST' THEN TRUE
-                 WHEN #{category} = 'IMPORTANT' THEN FALSE -- is_important 제거
-                 ELSE TRUE
-                END)
-        ORDER BY createdAt DESC*/
-        SELECT id, content, senderid AS senderId, receiverid AS receiverId,
+          AND (
+            CASE
+                WHEN #{category} = 'LATEST' THEN TRUE
+                WHEN #{category} = 'IMPORTANT' THEN isImportant = TRUE
+                ELSE TRUE
+                END
+            )
+        ORDER BY createdAt DESC
+    /*        SELECT id, content, senderid AS senderId, receiverid AS receiverId,
                isread AS isRead, createdat AS createdAt, readat AS readAt
         FROM messages
         WHERE (
@@ -70,7 +69,7 @@
                       OR senderid IN (SELECT id FROM users WHERE username LIKE CONCAT('%', #{keyword}, '%'))
                       OR receiverid IN (SELECT id FROM users WHERE username LIKE CONCAT('%', #{keyword}, '%'))
                   )
-        ORDER BY createdAt DESC
+        ORDER BY createdAt DESC*/
     </select>
     <select id="readMessageDetail" parameterType="int" resultType="MessagesDto">
         SELECT id, content, senderid AS senderId, receiverid AS receiverId,
@@ -83,5 +82,9 @@
         SET isImportant = #{isImportant}
         WHERE id = #{id}
     </update>
+    <select id="readCountUnreadMessages" parameterType="int" resultType="int">
+        SELECT COUNT(*) FROM messages
+        WHERE receiverid = #{receiverId} AND isread = FALSE
+    </select>
 
 </mapper>

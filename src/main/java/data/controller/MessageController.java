@@ -19,14 +19,19 @@ public class MessageController {
     public MessageController(MessageService messageService) {
         this.messageService = messageService;
     }
+
+    @GetMapping("/inbox")
+    public String inboxPage() {
+        return "layout/messages/message_inbox.html";  // 확장자 .html 생략
+    }
     // 새로운 메시지 확인 (읽지 않은 메시지 여부)
     @GetMapping("/unread")
-    public ResponseEntity<Object> hasNewMessages(@RequestParam int receiverId) {
+    public ResponseEntity<Object> readCountNewMessages(@RequestParam int receiverId) {
         Map<String, Object> response = new LinkedHashMap<>();
         try {
-            //boolean hasNewMessages = messageService.(알람 관련 메서드 넣기)(receiverId);
+            boolean hasNewMessages = messageService.readCountUnreadMessages(receiverId);
             response.put("status", "ok");
-            //response.put("result", hasNewMessages);
+            response.put("result", hasNewMessages);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             response.put("status", "error");
@@ -122,7 +127,7 @@ public class MessageController {
             @RequestParam(defaultValue = "LATEST") String category) {
         Map<String, Object> response = new LinkedHashMap<>();
         try {
-            List<MessagesDto> messages = messageService.readMessages(keyword, category);
+            List<MessagesDto> messages = messageService.readSearchMessagesByKeyword(keyword, category);
             response.put("status", "ok");
             response.put("result", messages);
             return new ResponseEntity<>(response, HttpStatus.OK);
@@ -171,6 +176,7 @@ public class MessageController {
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 
 
 }

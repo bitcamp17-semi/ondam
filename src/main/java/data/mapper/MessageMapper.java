@@ -1,6 +1,11 @@
 package data.mapper;
 
+import data.dto.MessagesDto;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface MessageMapper {
@@ -20,11 +25,13 @@ public interface MessageMapper {
     void createMessage(MessagesDto message);
 
     // 대상 필터링 및 검색
-    List<MessagesDto> readMessages(Map<String, Object> params);
+    List<MessagesDto> readSearchMessagesByKeyword(Map<String, Object> params);
 
     MessagesDto readMessageDetail(int id);
 
     void updateMessageImportance(@Param("id") int id, @Param("isImportant") boolean isImportant);
+
+    int readCountUnreadMessages(int receiverId);
 
 
 }
