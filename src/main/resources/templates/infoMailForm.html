@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>그룹웨어 가입 안내</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            padding: 10px 0;
+            border-bottom: 2px solid #ff6600;
+        }
+        .header h1 {
+            color: #ff6600;
+            font-size: 24px;
+            margin: 0;
+        }
+        .content {
+            padding: 20px;
+            line-height: 1.6;
+            color: #333;
+        }
+        .content strong {
+            color: #ff6600;
+        }
+        .content p {
+            margin: 10px 0;
+        }
+        .button {
+            display: block;
+            width: 100%;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .button a {
+            background: #ff6600;
+            color: white;
+            padding: 10px 15px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #777;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Ondam 가입 완료 안내</h1>
+    </div>
+    <div class="content">
+        <p>안녕하세요, <strong th:text="${name}"></strong>님.</p>
+        <p>Ondam 가입이 완료되었습니다. 아래의 로그인 정보를 확인해주세요.</p>
+
+        <p><strong>📌 로그인 ID: </strong><span th:text="${loginId}"/></p>
+        <p><strong>📌 임시 비밀번호: </strong><span th:text="${loginPassword}"/></p>
+
+        <p>보안을 위해 로그인 후 반드시 비밀번호를 변경해주세요.</p>
+
+        <div class="button">
+            <a th:href="${loginPage}" target="_blank">로그인 페이지 이동</a>
+        </div>
+
+        <p><strong>🔹 비밀번호 변경 방법</strong></p>
+        <p>1. 로그인 후, 우측 상단의 "내 정보 관리"로 이동</p>
+        <p>2. "비밀번호 변경" 메뉴에서 새 비밀번호 설정</p>
+
+        <p>문의 사항이 있으면 <strong>[문의하기]</strong>버튼을 통해 문의해 주세요.</p>
+    </div>
+    <div class="footer">
+        ⓒ 2025 ondam | All Rights Reserved.
+    </div>
+</div>
+
+</body>
+</html>

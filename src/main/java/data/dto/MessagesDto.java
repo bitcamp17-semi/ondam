@@ -15,4 +15,6 @@ public class MessagesDto {
     private boolean isRead;
     private Timestamp createdAt;
     private Timestamp readAt;
+    private boolean isImportant; // 중요 여부 필드 추가
+
 }

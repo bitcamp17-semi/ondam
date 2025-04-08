@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <link rel="stylesheet" th:href="@{/style/globals.css}"/>
+    <link rel="stylesheet" th:href="@{/style/header.css}"/>
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+</head>
+<body>
+<div th:fragment="header">
+    <div class="header-layout">
+        <div class="frame">
+            <div class="logo"><img class="ondam-w" th:src="@{/images/ondam_W.png}"/></div>
+        </div>
+        <div class="div">
+            <div class="div-2" id="header-home">
+                <img th:src="@{/images/home.svg}"/>
+            </div>
+            <div class="div-2" id="header-mail">
+                <img th:src="@{/images/mail.svg}"/>
+            </div>
+            <div class="div-2" id="header-note">
+                <img th:src="@{/images/note.svg}"/>
+            </div>
+            <div class="div-2" id="header-orgchart">
+                <img th:src="@{/images/orgchart.svg}"/>
+            </div>
+            <div class="div-2" id="header-calendar">
+                <img th:src="@{/images/calendar.svg}"/>
+            </div>
+            <div class="div-2" id="header-approval">
+                <img th:src="@{/images/approval.svg}"/>
+            </div>
+            <div class="div-2" id="header-board">
+                <img th:src="@{/images/board.svg}"/>
+            </div>
+            <div class="div-2" id="header-storage">
+                <img th:src="@{/images/storage.svg}"/>
+            </div>
+            <div class="div-2" id="header-chat">
+                <img th:src="@{/images/chat.svg}"/>
+            </div>
+            <div class="div-2" id="header-info">
+                <img th:src="@{/images/info.svg}"/>
+            </div>
+        </div>
+        <div class="div">
+            <div class="div-2" id="header-alarm">
+                <div class="group">
+                    <div class="overlap-group">
+                        <img class="alarm" th:src="@{/images/alarm.svg}"/>
+                        <div class="ellipse"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="profileimage" id="header-profileImage">
+                <img class="img" th:src="@{/images/Rectangle53.png}" th:onerror="'this.src=\'' + @{/images/Rectangle53.png} + '\''"/>
+            </div>
+            <div class="div-2" id="header-logout">
+                <img th:src="@{/images/logout.svg}"/>
+            </div>
+
+        </div>
+    </div>
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+                url: "/api/users/readUserById",
+                type: "GET",
+                success: function (res) {
+                    if (res.status === "ok") {
+                        let storageUrl = "https://kr.object.ncloudstorage.com/bitcamp-semi/users/";
+                        let profileImageUrl = storageUrl + res.result.profileImage;
+                        $("#header-profileImage img").attr("src", profileImageUrl);
+                    }
+                }
+            })
+        });
+        $("#header-logout").click(function () { // ✅ 중첩 제거
+            $.ajax({
+                url: "/api/logout",
+                type: "GET",
+                success: function (response) {
+                    if (response.status === "ok") {
+                        alert("로그아웃 되었습니다.");
+                        window.location.href = "/login";  // 로그인 페이지로 이동
+                    } else {
+                        alert("로그아웃 실패: " + response.result);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    alert("오류 발생: " + error);
+                }
+            });
+        });
+
+        $(document).on("click", "#header-mail", function () {
+            window.location.href = "/messages/inbox";
+        });
+    </script>
+
+</div>
+</body>
+</html>

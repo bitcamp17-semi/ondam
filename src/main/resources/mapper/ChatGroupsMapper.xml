@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="data.mapper.ChatGroupsMapper">
+   <!-- 그룹 생성 (Create) -->
+    <insert id="createChatGroup" parameterType="ChatGroupsDto">
+        insert into chat_groups (name) values (#{name})
+    </insert>
+
+    <!-- 그룹 조회 (Read) -->
+    <select id="readChatGroupById" parameterType="int" resultType="ChatGroupsDto">
+        select id, name from chat_groups where id = #{id}
+    </select>
+
+    <!-- 모든 그룹 조회 (Read) -->
+    <select id="readAllChatGroups" resultType="ChatGroupsDto">
+        select id, name from chat_groups
+    </select>
+
+    <!-- 그룹 수정 (Update) -->
+    <update id="updateChatGroup" parameterType="ChatGroupsDto">
+        update chat_groups set name = #{name} where id = #{id}
+    </update>
+    <!-- 그룹 삭제 (Delete) -->
+    <delete id="deleteChatGroup" parameterType="int">
+        delete from chat_groups where id = #{id}
+    </delete>
+</mapper>

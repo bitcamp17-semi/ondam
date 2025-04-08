@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" th:href="@{/style/globals.css}"/>
+    <link rel="stylesheet" th:href="@{/style/approval_inbox_file.css}"/>
+    <link rel="stylesheet" th:href="@{/style/header.css}" />
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+</head>
+<body>
+<div class="fullbox">
+    <div th:replace="~{layout/header :: header}"></div>
+    <div class="main">
+        <div class="nav">
+            <div class="navtitle">
+                전자결재
+            </div>
+            <div class="navbar">
+                <div id="navlist1">+ 작성하기</div>
+                <div id="navlist2">수신함</div>
+                <div class="navlistnone">발신함</div>
+                <div class="navlistnone">결재완료</div>
+            </div>
+        </div>
+        <div class="section">
+            <div class="btnset">
+                <button class="whitebtn">< 목록보기</button>
+                <button class="whitebtn">반려하기</button>
+                <button class="whitebtn">첨부파일 다운로드</button>
+                <button class="orangebtn fileapproval">결재승인</button>
+            </div>
+            <div class="approvallist">
+                <div class="listtop">
+                    <div class="list-cell">제목</div>
+                    <div class="list-cell">작성자</div>
+                    <div class="list-cell">작성일</div>
+                </div>
+                <div class="approvalmain">
+                    <div class="approvalmainfile">
+
+                    </div>
+                    <div class="approvalline">
+                        <div class="profileset">
+                        <div class="lineprofile">
+                            <img src="">
+                            <span>ddd과장</span>
+                        </div>
+                        <button class="whitebtn">미승인</button>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
