@@ -62,7 +62,7 @@ public class DraftController {
     }
 
     @GetMapping("/readTemplate")
-    public ResponseEntity<Object> readTemplate(@RequestParam int id) {
+    public ResponseEntity<Object> readTemplate(@RequestParam(value = "id") int id) {
         Map<String, Object> response = new LinkedHashMap<>();
         Map<String, Object> result = new HashMap<>();
         try {
@@ -115,7 +115,7 @@ public class DraftController {
     }
 
     @GetMapping("/deleteTemplate")
-    public ResponseEntity<Object> deleteTemplate(@RequestParam int id, HttpSession session) {
+    public ResponseEntity<Object> deleteTemplate(@RequestParam(value = "id") int id, HttpSession session) {
         Map<String, Object> response = new LinkedHashMap<>();
         int userId = Integer.parseInt((String) session.getAttribute("userId"));
         if (usersService.isAdmin(userId)) {
@@ -159,7 +159,7 @@ public class DraftController {
     }
 
     @GetMapping("/readDraft")
-    public ResponseEntity<Object> readDraft(@RequestParam int id) {
+    public ResponseEntity<Object> readDraft(@RequestParam(value = "id") int id) {
         Map<String, Object> response = new LinkedHashMap<>();
         try {
             Map<String, Object> result = new HashMap<>();
@@ -191,7 +191,7 @@ public class DraftController {
     }
 
     @GetMapping("/updateStatus")
-    public ResponseEntity<Object> updateStatus(@RequestParam int id, @RequestParam String status) {
+    public ResponseEntity<Object> updateStatus(@RequestParam(value = "id") int id, @RequestParam String status) {
         Map<String, Object> response = new LinkedHashMap<>();
         try {
             // todo : 상태에 따른 처리 및 알림 기능 추가 필요
@@ -209,7 +209,7 @@ public class DraftController {
     @GetMapping("/{draftId}/actions")
     public ResponseEntity<Object> actions(
             @PathVariable int draftId,
-            @RequestParam String action,
+            @RequestParam(value = "action") String action,
             HttpSession session
     ) {
         Map<String, Object> response = new LinkedHashMap<>();

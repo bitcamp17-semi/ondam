@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>새 그룹 생성</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <!-- chatmain.html의 전체 레이아웃을 포함 -->
+    <div th:replace="~{chat/chatmain}"></div>
+
+    <!-- content 프래그먼트에 삽입할 콘텐츠 정의 -->
+    <div th:fragment="content">
+        <div class="chat-area">
+            <h2>새 그룹 생성</h2>
+            <form th:action="@{/chat/groups/new}" th:object="${chatGroup}" method="post">
+                <div class="mb-3">
+                    <label for="name" class="form-label">그룹 이름</label>
+                    <input type="text" class="form-control" id="name" th:field="*{name}" required>
+                </div>
+                <button type="submit" class="btn btn-primary">생성</button>
+            </form>
+            <a th:href="@{/chat/groups}">그룹 목록으로 돌아가기</a>
+        </div>
+    </div>
+</body>
+</html>

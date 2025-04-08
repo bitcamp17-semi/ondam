@@ -1,11 +1,18 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.w3.org/1999/xhtml">
+<html>
 <head>
-    <meta charset="utf-8" />
-    <link rel="stylesheet" th:href="@{/style/global.css}" />
-    <link rel="stylesheet" th:href="@{/style/management.css}" />
-
+    <meta charset="utf-8"/>
+    <link rel="stylesheet" th:href="@{/style/globals.css}"/>
+    <link rel="stylesheet" th:href="@{/style/management.css}"/>
+    <link rel="stylesheet" th:href="@{/style/header.css}"/>
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
 </head>
+<style>
+    #userTableBody {
+        display: contents;
+    }
+</style>
 <body>
 <div class="management">
     <div class="main">
@@ -28,21 +35,23 @@
         <div class="section">
             <div class="article">
                 <div class="btnframe">
-                    <div class="arraysettitle dropdown">
-                        <button class="arraybtn dropdownButton">
-                            <div class="article2">부서</div>
-                            <div class="polygon-2">▼</div>
-                        </button>
-                        <div class="dropdown-content">
-                            <a href="#">1</a>
-                            <a href="#">2</a>
-                            <a href="#">3</a>
+                    <div style="display: flex">
+                        <div class="arraysettitle dropdown">
+                            <button class="arraybtn dropdownButton">
+                                <div class="article2">부서</div>
+                                <div class="polygon-2">▼</div>
+                            </button>
+                            <div class="dropdown-content">
+                            </div>
                         </div>
+                        <button class="btnred" id="delete-selected">
+                            <div class="div5" style="color: white">선택 삭제</div>
+                        </button>
                     </div>
                     <button class="btnwhite" onclick="openModal()">
-                        <div class="div5" >직원 등록</div>
+                        <div class="div5">직원 등록</div>
                     </button>
-                        <!-- 모달 -->
+                    <!-- 모달 -->
                     <div class="modal" id="myModal">
                         <div class="management-modal" id="management-modal">
                             <div class="frame-82">
@@ -50,8 +59,8 @@
                             </div>
                             <div class="frame-111">
                                 <div class="frame-99">
-                                    <img class="rectangle-74" id="previewImage" src="" />
-                                    <input type="file" id="fileInput" class="hidden-file" />
+                                    <img class="rectangle-74" id="previewImage" src=""/>
+                                    <input type="file" id="fileInput" class="hidden-file"/>
                                     <div class="frame-56" onclick="openFilePicker()">
                                         <div class="div12">사진 선택</div>
                                     </div>
@@ -69,45 +78,48 @@
                                         <div class="arraysettitle3">
                                             <div class="title">부서</div>
                                             <div class="dropdown">
-                                            <div class="arraybtn3 dropdownButton">
-                                                <div class="article3">article</div>
-                                                <div class="polygon-2">▼</div>
+                                                <div class="arraybtn3 dropdownButton">
+                                                    <div class="article3 buseo">부서</div>
+                                                    <div class="polygon-2">▼</div>
+                                                </div>
+                                                <div class="dropdown-content">
+                                                </div>
                                             </div>
-                                            <div class="dropdown-content">
-                                                <a href="#">1</a>
-                                                <a href="#">2</a>
-                                                <a href="#">3</a>
-                                            </div>
-                                        </div>
                                         </div>
                                         <div class="frame-142">
                                             <div class="dropdown">
-                                            <div class="arraysettitle2 dropdownButton">
-                                                <div class="title">팀</div>
-                                                <div class="arraybtn3">
-                                                    <div class="article3">article</div>
-                                                    <div class="polygon-2">▼</div>
-                                                </div>
-                                            </div>
-                                                <div class="dropdown-content">
-                                                    <a href="#">1</a>
-                                                    <a href="#">2</a>
-                                                    <a href="#">3</a>
+                                                <div class="arraysettitle2" id="teamDropdown">
+                                                    <div class="title">팀</div>
+                                                    <div class="arraybtn3 dropdownButton">
+                                                        <div class="article3">팀</div>
+                                                        <div class="polygon-2">▼</div>
+                                                    </div>
+                                                    <div class="dropdown-content">
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="dropdown">
-                                            <div class="arraysettitle2 dropdownButton">
-                                                <div class="title">직급</div>
-                                                <div class="arraybtn3">
-                                                    <div class="article3">article</div>
-                                                    <div class="polygon-2">▼</div>
+                                                <div class="arraysettitle2" id="position">
+                                                    <div class="title">직급</div>
+                                                    <div class="arraybtn3 dropdownButton">
+                                                        <div class="article3">사원</div>
+                                                        <div class="polygon-2">▼</div>
+                                                    </div>
+                                                    <div class="dropdown-content">
+                                                        <a href="#">사원</a>
+                                                        <a href="#">주임</a>
+                                                        <a href="#">대리</a>
+                                                        <a href="#">과장</a>
+                                                        <a href="#">차장</a>
+                                                        <a href="#">부장</a>
+                                                        <a href="#">이사</a>
+                                                        <a href="#">상무</a>
+                                                        <a href="#">전무</a>
+                                                        <a href="#">부사장</a>
+                                                        <a href="#">사장</a>
+                                                        <a href="#">대표이사</a>
+                                                    </div>
                                                 </div>
-                                                <div class="dropdown-content">
-                                                    <a href="#">1</a>
-                                                    <a href="#">2</a>
-                                                    <a href="#">3</a>
-                                                </div>
-                                            </div>
                                             </div>
                                         </div>
                                         <div class="textsettitle">
@@ -126,11 +138,11 @@
                                             <div class="div13">성별</div>
                                             <div class="arraybtn2">
                                                 <div class="m">
-                                                    <input name="gender" class="radio" value="1" type="radio" checked/>
+                                                    <input name="gender" class="radio" value="남성" type="radio" checked/>
                                                     <div class="div13">남성</div>
                                                 </div>
                                                 <div class="w">
-                                                    <input name="gender" class="radio" value="2" type="radio" />
+                                                    <input name="gender" class="radio" value="여성" type="radio"/>
                                                     <div class="div13">여성</div>
                                                 </div>
                                             </div>
@@ -146,90 +158,19 @@
                                 </div>
                             </div>
                             <div class="frame-53">
-                                <div class="frame-50">
+                                <div class="frame-50" onclick="createUser()">
                                     <div class="div14">등록하기</div>
                                 </div>
-                                <div class="frame-52"  onclick="closeModal()">
+                                <div class="frame-52" onclick="closeModal()">
                                     <div class="close">취소</div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <script>
-                        function openModal() {
-                            document.getElementById("myModal").style.display = "flex";
-                        }
-                        function closeModal() {
-                            document.getElementById("myModal").style.display = "none";
-                        }
-
-                        function openFilePicker() {
-                            document.getElementById("fileInput").click();
-                        }
-
-                        document.getElementById("fileInput").addEventListener("change",function(event){
-                            let file = event.target.files[0];
-                            let fileNameText = file ? file.name : "선택된 파일 없음";
-                            document.getElementById("fileName").textContent = fileNameText;
-
-                            if(file){
-                                let reader = new FileReader();
-                                reader.onload = function(e){
-                                    let previewImage = document.getElementById("previewImage");
-                                    previewImage.src = e.target.result;
-                                    previewImage.style.display = "block";
-                                };
-                                reader.readAsDataURL(file);
-                            }
-                        });
-
-                        document.addEventListener("DOMContentLoaded", function () {
-                            // 모든 드롭다운 버튼과 메뉴 가져오기
-                            let dropdownButtons = document.querySelectorAll(".dropdownButton");
-                            let dropdownMenus = document.querySelectorAll(".dropdown-content");
-
-                            // 버튼 클릭 시 드롭다운 열기/닫기
-                            dropdownButtons.forEach((button, index) => {
-                                button.addEventListener("click", function (event) {
-                                    event.stopPropagation(); // 이벤트 버블링 방지
-                                    let isVisible = dropdownMenus[index].style.display === "block";
-
-                                    closeAllDropdowns(); // 모든 드롭다운 닫기
-
-                                    if (!isVisible) {
-                                        dropdownMenus[index].style.display = "block"; // 현재 버튼의 드롭다운 열기
-                                    }
-                                });
-                            });
-
-                            // 화면 아무 곳이나 클릭하면 모든 드롭다운 닫기
-                            document.addEventListener("click", function () {
-                                closeAllDropdowns();
-                            });
-
-                            // 드롭다운 메뉴에서 항목 클릭 시 버튼 내용 변경
-                            dropdownMenus.forEach((menu, index) => {
-                                menu.querySelectorAll("a").forEach(item => {
-                                    item.addEventListener("click", function (event) {
-                                        event.preventDefault();
-                                        dropdownButtons[index].textContent = item.textContent + " ▼";
-                                        closeAllDropdowns();
-                                    });
-                                });
-                            });
-
-                            // 모든 드롭다운 닫기 함수
-                            function closeAllDropdowns() {
-                                dropdownMenus.forEach(menu => {
-                                    menu.style.display = "none";
-                                });
-                            }
-                        });
-                    </script>
                 </div>
                 <div class="tableset">
                     <div class="tabletitle">
-                        <input class="checkbox" type="checkbox" />
+                        <input class="checkbox" id="head-check" type="checkbox"/>
                         <div class="div6">|</div>
                         <div class="div7">부서</div>
                         <div class="div6">|</div>
@@ -249,46 +190,402 @@
                         <div class="div6">|</div>
                         <div class="div10">삭제</div>
                     </div>
-                    <div class="table">
-                        <input class="checkbox" type="checkbox" />
-                        <div class="div6">|</div>
-                        <div class="div7">경영지원부</div>
-                        <div class="div6">|</div>
-                        <div class="div7">홍길동</div>
-                        <div class="div6">|</div>
-                        <div class="div7">인사팀</div>
-                        <div class="div6">|</div>
-                        <div class="_010-8888-9999">010-8888-9999</div>
-                        <div class="div6">|</div>
-                        <div class="div7">사원</div>
-                        <div class="div6">|</div>
-                        <div class="hgd-gmail-com">hgd@gmail.com</div>
-                        <div class="div6">|</div>
-                        <div class="_2024-10-11">2024.10.11</div>
-                        <div class="div6">|</div>
-                        <div class="frame-70">
-                            <img class="rectangle-53" src="rectangle-530.png" />
-                        </div>
-                        <div class="div6">|</div>
-                        <button class="btnwhite2">
-                            <div class="div5">삭제</div>
-                        </button>
+                    <div id="userTableBody">
+                        <!-- 동적으로 데이터가 추가될 부분 -->
                     </div>
                     <div class="frame-136"></div>
                 </div>
                 <div class="pagenumset">
-                    <img class="before" src="before0.svg" />
+                    <i class="bi bi-arrow-left leftbtn page-arrow"></i>
                     <div class="pagenum">
-                        <div class="_1">1</div>
-                        <div class="_2">2</div>
+                        <!--                        <div class="_1">1</div>-->
+                        <!--                        <div class="_2">2</div>-->
                     </div>
-                    <img class="next" src="next0.svg" />
+                    <i class="bi bi-arrow-right rightbtn page-arrow"></i>
                 </div>
             </div>
         </div>
     </div>
-    <div class="header"></div>
+    <div th:replace="layout/header :: header"></div>
 </div>
 
 </body>
 </html>
+<script>
+    const pageSize = 10; // 고정된 페이지 사이즈
+    let currentDep = ''; // 현재 선택된 부서
+    let currentPage = 1; // 현재 페이지
+    $(document).ready(function () {
+        loadDepartments();
+        loadUsers();
+        const $headCheck = $('#head-check');
+
+        // 전체 선택/해제
+        $headCheck.on('change', function () {
+            const isChecked = $(this).is(':checked');
+            $(".user-check").prop('checked', isChecked);
+        });
+        // 개별 체크박스 상태 변화 시 전체 선택 체크 여부 확인
+        $(document).on('change', '.user-check', function () {
+            const total = $(".user-check").length;
+            const checked = $('.user-check:checked').length;
+            $headCheck.prop('checked', total > 0 && total === checked);
+        });
+        $('#delete-selected').on('click', function () {
+            const selectedIds = $('.user-check:checked').map(function () {
+                return $(this).data('user-id');
+            }).get();
+            if (selectedIds.length === 0) {
+                alert('삭제할 사용자를 선택해주세요.');
+                return;
+            }
+            // 쿼리 파라미터 형식으로 만들어야 @RequestParam 매핑 가능
+            const params = new URLSearchParams();
+            selectedIds.forEach(id => params.append('userList', id));
+            if (confirm("삭제하시겠습니까?")) {
+                $.ajax({
+                    url: '/api/users/deactivateUsers',
+                    type: 'POST',
+                    data: params.toString(), // x-www-form-urlencoded
+                    contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+                    success: function (res) {
+                        if (res.status === "ok") {
+                            alert('삭제가 완료되었습니다.');
+                            location.reload(); // 또는 선택된 row만 제거도 가능
+                        } else {
+                            alert('삭제 실패');
+                        }
+                    },
+                    error: function () {
+                        alert('서버 오류가 발생했습니다.');
+                    }
+                });
+            }
+        });
+
+        // 드롭다운 버튼 이벤트
+        $(".dropdownButton").click(function (event) {
+            event.stopPropagation();
+            let dropdownContent = $(this).siblings(".dropdown-content");
+            $(".dropdown-content").not(dropdownContent).hide();
+            dropdownContent.toggle();
+        });
+
+        $(document).click(function () {
+            $(".dropdown-content").hide();
+        });
+
+        // 이벤트 위임 방식으로 수정
+        $(document).on("click", ".dropdown-content a", function (event) {
+            event.preventDefault();
+
+            let selectedText = $(this).text();  // 부서명
+            let selectedId = $(this).data("id");  // 부서 ID
+            let dropdownButton = $(this).closest(".dropdown").find("[class^='article']");
+
+            dropdownButton.text(selectedText);  // 보여지는 텍스트는 부서명
+            dropdownButton.attr("data-selected-value", selectedText);  // 부서명
+            dropdownButton.attr("data-id", selectedId);  // ✅ 부서 ID 저장
+
+            $(".dropdown-content").hide();
+
+            // 드롭다운 버튼 class에 따라 분기
+            if (dropdownButton.hasClass("article2")) {
+                currentDep = selectedText
+                currentPage = 1;
+                loadUsers(currentDep, currentPage); // 메인화면 부서 선택
+            } else if (dropdownButton.hasClass("buseo")) {
+                $("#teamDropdown .article3").text("팀");
+                readTeamsByDep(selectedId);  // ✅ 부서 ID 전달
+            }
+        });
+
+
+        // 파일 선택기 열기
+        $("#filePickerBtn").click(function () {
+            openFilePicker();
+        });
+
+        // 파일 선택 이벤트
+        $("#fileInput").change(function (event) {
+            let file = event.target.files[0];
+            let fileNameText = file ? file.name : "선택된 파일 없음";
+            $("#fileName").text(fileNameText);
+
+            if (file) {
+                let reader = new FileReader();
+                reader.onload = function (e) {
+                    $("#previewImage").attr("src", e.target.result).show();
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    });
+
+    // 모달 열기 함수
+    function openModal() {
+        $("#myModal").css("display", "flex");
+        resetFileInput();
+    }
+
+    // 모달 닫기 함수
+    function closeModal() {
+        $("#myModal").css("display", "none");
+    }
+
+    // 파일 입력 초기화
+    function resetFileInput() {
+        $("#fileInput").val("");
+        $("#fileName").text("선택된 파일 없음");
+        $("#previewImage").attr("src", "").hide();
+    }
+
+    // 파일 선택기 열기
+    function openFilePicker() {
+        $("#fileInput").click();
+    }
+
+    // 유저 목록 불러오기
+    function loadUsers(dep, page) {
+        console.log("dd")
+        let dropdownButton = $(".arraybtn .article2");
+        let department = dropdownButton.attr("data-selected-value");
+        if (dep != null) {
+            $.ajax({
+                url: '/api/users/readUsersByDep',
+                type: 'GET',
+                data: {department: dep, page: page, size: pageSize},
+                success: function (response) {
+                    if (response.status === "ok") {
+                        let users = response.result.list;
+                        $("#tableBody").html("");
+                        let tableBody = $('#userTableBody');
+                        tableBody.empty();
+                        if (users.length === 0) {
+                            tableBody.append(`<div class="no-users">해당 부서에 등록된 직원이 없습니다.</div>`);
+                        }
+                        users.forEach(user => {
+                            let createdAt = user.createdAt.split(" ")[0];
+                            let row = `
+                        <div class="table">
+                            <input class="checkbox user-check" type="checkbox" data-user-id="${user.id}"/>
+                            <div class="div6">|</div>
+                            <div class="div7">${user.department}</div>
+                            <div class="div6">|</div>
+                            <div class="div7">${user.name}</div>
+                            <div class="div6">|</div>
+                            <div class="div7">${user.team}</div>
+                            <div class="div6">|</div>
+                            <div class="_010-8888-9999">${user.phone}</div>
+                            <div class="div6">|</div>
+                            <div class="div7">${user.position}</div>
+                            <div class="div6">|</div>
+                            <div class="hgd-gmail-com">${user.email}</div>
+                            <div class="div6">|</div>
+                            <div class="_2024-10-11">${createdAt}</div>
+                            <div class="div6">|</div>
+                            <div class="frame-70">
+                                <img class="rectangle-53" src="https://kr.object.ncloudstorage.com/bitcamp-semi/users/${user.profileImage}" onerror="this.src='../../images/Rectangle53.png'"/>
+                            </div>
+                            <div class="div6">|</div>
+                            <button class="btnwhite2" onclick="deleteUser(${user.id})">
+                                <div class="div5">삭제</div>
+                            </button>
+                        </div>
+                        `;
+                            tableBody.append(row);
+                        });
+                        let totalCnt = response.result.totalCnt;
+                        let totalPages = Math.ceil(totalCnt / 10);
+                        renderPagination(dep, totalPages, page);
+                    } else {
+                        alert("데이터를 불러오는 데 실패했습니다.");
+                    }
+                },
+                error: function () {
+                    alert("서버 오류가 발생했습니다.");
+                }
+            });
+        }
+    }
+
+    // 부서 목록 불러오기
+    function loadDepartments() {
+        $.ajax({
+            url: "/api/dep/readDeps",
+            type: "GET",
+            success: function (response) {
+                if (response.status === "ok") {
+                    let departments = response.result;
+                    let dropdownContent = $(".arraysettitle .dropdown-content");
+                    let modalDropdownContent = $(".arraysettitle3 .dropdown-content");
+
+                    dropdownContent.empty();
+                    modalDropdownContent.empty();
+
+                    departments.forEach(dep => {
+                        let depElement1 = $("<a></a>").attr("href", "#").text(dep.name).data("id", dep.id);
+                        let depElement2 = $("<a></a>").attr("href", "#").text(dep.name).data("id", dep.id);
+
+                        dropdownContent.append(depElement1);
+                        modalDropdownContent.append(depElement2);
+                    });
+                } else {
+                    alert("부서 목록을 불러오지 못했습니다.");
+                }
+            },
+            error: function () {
+                alert("서버 오류가 발생했습니다.");
+            }
+        });
+    }
+
+    function readTeamsByDep(departmentId) {
+        $.ajax({
+            url: "/api/dep/readTeams",
+            type: "GET",
+            data: {departmentId: departmentId},
+            success: function (response) {
+                if (response.status === "ok") {
+                    console.log("팀 목록:", response.result);
+                    // TODO: 받아온 팀 리스트를 드롭다운에 넣는 로직 작성
+                    let teams = response.result;
+                    let dropdownContent = $("#teamDropdown .dropdown-content");
+
+                    dropdownContent.empty();
+
+                    teams.forEach(team => {
+                        let teamElement = $("<a></a>").attr("href", "#").text(team.name).data("id", team.id);
+
+                        dropdownContent.append(teamElement);
+                    });
+                } else {
+                    alert("팀 목록을 불러오지 못했습니다.");
+                }
+            },
+            error: function () {
+                alert("서버 오류가 발생했습니다.");
+            }
+        });
+    }
+
+    function createUser() {
+        let formData = new FormData();
+
+        // 입력 값 가져오기
+        let name = $("input[placeholder='이름을 입력하세요']").val().trim();
+        let department = $(".buseo").text().trim();
+        let team = $("#teamDropdown .article3").text().trim();
+        let position = $("#position .article3").text().trim();
+        let phone = $("input[placeholder='전화번호를 입력하세요']").val().trim();
+        let email = $("input[placeholder='메일을 입력하세요']").val().trim();
+        let gender = $("input[name='gender']:checked").val();
+        let address = $("input[placeholder='주소를 입력하세요']").val().trim();
+        let profileImage = $("#fileInput")[0].files[0];
+
+        // 필수값 검증
+        if (!name || !department || !position || !phone || !email) {
+            alert("필수 정보를 입력하세요.");
+            return;
+        }
+
+        // FormData에 값 추가
+        formData.append("name", name);
+        formData.append("department", department);
+        formData.append("team", team);
+        formData.append("position", position);
+        formData.append("phone", phone);
+        formData.append("email", email);
+        formData.append("gender", gender);
+        formData.append("address", address);
+        if (profileImage) {
+            formData.append("upload", profileImage);
+        }
+
+        // AJAX 요청
+        $.ajax({
+            url: "/api/users/createUser",
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (res) {
+                if (res.status === "ok") {
+                    alert("직원 등록 완료");
+                    closeModal(); // 모달 닫기
+                    location.reload(); // 페이지 새로고침
+                } else {
+                    alert("등록 실패: " + (res.error || "알 수 없는 오류"));
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error("에러 발생:", error);
+                alert("서버 오류 발생");
+            }
+        });
+    }
+
+
+    // 유저 삭제 함수
+    function deleteUser(userId) {
+        if (confirm("정말 삭제하시겠습니까?")) {
+            $.ajax({
+                url: "/api/users/deactivateUser",
+                type: "POST",
+                data: {userId: userId},
+                success: function (res) {
+                    if (res.status === "ok") {
+                        location.reload();
+                    } else {
+                        alert("삭제 실패");
+                    }
+                },
+                error: function () {
+                    alert("서버 오류가 발생했습니다.");
+                }
+            });
+        }
+    }
+
+    function renderPagination(dep, totalPages, currentPage) {
+        let pageNumContainer = $(".pagenum");
+        pageNumContainer.empty();
+
+        // 페이지 번호 생성
+        for (let i = 1; i <= totalPages; i++) {
+            let pageDiv = $(`<div>${i}</div>`);
+
+            // 클래스 부여
+            if (i === currentPage) {
+                pageDiv.addClass("currentPage");
+            } else {
+                pageDiv.addClass("otherPage");
+            }
+
+            // 클릭 이벤트
+            pageDiv.on("click", function () {
+                loadUsers(dep, i);
+            });
+
+            pageNumContainer.append(pageDiv);
+        }
+
+        // 왼쪽 화살표 (이전)
+        $(".leftbtn").off("click").on("click", function () {
+            if (currentPage > 1) {
+                loadUsers(dep, currentPage - 1);
+            }
+        });
+
+        // 오른쪽 화살표 (다음)
+        $(".rightbtn").off("click").on("click", function () {
+            if (currentPage < totalPages) {
+                loadUsers(dep, currentPage + 1);
+            }
+        });
+    }
+
+    $("#head-check")
+
+
+</script>

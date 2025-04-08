@@ -10,7 +10,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -20,8 +23,6 @@ public class UsersController {
     UsersService usersService;
     @Autowired
     ObjectStorageService storageService;
-    @Autowired
-    EmailService emailService;
 
     @PostMapping("/createUser")
     public ResponseEntity<Object> createUser(
@@ -39,7 +40,6 @@ public class UsersController {
                 // 사용자 생성 로직
                 boolean isCreated = usersService.createUser(usersDto);
                 if (isCreated) {
-                    emailService.signUpMail(usersDto.getName(), usersDto.getLoginId(), usersDto.getEmail()); // 가입 안내 메일 발송
                     response.put("status", "ok");
                     response.put("result", usersDto);  // 생성된 사용자 정보 반환
                     return new ResponseEntity<>(response, HttpStatus.CREATED);
@@ -79,8 +79,24 @@ public class UsersController {
         }
     }
 
+    @GetMapping("/readUserById")
+    public ResponseEntity<Object> getUserById(HttpSession session) {
+        Map<String, Object> response = new LinkedHashMap<>();
+        try {
+            response.put("status", "ok");
+            UsersDto usersDto = usersService.readUserById((Integer) session.getAttribute("userId"));
+            usersDto.setPassword(null);
+            response.put("result", usersDto);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            response.put("status", "fail");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @PostMapping("/deactivateUser")
-    public ResponseEntity<Object> deactivateUser(@RequestParam int userId, HttpSession session) {
+    public ResponseEntity<Object> deactivateUser(@RequestParam(value = "userId") int userId, HttpSession session) {
         Map<String, Object> response = new LinkedHashMap<String, Object>();
         if (usersService.isAdmin((Integer) session.getAttribute("userId"))) {
             try {
@@ -97,6 +113,74 @@ public class UsersController {
             response.put("status", "fail");
             response.put("error", "you're not admin");
             return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+        }
+    }
+
+    @GetMapping("/readUsersByDep")
+    public ResponseEntity<Object> readUsersByDep(@RequestParam(value = "department") String department,
+                                                 @RequestParam(defaultValue = "1") int page,
+                                                 @RequestParam(defaultValue = "10") int size) {
+        Map<String, Object> response = new LinkedHashMap<>();
+        try {
+            Map<String, Object> result = new HashMap<>();
+            int offset = (page - 1) * size;
+            List<UsersDto> list = usersService.readUsersByDep(department, offset, size);
+            int totalCnt = usersService.readCountUsersByDep(department);
+            result.put("totalCnt", totalCnt);
+            result.put("list", list);
+            response.put("status", "ok");
+            response.put("result", result);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/deleteUser")
+    public ResponseEntity<Object> deleteUser(@RequestParam(value = "userId") int userId) {
+        Map<String, Object> response = new LinkedHashMap<>();
+        try {
+            usersService.deleteUser(userId);
+            response.put("status", "ok");
+            response.put("result", "delete user");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            response.put("status", "fail");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/deactivateUsers")
+    public ResponseEntity<Object> deactivateUsers(@RequestParam(value = "userList") List<Integer> userList) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            for (Integer userId : userList) {
+                usersService.deactivateUser(userId);
+            }
+            response.put("status", "ok");
+            response.put("result", "deactivate users");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            response.put("status", "fail");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @PostMapping("/deleteUsers")
+    public ResponseEntity<Object> deleteUsers(@RequestParam(value = "userList") List<Integer> userList) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            usersService.deleteUsers(userList);
+            response.put("status", "ok");
+            response.put("result", "deactivate users");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            response.put("status", "fail");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

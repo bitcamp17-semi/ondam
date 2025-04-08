@@ -6,6 +6,7 @@ import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.security.SecureRandom;
 import java.sql.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -15,13 +16,18 @@ import java.util.List;
 public class UsersService {
     @Autowired
     UsersMapper usersMapper;
+    @Autowired
+    EmailService emailService;
 
     public boolean createUser(UsersDto usersDto) throws ParseException {
-        String birth = String.valueOf(usersDto.getBirth());
-        usersDto.setBirth(convertStringToDate(birth));
-        usersDto.setPassword(hashingPassword("0000"));
+        String rawPassword = generatePassword();
+        String hashedPassword = hashingPassword(rawPassword);
+//        String birth = String.valueOf(usersDto.getBirth());
+//        usersDto.setBirth(convertStringToDate(birth));
+        usersDto.setPassword(hashedPassword);
         usersDto.setLoginId(generateLoginId());
         usersMapper.createUser(usersDto);
+        emailService.signUpMail(usersDto.getName(), usersDto.getLoginId(), usersDto.getEmail(), rawPassword); // 가입 안내 메일 발송
         return true;
     }
 
@@ -49,12 +55,26 @@ public class UsersService {
         return usersMapper.readAllDeactivateUsers();
     }
 
-    public List<UsersDto> readUsersByDep(String department) {
-        return usersMapper.readUsersByDep(department);
+    public List<UsersDto> readUsersByDep(String department, int offset, int size) {
+        return usersMapper.readUsersByDep(department, offset, size);
+    }
+
+    public int readCountUsersByDep(String department) {
+        return usersMapper.readCountUsersByDep(department);
     }
 
     public List<UsersDto> readUsersByTeam(String team) {
         return usersMapper.readUsersByTeam(team);
+    }
+
+    public void deleteUser(int id) {
+        usersMapper.deleteUser(id);
+    }
+
+    public void deleteUsers(List<Integer> list) {
+        for (Integer id : list) {
+            usersMapper.deleteUser(id);
+        }
     }
 
     public Date convertStringToDate(String date) throws ParseException {
@@ -66,6 +86,20 @@ public class UsersService {
     public boolean isAdmin(int userId) {
         UsersDto usersDto = usersMapper.readUserById(userId);
         return usersDto.isAdmin();
+    }
+
+    public static String generatePassword() {
+        String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
+        int PASSWORD_LENGTH = 8;
+        SecureRandom random = new SecureRandom();
+        StringBuilder sb = new StringBuilder(PASSWORD_LENGTH);
+
+        for (int i = 0; i < PASSWORD_LENGTH; i++) {
+            int index = random.nextInt(CHARACTERS.length());
+            sb.append(CHARACTERS.charAt(index));
+        }
+
+        return sb.toString();
     }
 
     public String hashingPassword(String password) {

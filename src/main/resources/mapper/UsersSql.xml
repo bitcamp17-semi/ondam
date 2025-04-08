@@ -2,9 +2,9 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="data.mapper.UsersMapper">
     <insert id="createUser" parameterType="UsersDto" useGeneratedKeys="true" keyProperty="id">
-        insert into users (email, name, phone, birth, profileImage, addr, department, team, gender, position, password,
+        insert into users (email, name, phone, profileImage, addr, department, team, gender, position, password,
                            loginId)
-        values (#{email}, #{name}, #{phone}, #{birth}, #{profileImage}, #{addr}, #{department}, #{team}, #{gender},
+        values (#{email}, #{name}, #{phone}, #{profileImage}, #{addr}, #{department}, #{team}, #{gender},
                 #{position}, #{password}, #{loginId})
     </insert>
     <select id="readUserById" parameterType="int" resultType="UsersDto">
@@ -34,15 +34,25 @@
         FROM users
         ORDER BY loginId DESC LIMIT 1
     </select>
-    <select id="readUsersByDep" parameterType="String" resultType="UsersDto">
+    <select id="readUsersByDep" parameterType="map" resultType="UsersDto">
         select *
         from users
         where department = #{department}
+          and isDeleted = 0
+            LIMIT #{size}
+        OFFSET #{offset}
+    </select>
+    <select id="readCountUsersByDep" parameterType="String" resultType="int">
+        SELECT COUNT(*)
+        FROM users
+        WHERE department = #{department}
+          and isDeleted = 0
     </select>
     <select id="readUsersByTeam" parameterType="String" resultType="UsersDto">
         select *
         from users
         where team = #{team}
+          and isDeleted = 0
     </select>
     <update id="updateUser" parameterType="map">
         update users
@@ -63,4 +73,9 @@
             isDeleted=1
         where id = #{id}
     </update>
+    <delete id="deleteUser" parameterType="int">
+        delete
+        from users
+        where id = #{id}
+    </delete>
 </mapper>

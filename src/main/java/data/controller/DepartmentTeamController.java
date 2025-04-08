@@ -27,9 +27,10 @@ public class DepartmentTeamController {
 
     @GetMapping("/createDep")
     public ResponseEntity<Object> createDep(
-            @RequestParam String name,
-            @RequestParam int userId
+            @RequestParam(value = "name") String name,
+            HttpSession session
     ) {
+        int userId = (Integer) session.getAttribute("userId");
         Map<String, Object> response = new LinkedHashMap<String, Object>();
         if (usersService.isAdmin(userId)) {
             try {
@@ -87,7 +88,7 @@ public class DepartmentTeamController {
     }
 
     @GetMapping("/deleteDep")
-    public ResponseEntity<Object> deleteDep(@RequestParam int id, HttpSession session) {
+    public ResponseEntity<Object> deleteDep(@RequestParam(value = "id") int id, HttpSession session) {
         Map<String, Object> response = new LinkedHashMap<>();
         int userId = Integer.parseInt(session.getAttribute("userId").toString());
         if (usersService.isAdmin(userId)) {
@@ -110,8 +111,8 @@ public class DepartmentTeamController {
 
     @GetMapping("/createTeam")
     public ResponseEntity<Object> createTeam(
-            @RequestParam int departmentId,
-            @RequestParam String name
+            @RequestParam(value = "departmentId") int departmentId,
+            @RequestParam(value = "name") String name
     ) {
         Map<String, Object> response = new LinkedHashMap<>();
         try {
@@ -127,7 +128,7 @@ public class DepartmentTeamController {
     }
 
     @GetMapping("/readTeams")
-    public ResponseEntity<Object> readTeams(@RequestParam int departmentId) {
+    public ResponseEntity<Object> readTeams(@RequestParam(value = "departmentId") int departmentId) {
         Map<String, Object> response = new LinkedHashMap<>();
         try {
             List<TeamDto> teamList = teamService.readTeamsByDepId(departmentId);
@@ -164,7 +165,7 @@ public class DepartmentTeamController {
     }
 
     @GetMapping("/deleteTeam")
-    public ResponseEntity<Object> deleteTeam(@RequestParam int id, HttpSession session) {
+    public ResponseEntity<Object> deleteTeam(@RequestParam(value = "id") int id, HttpSession session) {
         Map<String, Object> response = new LinkedHashMap<>();
         int userId = Integer.parseInt(session.getAttribute("userId").toString());
         if (usersService.isAdmin(userId)) {

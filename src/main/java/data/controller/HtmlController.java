@@ -49,4 +49,22 @@ public class HtmlController {
     public String approvalWrite() {
         return "layout/approval/approval_write";
     }
+
+    @GetMapping("/admin/management")
+    public String management() {
+        return "layout/management/management";
+    }
+
+    @GetMapping("/admin/managementOrg")
+    public String managementOrg() {
+        return "layout/management/management_org";
+    }
+
+    @GetMapping("/draft/messageInBox")
+    public String messageInBox() { return "layout/message/message_inbox"; }
+
+    @GetMapping("/organization")
+    public String organization() {
+        return "layout/management/organization";
+    }
 }
