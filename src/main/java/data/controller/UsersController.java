@@ -138,6 +138,22 @@ public class UsersController {
         }
     }
 
+    @GetMapping("/readUsersByTeam")
+    public ResponseEntity<Object> readUsersByTeam(@RequestParam(value = "team") String team) {
+        Map<String, Object> response = new LinkedHashMap<>();
+        try {
+            Map<String, Object> result = new HashMap<>();
+            List<UsersDto> list = usersService.readUsersByTeam(team);
+            response.put("status", "ok");
+            response.put("result", list);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @PostMapping("/deleteUser")
     public ResponseEntity<Object> deleteUser(@RequestParam(value = "userId") int userId) {
         Map<String, Object> response = new LinkedHashMap<>();

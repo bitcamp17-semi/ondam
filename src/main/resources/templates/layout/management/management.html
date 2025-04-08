@@ -44,8 +44,8 @@
                             <div class="dropdown-content">
                             </div>
                         </div>
-                        <button class="btnred" id="delete-selected">
-                            <div class="div5" style="color: white">선택 삭제</div>
+                        <button class="btnwhite3" id="delete-selected">
+                            <div class="div5">선택 삭제</div>
                         </button>
                     </div>
                     <button class="btnwhite" onclick="openModal()">
@@ -347,7 +347,6 @@
 
     // 유저 목록 불러오기
     function loadUsers(dep, page) {
-        console.log("dd")
         let dropdownButton = $(".arraybtn .article2");
         let department = dropdownButton.attr("data-selected-value");
         if (dep != null) {
@@ -447,8 +446,6 @@
             data: {departmentId: departmentId},
             success: function (response) {
                 if (response.status === "ok") {
-                    console.log("팀 목록:", response.result);
-                    // TODO: 받아온 팀 리스트를 드롭다운에 넣는 로직 작성
                     let teams = response.result;
                     let dropdownContent = $("#teamDropdown .dropdown-content");
 
