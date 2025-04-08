@@ -28,9 +28,9 @@
         <div class="section">
             <div class="btnset">
                 <button class="whitebtn">< 목록보기</button>
-                <button class="whitebtn">반려하기</button>
+                <button class="whitebtn" id="reject-btn">반려하기</button>
                 <button class="whitebtn">첨부파일 다운로드</button>
-                <button class="orangebtn fileapproval">결재승인</button>
+                <button class="orangebtn fileapproval" id="approve-btn">결재승인</button>
             </div>
             <div class="approvallist">
                 <div class="listtop">
@@ -39,7 +39,7 @@
                     <div class="list-cell">작성일</div>
                 </div>
                 <div class="approvalmain">
-                    <div class="approvalmainfile">
+                    <div class="readonly-content">
 
                     </div>
                     <div class="approvalline">
@@ -48,7 +48,7 @@
                             <img src="">
                             <span>ddd과장</span>
                         </div>
-                        <button class="whitebtn">미승인</button>
+                        <div class="linebtn">미승인</div>
                     </div>
                 </div>
                 </div>
@@ -56,6 +56,23 @@
         </div>
     </div>
 </div>
+<script>
+    // 저장된 HTML 콘텐츠 가져오기 (예시)
+    const savedHtml = `<h1>출장 신청서</h1><p>일자: 4월 10일 ~ 4월 12일</p><p>장소: 부산</p>`;
 
+    // 읽기 전용 영역에 출력
+    document.getElementById('readonly-content').innerHTML = savedHtml;
+
+    // 버튼 동작
+    $('#approve-btn').on('click', () => {
+        alert('결재되었습니다!');
+        // 여기에 AJAX로 결재 상태 전송
+    });
+
+    $('#reject-btn').on('click', () => {
+        alert('반려 처리되었습니다.');
+        // 여기에 AJAX로 반려 상태 전송
+    });
+</script>
 </body>
 </html>
