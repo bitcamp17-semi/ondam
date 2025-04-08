@@ -1,8 +1,11 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>전자결재 템플릿 편집기</title>
+    <title>Title</title>
+    <link rel="stylesheet" th:href="@{/style/globals.css}"/>
+    <link rel="stylesheet" th:href="@{/style/approval_write.css}"/>
+    <link rel="stylesheet" th:href="@{/style/header.css}"/>
 
     <!-- Quill 에디터 CSS -->
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
@@ -11,39 +14,65 @@
     <!-- Quill 에디터 JS -->
     <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
 
-    <style>
-        #editor-container {
-            height: 400px;
-            margin-top: 10px;
-        }
-        #controls {
-            margin-bottom: 10px;
-        }
-        input, select, button {
-            margin-right: 10px;
-        }
-    </style>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
 </head>
 <body>
-
-<h2>전자결재 템플릿 편집기</h2>
-
-<div id="controls">
-    <!-- 템플릿 저장 -->
-    <input type="text" id="template-title" placeholder="템플릿 제목" />
-    <button id="save-template">템플릿 저장</button>
-
-    <!-- 템플릿 불러오기 -->
-    <select id="template-list">
-        <option disabled selected>템플릿 선택</option>
-    </select>
+<div class="fullbox">
+    <div th:replace="~{layout/header :: header}"></div>
+    <div class="main">
+        <div class="nav">
+            <div class="navtitle">
+                전자결재
+            </div>
+            <div class="navbar">
+                <div id="navlist1">+ 작성하기</div>
+                <div class="navlistnone">수신함</div>
+                <div class="navlistnone">발신함</div>
+                <div class="navlistnone">결재완료</div>
+            </div>
+        </div>
+        <div class="section">
+            <div class="btnset">
+                <select id="template-list">
+                    <option disabled selected>문서 선택</option>
+                </select>
+                <div class="file-upload-wrapper">
+                    <label for="attachment" class="upload-label">📎 첨부 파일</label>
+                    <input type="file" id="attachment" style="display:none;">
+                    <span id="file-name">선택된 파일 없음</span>
+                </div>
+                <button class="orangebtn" id="submitBtn">상신하기</button>
+            </div>
+            <div class="approvallist">
+                <div class="approvalmain">
+                    <div class="editor-wrapper">
+                        <input type="text" id="titleInput" placeholder="제목을 입력하세요">
+                        <div id="editor-toolbar">
+                            <!-- 툴바 버튼들 -->
+                        </div>
+                        <div id="editor-container">
+                            <!-- 여기에 Quill 생성 -->
+                        </div>
+                    </div>
+                    <div class="approvalline">
+                        <div class="profileset">
+                            <div class="lineprofile">
+                                <img src="">
+                                <span>ddd과장</span>
+                            </div>
+                            <div class="linebtn">미승인</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-
-<!-- Quill 에디터 -->
-<div id="editor-container"></div>
-
 <script>
-    // 1. Quill 에디터 초기화
+
+    // Quill 에디터 초기화
     var quill = new Quill('#editor-container', {
         theme: 'snow',
         placeholder: '내용을 입력하세요...',
@@ -55,33 +84,7 @@
             ]
         }
     });
-
-    // 2. 템플릿 저장
-    $('#save-template').on('click', function () {
-        const title = $('#template-title').val();
-        const content = quill.root.innerHTML;
-
-        if (!title.trim()) {
-            alert('템플릿 제목을 입력하세요!');
-            return;
-        }
-
-        $.ajax({
-            url: '/template/save', // 서버에 맞게 URL 조정
-            method: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({ title: title, content: content }),
-            success: function () {
-                alert('템플릿이 저장되었습니다!');
-                loadTemplateList(); // 저장 후 목록 갱신
-            },
-            error: function () {
-                alert('템플릿 저장 실패');
-            }
-        });
-    });
-
-    // 3. 템플릿 목록 불러오기
+    // 템플릿 목록 불러오기
     function loadTemplateList() {
         $.ajax({
             url: '/template/list',
@@ -97,7 +100,7 @@
         });
     }
 
-    // 4. 템플릿 선택 시 내용 불러오기
+    // 템플릿 선택 시 내용 불러오기
     $('#template-list').on('change', function () {
         const id = $(this).val();
 
@@ -117,56 +120,41 @@
     $(document).ready(function () {
         loadTemplateList();
     });
-</script>
 
-<h2>결재 문서 보기</h2>
+    // 버튼 클릭 시 전송
+    $('#submit-btn').on('click', function () {
+        const title = $('#title-input').val();
+        const content = quill.root.innerHTML;
+        const file = $('#attachment')[0].files[0];
 
-<!-- 내용 출력 -->
-<div id="readonly-content" style="border:1px solid #ccc; padding:20px;">
-    <!-- 여기에 내용 들어감 -->
-</div>
+        const formData = new FormData();
+        formData.append('title', title);
+        formData.append('content', content);
+        if (file) formData.append('file', file);
 
-<!-- 결재선 -->
-<h3 style="margin-top:30px;">결재선</h3>
-<table border="1" cellpadding="10" style="width:100%; text-align:center;">
-    <thead>
-    <tr>
-        <th>기안자</th>
-        <th>팀장</th>
-        <th>부서장</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-        <td>홍길동 (결재완료)</td>
-        <td>김팀장 (대기)</td>
-        <td>이부장 (대기)</td>
-    </tr>
-    </tbody>
-</table>
-
-<!-- 결재 / 반려 버튼 -->
-<div style="margin-top:20px;">
-    <button id="approve-btn">결재</button>
-    <button id="reject-btn">반려</button>
-</div>
-
-<script>
-    // 저장된 HTML 콘텐츠 가져오기 (예시)
-    const savedHtml = `<h1>출장 신청서</h1><p>일자: 4월 10일 ~ 4월 12일</p><p>장소: 부산</p>`;
-
-    // 읽기 전용 영역에 출력
-    document.getElementById('readonly-content').innerHTML = savedHtml;
-
-    // 버튼 동작
-    $('#approve-btn').on('click', () => {
-        alert('결재되었습니다!');
-        // 여기에 AJAX로 결재 상태 전송
+        $.ajax({
+            url: '/approval/submit',
+            method: 'POST',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (res) {
+                alert('결재 문서가 제출되었습니다!');
+            },
+            error: function () {
+                alert('오류가 발생했습니다!');
+            }
+        });
     });
 
-    $('#reject-btn').on('click', () => {
-        alert('반려 처리되었습니다.');
-        // 여기에 AJAX로 반려 상태 전송
+    // 파일 선택 시, 파일명 표시
+    $('#attachment').on('change', function () {
+        const file = this.files[0];
+        if (file) {
+            $('#file-name').text(file.name);
+        } else {
+            $('#file-name').text('선택된 파일 없음');
+        }
     });
 </script>
 </body>

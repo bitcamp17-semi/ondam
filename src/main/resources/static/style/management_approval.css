@@ -5,7 +5,6 @@
     flex-direction: row;
     width: 96vw;
     height: 100dvh;
-    font-family: "Noto Sans-Bold", Helvetica, "Noto Sans-Regular";
     color: #686868;
     position: relative;
 }
@@ -49,12 +48,22 @@
 }
 
 #navlist1 {
-    color: #fa7000;
-    font-weight: bold;
     cursor: pointer;
 }
 
-.navlistnone {
+#navlist2 {
+    border-left: rgba(0, 0, 0, 0.15) 1px solid;
+    padding-left: 30px;
+    cursor: pointer;
+}
+#navlist3 {
+    border-left: rgba(0, 0, 0, 0.15) 1px solid;
+    padding-left: 30px;
+    cursor: pointer;
+    color: #3f3f3f;
+    font-weight: bold;
+}
+#navlist4 {
     border-left: rgba(0, 0, 0, 0.15) 1px solid;
     padding-left: 30px;
     cursor: pointer;
@@ -90,6 +99,15 @@
     font-weight: bold;
     cursor: pointer;
 }
+.whitebtn {
+    border: rgba(0, 0, 0, 0.15) 1px solid;
+    border-radius: 5px;
+    height: 35px;
+    padding: 0 10px 0 10px;
+    background-color: white;
+    cursor: pointer;
+}
+
 .file-upload-wrapper{
     display: flex;
     flex-direction: row;
@@ -228,13 +246,93 @@
     border-radius: 50%;
 }
 
-.linebtn {
+.removebtn{
+    font-size: 15px;
+    cursor: pointer;
+}
+.removebtn:hover {
+    color: #fa7000;
+}
+
+/*모달스타일*/
+.user-modal {
+    position: fixed;  /* 또는 absolute */
+    top: 50%;
+    display: none;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10000; /* 다른 요소보다 위에 */
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+}
+.modal-backdrop{
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.4);  /* 어두운 배경 */
+    z-index: 9999;
+}
+.user-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 5px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: 0.2s;
+}
+
+.user-item:hover {
+    background-color: #f7f7f7;
+}
+
+.user-item.selected {
+    background-color: #d0ebff;
+    border-color: #74c0fc;
+}
+.modal-content{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.modal-content h3 {
+    font-size: 20px;
+    font-weight: bold;
+    color: #fa7000;
+}
+#departmentSelect{
+    border: rgba(0, 0, 0, 0.15) 1px solid;
+    border-radius: 5px;
+    height: 35px;
+    color: #686868;
+}
+.modalBtn{
+    margin-top: 10px;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+#addSelectedUsers{
+    border: rgba(0, 0, 0, 0.15) 1px solid;
+    border-radius: 5px;
+    height: 35px;
+    padding: 0 10px 0 10px;
+    background-color: #fa7000;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    width: 50%;
+}
+#closeModal{
     border: rgba(0, 0, 0, 0.15) 1px solid;
     border-radius: 5px;
     height: 35px;
     padding: 0 10px 0 10px;
     background-color: white;
-    display: flex;
-    align-items: center;
-    font-size: 13px;
+    cursor: pointer;
+    width: 50%;
 }

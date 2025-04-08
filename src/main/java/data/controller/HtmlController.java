@@ -60,6 +60,9 @@ public class HtmlController {
         return "layout/management/management_org";
     }
 
+    @GetMapping("/admin/managementApproval")
+    public String managementApproval() { return "layout/management/management_approval"; }
+
     @GetMapping("/draft/messageInBox")
     public String messageInBox() { return "layout/message/message_inbox"; }
 
