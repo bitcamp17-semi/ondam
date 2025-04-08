@@ -54,6 +54,7 @@
     align-self: stretch;
     width: 100%;
     font-size: 16px;
+    white-space: nowrap;
 }
 
 #navlist1{
@@ -107,6 +108,7 @@
     padding-bottom: 20px;
     width: 100%;
     border-bottom: rgba(0, 0, 0, 0.05) 1px solid;
+    white-space: nowrap;
 }
 .addbtn{
     border: rgba(0, 0, 0, 0.15) 1px solid;
@@ -218,6 +220,8 @@
 .teamlist{
     width: 200px;
     border-right: rgba(0, 0, 0, 0.05) 1px solid;
+    overflow-y: auto;
+    height: 480px;
 }
 .teamsawon{
     display: flex;

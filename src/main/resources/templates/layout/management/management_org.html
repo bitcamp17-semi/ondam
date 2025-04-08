@@ -159,9 +159,9 @@
                 </div>
             <div class="modalteamtitle">
                 <span>팀 이름</span>
-                <input class="modaltitle" id="buseomodal-title" type="text" placeholder="추가할 팀명을 입력해주세요"/>
+                <input class="modaltitle" id="teammodal-title" type="text" placeholder="추가할 팀명을 입력해주세요"/>
             </div>
-            <div class="buttonset" id="buseomodal-btnset">
+            <div class="buttonset" id="teammodal-btnset">
                 <button type="submit" class="submit-modal" id="teamsubmit">추가하기</button>
                 <button type="button" class="close-modal" id="teamclose">닫기</button>
             </div>
@@ -176,9 +176,9 @@
             <h2>부서 추가</h2>
             <div class="modalteamtitle">
                 <span>부서 이름</span>
-                <input class="modaltitle" id="teammodal-title" type="text" placeholder="추가할 부서명을 입력해주세요"/>
+                <input class="modaltitle" id="buseomodal-title" type="text" placeholder="추가할 부서명을 입력해주세요"/>
             </div>
-            <div class="buttonset" id="teammodal-btnset">
+            <div class="buttonset" id="buseomodal-btnset">
                 <button type="submit" class="submit-modal" id="buseosubmit">추가하기</button>
                 <button type="button" class="close-modal" id="buseoclose">닫기</button>
             </div>
@@ -205,11 +205,6 @@
             event.stopPropagation(); // 부모 요소로 이벤트 전파 방지
             $(this).toggleClass("open");
             $(this).children("ul").slideToggle();
-        });
-
-        // 파일 선택기 열기
-        $("#filePickerBtn").click(function () {
-            openFilePicker();
         });
 
         // 파일 선택 이벤트
@@ -268,24 +263,10 @@
         });
 
         $("#buseomodal-form").on("submit", function(e) {
+            console.log("gg")
             e.preventDefault(); // 페이지 리로드 방지
         });
     });
-    // 트리용 JSON 데이터 여기서 처리 !
-    const treeData = [
-        {
-            name: "Ondam",
-            children: [
-                {
-                    name: "경영지원부",
-                    children: [
-                        { name: "인사팀" },
-                        { name: "기획팀" }
-                    ]
-                }
-            ]
-        }
-    ];
 
     // 트리 생성 함수
     function buildTree(data, $parentUl, depth = 0) {
@@ -293,7 +274,8 @@
             const hasChildren = Array.isArray(item.children) && item.children.length > 0;
 
             const $li = $('<li class="parent"></li>');
-            const $label = $('<span class="node-label"></span>');
+            const $label = $('<span class="node-label"></span>').attr('data-id', item.id)
+                .attr('data-type', item.type);
 
             // 펼치기/접기 아이콘
             if (hasChildren) {
@@ -322,7 +304,8 @@
         });
     }
 
-    $(document).ready(function () {
+    $(document).ready(async function () {
+        const treeData = await getTreeData();
         const $root = $('#tree-root');
         buildTree(treeData, $root);
 
@@ -340,6 +323,57 @@
             e.stopPropagation(); // 펼침/접힘만 처리
         });
 
+        $(document).on('click', '.node-label', function (e) {
+            const $label = $(this);
+            const type = $label.data('type');
+            const id = $label.data('id');
+            const name = $label.text().trim();
+
+            if (type === "dep") {
+                const $icon = $(this).find('.toggle-icon');
+                $(this).closest('li').children('ul').toggle();
+                $icon.toggleClass('bi-plus-lg bi-dash-lg');
+            } else if (type === "team") {
+                $.ajax({
+                    url: "/api/users/readUsersByTeam",
+                    type: "get",
+                    data: {team: name},
+                    success: function (res) {
+                        if (res.status === "ok") {
+                            const storageUrl = "https://kr.object.ncloudstorage.com/bitcamp-semi/users/";
+                            const users = res.result; // UsersDto 리스트
+                            const $teamList = $('.teamlist');
+                            $teamList.empty(); // 기존 목록 제거
+
+                            users.forEach(user => {
+                                const $userDiv = $(`
+                        <div class="teamsawon">
+                            <input type="checkbox" class="childCheckbox"/>
+                            <div class="sawonprofile">
+                                <img src="${storageUrl}${user.profileImage}" onerror="this.src='../../images/Rectangle53.png'"/>
+                                <div class="teamsawonprofile">
+                                    <h3>${user.name}</h3>
+                                    <b>${user.loginId}</b>
+                                </div>
+                            </div>
+                        </div>
+                    `);
+                                $teamList.append($userDiv);
+                            });
+                        } else {
+                            alert("팀 소속 사원 정보를 불러오지 못했습니다.");
+                        }
+                    },
+                    error: function () {
+                        alert("서버와 통신 중 오류가 발생했습니다.");
+                    }
+                });
+            }
+
+            e.stopPropagation(); // 혹시 이벤트 버블링 방지
+        });
+
+
         // 삭제 버튼 클릭 이벤트
         $(document).on('click', '.delete-icon', function (e) {
             if (confirm("정말 삭제하시겠습니까?")) {
@@ -348,6 +382,54 @@
             e.stopPropagation(); // 삭제 시 펼치기 동작 방지
         });
     });
+    function openFilePicker() {
+        $("#fileInput").click();
+    }
+
+    $("#buseosubmit").click(function () {
+
+    })
+    async function getTreeData() {
+        const treeData = {
+            name: "Ondam",
+            children: []
+        };
+
+        try {
+            const depRes = await fetch("/api/dep/readDeps");
+            const depJson = await depRes.json();
+
+            if (depJson.status === "ok") {
+                for (const dep of depJson.result) {
+                    const depNode = {
+                        name: dep.name,
+                        id: dep.id,
+                        type: "dep",
+                        children: []
+                    };
+
+                    const teamRes = await fetch(`/api/dep/readTeams?departmentId=${dep.id}`);
+                    const teamJson = await teamRes.json();
+
+                    if (teamJson.status === "ok") {
+                        depNode.children = teamJson.result.map(team => ({
+                            name: team.name,
+                            id: team.id,
+                            type: "team"
+                        }));
+                    }
+
+                    treeData.children.push(depNode);
+                }
+            }
+
+            return [treeData]; // 트리 뷰 컴포넌트에서 배열로 요구될 수 있어서 배열로 반환
+        } catch (error) {
+            console.error("트리 구조 로딩 실패:", error);
+            return [];
+        }
+    }
+
 </script>
 </body>
 </html>
