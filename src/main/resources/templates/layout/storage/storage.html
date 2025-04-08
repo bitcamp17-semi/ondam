@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" th:href="@{/style/globals.css}" />
+    <link rel="stylesheet" th:href="@{/style/storage.css}" />
+</head>
+<body>
+<div th:replace="layout/header :: header"></div>
+<div class="storage">
+    <div class="main">
+        <div class="top">
+            <div class="nav">
+                <div class="title">
+                    <div class="div">Storage</div>
+                </div>
+                <div class="menu">
+                    <div class="div2">공유문서함</div>
+                </div>
+            </div>
+        </div>
+        <div class="section">
+            <div class="article">
+                <div class="frame-126">
+                    <div class="btnframe">
+                        <button class="btnwhite">
+                            <div class="div3">새폴더</div>
+                        </button>
+                    </div>
+                    <div class="tableset">
+                        <div class="tabletitle">
+                            <div class="div4">파일</div>
+                        </div>
+                        <div class="table"></div>
+                    </div>
+                </div>
+                <div class="frame-127">
+                    <div class="btnframe2">
+                        <div class="frame-146">
+                            <button class="btnwhite">
+                                <div class="div3">업로드</div>
+                            </button>
+                            <button class="btnwhite">
+                                <div class="div3">다운로드</div>
+                            </button>
+                        </div>
+                        <button class="btnwhite">
+                            <div class="div3">삭제</div>
+                        </button>
+                    </div>
+                    <div class="tableset">
+                        <div class="tabletitle">
+                            <div class="div4">파일</div>
+                        </div>
+                        <div class="table2"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="header"></div>
+</div>
+
+</body>
+</html>

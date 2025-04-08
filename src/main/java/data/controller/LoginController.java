@@ -56,7 +56,7 @@ public class LoginController {
         }
     }
 
-    @RequestMapping("/logout")
+    @GetMapping("/logout")
     public ResponseEntity<Object> logout(HttpSession session) {
         Map<String, Object> response = new LinkedHashMap<>();
         try {

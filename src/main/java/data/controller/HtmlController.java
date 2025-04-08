@@ -54,4 +54,20 @@ public class HtmlController {
     public String management() {
         return "layout/management/management";
     }
+
+    @GetMapping("/admin/managementOrg")
+    public String managementOrg() {
+        return "layout/management/management_org";
+    }
+
+    @GetMapping("/draft/messageInBox")
+    public String messageInBox() { return "layout/message/message_inbox"; }
+
+    @GetMapping("/draft/messageOutBox")
+    public String messageOutBox() { return "layout/message/message_outbox"; }
+
+    @GetMapping("/organization")
+    public String organization() {
+        return "layout/management/organization";
+    }
 }
