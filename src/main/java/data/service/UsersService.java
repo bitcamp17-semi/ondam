@@ -55,16 +55,19 @@ public class UsersService {
         return usersMapper.readAllDeactivateUsers();
     }
 
-    public List<UsersDto> readUsersByDep(String department, int offset, int size) {
-        return usersMapper.readUsersByDep(department, offset, size);
+    public List<UsersDto> readUsersByDep(int departmentId, int offset, int size) {
+        return usersMapper.readUsersByDep(departmentId, offset, size);
     }
 
-    public int readCountUsersByDep(String department) {
-        return usersMapper.readCountUsersByDep(department);
+    public int readCountUsersByDep(int departmentId) {
+        return usersMapper.readCountUsersByDep(departmentId);
     }
 
     public List<UsersDto> readUsersByTeam(String team) {
         return usersMapper.readUsersByTeam(team);
+    }
+    public List<UsersDto> readUsersByTeamId(int teamId) {
+        return usersMapper.readUsersByTeamId(teamId);
     }
 
     public void deleteUser(int id) {
@@ -75,6 +78,10 @@ public class UsersService {
         for (Integer id : list) {
             usersMapper.deleteUser(id);
         }
+    }
+
+    public List<UsersDto> readUsersByName(String name) {
+        return usersMapper.readUsersByName(name);
     }
 
     public Date convertStringToDate(String date) throws ParseException {
