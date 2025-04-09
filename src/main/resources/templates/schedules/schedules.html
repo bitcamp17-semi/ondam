@@ -376,7 +376,7 @@ document.addEventListener("DOMContentLoaded", function () {
     	        success: function (response) {
     	          alert('일정이 등록되었습니다!');
     	          console.log(response);
-    	          location.reload();//등록 시 페이지 새로고침
+    	          //location.reload();//등록 시 페이지 새로고침
     	        },
     	        error: function (xhr, status, error) {
     	          console.error('에러 발생:', error);
@@ -437,8 +437,8 @@ document.addEventListener("DOMContentLoaded", function () {
  </script>
  
 </head>
-<body>
-<div th:replace="layout/header :: header"></div>
+<body th:attr="data-user-id=${userId}">
+<div th:replace="~{layout/header :: header}"></div>
 
 <!-- 일정 추가 모달 -->
 <div class="modal" id="calAddModal">

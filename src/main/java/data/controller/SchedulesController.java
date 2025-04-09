@@ -28,6 +28,7 @@ import data.dto.ScheduleGroupMembersDto;
 import data.dto.SchedulesDto;
 import data.dto.UsersDto;
 import data.mapper.ScheduleGroupMapper;
+import data.service.AlarmService;
 import data.service.ScheduleGroupMembersService;
 import data.service.ScheduleGroupService;
 import data.service.SchedulesService;
@@ -42,6 +43,7 @@ public class SchedulesController {
 	final UsersService userService;
 	final ScheduleGroupService scheduleGroupService;
 	final ScheduleGroupMembersService scheduleGroupMemberService;
+	final AlarmService alarmService;
 	
 	//일정관리 페이지 진입
 	@GetMapping({"/schedules"})
@@ -176,6 +178,9 @@ public class SchedulesController {
 
 	        schedulesService.scheduleInsert(map);
 	        //return "일정 등록 완료";
+	        
+	        // 일정 등록 후 SSE 알림 전송
+	        //alarmService.sendScheduleNotification((long) sUserId, dto.getName());
 	        
 	        response.put("status", "ok");
             response.put("result", map);
