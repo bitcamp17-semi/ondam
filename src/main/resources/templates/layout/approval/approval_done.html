@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" th:href="@{/style/globals.css}"/>
+    <link rel="stylesheet" th:href="@{/style/approval_done.css}"/>
+    <link rel="stylesheet" th:href="@{/style/header.css}" />
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+</head>
+<body>
+<div class="fullbox">
+    <div th:replace="~{layout/header :: header}"></div>
+    <div class="main">
+        <div class="nav">
+            <div class="navtitle">
+                전자결재
+            </div>
+            <div class="navbar">
+                <div id="navlist1">+ 작성하기</div>
+                <div class="navlistnone">수신함</div>
+                <div class="navlistnone">발신함</div>
+                <div id="navlist2">결재완료</div>
+            </div>
+        </div>
+        <div class="section">
+            <div class="btnset">
+                <button class="whitebtn">선택 삭제</button>
+            </div>
+            <div class="approvallist">
+                <div class="listtop">
+                    <input type="checkbox" class="selectAll list-cell">
+                    <div class="list-cell">번호</div>
+                    <div class="list-cell listtitle">제목</div>
+                    <div class="list-cell">문서분류</div>
+
+                    <div class="list-cell">작성일</div>
+                    <div class="list-cell">결재상태</div>
+                </div>
+                <div class="listmain">
+                    <div class="listcontent">
+                        <input type="checkbox" class="childCheckbox list-cell">
+                        <div class="list-cell">1</div>
+                        <div class="list-cell listtitle" id="listtitlebtn">제목입니다</div>
+                        <div class="list-cell">기안문</div>
+                        <div class="list-cell">2025.03.28</div>
+                        <div class="list-cell">반려</div>
+                    </div>
+                </div>
+            </div>
+            <div class="pagenumber">
+                1234
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        // 상위 체크박스 클릭 시
+        $('.selectAll').on('change', function () {
+            $('.childCheckbox').prop('checked', $(this).prop('checked'));
+        });
+
+        // 하위 체크박스 클릭 시
+        $('.childCheckbox').on('change', function () {
+            const total = $('.childCheckbox').length;
+            const checked = $('.childCheckbox:checked').length;
+
+            $('.selectAll').prop('checked', total === checked);
+        });
+    });
+</script>
+</body>
+</html>

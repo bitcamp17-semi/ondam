@@ -116,45 +116,45 @@
         });
     });
 
-    // 5. 페이지 로딩 시 템플릿 목록 자동 불러오기
+    //  페이지 로딩 시 템플릿 목록 자동 불러오기
     $(document).ready(function () {
         loadTemplateList();
     });
 
+    // 파일 선택 시 파일 이름 표시
+    $('#attachment').on('change', function () {
+        const fileName = this.files.length > 0 ? this.files[0].name : '선택된 파일 없음';
+        $('#file-name').text(fileName);
+    });
+
     // 버튼 클릭 시 전송
-    $('#submit-btn').on('click', function () {
-        const title = $('#title-input').val();
-        const content = quill.root.innerHTML;
+    $('#submitBtn').on('click', function () {
+        const title = $('#titleInput').val();
+        const content = quill.root.innerHTML; // 에디터 내용 HTML로 추출
         const file = $('#attachment')[0].files[0];
 
         const formData = new FormData();
         formData.append('title', title);
         formData.append('content', content);
-        if (file) formData.append('file', file);
+        if (file) {
+            formData.append('file', file);
+        }
 
         $.ajax({
-            url: '/approval/submit',
-            method: 'POST',
+            url: '/approval/submit',  // 백엔드 컨트롤러 주소
+            type: 'POST',
             data: formData,
             contentType: false,
             processData: false,
             success: function (res) {
-                alert('결재 문서가 제출되었습니다!');
+                alert('결재 등록 완료!');
+                // 필요하면 페이지 이동 등 추가 처리
             },
-            error: function () {
-                alert('오류가 발생했습니다!');
+            error: function (err) {
+                alert('전송 실패 😢');
+                console.error(err);
             }
         });
-    });
-
-    // 파일 선택 시, 파일명 표시
-    $('#attachment').on('change', function () {
-        const file = this.files[0];
-        if (file) {
-            $('#file-name').text(file.name);
-        } else {
-            $('#file-name').text('선택된 파일 없음');
-        }
     });
 </script>
 </body>
