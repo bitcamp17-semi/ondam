@@ -489,6 +489,7 @@
                         success: function (res) {
                             if (res.status === "ok") {
                                 alert("삭제되었습니다.")
+                                readDeps();
                             }
                         },
                         error: function (err) {
@@ -667,6 +668,7 @@
                     $('#buseomodal').css("display", "none");
                     $root.empty();
                     buildTree(await getTreeData(), $root);
+                    readDeps();
                 } else {
                     alert(res.result);
                 }

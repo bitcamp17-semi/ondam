@@ -41,24 +41,28 @@
 </html>
 <script>
     $(document).ready(function () {
-        // 로그인 여부 체크
-        $.ajax({
-            type: "GET",
-            url: "/api/checkLogin",
-            dataType: "json",
-            success: function (res) {
-                if (res.status === "ok") {
-                    alert("이미 로그인된 상태입니다.");
-                    history.back(); // 이전 페이지로 이동
-                }
-            },
-            error: function () {
-                console.warn("로그인 상태 확인 실패 (무시 가능)");
-            }
-        });
+        checkLoginStatus();
+        bindLoginEvent();
+    });
 
-        // 로그인 버튼 클릭 이벤트
-        $("#loginBtn").click(function () {
+    $("#loginId, #password").on("keyup", function (e) {
+        if (e.key === "Enter") {
+            $("#loginBtn").click();
+        }
+    });
+    function checkLoginStatus() {
+        $.get("/api/checkLogin", function (res) {
+            if (res.status === "ok") {
+                alert("이미 로그인된 상태입니다.");
+                history.back();
+            }
+        }).fail(function () {
+            console.warn("로그인 상태 확인 실패");
+        });
+    }
+
+    function bindLoginEvent() {
+        $("#loginBtn").on("click", function () {
             const loginId = $("#loginId").val().trim();
             const password = $("#password").val().trim();
 
@@ -67,24 +71,23 @@
                 return;
             }
 
-            $.ajax({
-                type: "POST",
-                url: "/api/login",
-                data: { loginId: loginId, password: password },
-                dataType: "json",
-                success: function (response) {
-                    if (response.status === "ok") {
-                        alert("로그인 성공!");
-                        window.location.href = "/admin/management";
-                    } else {
-                        alert("로그인 실패: " + response.result);
-                    }
-                },
-                error: function (xhr) {
-                    alert("로그인 실패. (" + xhr.status + ")");
+            const $btn = $(this);
+            $btn.prop("disabled", true); // 중복 클릭 방지
+
+            $.post("/api/login", { loginId, password }, function (response) {
+                if (response.status === "ok") {
+                    alert("로그인 성공!");
+                    location.href = "/admin/management";
+                } else {
+                    alert("로그인 실패: " + response.result);
+                    $btn.prop("disabled", false);
                 }
+            }).fail(function (xhr) {
+                alert("로그인 실패 (" + xhr.status + ")");
+                $btn.prop("disabled", false);
             });
         });
-    });
+    }
+
 
 </script>
