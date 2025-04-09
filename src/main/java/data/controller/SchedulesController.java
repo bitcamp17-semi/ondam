@@ -180,7 +180,7 @@ public class SchedulesController {
 	        //return "일정 등록 완료";
 	        
 	        // 일정 등록 후 SSE 알림 전송
-	        //alarmService.sendScheduleNotification((long) sUserId, dto.getName());
+	        alarmService.sendScheduleNotification((long) sUserId, dto.getName());
 	        
 	        response.put("status", "ok");
             response.put("result", map);

@@ -8,26 +8,21 @@ document.addEventListener("DOMContentLoaded", function () {
       success: function (res) {
         if (res.status === "ok" && res.result.id) {
           const userId = res.result.id;
-          console.log("✅ 로그인 userId:", userId);
+          //console.log("로그인 userId:", userId);
 
           const eventSource = new EventSource("/alarm/connect?userId=" + userId);
 
           eventSource.addEventListener("connect", function (event) {
-            console.log("✅ SSE 연결됨:", event.data);
+            console.log("SSE 연결됨:", event.data);
           });
 
           eventSource.addEventListener("schedule", function (event) {
-            console.log("📌 일정 알림 수신:", event.data);
-            showToast(event.data);
-          });
-
-          eventSource.addEventListener("login", function (event) {
-            console.log("✅ 로그인 알림 수신:", event.data);
+            console.log("일정 알림 수신:", event.data);
             showToast(event.data);
           });
 
           eventSource.onerror = function (error) {
-            console.error("⚠️ SSE 오류 발생:", error);
+            console.error("SSE 오류 발생:", error);
           };
         } else {
           console.error("❌ 사용자 정보를 가져오지 못했습니다.");
@@ -38,7 +33,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
 
-    // ✅ 토스트 메시지 출력 함수
+    // 토스트 메시지 출력 함수
     function showToast(message) {
       const toastBody = document.getElementById("toastMessage");
       toastBody.textContent = message;
