@@ -14,4 +14,6 @@ public interface DepartmentMapper {
     public void updateDep(DepartmentDto dep);
 
     public void deleteDep(int id);
+
+    public DepartmentDto readDepById(int id);
 }

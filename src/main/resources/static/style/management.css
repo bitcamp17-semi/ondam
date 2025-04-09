@@ -44,6 +44,43 @@
     flex-shrink: 0;
     position: relative;
 }
+.navtitle{
+    font-size: 30px;
+    font-weight: bold;
+    color: #3f3f3f;
+}
+.navbar {
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 30px;
+    position: relative;
+    align-self: stretch;
+    width: 100%;
+    font-size: 16px;
+    white-space: nowrap;
+}
+#navlist1{
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#navlist2{
+    color: #3f3f3f;
+    border-left: rgba(0, 0, 0, 0.15) 1px solid;
+    padding-left: 30px;
+    cursor: pointer;
+}
+#navlist3{
+    border-left: rgba(0, 0, 0, 0.15) 1px solid;
+    padding-left: 30px;
+    cursor: pointer;
+}
+#navlist4{
+    border-left: rgba(0, 0, 0, 0.15) 1px solid;
+    padding-left: 30px;
+    cursor: pointer;
+}
 .title {
     display: flex;
     flex-direction: row;

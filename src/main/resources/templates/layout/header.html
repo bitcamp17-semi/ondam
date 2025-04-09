@@ -66,7 +66,7 @@
     <script>
         $(document).ready(function () {
             $.ajax({
-                url: "/api/users/readUserById",
+                url: "/api/users/readUserBySession",
                 type: "GET",
                 success: function (res) {
                     if (res.status === "ok") {
