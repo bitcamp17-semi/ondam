@@ -217,6 +217,7 @@ public class MessageController {
     }
 
     @GetMapping("/list")
+    @ResponseBody
     public List<Map<String, Object>> readMessagesForReceiver(@RequestParam Integer receiverId) {
         if (receiverId == null) {
             throw new IllegalArgumentException("receiverId는 필수입니다.");
@@ -230,6 +231,7 @@ public class MessageController {
 
             Map<String, Object> map = new HashMap<>();
             map.put("id", msg.getId());
+            map.put("title",msg.getTitle());
             map.put("content", msg.getContent());
             map.put("senderId", msg.getSenderId());
             map.put("senderName", sender != null ? sender.getName() : "알 수 없음");

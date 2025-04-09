@@ -17,8 +17,8 @@
         <form id="modal-form">
             <div id="modal-content">
                 <h2>쪽지쓰기</h2>
-                <input type="hidden" id="selectedUserId" name="selectedUserId" />
-                <input type="hidden" id="userId" th:value="${session.loginUser != null ? session.loginUser.userId : ''}" />
+                <input type="hidden" id="receiverId" th:value="${userId}" />
+                <input type="hidden" id="userId" th:value="${userId}" />
                 <div class="selectset">
                     <div class="dropdown" id="modaldepartment">
                         <span>부서</span>
@@ -77,19 +77,17 @@
                     <div class="dropdown-menu">
                         <a href="#" data-filter="all">전체보기</a>
                         <a href="#" data-filter="unread">안 읽은 메세지</a>
-
+                        <a href="#" data-filter="important">중요 메세지</a>
                     </div>
                 </div>
-                <input type="hidden" id="receiverId"
-                       th:value="${session.loginUser?.userId}" />
                 <div class="messages">
                     <div class="getmessage">
                         <div class="getmessage_first">
-                            <div id="messagetitle">제목입니다</div>
-                            <div id="messagedate">12.11.11</div>
+                            <div id="messagetitle"></div>
+                            <div id="messagedate"></div>
                         </div>
-                        <div id="messagename">보낸사람</div>
-                        <div id="messagearticle">내용입니다</div>
+                        <div id="messagename"></div>
+                        <div id="messagearticle"></div>
                     </div>
                 </div>
             </div>
@@ -123,6 +121,7 @@
 </div>
 <script>
     $(document).ready(function () {
+
         const receiverId = $("#receiverId").val();
         console.log("receiverId:", receiverId);
         const userId = $("#userId").val();
@@ -221,7 +220,7 @@
                 alert("모든 항목을 작성해주세요.");
                 return;
             }
-
+            loadMessage("all")
             // AJAX 요청 보내기
             $.ajax({
                 url: "/messages/createMessage",
@@ -246,56 +245,122 @@
                 }
             });
         })
-        $.ajax({
-            url: "/messages/list",
-            data: { receiverId: receiverId },
-            method: "GET",
-            success: function (data) {
-                console.log("서버에서 받아온 데이터:", data);
-                const container = $(".messages");
-                $("#totalcount").text(`총 ${data.length}개의 쪽지가 있습니다.`);
+        loadMessages("all");
 
-                container.on("click", ".getmessage", function () {
-                    const $this = $(this);
-                    $("#rightmaintitle").text($this.data("title"));
-                    $("#rightmaincontents").text($this.data("content"));
-                    $("#profilename").text($this.data("name"));
-                    $("#writedate").text($this.data("date"));
-                });
-
-                data.forEach(msg => {
-                    const isRead = msg.isRead ? "read" : "unread";
-                    const html = `
-                        <div class="getmessage ${isRead}"
-                            data-title="${msg.title}"
-                            data-date="${formatDate(msg.createdAt)}"
-                            data-name="${msg.senderName}"
-                            data-content="${msg.content}">
-                            <div class="getmessage_first">
-                                <div>${msg.title}</div>
-                                <div>${formatDate(msg.createdAt)}</div>
-                            </div>
-                            <div>${msg.senderName}</div>
-                        </div>
-                    `;
-                    container.append(html);
-                });
-            },
-            error: function (xhr, status, error) {
-                console.error("🔥 AJAX 오류 발생 🔥");
-                console.log("상태 코드:", xhr.status);
-                console.log("응답 텍스트:", xhr.responseText);
-                console.log("에러 메시지:", error);
-            }
-
+        // 카테고리 필터 선택 시
+        $(document).on("click", ".dropdown-menu a", function () {
+            const filter = $(this).data("filter");
+            $(this).closest(".dropdown").find(".dropdown-btn").text($(this).text());
+            loadMessages(filter);
         });
+
+        // 중요 표시 토글
+        $(document).on("click", ".important-icon", function (e) {
+            e.stopPropagation();
+            const icon = $(this);
+            const messageId = icon.data("id");
+            const isNowImportant = icon.hasClass("bi-star-fill");
+
+            $.ajax({
+                url: `/messages/important/${messageId}`,
+                method: "POST",
+                data: { isImportant: !isNowImportant },
+                success: function () {
+                    icon.toggleClass("bi-star bi-star-fill");
+                },
+                error: function () {
+                    alert("중요 표시 변경 실패");
+                },
+            });
+        });
+
+        // 메시지 클릭 시 상세 보기 표시
+        $(document).on("click", ".getmessage", function () {
+            const $this = $(this);
+            const messageId = $this.data("id");
+
+            $("#rightmaintitle").text($this.data("title"));
+            $("#rightmaincontents").text($this.data("content"));
+            $("#profilename").text($this.data("name"));
+            $("#writedate").text($this.data("date"));
+
+            $.ajax({
+                url: `/messages/read/${messageId}`,
+                method: "POST",
+                success: function () {
+                    $this.removeClass("unread").addClass("read");
+                    $this.find(".getmessage_first > div:first-child").css("font-weight", "normal");
+                }
+            });
+        });
+
+        function loadMessages(filter) {
+            $.ajax({
+                url: "/messages/list",
+                data: { receiverId: receiverId },
+                method: "GET",
+                success: function (data) {
+                    const container = $(".messages");
+                    container.empty();
+
+                    let filtered = data;
+                    if (filter === "unread") filtered = data.filter((m) => !m.isRead);
+                    else if (filter === "important") filtered = data.filter((m) => m.isImportant);
+
+                    if (filtered.length === 0) {
+                        container.append(`<div class="placeholder">📭 해당 조건의 쪽지가 없습니다.</div>`);
+                        return;
+                    }
+
+                    $("#totalcount").text(`총 ${filtered.length}개의 쪽지가 있습니다.`);
+
+                    filtered.forEach((msg) => {
+                        const isRead = msg.isRead;
+                        const isImportant = msg.isImportant;
+                        const starIcon = isImportant ? "bi-star-fill" : "bi-star";
+                        const readClass = isRead ? "read" : "unread";
+                        const title = msg.title ?? "제목 없음";
+                        const date = formatDate(msg.createdAt);
+                        const sender = msg.senderName ?? "알 수 없음";
+                        const content = msg.content.length > 30 ? msg.content.slice(0, 30) + "..." : msg.content;
+
+                        const html = `
+                                <div class="getmessage ${readClass}"
+                                    data-id="${msg.id}"
+                                    data-title="${title}"
+                                    data-date="${date}"
+                                    data-name="${sender}"
+                                    data-content="${msg.content}"
+                                    data-important="${isImportant}">
+
+                                  <div class="getmessage_first" style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div style="font-weight: ${isRead ? "normal" : "bold"}; font-size: 16px;">${title}</div>
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                      <i class="bi ${starIcon} important-icon" data-id="${msg.id}" style="cursor: pointer;"></i>
+                                      <div style="font-size: 12px; color: gray;">${date}</div>
+                                    </div>
+                                  </div>
+                                  <div style="font-size: 13px; color: #444;">${sender}</div>
+                                  <div style="font-size: 13px; color: #666;">${content}</div>
+                                </div>
+                              `;
+
+                        container.append(html);
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.error("🔥 AJAX 오류 발생 🔥");
+                    console.log("상태 코드:", xhr.status);
+                    console.log("응답 텍스트:", xhr.responseText);
+                    console.log("에러 메시지:", error);
+                },
+            });
+        }
 
         function formatDate(dateStr) {
             const d = new Date(dateStr);
             return `${d.getFullYear().toString().slice(2)}.${d.getMonth() + 1}.${d.getDate()}`;
         }
-
-
 
     });
 

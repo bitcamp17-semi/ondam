@@ -30,6 +30,15 @@
     background-color: #fff;
     height: 100%;
 }
+/*따로 추가한것 */
+.getmessage.unread {
+    background-color: #f8f8ff;
+}
+.getmessage.unread div:first-child {
+    font-weight: bold;
+}
+/* -------------------------- */
+
 .nav {
     display: flex;
     flex-direction: column;
