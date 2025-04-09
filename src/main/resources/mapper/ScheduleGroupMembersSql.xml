@@ -13,7 +13,7 @@
 	
 	<!-- 그룹아이디가 갖고있는 그룹멤버 조회 -->
 	<select id="readGroupMemByGroupId" parameterType="int" resultType="ScheduleGroupMembersDto">
-		SELECT u.id AS userId, u.name, u.department
+		SELECT u.id AS userId, u.name, u.departmentId
 		FROM schedule_group_members m
 		JOIN users u ON m.userId = u.id
 		WHERE m.groupId = #{groupId};
