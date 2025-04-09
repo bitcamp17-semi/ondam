@@ -7,13 +7,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class HtmlController {
     @GetMapping("/")
     public String index() {
-        return "index";
+        return "layout/index";
     }
 
     @GetMapping("/login")
-    public String login() {
-        return "layout/login";
-    }
+    public String login() { return "layout/login"; }
 
     @GetMapping("/draft/approvalDone")
     public String approvlDone() {

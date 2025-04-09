@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Drive Storage</title>
+    <link rel="stylesheet" th:href="@{/style/globals.css}"/>
+    <link rel="stylesheet" th:href="@{/style/index.css}"/>
+    <link rel="stylesheet" th:href="@{/style/header.css}"/>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+</head>
+<body>
+<div class="fullbox">
+    <div th:replace="~{layout/header :: header}"></div>
+    <div class="main">
+        <div class="nav">
+            <div class="navtitle">안녕하세요 name님!</div>
+            <div class="navbar">
+                <div id="navlist2">오늘은 date 수요일 입니다!</div>
+            </div>
+        </div>
+        <div class="section">
+            <div class="left">
+                달력
+            </div>
+            <div class="middle">
+                <div class="middletop">
+                    공지사항
+                </div>
+                <div class="middlebottom">
+                    결제관련
+                </div>
+            </div>
+            <div class="right">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
