@@ -1,281 +1,602 @@
-.storage,
-.storage * {
-    box-sizing: border-box;
-}
-.storage {
-    background: #ffffff;
-    height: 1080px;
-    position: relative;
-    overflow: hidden;
-}
-.main {
-    background: #ffffff;
+/*all*/
+
+.fullbox{
     display: flex;
-    flex-direction: column;
-    gap: 0px;
-    align-items: flex-start;
-    justify-content: flex-start;
-    width: 1840px;
+    flex-direction: row;
+    width: 96vw;
+    height: 100dvh;
+    font-family: "Noto Sans-Bold", Helvetica, "Noto Sans-Regular";
+    color: #686868;
+    position: relative;
+    min-height: 0;
+}
+.header {
+    width: 80px;
+    height: 100%;
+    display: flex;
     position: absolute;
-    left: 80px;
-    top: 0px;
+    left: 0;
+    top: 0;
+    overflow: hidden;
+    z-index: 10000;
 }
-.top {
-    background: #ffffff;
-    padding: 1px 60px 1px 60px;
+
+.main {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    width: 95%;
+    margin-left: 80px;
     align-items: flex-start;
-    justify-content: flex-end;
-    align-self: stretch;
-    flex-shrink: 0;
-    height: 150px;
     position: relative;
-    overflow: hidden;
+    background-color: #fff;
+    height: 100%;
+    min-height: 0;
 }
 .nav {
     display: flex;
     flex-direction: column;
-    gap: 30px;
+    height: 200px;
+    width: 100%;
     align-items: flex-start;
-    justify-content: flex-start;
-    align-self: stretch;
-    flex-shrink: 0;
-    position: relative;
+    justify-content: flex-end;
+    margin-left: 70px;
+    gap: 25px;
 }
-.title {
-    display: flex;
-    flex-direction: row;
-    gap: 10px;
-    align-items: flex-start;
-    justify-content: flex-start;
-    align-self: stretch;
-    flex-shrink: 0;
-    position: relative;
-}
-
-.div {
-    color: #3f3f3f;
-    text-align: left;
-    font-family: "NotoSans-Bold", sans-serif;
+.navtitle{
     font-size: 30px;
-    line-height: 30px;
-    font-weight: 700;
-    position: relative;
+    font-weight: bold;
+    color: #3f3f3f;
+}
+.navbar {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: flex-start;
+    gap: 30px;
+    position: relative;
+    align-self: stretch;
+    width: 100%;
+    font-size: 16px;
+    white-space: nowrap;
 }
 
-.menu {
-    display: flex;
-    flex-direction: row;
-    gap: 30px;
-    align-items: flex-start;
-    justify-content: flex-start;
-    align-self: stretch;
-    flex-shrink: 0;
-    position: relative;
-}
-.div2 {
+#navlist2{
+    font-weight: bold;
     color: #3f3f3f;
-    text-align: left;
-    font-family: "NotoSans-Bold", sans-serif;
-    font-size: 16px;
-    line-height: 22px;
-    font-weight: 700;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
+    cursor: pointer;
 }
-.section {
-    background: #ffffff;
-    padding: 50px 60px 50px 60px;
+
+.section{
     display: flex;
-    flex-direction: column;
-    gap: 10px;
-    align-items: center;
-    justify-content: center;
-    align-self: stretch;
-    flex-shrink: 0;
-    height: 930px;
-    position: relative;
-    overflow: hidden;
-}
-.article {
-    background: #ffffff;
-    border-radius: 15px;
-    border-style: solid;
-    border-color: rgba(0, 0, 0, 0.05);
-    border-width: 1px;
     padding: 20px;
-    display: flex;
-    flex-direction: row;
-    gap: 20px;
-    align-items: flex-start;
-    justify-content: flex-start;
-    align-self: stretch;
-    flex-shrink: 0;
-    height: 800px;
-    position: relative;
-    overflow: hidden;
+    border: rgba(0, 0, 0, 0.05) 1px solid;
+    border-radius: 15px;
+    width: 96%;
+    height: 100%;
+    margin: 50px 50px 50px 70px;
+    min-height: 0;
 }
-.frame-126 {
-    padding: 10px;
+
+/*inbox left*/
+
+.leftarticle{
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    align-items: flex-start;
-    justify-content: flex-start;
-    align-self: stretch;
-    flex-shrink: 0;
-    width: 300px;
-    position: relative;
-    overflow: hidden;
+    height: 100%;
+    max-height: 610px;
+    width: 250px;
 }
-.btnframe {
-    display: flex;
-    flex-direction: row;
-    gap: 20px;
-    align-items: flex-start;
-    justify-content: flex-start;
-    align-self: stretch;
-    flex-shrink: 0;
-    position: relative;
-}
-.btnwhite {
-    background: #ffffff;
-    border-radius: 8px;
-    border-style: solid;
-    border-color: rgba(0, 0, 0, 0.15);
-    border-width: 1px;
-    padding: 10px 20px 10px 20px;
-    display: flex;
-    flex-direction: row;
-    gap: 10px;
-    align-items: center;
-    justify-content: center;
-    flex-wrap: wrap;
-    align-content: center;
-    flex-shrink: 0;
-    height: 40px;
-    position: relative;
-}
-.div3 {
-    color: #686868;
-    text-align: center;
-    font-family: "NotoSans-Regular", sans-serif;
-    font-size: 16px;
-    line-height: 22px;
-    font-weight: 400;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.tableset {
-    display: flex;
-    flex-direction: column;
-    gap: 0px;
-    align-items: flex-start;
-    justify-content: flex-start;
-    align-self: stretch;
-    flex: 1;
-    position: relative;
-}
-.tabletitle {
-    background: #f7f7f7;
-    border-style: solid;
-    border-color: rgba(238, 238, 238, 0.8);
-    border-width: 0px 0px 1px 0px;
-    padding: 15px 30px 15px 30px;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    align-self: stretch;
-    flex-shrink: 0;
-    height: 59px;
-    position: relative;
-}
-.div4 {
+
+#orgtitle{
+    font-size: 20px;
+    font-weight: bold;
     color: #3f3f3f;
-    text-align: left;
-    font-family: "NotoSans-Regular", sans-serif;
+}
+.orgaddbox{
+    padding-bottom: 20px;
+    width: 100%;
+    border-bottom: rgba(0, 0, 0, 0.05) 1px solid;
+    white-space: nowrap;
+}
+.addbtn{
+    border: rgba(0, 0, 0, 0.15) 1px solid;
+    border-radius: 5px;
+    height: 35px;
+    width: 100px;
+    background-color: white;
+    color: #686868;
+    cursor: pointer;
+}
+.whitebtn{
+    border: rgba(0, 0, 0, 0.15) 1px solid;
+    border-radius: 5px;
+    height: 35px;
+    padding: 0 15px 0 15px;
+    background-color: white;
+    color: #686868;
+    cursor: pointer;
+}
+
+/* ======= 조직도 스타일 ======= */
+.orgchart{
+    flex-grow: 1;
+    color: #3f3f3f;
+    overflow-y: auto;
+}
+.orgchart ul {
+    list-style-type: none;
+    padding-left: 20px;
+    cursor: pointer;
+}
+
+.tree {
+    list-style-type: none;
+    padding-left: 20px;
+}
+
+.tree li {
+    margin: 10px 0;
+    position: relative;
+}
+
+.node-label {
+    padding-right: 24px; /* 삭제버튼 공간 확보 */
+    cursor: pointer;
+    position: relative;
+    display: inline-block;
+}
+
+.delete-icon {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #dc3545;
     font-size: 16px;
-    line-height: 22px;
-    font-weight: 400;
-    position: relative;
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
+    cursor: pointer;
 }
-.table {
-    border-style: solid;
-    border-color: rgba(238, 238, 238, 0.8);
-    border-width: 0px 0px 1px 0px;
-    padding: 15px 30px 15px 30px;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    align-self: stretch;
-    flex: 1;
-    position: relative;
+
+.toggle-icon {
+    margin-right: 5px;
+    font-size: 14px;
+    color: #007bff;
+    cursor: pointer;
 }
-.frame-127 {
-    padding: 10px;
+
+/*inbox right*/
+
+.rightarticle{
     display: flex;
     flex-direction: column;
+    width: 100%;
+    height: 100%;
+    border-left: rgba(0, 0, 0, 0.05) 1px solid;
+    margin-left: 20px;
+    padding-left: 20px;
+    min-height: 0;
+}
+.rightarticle span{
+    font-size: 20px;
+    font-weight: bold;
+    color: #3f3f3f;
+}
+.righttop{
+    padding-bottom: 20px;
+    width: 100%;
+    border-bottom: rgba(0, 0, 0, 0.05) 1px solid;
+}
+
+#rightdeletebtn{
+    border: rgba(0, 0, 0, 0.15) 1px solid;
+    border-radius: 5px;
+    height: 35px;
+    width: 13%;
+    background-color: white;
+    color: #686868;
+    cursor: pointer;
+}
+
+.rightmain{
+    display: flex;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    min-height: 0;
+}
+
+#rightmaintitle{
+    font-size: 30px;
+    color: #3f3f3f;
+    margin-bottom: 20px;
+}
+.teamlist{
+    width: 250px;
+    border-right: rgba(0, 0, 0, 0.05) 1px solid;
+    overflow-y: auto;
+    height: 100%;
+    min-height: 0;
+}
+.teamsawon{
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    height: 50px;
+    background-color: white;
     gap: 10px;
-    align-items: flex-start;
-    justify-content: flex-start;
-    align-self: stretch;
-    flex: 1;
-    position: relative;
-    overflow: hidden;
+    margin: 10px 10px 10px 0;
 }
-.btnframe2 {
+.sawonprofile{
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    gap: 10px;
+}
+.sawonprofile img{
+    width: 40px;
+    height: 40px;
+    border-radius: 5px;
+    background-color: white;
+}
+.teamsawonprofile{
+    gap: 2px;
+}
+.sawonprofile h3{
+    color: #3f3f3f;
+}
+.sawonprofile b{
+    font-size: 12px;
+}
+.sawonupdate{
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+}
+.sawon{
+    width: 100%;
+    height: 100%;
     display: flex;
     flex-direction: row;
-    align-items: flex-start;
-    justify-content: space-between;
-    align-self: stretch;
-    flex-shrink: 0;
-    position: relative;
-}
-.frame-146 {
-    display: flex;
-    flex-direction: row;
+    align-items: center;
+    justify-content: center;
     gap: 20px;
-    align-items: center;
-    justify-content: flex-start;
-    flex-shrink: 0;
-    position: relative;
+    margin-bottom: 20px;
 }
-.table2 {
-    border-style: solid;
-    border-color: rgba(238, 238, 238, 0.8);
-    border-width: 0px 0px 1px 0px;
-    padding: 15px 30px 15px 30px;
+.sawonphoto{
+    display: flex;
+    flex-direction: column;
+    width: 30%;
+    gap: 20px;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+#previewImage{
+    width: 150px;
+    height: 150px;
+    display: flex;
+}
+.hidden-file{
+    display: none;
+}
+.photoselectbtn {
+    border: rgba(0, 0, 0, 0.15) 1px solid;
+    border-radius: 5px;
+    height: 35px;
+    width: 130px;
+    background-color: white;
+    color: #686868;
+    cursor: pointer;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    flex-direction: row;
+}
+.sawoninfo{
+    width: 30%;
+    height: 100%;
+    gap: 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.sawonname,
+.sawonbuseo,
+.sawonteam,
+.sawonposition,
+.sawonphone,
+.sawonmail{
+    display: flex;
+    gap: 5px;
+    flex-direction: column;
+}
+.sawonname span,
+.sawonbuseo span,
+.sawonteam span,
+.sawonposition span,
+.sawonphone span,
+.sawonmail span{
+    font-size: 12px;
+    color: #686868;
+}
+#name,
+#phone,
+#mail{
+    margin-top: 5px;
+    width: 100%;
+    padding: 5px 5px 5px 10px;
+    background-color: white;
+    text-align: left;
+    border: rgba(0, 0, 0, 0.15) 1px solid;
+    border-radius: 5px;
+    color: #686868;
+}
+.rightmain{
+    display: flex;
+    width: 100%;
+    height: 100%;
+    flex-direction: column;
+}
+
+.listtop{
+    width: 100%;
+    height: 45px;
+    background-color: rgba(0, 0, 0, 0.05);
     display: flex;
     flex-direction: row;
-    align-items: center;
     justify-content: space-between;
-    align-self: stretch;
-    flex-shrink: 0;
-    height: 59px;
-    position: relative;
+    align-items: center;
+    border-bottom: rgba(0, 0, 0, 0.05) 1px solid;
 }
-.header {
-    background: #ffffff;
-    width: 80px;
-    height: 1080px;
+.list-cell{
+    border-left: rgba(0, 0, 0, 0.05) 1px solid;
+    text-align: center;
+}
+
+.list-cell.first{
+    border-left: none;
+}
+
+.list-cell:nth-child(1){ width: 3%; }
+.list-cell:nth-child(2){ width: 5%; }
+.list-cell:nth-child(3){ width: 47%; }
+.list-cell:nth-child(4){ width: 20%; }
+.list-cell:nth-child(5){ width: 10%; }
+.list-cell:nth-child(6){ width: 15%; }
+
+.listtitle {
+    text-align: start;!important;
+    padding: 0 20px;
+    cursor: pointer;
+}
+.listcontent {
+    width: 100%;
+    height: 45px;
+    background-color: white;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: rgba(0, 0, 0, 0.05) 1px solid;
+}
+#listtitlebtn{
+    cursor: pointer;
+}
+.pagenumber{
+    display: flex;
+    align-self: center;
+}
+/*드롭다운 css*/
+.dropdown{
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-btn{
+    margin-top: 5px;
+    width: 100%;
+    padding: 5px 5px 5px 10px;
+    background-color: white;
+    cursor: pointer;
+    text-align: left;
+    border: rgba(0, 0, 0, 0.15) 1px solid;
+    border-radius: 5px;
+    color: #686868;
+}
+.dropdown-menu{
+    display: none;
     position: absolute;
-    left: 0px;
-    top: 0px;
-    overflow: hidden;
+    top: 100%;
+    left: 0;
+    width: 100%; /* 버튼 크기와 동일하게 */
+    background-color: white;
+    border: 1px solid #ddd;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    z-index: 1;
+}
+.dropdown-menu a {
+    display: block;
+    padding: 10px;
+    text-decoration: none;
+    cursor: pointer;
+    color: #686868;
+}
+
+.dropdown-menu a:hover {
+    background-color: #fa7000;
+    color: white;
+}
+.updatebtnset{
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+    width: 100%;
+    justify-content: center;
+}
+
+.sawonupdatebtn {
+    border: rgba(0, 0, 0, 0.15) 1px solid;
+    border-radius: 5px;
+    height: 35px;
+    width: 130px;
+    background-color: #fa7000;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    flex-direction: row;
+}
+.sawondeletebtn {
+    border: rgba(0, 0, 0, 0.15) 1px solid;
+    border-radius: 5px;
+    height: 35px;
+    width: 130px;
+    background-color: white;
+    color: #686868;
+    cursor: pointer;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    flex-direction: row;
+}
+
+/* 모달 css*/
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* 어두운 배경 */
+    display: none; /* flex 레이아웃 사용 */
+    justify-content: center;
+    align-items: center;
+    transition: visibility 0s, opacity 0.3s; /* 애니메이션 효과 */
+    z-index: 10000;
+}
+
+.modal-content {
+    background-color: white;
+    padding: 30px;
+    border-radius: 10px;
+    width: 400px;
+    display: flex;
+    flex-direction: column;
+}
+.modal-content span{
+    font-size: 12px;
+}
+.modal-content h2 {
+    font-size: 20px;
+    font-weight: bold;
+    color: #3f3f3f;
+    margin-bottom: 15px;
+}
+
+#modaldepartment{
+    width: 100%;
+}
+
+.modalteamtitle{
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    width: 100%;
+    margin-top: 10px;
+}
+.modaltitle{
+    margin-top: 5px;
+    width: 100%;
+    border: rgba(0, 0, 0, 0.15) 1px solid;
+    padding: 10px;
+    border-radius: 5px;
+    height: 30px;
+}
+
+.buttonset{
+    margin-top: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.submit-modal{
+    width: 150px;
+    height: 35px;
+    background-color: #fa7000;
+    color: white;
+    border: rgba(0, 0, 0, 0.05) 1px solid;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+}
+.close-modal{
+    width: 100px;
+    height: 35px;
+    background-color: white;
+    border: rgba(0, 0, 0, 0.15) 1px solid;
+    border-radius: 5px;
+    color: #686868;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+/*트리 스타일*/
+.tree, .tree ul {
+    list-style: none;
+    padding-left: 20px;
+    margin: 0;
+}
+
+/* 기본적으로 폴더는 접힌 상태 */
+.tree ul {
+    display: none;
+}
+
+.tree li.open > ul {
+    display: block;
+}
+
+/* 폴더 텍스트 스타일 */
+.folder {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin: 5px 0;
+}
+
+.folder:hover {
+    text-decoration: underline;
+    color: #007bff;
+}
+
+/* 화살표 애니메이션 */
+.toggle-icon {
+    transition: transform 0.2s;
+}
+
+/* 열린 폴더일 경우 화살표 회전 */
+
+
+/* 파일 출력 스타일 */
+.rightmain ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.rightmain li {
+    margin: 4px 0;
 }

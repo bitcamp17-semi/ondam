@@ -74,6 +74,9 @@ public class HtmlController {
     @GetMapping("/draft/messageOutBox")
     public String messageOutBox() { return "layout/message/message_outbox"; }
 
+    @GetMapping("/draft/storage")
+    public String storage() { return "layout/storage/storage"; }
+
     @GetMapping("/organization")
     public String organization() {
         return "layout/management/organization";

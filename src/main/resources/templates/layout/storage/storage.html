@@ -1,65 +1,283 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/html">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" th:href="@{/style/globals.css}" />
-    <link rel="stylesheet" th:href="@{/style/storage.css}" />
+    <title>Title</title>
+    <link rel="stylesheet" th:href="@{/style/globals.css}"/>
+    <link rel="stylesheet" th:href="@{/style/storage.css}"/>
+    <link rel="stylesheet" th:href="@{/style/header.css}"/>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
 </head>
 <body>
-<div th:replace="layout/header :: header"></div>
-<div class="storage">
+<div class="fullbox">
+    <div th:replace="~{layout/header :: header}"></div>
     <div class="main">
-        <div class="top">
-            <div class="nav">
-                <div class="title">
-                    <div class="div">Storage</div>
-                </div>
-                <div class="menu">
-                    <div class="div2">공유문서함</div>
-                </div>
+        <div class="nav">
+            <div class="navtitle">
+                공유문서함
+            </div>
+            <div class="navbar">
+                <div id="navlist2">문서함</div>
             </div>
         </div>
         <div class="section">
-            <div class="article">
-                <div class="frame-126">
-                    <div class="btnframe">
-                        <button class="btnwhite">
-                            <div class="div3">새폴더</div>
-                        </button>
-                    </div>
-                    <div class="tableset">
-                        <div class="tabletitle">
-                            <div class="div4">파일</div>
-                        </div>
-                        <div class="table"></div>
-                    </div>
+            <div class="leftarticle">
+                <div class="orgaddbox">
+                    <button class="addbtn" id="addteambtn">폴더추가</button>
                 </div>
-                <div class="frame-127">
-                    <div class="btnframe2">
-                        <div class="frame-146">
-                            <button class="btnwhite">
-                                <div class="div3">업로드</div>
-                            </button>
-                            <button class="btnwhite">
-                                <div class="div3">다운로드</div>
-                            </button>
-                        </div>
-                        <button class="btnwhite">
-                            <div class="div3">삭제</div>
-                        </button>
-                    </div>
-                    <div class="tableset">
-                        <div class="tabletitle">
-                            <div class="div4">파일</div>
-                        </div>
-                        <div class="table2"></div>
-                    </div>
+                <div class="orgchart">
+                    <ul class="tree" id="tree-root">
+                        <li>
+        <span class="folder" data-id="1">
+            <i class="bi bi-chevron-down toggle-icon"></i> 📁 부서1
+        </span>
+                            <ul>
+                                <li>
+                <span class="folder" data-id="2">
+                    <i class="bi bi-chevron-right toggle-icon"></i> 📁 팀A
+                </span>
+                                    <ul>
+                                        <li><span class="folder" data-id="3">📁 하위폴더1</span></li>
+                                        <li><span class="folder" data-id="4">📁 하위폴더2</span></li>
+                                    </ul>
+                                </li>
+                                <li><span class="folder" data-id="5">📁 팀B</span></li>
+                            </ul>
+                        </li>
+                    </ul>
                 </div>
             </div>
+            <div class="rightarticle">
+                <div class="righttop">
+                    <button id="downloadSelected" class="whitebtn">선택 다운로드</button>
+                    <button id="deleteSelected" class="whitebtn">선택 삭제</button>
+                </div>
+                <div class="rightmain">
+                    <div class="listtop">
+                        <input type="checkbox" class="selectAll list-cell">
+                        <div class="list-cell">번호</div>
+                        <div class="list-cell listtitle">제목</div>
+                        <div class="list-cell">파일분류</div>
+                        <div class="list-cell">작성자</div>
+                        <div class="list-cell">작성일</div>
+                    </div>
+
+                </div>
         </div>
     </div>
-    <div class="header"></div>
 </div>
+<!-- 폴더 추가 모달 -->
+<div class="modal-overlay" id="teammodal">
+    <form class="modal-form" id="teammodal-form">
+        <div class="modal-content" id="teammodal-content">
+            <h2>팀 추가</h2>
+            <div class="dropdown" id="modaldepartment">
+                <span>부서</span>
+                <button class="dropdown-btn">부서를 선택하세요</button>
+                <div class="dropdown-menu">
+                    <a href="#">옵션 2-1</a>
+                    <a href="#">옵션 2-2</a>
+                    <a href="#">옵션 2-3</a>
+                </div>
+            </div>
+            <div class="modalteamtitle">
+                <span>팀 이름</span>
+                <input class="modaltitle" id="teammodal-title" type="text" placeholder="추가할 팀명을 입력해주세요"/>
+            </div>
+            <div class="buttonset" id="teammodal-btnset">
+                <button type="submit" class="submit-modal" id="teamsubmit">추가하기</button>
+                <button type="button" class="close-modal" id="teamclose">닫기</button>
+            </div>
+        </div>
+    </form>
+</div>
+<script>
+    $(document).on("change", ".selectAll", function () {
+        $(".childCheckbox").prop("checked", $(this).prop("checked"));
+    });
 
+    const fileData = {
+        3: [
+            {
+                title: "급여명세서 3월",
+                category: "급여",
+                writer: "홍길동",
+                date: "2025.03.28",
+                filename: "급여명세서_3월.pdf"
+            },
+            {
+                title: "업무보고서 1분기",
+                category: "보고서",
+                writer: "김철수",
+                date: "2025.03.20",
+                filename: "업무보고서_1분기.docx"
+            }
+        ],
+        4: [
+            {
+                title: "연차신청서",
+                category: "인사",
+                writer: "이영희",
+                date: "2025.03.15",
+                filename: "연차신청서.xlsx"
+            }
+        ],
+        5: [
+            {
+                title: "팀B 계획서",
+                category: "기획",
+                writer: "박민수",
+                date: "2025.02.10",
+                filename: "팀B_계획서.pptx"
+            }
+        ]
+    };
+
+    $(document).ready(function () {
+        const $firstLi = $("#tree-root > li");
+
+        // 처음 부서1은 열려 있게
+        $firstLi.addClass("open");
+        $firstLi.children("ul").show();
+
+        // 아이콘 바꿔줌
+        $firstLi.find("> .folder > .toggle-icon")
+            .removeClass("bi-chevron-right")
+            .addClass("bi-chevron-down");
+    });
+
+    // 트리 폴더 클릭 이벤트
+    $(document).on("click", ".folder", function (e) {
+        e.stopPropagation();
+
+        const $li = $(this).closest("li");
+        const $childUl = $li.children("ul");
+        const $icon = $(this).find(".toggle-icon");
+
+        if ($childUl.length > 0) {
+            if ($li.hasClass("open")) {
+                $childUl.slideUp(200, () => {
+                    $li.removeClass("open");
+                    $icon.removeClass("bi-chevron-down").addClass("bi-chevron-right");
+                });
+            } else {
+                $childUl.slideDown(200, () => {
+                    $li.addClass("open");
+                    $icon.removeClass("bi-chevron-right").addClass("bi-chevron-down");
+                });
+            }
+        } else {
+            const folderId = $(this).data("id");
+            const files = fileData[folderId] || [];
+
+            let html = "";
+            if (files.length > 0) {
+                html += `
+                <div class="listtop">
+                    <input type="checkbox" class="selectAll list-cell">
+                    <div class="list-cell">번호</div>
+                    <div class="list-cell listtitle">제목</div>
+                    <div class="list-cell">파일분류</div>
+                    <div class="list-cell">작성자</div>
+                    <div class="list-cell">작성일</div>
+                </div>
+                <div class="listmain">
+            `;
+                files.forEach((file, index) => {
+                    html += `
+                    <div class="listcontent">
+                        <input type="checkbox" class="childCheckbox list-cell">
+                        <div class="list-cell">${index + 1}</div>
+                        <div class="list-cell listtitle" data-filename="${file.filename}">${file.title}</div>
+                        <div class="list-cell">${file.category}</div>
+                        <div class="list-cell">${file.writer}</div>
+                        <div class="list-cell">${file.date}</div>
+                    </div>
+                `;
+                });
+                html += `</div>`;
+            } else {
+                html = "<p>해당 폴더에 파일이 없습니다.</p>";
+            }
+
+            $(".rightmain").html(html);
+        }
+    });
+
+    // 폴더 DOM 생성 함수
+    function createFolderElement(name, id, children = []) {
+        const hasChildren = children.length > 0;
+        const $li = $("<li>");
+
+        const $folderSpan = $("<span>").addClass("folder").attr("data-id", id);
+
+        if (hasChildren) {
+            $folderSpan.append(`<i class="bi bi-chevron-right toggle-icon"></i>`);
+        }
+
+        $folderSpan.append(`📁 ${name}`);
+        $li.append($folderSpan);
+
+        if (hasChildren) {
+            const $ul = $("<ul>");
+            children.forEach(child => {
+                $ul.append(createFolderElement(child.name, child.id, child.children || []));
+            });
+            $li.append($ul);
+        }
+
+        return $li;
+    }
+
+    // 폴더 추가 버튼
+    let folderIdCounter = 100;
+    $("#addteambtn").on("click", function () {
+        const newId = folderIdCounter++;
+        const folderName = prompt("추가할 폴더명을 입력하세요:");
+        if (!folderName) return;
+
+        const $newFolder = createFolderElement(folderName, newId);
+        $("#tree-root").append($newFolder);
+    });
+
+    // 제목 클릭 시 다운로드
+    $(document).on("click", ".listtitle", function () {
+        const filename = $(this).data("filename");
+        if (!filename) return;
+        window.location.href = `/download?filename=${encodeURIComponent(filename)}`;
+    });
+
+    //선택 항목 다운로드/삭제
+    function getSelectedFiles() {
+        const selected = [];
+        $(".childCheckbox:checked").each(function () {
+            const filename = $(this).closest(".listcontent").find(".listtitle").data("filename");
+            if (filename) selected.push(filename);
+        });
+        return selected;
+    }
+
+    $("#downloadSelected").on("click", function () {
+        const files = getSelectedFiles();
+        if (files.length === 0) return alert("다운로드할 파일을 선택해주세요.");
+
+        files.forEach(file => {
+            window.open(`/download?filename=${encodeURIComponent(file)}`);
+        });
+    });
+
+    $("#deleteSelected").on("click", function () {
+        const files = getSelectedFiles();
+        if (files.length === 0) return alert("삭제할 파일을 선택해주세요.");
+
+        if (confirm("정말 삭제하시겠습니까?")) {
+            // 여기에 Ajax로 삭제 요청 보내는 코드 작성 가능
+            console.log("삭제할 파일들:", files);
+        }
+    });
+</script>
+</div>
 </body>
 </html>
