@@ -19,3 +19,9 @@ button:focus-visible {
 a {
     text-decoration: none;
 }
+
+  #alarmToast.show {
+  background-color: orange;
+  color: white;
+  font-size: 18px;
+}

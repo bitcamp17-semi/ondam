@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -177,10 +178,24 @@ public class SchedulesController {
 	        map.put("endDate", dto.getEndDate());
 
 	        schedulesService.scheduleInsert(map);
-	        //return "일정 등록 완료";
+	        
+	        //선택된 그룹 멤버들한테 알람 보내기
+	        int groupId=dto.getGroupId();
+	        List<ScheduleGroupMembersDto> memberDtos = scheduleGroupMemberService.readGroupMemByGroupId(groupId);
+	        List<Integer> memberIds = memberDtos.stream()
+	        	    .map(ScheduleGroupMembersDto::getUserId)
+	        	    .collect(Collectors.toList());
+	        
+	        // 로그인한 사용자가 그룹 멤버에 없을 경우 알림 대상에 강제 포함
+	        // 일정을 등록하는 경우 멤버에는 없어도 ownerId로 있는 경우 해당 부분 처리
+	        if (!memberIds.contains(sUserId)) {
+	            memberIds.add(sUserId);
+	        }
+	        
+	        String alarmContent=writer+"님이 "+dto.getName()+" 일정을 추가했습니다";
 	        
 	        // 일정 등록 후 SSE 알림 전송
-	        alarmService.sendScheduleNotification((long) sUserId, dto.getName());
+	        alarmService.sendScheduleAlarmGroupMem(memberIds, sUserId, alarmContent);
 	        
 	        response.put("status", "ok");
             response.put("result", map);
