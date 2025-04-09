@@ -9,6 +9,7 @@ import java.sql.Timestamp;
 @Alias("MessagesDto")
 public class MessagesDto {
     private int id;
+    private String title;
     private String content;
     private int senderId;
     private int receiverId;
