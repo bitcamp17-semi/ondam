@@ -9,6 +9,11 @@
         select *
         from department
     </select>
+    <select id="readDepById" parameterType="int" resultType="DepartmentDto">
+        select *
+        from department
+        where id = #{id}
+    </select>
     <update id="updateDep" parameterType="DepartmentDto">
         update department
         <set>
