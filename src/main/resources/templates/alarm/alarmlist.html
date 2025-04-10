@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>알람 목록</title>
+<link rel="stylesheet" th:href="@{/style/alarmlist.css}"/>
+<link rel="stylesheet" th:href="@{/style/globals.css}"/>
+<link rel="stylesheet" th:href="@{/style/header.css}" >
+	<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+</head>
+<body>
+<div class="alarmlist">
+	<div class="main">
+        <div class="top">
+        	<div class="nav">
+			<div class="title">
+				<div class="div">알람</div>
+			</div>
+				<div class="menu">
+					<a class="div2" href="/alarm/all">전체 알람</a>
+               		<div class="div3">|</div>
+                	<a class="div4" href="/alarm/read">읽은 알람</a>
+                	<div class="div3">|</div>
+                	<a class="div4" href="/alarm/unread">읽지 않은 알람</a>
+				</div>
+			</div>
+		</div>
+	<div class="section">
+		<div class="article">
+			<div class="btnframe">
+				<button class="btnwhite" onclick="checkAllAlarm()">
+                        <div class="div5">알람 확인</div>
+                    </button>
+			</div>
+				<div class="tableset">
+                    <div class="tabletitle">
+                        <input class="checkbox" type="checkbox"/>
+                        <div class="div6">|</div>
+                        <div class="div7">알람 타입</div>
+                        <div class="div6">|</div>
+                        <div class="div7">보낸 사람</div>
+                        <div class="div6">|</div>
+                        <div class="div7">보낸 시간</div>
+                        <div class="div6">|</div>
+                        <div class="div8">알람 내용</div>
+                        <div class="div6">|</div>
+                        <div class="div7">확인 여부</div>
+                        <div class="div6">|</div>
+                        <div class="div7">확인</div>
+                    </div>
+                    <div id="userTableBody">
+                        <!-- 동적으로 데이터가 추가될 부분 -->
+                    </div>
+              </div>
+              <div class="pagenumset">
+                    <img class="before" src="before0.svg"/>
+                    <div class="pagenum">
+                    	<!-- 페이징 처리 부분 -->
+                    </div>
+                    <img class="next" src="next0.svg"/>
+              </div>
+		</div>
+	</div>
+	</div>
+	<div th:replace="layout/header :: header"></div>
+</div>
+
+<script>
+function loadAlarmList(pageNum = 1) {
+    $.ajax({
+        url: '/alarm/all',
+        method: 'GET',
+        data: { pageNum: pageNum },
+        success: function (res) {
+            if (res.status === "ok") {
+                renderAlarmTable(res.result);
+                renderPagination(res);
+            } else {
+                alert("알람 데이터를 불러오는 데 실패했습니다.");
+            }
+        },
+        error: function () {
+            alert("서버 오류가 발생했습니다.");
+        }
+    });
+}
+
+function renderAlarmTable(alarms) {
+    const $tbody = $("#userTableBody");
+    $tbody.empty();
+
+    alarms.forEach(alarm => {
+        const row = `
+          <div class="table_row">
+            <input class="checkbox" type="checkbox" data-id="${alarm.id}" />
+            <div class="div6">|</div>
+            <div class="div7">${alarm.type}</div>
+            <div class="div6">|</div>
+            <div class="div7">${alarm.causedBy}</div>
+            <div class="div6">|</div>
+            <div class="div7">${alarm.createdAt}</div>
+            <div class="div6">|</div>
+            <div class="div8">${alarm.content}</div>
+            <div class="div6">|</div>
+            <div class="div7">${alarm.isRead ? "확인됨" : "미확인"}</div>
+            <div class="div6">|</div>
+            <div class="div7">
+              <button class="btnwhite2" data-id="${alarm.id}" style="width: 100px;">
+                <div class="div5">확인</div>
+              </button>
+            </div>
+          </div>
+        `;
+        $tbody.append(row);
+    });
+}
+function checkAllAlarm() {
+    let selectedIds = [];
+
+    $(".checkbox:checked").each(function () {
+        const id = $(this).data("id");
+        const row = $(this).closest(".table_row");
+        const isReadText = row.find(".div7, .div8").last().text().trim();
+
+        if (isReadText == "확인됨") {
+            alert("이미 확인 상태인 알람입니다.");
+        } else {
+            selectedIds.push(id);
+        }
+    });
+
+    if (selectedIds.length === 0) return;
+
+    selectedIds.forEach(id => {
+        updateAlarmReadStatus(id);
+    });
+}
+
+function updateAlarmReadStatus(id) {
+    $.ajax({
+        url: '/alarm/updateIsRead',
+        method: 'GET',
+        data: { id: id },
+        success: function (res) {
+            if (res.status == "ok") {
+                loadAlarmList(); // 상태 변경 후 목록 갱신
+            } else {
+                alert("알람 상태 업데이트 실패");
+            }
+        },
+        error: function () {
+            alert("서버 오류 발생");
+        }
+    });
+}
+
+// 각 알람의 '확인' 버튼 클릭 이벤트 위임 처리
+$(document).on("click", ".btnwhite2", function () {
+    const id = $(this).data("id");
+    const row = $(this).closest(".table_row");
+    const isReadText = row.find(".div7, .div8").last().text().trim();
+
+    if (isReadText == "확인됨") {
+        alert("이미 확인 상태인 알람입니다.");
+        return;
+    }
+
+    updateAlarmReadStatus(id);
+});
+
+function renderPagination(res) {
+    const $pagination = $(".pagenum");
+    $pagination.empty();
+
+    const currentPage = res.currentPage;
+    const startPage = res.startPage;
+    const endPage = res.endPage;
+
+    for (let i = startPage; i <= endPage; i++) {
+        const pageBtn = $(`<div class="page-btn">${i}</div>`);
+        if (i === currentPage) {
+            pageBtn.addClass("active");
+        }
+
+        pageBtn.on("click", function () {
+            loadAlarmList(i);
+        });
+
+        $pagination.append(pageBtn);
+    }
+}
+
+// 초기 로딩
+$(document).ready(function () {
+    loadAlarmList();
+
+    $(".menu a").on("click", function (e) {
+        e.preventDefault();
+        const url = $(this).attr("href");
+        $.get(url, function (res) {
+            if (res.status === "ok") {
+                renderAlarmTable(res.result);
+                renderPagination(res);
+            }
+        });
+    });
+});
+</script>
+</body>
+</html>

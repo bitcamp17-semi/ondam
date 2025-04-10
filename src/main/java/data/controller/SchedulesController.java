@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -39,6 +40,7 @@ import lombok.RequiredArgsConstructor;
 
 @Controller
 @RequiredArgsConstructor
+@RequestMapping({"/schedules"})
 public class SchedulesController {
 	final SchedulesService schedulesService;
 	final UsersService userService;
@@ -47,7 +49,7 @@ public class SchedulesController {
 	final AlarmService alarmService;
 	
 	//일정관리 페이지 진입
-	@GetMapping({"/schedules"})
+	@GetMapping
 	public String scheduleMain(Model model, HttpSession session) {
 		//int userId=1;//임시로 로그인한 사용자를 고정
 		
@@ -61,7 +63,6 @@ public class SchedulesController {
 		
 		//아이디를 통해서 유저 테이블의 작성자 얻기
 		String writer=userService.readUserById(sUserId).getName();
-		
 		//그룹장이름
 		String ownerName=userService.readUserById(sUserId).getName();
 		

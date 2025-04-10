@@ -8,7 +8,38 @@
 </insert>
 
 <!-- 받은 알람 모두 조회 -->
-<select id="readAllAlarm" resultType="AlarmDto" >
- 	select * from alarm where userId=#{userId}
+<select id="allAlarm" resultType="AlarmDto" >
+ 	select * from alarm where userId=#{userId} order by id desc LIMIT #{perPage} OFFSET #{startNum}
 </select>
+
+<!-- 받은 알람 개수 조회-->
+<select id="countAllAlarm" resultType="int">
+	select count(*) from alarm where userId=#{userId} 
+</select>
+
+<!-- 읽지 않은 알람 조회 -->
+<select id="unreadAlarm" resultType="AlarmDto" >
+ 	select * from alarm where userId=#{userId} and isRead=0 order by id desc LIMIT #{perPage} OFFSET #{startNum}
+</select>
+
+<!-- 읽지 않은 개수 조회-->
+<select id="countUnreadAlarm" resultType="int">
+	select count(*) from alarm where userId=#{userId} and isRead=0
+</select>
+
+<!-- 읽은 알람 조회 -->
+<select id="readAlarm" resultType="AlarmDto" >
+ 	select * from alarm where userId=#{userId} and isRead=1 order by id desc LIMIT #{perPage} OFFSET #{startNum}
+</select>
+
+<!-- 읽은 알람 개수 조회-->
+<select id="countReadAlarm" resultType="int">
+	select count(*) from alarm where userId=#{userId} and isRead=1
+</select>
+
+<!-- 알람 확인여부 업데이트 -->
+<update id="updateIsRead" parameterType="int">
+	update alarm set isRead=1 where id=#{id}
+</update>
+
 </mapper>
