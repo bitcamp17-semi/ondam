@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" th:href="@{/style/globals.css}"/>
+    <link rel="stylesheet" th:href="@{/style/management_approval.css}"/>
+    <link rel="stylesheet" th:href="@{/style/header.css}"/>
+
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+</head>
+<body>
+<div class="fullbox">
+    <div th:replace="~{layout/header :: header}"></div>
+    <div class="main">
+        <div class="nav">
+            <div class="navtitle">관리페이지</div>
+            <div class="navbar">
+                <div id="navlist1">인사관리</div>
+                <div id="navlist2">부서관리</div>
+                <div id="navlist3">전자결재관리</div>
+                <div id="navlist4">퇴사자관리</div>
+            </div>
+        </div>
+        <div class="section">
+            <div class="btnset">
+                <div class="leftbtn">
+                    <select id="template-list">
+                        <option disabled selected>수정할 문서 선택</option>
+                    </select>
+                    <button class="whitebtn" id="addApproverBtn">결재라인 추가</button>
+                </div>
+                <div class="rightbtn">
+                    <button class="whitebtn" id="deleteBtn">삭제</button>
+                    <button class="whitebtn" id="addTemplateBtn">템플릿 추가</button>
+                    <button class="orangebtn" id="submitBtn">저장하기</button>
+                </div>
+            </div>
+            <div class="approvallist">
+                <div class="approvalmain">
+                    <div class="editor-wrapper">
+                        <input type="text" id="titleInput" placeholder="제목을 입력하세요">
+                        <div id="editor-toolbar"></div>
+                        <div id="editor-container"></div>
+                    </div>
+                    <div class="approvalline"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-backdrop"></div>
+<div class="user-modal">
+    <div class="modal-content">
+        <h3>결재자 선택</h3>
+        <div id="selectedDepName" style="margin-bottom: 8px; font-weight: bold;"></div>
+        <select id="departmentSelect"></select>
+        <div id="userList" style="margin-top: 10px;"></div>
+        <div class="modalBtn">
+            <button id="addSelectedUsers">등록하기</button>
+            <button id="closeModal">닫기</button>
+        </div>
+    </div>
+</div>
+<script>
+    const storageUrl = "https://kr.object.ncloudstorage.com/bitcamp-semi/users/";
+    let depMap = {};
+    let selectedUsers = [];
+    const quill = new Quill('#editor-container', {
+        theme: 'snow',
+        placeholder: '내용을 입력하세요...',
+        modules: {
+            toolbar: [
+                [{header: [1, 2, false]}],
+                ['bold', 'italic', 'underline'],
+                ['image', 'code-block']
+            ]
+        }
+    });
+
+    function resetEditor() {
+        $("#titleInput").val("");
+        quill.root.innerHTML = "";
+        $(".approvalline").empty();
+    }
+
+    function loadTemplateList() {
+        $.get('/api/draft/readAllTemplate', function (res) {
+            if (res.status === "ok") {
+                $('#template-list').empty().append('<option disabled selected>템플릿 선택</option>');
+                res.result.forEach(item => {
+                    $('#template-list').append(`<option value="${item.id}">${item.title}</option>`);
+                });
+            }
+        });
+    }
+
+    function fetchDepartments() {
+        $.get("/api/dep/readDeps", function (res) {
+            if (res.status === "ok") {
+                depMap = {};
+                const $select = $("#departmentSelect");
+                $select.empty();
+                $select.append('<option value="0" selected>전체</option>');
+                res.result.forEach(dep => {
+                    depMap[dep.id] = dep.name;
+                    $select.append(`<option value="${dep.id}">${dep.name}</option>`);
+                });
+            }
+        });
+    }
+
+    function loadUsersByDepartment(departmentId) {
+        departmentId = Number(departmentId);
+        const depName = departmentId === 0 ? '전체 부서' : depMap[departmentId] || '-';
+        $('#selectedDepName').text(`부서: ${depName}`);
+
+        if (departmentId === 0) {
+            $.get("/api/users/readAllUsers", function (res) {
+                if (res.status === "ok") {
+                    renderUserList(res.result);
+                }
+            });
+        } else {
+            $.get("/api/users/readAllUsersByDep", {departmentId}, function (res) {
+                if (res.status === "ok") {
+                    renderUserList(res.result);
+                }
+            });
+        }
+    }
+
+    function renderUserList(userList) {
+        $('#userList').empty();
+        if (userList.length === 0) {
+            $('#userList').append('<div style="padding: 8px; color: #888;">유저가 없습니다.</div>');
+            return;
+        }
+        userList.forEach(user => {
+            $('#userList').append(`
+            <div class="user-item"
+                 data-id="${user.id}"
+                 data-name="${user.name}"
+                 data-pos="${user.position}"
+                 data-img="${user.profileImage}">
+                <img src="${storageUrl}${user.profileImage}" onerror="this.src='../../images/Rectangle53.png'"/>
+                <span>${user.name} (${user.position}) - ${depMap[user.departmentId]}</span>
+            </div>
+        `);
+        });
+    }
+
+    $('#template-list').on('change', function () {
+        $.get('/api/draft/readTemplate', {id: $(this).val()}, function (res) {
+            const template = res.result.template;
+            const approvals = res.result.approvalList;
+            $("#titleInput").val(template.title);
+            quill.root.innerHTML = template.content;
+
+            // 전체 유저 목록 필요 (한번만 호출되도록 외부에서 정의되었어야 함)
+            $.get("/api/users/readAllUsers", function (userRes) {
+                if (userRes.status === "ok") {
+                    const mapped = mapApprovalsToSelectedUsers(approvals, userRes.result);
+                    selectedUsers = mapped;
+                    $('.approvalline').empty();
+                    showSelectedUsers(mapped);
+                }
+            });
+        });
+    });
+    $(document).ready(function () {
+        loadTemplateList();
+        fetchDepartments();
+    });
+    $(function () {
+        $(".approvalline").sortable({axis: "x", containment: "parent"});
+    });
+    $(document).on("click", ".removebtn", function () {
+        $(this).closest(".profileset").remove();
+    });
+
+    function mapApprovalsToSelectedUsers(approvalList, allUsers) {
+        return approvalList.map(approval => {
+            const user = allUsers.find(u => u.id === approval.userId);
+            return {
+                id: approval.userId,
+                name: user?.name || "이름없음",
+                position: user?.position || "-",
+                profileImage: user?.profileImage || "../../images/Rectangle53.png"
+            };
+        });
+    }
+
+    function openUserModal() {
+        $('.modal-backdrop, .user-modal').fadeIn();
+        $('#departmentSelect').val("0");
+        loadUsersByDepartment(0);
+        $('.user-modal').show();
+    }
+
+    $('#departmentSelect').on('change', function () {
+        loadUsersByDepartment($(this).val());
+    });
+    $('#addApproverBtn').on('click', openUserModal);
+    $('#addSelectedUsers').on('click', function () {
+        selectedUsers = [];
+        $('#userList .user-item.selected').each(function () {
+            const $user = $(this);
+            selectedUsers.push({
+                id: $user.data('id'),
+                name: $user.data('name'),
+                position: $user.data('pos'),
+                profileImage: $user.data('img')
+            });
+        });
+        showSelectedUsers(selectedUsers);
+        $('.user-modal, .modal-backdrop').fadeOut();
+    });
+    $('#closeModal').on('click', function () {
+        $('.user-modal, .modal-backdrop').fadeOut();
+        $('#userList').empty();
+    });
+    $(document).on("click", ".user-item", function () {
+        $(this).toggleClass("selected");
+    });
+    $('#addTemplateBtn').on("click", function () {
+        if (confirm("새로운 템플릿이 생성됩니다.")) {
+            submitTemplate();
+        }
+    });
+
+    function showSelectedUsers(users) {
+        users.forEach(user => {
+            $('.approvalline').append(`
+            <div class="profileset" data-userid="${user.id}">
+                <div class="lineprofile">
+                    <img src="${storageUrl}${user.profileImage}" onerror="this.src='../../images/Rectangle53.png'">
+                    <span>${user.name} ${user.position}</span>
+                </div>
+                <i class="bi bi-x-square removebtn"></i>
+            </div>
+        `);
+        })
+    }
+
+    function submitTemplate() {
+        const title = $("#titleInput").val().trim();
+        const content = quill.root.innerHTML;
+        const approvals = [];
+        $(".approvalline .profileset").each((idx, el) => {
+            approvals.push({userId: $(el).data("userid"), order: idx + 1});
+        });
+        if (!title || !content) {
+            alert("제목과 내용을 입력해주세요.");
+            return;
+        }
+        $.ajax({
+            url: "/api/draft/createTemplate",
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({template: {title, content}, approvals}),
+            success: function (res) {
+                if (res.status === "ok") {
+                    alert("템플릿 생성 완료");
+                    loadTemplateList();
+                    resetEditor();
+                }
+            },
+            error: function () {
+                alert("템플릿 저장 실패");
+            }
+        });
+    }
+
+    $('#deleteBtn').on("click", function () {
+        const templateId = $("#template-list").val();
+        if (confirm("템플릿을 삭제하시겠습니까?")) {
+            $.get("/api/draft/deleteTemplate", {id: templateId}, function (res) {
+                if (res.status === "ok") {
+                    alert("삭제되었습니다.");
+                    loadTemplateList();
+                    resetEditor();
+                } else {
+                    alert("삭제 실패");
+                }
+            });
+        }
+    });
+    $('#submitBtn').on("click", function () {
+        if (confirm("저장하시겠습니까?")) {
+            const templateId = $("#template-list").val();
+            const title = $("#titleInput").val().trim();
+            const content = quill.root.innerHTML;
+            $.post("/api/draft/updateTemplate", {id: templateId, title, content}, function (res) {
+                if (res.status === "ok") {
+                    alert("저장되었습니다.");
+                    loadTemplateList();
+                    resetEditor();
+                } else {
+                    alert("저장 실패");
+                }
+            });
+        }
+    });
+</script>
+</body>
+</html>
+<script>
+    $("#navlist1").click(function () {
+        location.href = "/admin/management"
+    })
+    $("#navlist2").click(function () {
+        location.href = "/admin/managementOrg"
+    })
+    $("#navlist3").click(function () {
+        location.href = "/admin/managementApproval"
+    })
+    $("#navlist4").click(function () {
+        location.href = "/admin/management"
+    })
+</script>

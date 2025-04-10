@@ -18,17 +18,14 @@
     <div class="main">
         <div class="top">
             <div class="nav">
-                <div class="title">
-                    <div class="div">관리페이지</div>
+                <div class="navtitle">
+                    관리페이지
                 </div>
-                <div class="menu">
-                    <div class="div2">인사 관리</div>
-                    <div class="div3">|</div>
-                    <div class="div4">부서 관리</div>
-                    <div class="div3">|</div>
-                    <div class="div4">결재 관리</div>
-                    <div class="div3">|</div>
-                    <div class="div4">퇴사자 관리</div>
+                <div class="navbar">
+                    <div id="navlist1">인사관리</div>
+                    <div id="navlist2">부서관리</div>
+                    <div id="navlist3">결재관리</div>
+                    <div id="navlist4">퇴사자관리</div>
                 </div>
             </div>
         </div>
@@ -44,8 +41,8 @@
                             <div class="dropdown-content">
                             </div>
                         </div>
-                        <button class="btnred" id="delete-selected">
-                            <div class="div5" style="color: white">선택 삭제</div>
+                        <button class="btnwhite3" id="delete-selected">
+                            <div class="div5">선택 삭제</div>
                         </button>
                     </div>
                     <button class="btnwhite" onclick="openModal()">
@@ -217,7 +214,6 @@
     let currentPage = 1; // 현재 페이지
     $(document).ready(function () {
         loadDepartments();
-        loadUsers();
         const $headCheck = $('#head-check');
 
         // 전체 선택/해제
@@ -291,7 +287,7 @@
 
             // 드롭다운 버튼 class에 따라 분기
             if (dropdownButton.hasClass("article2")) {
-                currentDep = selectedText
+                currentDep = selectedId
                 currentPage = 1;
                 loadUsers(currentDep, currentPage); // 메인화면 부서 선택
             } else if (dropdownButton.hasClass("buseo")) {
@@ -347,14 +343,24 @@
 
     // 유저 목록 불러오기
     function loadUsers(dep, page) {
-        console.log("dd")
         let dropdownButton = $(".arraybtn .article2");
         let department = dropdownButton.attr("data-selected-value");
+        let depMap = {};
+        $.ajax({
+            url: "/api/dep/readDeps", // 전체 부서 리스트 API
+            success: function (res) {
+                if (res.status === "ok") {
+                    res.result.forEach(dep => {
+                        depMap[dep.id] = dep.name;
+                    });
+                }
+            }
+        });
         if (dep != null) {
             $.ajax({
                 url: '/api/users/readUsersByDep',
                 type: 'GET',
-                data: {department: dep, page: page, size: pageSize},
+                data: {departmentId: dep, page: page, size: pageSize},
                 success: function (response) {
                     if (response.status === "ok") {
                         let users = response.result.list;
@@ -370,7 +376,7 @@
                         <div class="table">
                             <input class="checkbox user-check" type="checkbox" data-user-id="${user.id}"/>
                             <div class="div6">|</div>
-                            <div class="div7">${user.department}</div>
+                            <div class="div7">${depMap[user.departmentId]}</div>
                             <div class="div6">|</div>
                             <div class="div7">${user.name}</div>
                             <div class="div6">|</div>
@@ -447,8 +453,6 @@
             data: {departmentId: departmentId},
             success: function (response) {
                 if (response.status === "ok") {
-                    console.log("팀 목록:", response.result);
-                    // TODO: 받아온 팀 리스트를 드롭다운에 넣는 로직 작성
                     let teams = response.result;
                     let dropdownContent = $("#teamDropdown .dropdown-content");
 
@@ -474,7 +478,7 @@
 
         // 입력 값 가져오기
         let name = $("input[placeholder='이름을 입력하세요']").val().trim();
-        let department = $(".buseo").text().trim();
+        let departmentId = $(".buseo").attr("data-id");
         let team = $("#teamDropdown .article3").text().trim();
         let position = $("#position .article3").text().trim();
         let phone = $("input[placeholder='전화번호를 입력하세요']").val().trim();
@@ -482,16 +486,17 @@
         let gender = $("input[name='gender']:checked").val();
         let address = $("input[placeholder='주소를 입력하세요']").val().trim();
         let profileImage = $("#fileInput")[0].files[0];
+        console.log(departmentId)
 
         // 필수값 검증
-        if (!name || !department || !position || !phone || !email) {
+        if (!name || !departmentId || !position || !phone || !email) {
             alert("필수 정보를 입력하세요.");
             return;
         }
 
         // FormData에 값 추가
         formData.append("name", name);
-        formData.append("department", department);
+        formData.append("departmentId", departmentId);
         formData.append("team", team);
         formData.append("position", position);
         formData.append("phone", phone);
@@ -585,7 +590,19 @@
         });
     }
 
-    $("#head-check")
 
-
+</script>
+<script>
+    $("#navlist1").click(function () {
+        location.href="/admin/management"
+    })
+    $("#navlist2").click(function () {
+        location.href="/admin/managementOrg"
+    })
+    $("#navlist3").click(function () {
+        location.href="/admin/managementApproval"
+    })
+    $("#navlist4").click(function () {
+        location.href="/admin/management"
+    })
 </script>

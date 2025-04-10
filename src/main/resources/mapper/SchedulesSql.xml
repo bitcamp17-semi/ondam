@@ -3,18 +3,28 @@
 <mapper namespace="data.mapper.SchedulesMapper">
 	<!-- 일정 등록 -->
 	<insert id="scheduleInsert" parameterType="map">
-		insert into schedules (userId,name,content,sort,isAlltime,startTime,endTime,startDate,endDate)
-		values (#{userId},#{name},#{content},#{sort},#{isAlltime},#{startTime},#{endTime},#{startDate},#{endDate})
+		insert into schedules (userId,writer,name,content,groupId,isAlltime,startTime,endTime,startDate,endDate)
+		values (#{userId},#{writer},#{name},#{content},#{groupId},#{isAlltime},#{startTime},#{endTime},#{startDate},#{endDate})
 	</insert>
 	
-	<!-- 전체 일정 검색-->
+	<!-- 전체 일정 검색(내가 그룹장이거나 그룹멤버인 목록)-->
 	<select id="readAllSche" resultType="SchedulesDto">
-		select * from schedules order by id
+		SELECT s.*, g.color
+		FROM schedules s
+		LEFT JOIN schedule_group g ON s.groupId = g.id
+		WHERE g.ownerId = #{userId}
+   		OR s.groupId IN (
+       		SELECT groupId FROM schedule_group_members WHERE userId = #{userId}
+   		)
+		ORDER BY s.id
 	</select>
 	
-	<!-- 일정 하나 조회 -->
+	<!-- 일정 하나 조회, 일정 그룹 테이블에 있는 그룹명도 같이 조회 -->
 	<select id="readOneSche" parameterType="int" resultType="SchedulesDto">
-		select * from schedules where id=#{id}
+		SELECT s.*, g.name as groupName
+    	FROM schedules s
+    	LEFT JOIN schedule_group g ON s.groupId = g.id
+    	WHERE s.id = #{id}
 	</select>
 	
 	<!-- 일정 삭제 -->
@@ -25,7 +35,7 @@
 	<!-- 일정 수정 -->
 	<update id="updateSchedule" parameterType="SchedulesDto">
 		update schedules 
-		set name=#{name},content=#{content},isAlltime=#{isAlltime},startTime=#{startTime},startDate=#{startDate},endDate=#{endDate},endTime=#{endTime},sort=#{sort}
+		set name=#{name},content=#{content},isAlltime=#{isAlltime},startTime=#{startTime},startDate=#{startDate},endDate=#{endDate},endTime=#{endTime},groupId=#{groupId}
 		where id=#{id}
 	</update>
 </mapper>

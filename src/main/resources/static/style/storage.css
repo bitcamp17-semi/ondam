@@ -1,281 +1,279 @@
-.storage,
-.storage * {
-    box-sizing: border-box;
-}
-.storage {
-    background: #ffffff;
-    height: 1080px;
+/* Layout */
+.fullbox {
+    display: flex;
+    width: 96vw;
+    height: 100dvh;
+    font-family: "Noto Sans-Bold", Helvetica, "Noto Sans-Regular";
+    color: #686868;
     position: relative;
-    overflow: hidden;
 }
+
 .main {
-    background: #ffffff;
     display: flex;
     flex-direction: column;
-    gap: 0px;
-    align-items: flex-start;
-    justify-content: flex-start;
-    width: 1840px;
-    position: absolute;
-    left: 80px;
-    top: 0px;
+    width: 95%;
+    margin-left: 80px;
+    background-color: #fff;
+    height: 100%;
 }
-.top {
-    background: #ffffff;
-    padding: 1px 60px 1px 60px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    align-items: flex-start;
-    justify-content: flex-end;
-    align-self: stretch;
-    flex-shrink: 0;
-    height: 150px;
-    position: relative;
-    overflow: hidden;
-}
+
 .nav {
     display: flex;
     flex-direction: column;
-    gap: 30px;
+    height: 200px;
+    width: 100%;
     align-items: flex-start;
-    justify-content: flex-start;
-    align-self: stretch;
-    flex-shrink: 0;
-    position: relative;
-}
-.title {
-    display: flex;
-    flex-direction: row;
-    gap: 10px;
-    align-items: flex-start;
-    justify-content: flex-start;
-    align-self: stretch;
-    flex-shrink: 0;
-    position: relative;
+    justify-content: flex-end;
+    margin-left: 70px;
+    gap: 25px;
 }
 
-.div {
-    color: #3f3f3f;
-    text-align: left;
-    font-family: "NotoSans-Bold", sans-serif;
+.navtitle {
     font-size: 30px;
-    line-height: 30px;
-    font-weight: 700;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
+    font-weight: bold;
+    color: #3f3f3f;
 }
 
-.menu {
+.navbar {
     display: flex;
-    flex-direction: row;
     gap: 30px;
-    align-items: flex-start;
-    justify-content: flex-start;
-    align-self: stretch;
-    flex-shrink: 0;
-    position: relative;
-}
-.div2 {
-    color: #3f3f3f;
-    text-align: left;
-    font-family: "NotoSans-Bold", sans-serif;
     font-size: 16px;
-    line-height: 22px;
-    font-weight: 700;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
+    white-space: nowrap;
 }
+
+#navlist2 {
+    font-weight: bold;
+    color: #3f3f3f;
+    cursor: pointer;
+}
+
 .section {
-    background: #ffffff;
-    padding: 50px 60px 50px 60px;
     display: flex;
-    flex-direction: column;
-    gap: 10px;
-    align-items: center;
-    justify-content: center;
-    align-self: stretch;
-    flex-shrink: 0;
-    height: 930px;
-    position: relative;
-    overflow: hidden;
-}
-.article {
-    background: #ffffff;
-    border-radius: 15px;
-    border-style: solid;
-    border-color: rgba(0, 0, 0, 0.05);
-    border-width: 1px;
     padding: 20px;
-    display: flex;
-    flex-direction: row;
-    gap: 20px;
-    align-items: flex-start;
-    justify-content: flex-start;
-    align-self: stretch;
-    flex-shrink: 0;
-    height: 800px;
-    position: relative;
-    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 15px;
+    width: 96%;
+    height: 100%;
+    margin: 50px 50px 50px 70px;
 }
-.frame-126 {
-    padding: 10px;
+
+/* Left Section */
+.leftarticle {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    align-items: flex-start;
-    justify-content: flex-start;
-    align-self: stretch;
-    flex-shrink: 0;
-    width: 300px;
-    position: relative;
-    overflow: hidden;
+    width: 250px;
+    height: 100%;
+    max-height: 610px;
 }
-.btnframe {
-    display: flex;
-    flex-direction: row;
-    gap: 20px;
-    align-items: flex-start;
-    justify-content: flex-start;
-    align-self: stretch;
-    flex-shrink: 0;
-    position: relative;
+
+.orgaddbox {
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
-.btnwhite {
-    background: #ffffff;
-    border-radius: 8px;
-    border-style: solid;
-    border-color: rgba(0, 0, 0, 0.15);
-    border-width: 1px;
-    padding: 10px 20px 10px 20px;
-    display: flex;
-    flex-direction: row;
-    gap: 10px;
-    align-items: center;
-    justify-content: center;
-    flex-wrap: wrap;
-    align-content: center;
-    flex-shrink: 0;
-    height: 40px;
-    position: relative;
-}
-.div3 {
+
+.addbtn, .whitebtn {
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 5px;
+    height: 35px;
+    background-color: white;
     color: #686868;
-    text-align: center;
-    font-family: "NotoSans-Regular", sans-serif;
-    font-size: 16px;
-    line-height: 22px;
-    font-weight: 400;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    cursor: pointer;
 }
-.tableset {
-    display: flex;
-    flex-direction: column;
-    gap: 0px;
-    align-items: flex-start;
-    justify-content: flex-start;
-    align-self: stretch;
-    flex: 1;
-    position: relative;
+
+.addbtn {
+    width: 100px;
 }
-.tabletitle {
-    background: #f7f7f7;
-    border-style: solid;
-    border-color: rgba(238, 238, 238, 0.8);
-    border-width: 0px 0px 1px 0px;
-    padding: 15px 30px 15px 30px;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    align-self: stretch;
-    flex-shrink: 0;
-    height: 59px;
-    position: relative;
+
+.whitebtn {
+    padding: 0 15px;
 }
-.div4 {
+
+.orgchart {
+    flex-grow: 1;
     color: #3f3f3f;
-    text-align: left;
-    font-family: "NotoSans-Regular", sans-serif;
-    font-size: 16px;
-    line-height: 22px;
-    font-weight: 400;
-    position: relative;
-    flex: 1;
+    overflow-y: auto;
+}
+
+/* Tree Styles */
+.tree, .tree ul {
+    list-style: none;
+    padding-left: 20px;
+    margin: 0;
+}
+
+.tree ul {
+    display: none;
+}
+
+.tree li.open > ul {
+    display: block;
+}
+
+.folder {
     display: flex;
     align-items: center;
-    justify-content: flex-start;
+    gap: 5px;
+    margin: 5px 0;
+    cursor: pointer;
 }
-.table {
-    border-style: solid;
-    border-color: rgba(238, 238, 238, 0.8);
-    border-width: 0px 0px 1px 0px;
-    padding: 15px 30px 15px 30px;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    align-self: stretch;
-    flex: 1;
-    position: relative;
+
+.folder:hover {
+    text-decoration: underline;
+    color: #007bff;
 }
-.frame-127 {
-    padding: 10px;
+
+.toggle-icon {
+    margin-right: 5px;
+    font-size: 14px;
+    color: #007bff;
+    transition: transform 0.2s;
+}
+
+.delete-folder {
+    margin-left: 8px;
+    color: red;
+    cursor: pointer;
+}
+
+/* Right Section */
+.rightarticle {
     display: flex;
     flex-direction: column;
+    width: 100%;
+    height: 100%;
+    border-left: 1px solid rgba(0, 0, 0, 0.05);
+    margin-left: 20px;
+    padding-left: 20px;
+}
+
+.righttop {
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    display: flex;
     gap: 10px;
-    align-items: flex-start;
-    justify-content: flex-start;
-    align-self: stretch;
-    flex: 1;
-    position: relative;
+}
+
+#fileSearch {
+    padding: 5px 10px;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 5px;
+    flex-grow: 1;
+}
+
+.rightmain {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
     overflow: hidden;
 }
-.btnframe2 {
+
+.listtop, .listcontent {
     display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-    justify-content: space-between;
-    align-self: stretch;
-    flex-shrink: 0;
-    position: relative;
-}
-.frame-146 {
-    display: flex;
-    flex-direction: row;
-    gap: 20px;
+    width: 100%;
+    height: 45px;
     align-items: center;
-    justify-content: flex-start;
-    flex-shrink: 0;
-    position: relative;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
-.table2 {
-    border-style: solid;
-    border-color: rgba(238, 238, 238, 0.8);
-    border-width: 0px 0px 1px 0px;
-    padding: 15px 30px 15px 30px;
-    display: flex;
-    flex-direction: row;
+
+.listtop {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.list-cell {
+    border-left: 1px solid rgba(0, 0, 0, 0.05);
+    text-align: center;
+}
+
+.list-cell:nth-child(1) { width: 3%; }
+.list-cell:nth-child(2) { width: 5%; }
+.list-cell:nth-child(3) { width: 47%; }
+.list-cell:nth-child(4) { width: 15%; }
+.list-cell:nth-child(5) { width: 10%; }
+.list-cell:nth-child(6) { width: 15%; }
+.list-cell:nth-child(7) { width: 5%; }
+
+.listtitle {
+    text-align: left;
+    padding: 0 20px;
+}
+
+.filedelete {
+    cursor: pointer;
+}
+
+/* Modal Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
     align-items: center;
-    justify-content: space-between;
-    align-self: stretch;
-    flex-shrink: 0;
-    height: 59px;
-    position: relative;
+    z-index: 10000;
 }
-.header {
-    background: #ffffff;
-    width: 80px;
-    height: 1080px;
-    position: absolute;
-    left: 0px;
-    top: 0px;
-    overflow: hidden;
+
+.modal-content {
+    background-color: white;
+    padding: 30px;
+    border-radius: 10px;
+    width: 400px;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-content h2 {
+    font-size: 20px;
+    font-weight: bold;
+    color: #3f3f3f;
+    margin-bottom: 15px;
+}
+
+.modalteamtitle {
+    display: flex;
+    flex-direction: column;
+    margin-top: 10px;
+}
+
+.modalteamtitle span {
+    font-size: 12px;
+}
+
+#parent-folder-select, .modaltitle {
+    margin-top: 5px;
+    width: 100%;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    padding: 5px 10px;
+    border-radius: 5px;
+    height: 30px;
+}
+
+.buttonset {
+    margin-top: 15px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.submit-modal {
+    width: 150px;
+    height: 35px;
+    background-color: #fa7000;
+    color: white;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.close-modal {
+    width: 100px;
+    height: 35px;
+    background-color: white;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 5px;
+    color: #686868;
+    cursor: pointer;
 }

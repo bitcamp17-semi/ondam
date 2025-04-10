@@ -8,6 +8,7 @@
     font-family: "Noto Sans-Bold", Helvetica, "Noto Sans-Regular";
     color: #686868;
     position: relative;
+    min-height: 0;
 }
 .header {
     width: 80px;
@@ -29,6 +30,7 @@
     position: relative;
     background-color: #fff;
     height: 100%;
+    min-height: 0;
 }
 .nav {
     display: flex;
@@ -54,6 +56,7 @@
     align-self: stretch;
     width: 100%;
     font-size: 16px;
+    white-space: nowrap;
 }
 
 #navlist1{
@@ -85,6 +88,7 @@
     width: 96%;
     height: 100%;
     margin: 50px 50px 50px 70px;
+    min-height: 0;
 }
 
 /*inbox left*/
@@ -107,6 +111,7 @@
     padding-bottom: 20px;
     width: 100%;
     border-bottom: rgba(0, 0, 0, 0.05) 1px solid;
+    white-space: nowrap;
 }
 .addbtn{
     border: rgba(0, 0, 0, 0.15) 1px solid;
@@ -181,6 +186,7 @@
     border-left: rgba(0, 0, 0, 0.05) 1px solid;
     margin-left: 20px;
     padding-left: 20px;
+    min-height: 0;
 }
 .rightarticle span{
     font-size: 20px;
@@ -206,8 +212,10 @@
 
 .rightmain{
     display: flex;
-    flex-grow: 1;
+    width: 100%;
+    height: 100%;
     overflow: hidden;
+    min-height: 0;
 }
 
 #rightmaintitle{
@@ -216,8 +224,11 @@
     margin-bottom: 20px;
 }
 .teamlist{
-    width: 200px;
+    width: 250px;
     border-right: rgba(0, 0, 0, 0.05) 1px solid;
+    overflow-y: auto;
+    height: 100%;
+    min-height: 0;
 }
 .teamsawon{
     display: flex;
@@ -233,6 +244,12 @@
     align-items: center;
     flex-grow: 1;
     gap: 10px;
+    padding: 5px;
+}
+.sawonprofile:hover {
+    cursor: pointer;
+    background-color: #dddddd;
+    border-radius: 5px;
 }
 .sawonprofile img{
     width: 40px;
@@ -301,7 +318,7 @@
     flex-direction: row;
 }
 .sawoninfo{
-    width: 40%;
+    width: 30%;
     height: 100%;
     gap: 15px;
     display: flex;
@@ -501,4 +518,10 @@
     color: #686868;
     font-size: 14px;
     cursor: pointer;
+}
+.no-users {
+    text-align: center;
+    color: #888;
+    border-radius: 10px;
+    margin: 50% 20px 20px 20px;
 }

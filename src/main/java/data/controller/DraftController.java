@@ -1,9 +1,6 @@
 package data.controller;
 
-import data.dto.ApprovalLogDto;
-import data.dto.ApprovalsDto;
-import data.dto.DraftTemplatesDto;
-import data.dto.DraftsDto;
+import data.dto.*;
 import data.service.ApprovalsService;
 import data.service.DraftService;
 import data.service.UsersService;
@@ -28,14 +25,15 @@ public class DraftController {
     @Autowired
     UsersService usersService;
 
-    @GetMapping("/createTemplate")
-    public ResponseEntity<Object> createTemplate(@ModelAttribute DraftTemplatesDto paramsDto,
-                                                 @RequestBody List<ApprovalsDto> approvalsList,
+    @PostMapping("/createTemplate")
+    public ResponseEntity<Object> createTemplate(@RequestBody TemplateCreateReqDto request,
                                                  HttpSession session) {
         Map<String, Object> response = new LinkedHashMap<>();
-        int userId = Integer.parseInt((String) session.getAttribute("userId"));
+        int userId = (Integer) session.getAttribute("userId");
         if (usersService.isAdmin(userId)) {
             try {
+                DraftTemplatesDto paramsDto = request.getTemplate();
+                List<ApprovalsDto> approvalsList = request.getApprovals();
                 paramsDto.setAuthorId(userId);
                 draftService.createDraftTemplate(paramsDto);
                 int templateId = paramsDto.getId();
@@ -92,10 +90,10 @@ public class DraftController {
         }
     }
 
-    @GetMapping("/updateTemplate")
+    @PostMapping("/updateTemplate")
     public ResponseEntity<Object> updateTemplate(@ModelAttribute DraftTemplatesDto paramsDto, HttpSession session) {
         Map<String, Object> response = new LinkedHashMap<>();
-        int userId = Integer.parseInt((String) session.getAttribute("userId"));
+        int userId = (Integer) session.getAttribute("userId");
         if (usersService.isAdmin(userId)) {
             try {
                 draftService.updateDraftTemplate(paramsDto);
@@ -117,7 +115,7 @@ public class DraftController {
     @GetMapping("/deleteTemplate")
     public ResponseEntity<Object> deleteTemplate(@RequestParam(value = "id") int id, HttpSession session) {
         Map<String, Object> response = new LinkedHashMap<>();
-        int userId = Integer.parseInt((String) session.getAttribute("userId"));
+        int userId = (Integer) session.getAttribute("userId");
         if (usersService.isAdmin(userId)) {
             try {
                 draftService.deleteDraftTemplate(id);
@@ -136,10 +134,10 @@ public class DraftController {
         }
     }
 
-    @GetMapping("/createDraft")
+    @PostMapping("/createDraft")
     public ResponseEntity<Object> createDraft(@ModelAttribute DraftsDto paramsDto, HttpSession session) {
         Map<String, Object> response = new LinkedHashMap<>();
-        int userId = Integer.parseInt((String) session.getAttribute("userId"));
+        int userId = (Integer) session.getAttribute("userId");
         if (usersService.isAdmin(userId)) {
             try {
                 draftService.createDraft(paramsDto);
@@ -213,7 +211,7 @@ public class DraftController {
             HttpSession session
     ) {
         Map<String, Object> response = new LinkedHashMap<>();
-        int userId = Integer.parseInt((String) session.getAttribute("userId"));
+        int userId = (Integer) session.getAttribute("userId");
         String actionUpperCase = action.toUpperCase();
         try {
             if (actionUpperCase.equals("APPROVED") || actionUpperCase.equals("REJECTED")) {
