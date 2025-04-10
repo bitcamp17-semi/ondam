@@ -54,4 +54,9 @@ public class HtmlController {
     public String management() {
         return "layout/management/management";
     }
+    
+    @GetMapping("/alarm")
+    public String alarmList() {
+        return "alarm/alarmlist";
+    }
 }

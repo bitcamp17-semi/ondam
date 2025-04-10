@@ -58,9 +58,45 @@ public class AlarmService {
     }
     
     //userId가 받은 모든 알람 조회
-  	public List<AlarmDto> readAllAlarm(int userId)
+  	public List<AlarmDto> allAlarm(int userId, int startNum, int perPage)
   	{
-  		return alarmMapper.readAllAlarm(userId);
+  		return alarmMapper.allAlarm(userId, startNum,perPage);
+  	}
+  	
+  	//읽지 않은 알람 조회
+  	public List<AlarmDto> unreadAlarm(int userId, int startNum, int perPage)
+  	{
+  		return alarmMapper.unreadAlarm(userId, startNum,perPage);
+  	}
+  	
+  	//읽은 알람 조회
+  	public List<AlarmDto> readAlarm(int userId, int startNum, int perPage)
+  	{
+  		return alarmMapper.readAlarm(userId, startNum,perPage);
+  	}
+  	
+  	//모든 알람 개수 조회
+  	public int countAllAlarm(int userId)
+  	{
+  		return alarmMapper.countAllAlarm(userId);
+  	}
+  	
+  	//읽지 않은 알람 개수 조회
+  	public int countUnreadAlarm(int userId)
+  	{
+  		return alarmMapper.countUnreadAlarm(userId);
+  	}
+  	
+  	//읽은 알람 개수 조회
+  	public int countReadAlarm(int userId)
+  	{
+  		return alarmMapper.countReadAlarm(userId);
+  	}
+  	
+  	//알람 읽음 상태 수정
+  	public void updateIsRead(int id)
+  	{
+  		alarmMapper.updateIsRead(id);
   	}
   	
   	//일정 등록 시 선택된 그룹의 멤버들(본인포함)한테 알람전송
