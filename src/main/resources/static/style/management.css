@@ -37,12 +37,12 @@
 .nav {
     display: flex;
     flex-direction: column;
-    gap: 30px;
+    height: 200px;
+    width: 100%;
     align-items: flex-start;
-    justify-content: flex-start;
-    align-self: stretch;
-    flex-shrink: 0;
-    position: relative;
+    justify-content: flex-end;
+    margin-left: 10px;
+    gap: 25px;
 }
 .navtitle{
     font-size: 30px;

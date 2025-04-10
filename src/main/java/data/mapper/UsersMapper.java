@@ -25,6 +25,8 @@ public interface UsersMapper {
 
     public List<UsersDto> readUsersByDep(int departmentId, int offset, int size);
 
+    public List<UsersDto> readAllUsersByDep(int departmentId);
+
     public int readCountUsersByDep(int departmentId);
 
     public List<UsersDto> readUsersByTeam(String team);
