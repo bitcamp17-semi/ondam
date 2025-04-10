@@ -1,14 +1,14 @@
 /*all*/
 
-.fullbox{
+.fullbox {
     display: flex;
     flex-direction: row;
     width: 96vw;
     height: 100dvh;
-    font-family: "Noto Sans-Bold", Helvetica, "Noto Sans-Regular";
     color: #686868;
     position: relative;
 }
+
 .header {
     width: 80px;
     height: 100%;
@@ -26,10 +26,10 @@
     width: 95%;
     margin-left: 80px;
     align-items: flex-start;
-    position: relative;
     background-color: #fff;
     height: 100%;
 }
+
 .nav {
     display: flex;
     flex-direction: column;
@@ -40,38 +40,36 @@
     margin-left: 70px;
     gap: 25px;
 }
-.navtitle{
+
+.navtitle {
     font-size: 30px;
     font-weight: bold;
     color: #3f3f3f;
 }
+
 .navbar {
     display: flex;
-    align-items: flex-start;
     gap: 30px;
-    position: relative;
-    align-self: stretch;
     width: 100%;
     font-size: 16px;
 }
-#navlist1{
+
+#navlist1 {
     color: #fa7000;
     font-weight: bold;
     cursor: pointer;
 }
-#navlist2{
+
+#navlist2,
+.navlistnone {
     font-weight: bold;
     color: #3f3f3f;
     border-left: rgba(0, 0, 0, 0.15) 1px solid;
     padding-left: 30px;
     cursor: pointer;
 }
-.navlistnone{
-    border-left: rgba(0, 0, 0, 0.15) 1px solid;
-    padding-left: 30px;
-    cursor: pointer;
-}
-.section{
+
+.section {
     display: flex;
     padding: 20px;
     border: rgba(0, 0, 0, 0.05) 1px solid;
@@ -82,73 +80,91 @@
     flex-direction: column;
     gap: 15px;
 }
-.btnset{
+
+.btnset {
     display: flex;
-    flex-direction: row;
-    width: 100%;
     gap: 10px;
     height: 35px;
 }
 
-.whitebtn{
+.whitebtn {
     border: rgba(0, 0, 0, 0.15) 1px solid;
     border-radius: 5px;
     height: 35px;
-    padding: 0 10px 0 10px;
+    padding: 0 10px;
     background-color: white;
     color: #686868;
     cursor: pointer;
 }
-.approvallist{
+
+.approvallist {
     display: flex;
     width: 100%;
     height: 100%;
     flex-direction: column;
 }
-.listtop{
+
+.listtop {
     width: 100%;
     height: 45px;
     background-color: rgba(0, 0, 0, 0.05);
     display: flex;
-    flex-direction: row;
-    justify-content: space-between;
     align-items: center;
     border-bottom: rgba(0, 0, 0, 0.05) 1px solid;
 }
+
 .list-cell{
     border-left: rgba(0, 0, 0, 0.05) 1px solid;
     text-align: center;
 }
+.list-cell2{
+    border-left: rgba(0, 0, 0, 0.05) 1px solid;
+    text-align: center;
+}
 
-.list-cell.first{
+.list-cell:first-child {
     border-left: none;
 }
 
-.list-cell:nth-child(1){ width: 3%; }
-.list-cell:nth-child(2){ width: 5%; }
-.list-cell:nth-child(3){ width: 57%; }
-.list-cell:nth-child(4){ width: 10%; }
-.list-cell:nth-child(5){ width: 15%; }
-.list-cell:nth-child(6){ width: 10%; }
+.list-cell:nth-child(1) { width: 3%; }
+.list-cell:nth-child(2) { width: 5%; }
+.list-cell:nth-child(3) { width: 57%; }
+.list-cell:nth-child(4) { width: 10%; }
+.list-cell:nth-child(5) { width: 15%; }
+.list-cell:nth-child(6) { width: 10%; }
 
 .listtitle {
-    text-align: start;!important;
+    text-align: start;
     padding: 0 20px;
 }
+
+.list-cell2:first-child {
+    border-left: none;
+}
+
+.list-cell2:nth-child(1) { width: 3%; }
+.list-cell2:nth-child(2) { width: 5%; }
+.list-cell2:nth-child(3) { width: 47%; }
+.list-cell2:nth-child(4) { width: 10%; }
+.list-cell2:nth-child(5) { width: 15%; }
+.list-cell2:nth-child(6) { width: 10%; }
+.list-cell2:nth-child(7) { width: 10%; }
+
 .listcontent {
     width: 100%;
     height: 45px;
     background-color: white;
     display: flex;
-    flex-direction: row;
     justify-content: space-between;
     align-items: center;
     border-bottom: rgba(0, 0, 0, 0.05) 1px solid;
 }
-#listtitlebtn{
+
+#listtitlebtn {
     cursor: pointer;
 }
-.pagenumber{
+
+.pagenumber {
     display: flex;
     align-self: center;
 }

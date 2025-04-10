@@ -106,14 +106,8 @@
 
         $(".div-2").on("click", function () {
             const url = $(this).data("url");
-
-            $("body").addClass("fade-out");
-
-            setTimeout(() => {
-                window.location.href = url;
-            }, 300); // 애니메이션 시간
+            window.location.href = url;
         });
-
     </script>
 
     <!-- 알람 토스트 노출 영역 -->

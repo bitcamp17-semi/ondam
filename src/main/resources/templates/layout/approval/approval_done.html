@@ -27,27 +27,22 @@
         </div>
         <div class="section">
             <div class="btnset">
-                <button class="whitebtn">선택 삭제</button>
-            </div>
-            <div class="approvallist">
-                <div class="listtop">
-                    <input type="checkbox" class="selectAll list-cell">
-                    <div class="list-cell">번호</div>
-                    <div class="list-cell listtitle">제목</div>
-                    <div class="list-cell">문서분류</div>
-
-                    <div class="list-cell">작성일</div>
-                    <div class="list-cell">결재상태</div>
+                <div class="btnset">
+                    <label><input type="radio" name="approvalType" value="sent" checked> 발신함</label>
+                    <label><input type="radio" name="approvalType" value="received"> 수신함</label>
+                    <button class="whitebtn">선택 삭제</button>
                 </div>
-                <div class="listmain">
-                    <div class="listcontent">
-                        <input type="checkbox" class="childCheckbox list-cell">
-                        <div class="list-cell">1</div>
-                        <div class="list-cell listtitle" id="listtitlebtn">제목입니다</div>
-                        <div class="list-cell">기안문</div>
-                        <div class="list-cell">2025.03.28</div>
-                        <div class="list-cell">반려</div>
-                    </div>
+            </div>
+            <!-- 승인 리스트 영역 (비어있을 때 메시지 포함) -->
+            <div class="approvallist">
+                <div class="listtop" id="listHeader">
+                    <!-- 여기에 수/발신에 따른 리스트명 채워짐 -->
+                </div>
+                <div class="listmain" id="approvalList">
+                    <!-- 여기에 ajax로 항목 채워짐 -->
+                </div>
+                <div id="emptyMessage" style="display:none; padding: 20px; color: #999; text-align: center;">
+                    결재 내역이 없습니다.
                 </div>
             </div>
             <div class="pagenumber">
@@ -56,6 +51,8 @@
         </div>
     </div>
 </div>
+</body>
+</html>
 <script>
     $(document).ready(function () {
         // 상위 체크박스 클릭 시
@@ -71,10 +68,7 @@
             $('.selectAll').prop('checked', total === checked);
         });
     });
-</script>
-</body>
-</html>
-<script>
+
     $("#navlist1").click(function () {
         location.href = "/draft/approvalWrite";
     })
@@ -87,4 +81,94 @@
     $("#navlist2").click(function () {
         location.href = "/draft/approvalDone";
     })
+</script>
+<script th:inline="none">
+    const dummyData = {
+        sent: [
+            { title: "연차 신청서", category: "기안문", date: "2025.03.20", status: "승인" },
+            { title: "출장 보고서", category: "보고서", date: "2025.03.18", status: "반려" }
+        ],
+        received: [
+            { title: "휴가 사용 계획서", category: "신청서", date: "2025.03.19", status: "반려", sender: "홍길동" },
+            { title: "회식 계획안", category: "기안문", date: "2025.03.17", status: "승인", sender: "김철수" }
+        ]
+    };
+
+    function updateHeader(type) {
+        const header = $('#listHeader');
+        if (type === 'sent') {
+            header.html(`
+        <input type="checkbox" class="selectAll list-cell">
+        <div class="list-cell">번호</div>
+        <div class="list-cell listtitle">제목</div>
+        <div class="list-cell">문서분류</div>
+        <div class="list-cell">작성일</div>
+        <div class="list-cell">결재상태</div>
+      `);
+        } else {
+            header.html(`
+        <input type="checkbox" class="selectAll list-cell2">
+        <div class="list-cell2">번호</div>
+        <div class="list-cell2 listtitle">제목</div>
+        <div class="list-cell2">발신자</div>
+        <div class="list-cell2">문서분류</div>
+        <div class="list-cell2">작성일</div>
+        <div class="list-cell2">결재상태</div>
+      `);
+        }
+    }
+
+    function loadApprovalList(type) {
+        updateHeader(type);
+        const listMain = $('#approvalList');
+        listMain.empty();
+
+        const data = dummyData[type];
+
+        if (!data || data.length === 0) {
+            $('#emptyMessage').show();
+            return;
+        } else {
+            $('#emptyMessage').hide();
+        }
+
+        data.forEach((item, index) => {
+            let html = "";
+
+            if (type === "sent") {
+                html = `
+          <div class="listcontent sent-row">
+            <input type="checkbox" class="childCheckbox list-cell">
+            <div class="list-cell">${index + 1}</div>
+            <div class="list-cell listtitle">${item.title}</div>
+            <div class="list-cell">${item.category}</div>
+            <div class="list-cell">${item.date}</div>
+            <div class="list-cell">${item.status}</div>
+          </div>
+        `;
+            } else if (type === "received") {
+                html = `
+          <div class="listcontent received-row">
+          <input type="checkbox" class="childCheckbox list-cell2">
+            <div class="list-cell2">${index + 1}</div>
+            <div class="list-cell2 listtitle">${item.title}</div>
+            <div class="list-cell2">${item.sender}</div>
+            <div class="list-cell2">${item.category}</div>
+            <div class="list-cell2">${item.date}</div>
+            <div class="list-cell2">${item.status}</div>
+          </div>
+        `;
+            }
+
+            listMain.append(html);
+        });
+    }
+
+    $(document).ready(function () {
+        $('input[name="approvalType"]').on('change', function () {
+            loadApprovalList($(this).val());
+        });
+
+        loadApprovalList('sent');
+    });
 </script>

@@ -40,7 +40,7 @@
                 </select>
                 <div class="file-upload-wrapper">
                     <label for="attachment" class="upload-label">📎 첨부 파일</label>
-                    <input type="file" id="attachment" style="display:none;">
+                    <input type="file" id="attachment" style="display:none;" multiple accept="image/*,.pdf">
                     <span id="file-name">선택된 파일 없음</span>
                 </div>
                 <button class="orangebtn" id="submitBtn">상신하기</button>
@@ -121,12 +121,23 @@
         loadTemplateList();
     });
 
-    // 파일 선택 시 파일 이름 표시
+    // 파일 선택 시 파일 이름 표시/ 뒤에 n개 갯수 표시
     $('#attachment').on('change', function () {
-        const fileName = this.files.length > 0 ? this.files[0].name : '선택된 파일 없음';
-        $('#file-name').text(fileName);
-    });
+        const files = Array.from(this.files);
+        const fileNames = files.map(f => f.name);
 
+        let displayNames = fileNames.slice(0, 4).map(name => {
+            return name.length > 20 ? name.substring(0, 17) + '...' : name;
+        });
+
+        let finalText = displayNames.join(', ');
+
+        if (files.length > 4) {
+            finalText += ` 외 ${files.length - 4}개`;
+        }
+
+        $('#file-name').text(`${finalText} (${files.length})`);
+    });
     // 버튼 클릭 시 전송
     $('#submitBtn').on('click', function () {
         const title = $('#titleInput').val();
