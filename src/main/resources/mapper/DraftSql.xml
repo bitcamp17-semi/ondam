@@ -28,7 +28,7 @@
         from draft_templates
         where id = #{id}
     </delete>
-    <insert id="createDraft" parameterType="DraftsDto">
+    <insert id="createDraft" parameterType="DraftsDto" useGeneratedKeys="true" keyProperty="id">
         insert into drafts (title, authorId, content, templateId)
         values (#{title}, #{authorId}, #{content}, #{templateId})
     </insert>

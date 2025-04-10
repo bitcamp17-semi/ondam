@@ -92,7 +92,6 @@
             selectedUsers = [];
             const mapped = mapApprovalsToSelectedUsers(approvals, allUsers);
             selectedUsers = mapped;
-            console.log(mapped)
             $('.approvalline').empty();
             showSelectedUsers(mapped);
         });
@@ -125,24 +124,38 @@
     $('#submitBtn').on('click', function () {
         const title = $('#titleInput').val();
         const content = quill.root.innerHTML; // 에디터 내용 HTML로 추출
-        const file = $('#attachment')[0].files[0];
+        const uploads = $('#attachment')[0].files;
+        const templateId = $("#template-list").val();
+        const draft = { title, content, templateId };
+        const approvals = [];
+        $('.approvalline .profileset').each((idx, el) => {
+            approvals.push({
+                userId: $(el).data('userid'),
+                order: idx + 1
+            });
+        });
 
-        const formData = new FormData();
-        formData.append('title', title);
-        formData.append('content', content);
-        if (file) {
-            formData.append('file', file);
+        if (!title || !content || approvals.length === 0) {
+            alert("제목/내용/결재자 누락");
+            return;
         }
 
+        const formData = new FormData();
+        formData.append('data', new Blob([JSON.stringify({ draft, approvals })], { type: 'application/json' }));
+        for (const file of uploads) {
+            formData.append('uploads', file);
+        }
         $.ajax({
-            url: '/approval/submit',  // 백엔드 컨트롤러 주소
+            url: '/api/draft/createDraft',
             type: 'POST',
             data: formData,
             contentType: false,
             processData: false,
             success: function (res) {
-                alert('결재 등록 완료!');
-                // 필요하면 페이지 이동 등 추가 처리
+                if (res.status === "ok") {
+                    alert('결재 등록 완료!');
+                    // todo : 해당 문서 상세 페이지로 이동(백엔드에서 보내야 할 듯??)
+                }
             },
             error: function (err) {
                 alert('전송 실패 😢');
@@ -197,7 +210,6 @@
             }
         });
     }
-
 </script>
 </body>
 </html>
