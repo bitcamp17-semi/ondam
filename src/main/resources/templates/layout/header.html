@@ -55,8 +55,9 @@
                 </div>
             </div>
             <div class="profileimage" id="header-profileImage">
-                <img class="img" th:src="@{/images/Rectangle53.png}"
-                     th:onerror="'this.src=\'' + @{/images/Rectangle53.png} + '\''"/>
+                <img class="img"
+                     th:src="@{/images/Rectangle53.png}"
+                     onerror="this.src='/images/Rectangle53.png'"/>
             </div>
             <div class="div-2" id="header-logout">
                 <img th:src="@{/images/logout.svg}"/>
@@ -74,6 +75,7 @@
                         let storageUrl = "https://kr.object.ncloudstorage.com/bitcamp-semi/users/";
                         let profileImageUrl = storageUrl + res.result.profileImage;
                         $("#header-profileImage img").attr("src", profileImageUrl);
+                        $("#header-profileImage").attr("data-id", res.result.id);
                     }
                 }
             })
