@@ -5,9 +5,16 @@
 
     <!-- 특정 유저의 받은 메시지 목록 조회 (Read) -->
     <select id="readMessagesForReceiver" parameterType="int" resultType="MessagesDto">
-        SELECT m.id, m.title,m.content, m.senderid AS senderId, m.receiverid AS receiverId,
-               m.isread AS isRead, m.createdat AS createdAt, m.readat AS readAt,m.isImportant,
-               u.name AS senderName
+        SELECT m.id,
+               m.title,
+               m.content,
+               m.senderid   AS senderId,
+               m.receiverid AS receiverId,
+               m.isread     AS isRead,
+               m.createdat  AS createdAt,
+               m.readat     AS readAt,
+               m.isImportant,
+               u.name       AS senderName
         FROM messages m
                  JOIN users u ON m.senderid = u.id
         WHERE m.receiverid = #{receiverId}
@@ -16,7 +23,8 @@
     <!-- 메시지 읽음 처리 (Update) -->
     <update id="updateMessageAsRead" parameterType="int">
         UPDATE messages
-        SET isread = TRUE, readat = now()
+        SET isread = TRUE,
+            readat = now()
         WHERE id = #{id}
     </update>
 
@@ -24,13 +32,15 @@
     <!-- 마지막 방문 시간 업데이트 (Update) -->
     <update id="updateUserLastVisitTime" parameterType="int">
         INSERT INTO user_last_message_visit (user_id, last_visit_time)
-        VALUES (#{userId}, CURRENT_TIMESTAMP)
-            ON DUPLICATE KEY UPDATE last_visit_time = CURRENT_TIMESTAMP
+        VALUES (#{userId}, CURRENT_TIMESTAMP) ON DUPLICATE KEY
+        UPDATE last_visit_time = CURRENT_TIMESTAMP
     </update>
 
     <!-- 메시지 삭제 (Delete) -->
     <delete id="deleteMessageById" parameterType="int">
-        DELETE FROM messages WHERE id = #{id}
+        DELETE
+        FROM messages
+        WHERE id = #{id}
     </delete>
 
     <!-- 메시지 작성 (Create) -->
@@ -42,41 +52,43 @@
 
     <!-- 검색 기능 추가 -->
     <select id="readSearchMessagesByKeyword" parameterType="map" resultType="MessagesDto">
-        SELECT id, title,content, senderId, receiverId,
-               isRead, createdAt, readAt
-        FROM messages
-        WHERE (
-            content LIKE CONCAT('%', #{keyword}, '%')
-                OR senderId IN (
-                SELECT id FROM users
-                WHERE username LIKE CONCAT('%', #{keyword}, '%')
-            )
-                OR receiverId IN (
-                SELECT id FROM users
-                WHERE username LIKE CONCAT('%', #{keyword}, '%')
-            )
-            )
+        SELECT m.id, m.title, m.content,
+               m.senderid AS senderId,
+               m.receiverid AS receiverId,
+               m.isread AS isRead,
+               m.createdat AS createdAt,
+               m.readat AS readAt,
+               m.isImportant,
+               u.name AS senderName
+        FROM messages m
+        JOIN users u ON m.senderid = u.id
+        WHERE m.receiverid = #{receiverID}
           AND (
-            CASE
-                WHEN #{category} = 'LATEST' THEN TRUE
-                WHEN #{category} = 'IMPORTANT' THEN isImportant = TRUE
-                ELSE TRUE
-                END
-            )
-        ORDER BY createdAt DESC
-    /*        SELECT id, content, senderid AS senderId, receiverid AS receiverId,
-               isread AS isRead, createdat AS createdAt, readat AS readAt
-        FROM messages
-        WHERE (
-                  content LIKE CONCAT('%', #{keyword}, '%')
-                      OR senderid IN (SELECT id FROM users WHERE username LIKE CONCAT('%', #{keyword}, '%'))
-                      OR receiverid IN (SELECT id FROM users WHERE username LIKE CONCAT('%', #{keyword}, '%'))
-                  )
-        ORDER BY createdAt DESC*/
+              m.title LIKE CONCAT('%', #{keyword}, '%') OR
+              m.content LIKE CONCAT('%', #{keyword}, '%') OR
+              m.senderid IN (
+              SELECT id FROM users WHERE name LIKE CONCAT('%', #{keyword}, '%')
+                                   ) OR
+              m.receiverid IN (
+              SELECT id FROM users WHERE name LIKE CONCAT('%', #{keyword}, '%')
+                                   )
+              )
+          <if test="category eq 'IMPORTANT'">
+          AND m.isImportant = TRUE
+        </if>
+        ORDER BY m.createdat DESC
     </select>
+
     <select id="readMessageDetail" parameterType="int" resultType="MessagesDto">
-        SELECT id, title,content, senderid AS senderId, receiverid AS receiverId,
-               isread AS isRead, createdat AS createdAt, readat AS readAt,isImportant
+        SELECT id,
+               title,
+               content,
+               senderid   AS senderId,
+               receiverid AS receiverId,
+               isread     AS isRead,
+               createdat  AS createdAt,
+               readat     AS readAt,
+               isImportant
         FROM messages
         WHERE id = #{id}
     </select>
@@ -86,22 +98,32 @@
         WHERE id = #{id}
     </update>
     <select id="readCountUnreadMessages" parameterType="int" resultType="int">
-        SELECT COUNT(*) FROM messages
-        WHERE receiverid = #{receiverId} AND isread = FALSE
+        SELECT COUNT(*)
+        FROM messages
+        WHERE receiverid = #{receiverId}
+          AND isread = FALSE
     </select>
     <select id="readUnreadMessagesForReceiver" parameterType="int" resultType="MessagesDto">
-        SELECT m.id, m.title, m.content, m.senderid AS senderId, m.receiverid AS receiverId,
-               m.isread AS isRead, m.createdat AS createdAt, m.readat AS readAt, m.isimportant AS isImportant,
-               u.username AS senderName
+        SELECT m.id,
+               m.title,
+               m.content,
+               m.senderid    AS senderId,
+               m.receiverid  AS receiverId,
+               m.isread      AS isRead,
+               m.createdat   AS createdAt,
+               m.readat      AS readAt,
+               m.isimportant AS isImportant,
+               u.username    AS senderName
         FROM messages m
                  JOIN users u ON m.senderid = u.id
-        WHERE m.receiverid = #{receiverId} AND m.isread = 0
+        WHERE m.receiverid = #{receiverId}
+          AND m.isread = 0
         ORDER BY m.createdat DESC
     </select>
     <select id="readAllDepartment" resultType="String">
         SELECT DISTINCT d.name
         FROM users u
-        JOIN department d ON u.departmentId = d.id
+                 JOIN department d ON u.departmentId = d.id
         WHERE d.name IS NOT NULL
           AND d.name != 'admin'
     </select>
@@ -112,6 +134,58 @@
                  JOIN department d ON u.departmentId = d.id
         WHERE d.name = #{department}
           AND u.isDeleted = 0
+    </select>
+
+    <!-- 보낸 메시지 목록 조회 (senderId 기준) -->
+    <select id="readMessagesBySender" parameterType="int" resultType="MessagesDto">
+        SELECT m.id,
+               m.title,
+               m.content,
+               m.senderid   AS senderId,
+               m.receiverid AS receiverId,
+               m.isread     AS isRead,
+               m.createdat  AS createdAt,
+               m.readat     AS readAt,
+               m.isImportant,
+               u.name       AS receiverName
+        FROM messages m
+                 JOIN users u ON m.receiverid = u.id
+        WHERE m.senderid = #{senderId}
+        ORDER BY m.createdat DESC
+    </select>
+    <select id="readNextMessageByReceiver" parameterType="map" resultType="MessagesDto">
+    <![CDATA[
+        SELECT m.id, m.title, m.content,
+               m.senderid AS senderId,
+               m.receiverid AS receiverId,
+               m.isread AS isRead,
+               m.createdat AS createdAt,
+               m.readat AS readAt,
+               m.isImportant
+        FROM messages m
+        WHERE m.receiverid = #{receiverId}
+          AND m.createdat < #{currentCreatedAt}
+        ORDER BY m.createdat DESC
+            LIMIT 1
+        ]]>
+    </select>
+
+
+    <!-- 이전 메시지 (현재보다 나중에 작성된, 오래된 순 1건) -->
+    <select id="readPrevMessageByReceiver" parameterType="map" resultType="MessagesDto">
+        SELECT m.id,
+               m.title,
+               m.content,
+               m.senderid   AS senderId,
+               m.receiverid AS receiverId,
+               m.isread     AS isRead,
+               m.createdat  AS createdAt,
+               m.readat     AS readAt,
+               m.isImportant
+        FROM messages m
+        WHERE m.receiverid = #{receiverId}
+          AND m.createdat > #{currentCreatedAt}
+        ORDER BY m.createdat ASC LIMIT 1
     </select>
 
 

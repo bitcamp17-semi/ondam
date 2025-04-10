@@ -37,5 +37,14 @@ public interface MessageMapper {
 
     List<UsersDto> readUsersByDepartment(String department);
 
+    MessagesDto readNextMessageByReceiver(@Param("receiverId") int receiverId,
+                                          @Param("currentCreatedAt") java.sql.Timestamp currentCreatedAt);
+
+    MessagesDto readPrevMessageByReceiver(@Param("receiverId") int receiverId,
+                                          @Param("currentCreatedAt") java.sql.Timestamp currentCreatedAt);
+
+    List<MessagesDto> readMessagesBySender(int senderId);
+
+
 
 }

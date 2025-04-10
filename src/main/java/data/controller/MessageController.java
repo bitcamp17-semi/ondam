@@ -12,8 +12,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/messages")
@@ -158,10 +160,11 @@ public class MessageController {
     @GetMapping("/search")
     public ResponseEntity<Object> searchMessages(
             @RequestParam String keyword,
-            @RequestParam(defaultValue = "LATEST") String category) {
+            @RequestParam(defaultValue = "LATEST") String category,
+            @RequestParam int receiverId) {
         Map<String, Object> response = new LinkedHashMap<>();
         try {
-            List<MessagesDto> messages = messageService.readSearchMessagesByKeyword(keyword, category);
+            List<MessagesDto> messages = messageService.readSearchMessagesByKeyword(keyword, category,receiverId);
             response.put("status", "ok");
             response.put("result", messages);
             return new ResponseEntity<>(response, HttpStatus.OK);
@@ -179,9 +182,23 @@ public class MessageController {
     public ResponseEntity<Object> getMessageDetail(@PathVariable int messageId) {
         Map<String, Object> response = new LinkedHashMap<>();
         try {
-            MessagesDto message = messageService.readMessageDetail(messageId);
+            MessagesDto msg = messageService.readMessageDetail(messageId);
+
+            Map<String, Object> result = new LinkedHashMap<>();
+            result.put("id", msg.getId());
+            result.put("title", msg.getTitle());
+            result.put("content", msg.getContent());
+            result.put("senderId", msg.getSenderId());
+
+            // 날짜 처리
+            SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            if (msg.getCreatedAt() != null) {
+                result.put("createdAtWithTime", dateTimeFormat.format(msg.getCreatedAt()));
+            } else {
+                result.put("createdAtWithTime", "");
+            }
             response.put("status", "ok");
-            response.put("result", message);
+            response.put("result", msg);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             response.put("status", "error");
@@ -222,12 +239,18 @@ public class MessageController {
     @ResponseBody
     public List<Map<String, Object>> readMessagesForReceiver(@RequestParam Integer receiverId,
                                                              @RequestParam(defaultValue = "0") int page,
-                                                             @RequestParam(defaultValue = "10") int size) {
+                                                             @RequestParam(defaultValue = "10") int size,
+                                                             @RequestParam(defaultValue = "all") String filter) {
         if (receiverId == null) {
             throw new IllegalArgumentException("receiverId는 필수입니다.");
         }
         List<MessagesDto> messages = messageService.readMessagesForReceiver(receiverId);
 
+        if ("important".equals(filter)) {
+            messages = messages.stream()
+                    .filter(MessagesDto::isImportant)
+                    .collect(Collectors.toList());
+        }
 
         //페이징
         int fromIndex = page*size;
@@ -274,6 +297,87 @@ public class MessageController {
         }
 
         return result;
+    }
+
+    @GetMapping("/sent")
+    @ResponseBody
+    public ResponseEntity<Object> readMessagesBySender(@RequestParam int senderId) {
+        Map<String, Object> response = new LinkedHashMap<>();
+        try {
+            System.out.println("💬 [readMessagesBySender] senderId = " + senderId);
+
+            List<MessagesDto> messages = messageService.readMessagesBySender(senderId);
+            List<Map<String, Object>> result = new ArrayList<>();
+
+            for (MessagesDto msg : messages) {
+                System.out.println("📦 messageId: " + msg.getId() + ", receiverId: " + msg.getReceiverId());
+
+                UsersDto receiver = usersService.readUserById(msg.getReceiverId());
+                if (receiver == null) {
+                    System.out.println("❗ Receiver not found for receiverId = " + msg.getReceiverId());
+                }
+
+                Map<String, Object> map = new HashMap<>();
+                map.put("id", msg.getId());
+                map.put("title", msg.getTitle());
+                map.put("content", msg.getContent());
+                map.put("senderName", receiver != null ? receiver.getName() : "알 수 없음");
+                map.put("createdAt", msg.getCreatedAt());
+                map.put("isImportant", msg.isImportant());
+                map.put("isRead", true); // 항상 읽음
+                map.put("receiverName", receiver != null ? receiver.getName() : "알 수 없음");
+
+
+                result.add(map);
+            }
+
+            response.put("status", "ok");
+            response.put("result", result);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.put("status", "error");
+            response.put("message", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    @GetMapping("/next")
+    @ResponseBody
+    public ResponseEntity<Object> readNextMessage(@RequestParam int receiverId,
+                                                  @RequestParam String currentCreatedAt) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            Timestamp timestamp = Timestamp.valueOf(currentCreatedAt);
+            MessagesDto next = messageService.readNextMessageByReceiver(receiverId, timestamp);
+            response.put("status", "ok");
+            response.put("result", next);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("message", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/prev")
+    @ResponseBody
+    public ResponseEntity<Object> readPrevMessage(@RequestParam int receiverId,
+                                                  @RequestParam String currentCreatedAt) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            Timestamp timestamp = Timestamp.valueOf(currentCreatedAt);
+            MessagesDto prev = messageService.readPrevMessageByReceiver(receiverId, timestamp);
+            response.put("status", "ok");
+            response.put("result", prev);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("message", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
 

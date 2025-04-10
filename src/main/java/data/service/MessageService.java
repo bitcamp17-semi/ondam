@@ -5,6 +5,7 @@ import data.dto.UsersDto;
 import data.mapper.MessageMapper;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,10 +44,11 @@ public class MessageService {
         messageMapper.createMessage(messageDto);
     }
     // 검색 기능
-    public List<MessagesDto> readSearchMessagesByKeyword(String keyword, String category) {
+    public List<MessagesDto> readSearchMessagesByKeyword(String keyword, String category, int receiverId) {
         Map<String, Object> params = new HashMap<>();
         params.put("keyword", keyword.trim());
         params.put("category", category.trim());
+        params.put("receiverId", receiverId);
         return messageMapper.readSearchMessagesByKeyword(params);
     }
     // 쪽지 상세 조회(Service)=
@@ -65,6 +67,20 @@ public class MessageService {
     public List<UsersDto> readUsersByDepartment(String department) {
         return messageMapper.readUsersByDepartment(department);
     }
+
+    public MessagesDto readNextMessageByReceiver(int receiverId, Timestamp currentCreatedAt) {
+        return messageMapper.readNextMessageByReceiver(receiverId, currentCreatedAt);
+    }
+
+    public MessagesDto readPrevMessageByReceiver(int receiverId, Timestamp currentCreatedAt) {
+        return messageMapper.readPrevMessageByReceiver(receiverId, currentCreatedAt);
+    }
+
+    public List<MessagesDto> readMessagesBySender(int senderId){
+        return messageMapper.readMessagesBySender(senderId);
+    }
+
+
 
 
 }
