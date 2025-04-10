@@ -218,15 +218,25 @@ public class MessageController {
 
     @GetMapping("/list")
     @ResponseBody
-    public List<Map<String, Object>> readMessagesForReceiver(@RequestParam Integer receiverId) {
+    public List<Map<String, Object>> readMessagesForReceiver(@RequestParam Integer receiverId,
+                                                             @RequestParam(defaultValue = "0") int page,
+                                                             @RequestParam(defaultValue = "10") int size) {
         if (receiverId == null) {
             throw new IllegalArgumentException("receiverId는 필수입니다.");
         }
         List<MessagesDto> messages = messageService.readMessagesForReceiver(receiverId);
 
+
+        //페이징
+        int fromIndex = page*size;
+        int toIndex = Math.min(fromIndex+size, messages.size());
+        if(fromIndex >= messages.size()) {
+            return Collections.emptyList();
+        }
+
         List<Map<String, Object>> result = new ArrayList<>();
 
-        for (MessagesDto msg : messages) {
+        for (MessagesDto msg : messages.subList(fromIndex, toIndex)) {
             UsersDto sender = usersService.readUserById(msg.getSenderId());
 
             Map<String, Object> map = new HashMap<>();
@@ -236,6 +246,7 @@ public class MessageController {
             map.put("senderId", msg.getSenderId());
             map.put("senderName", sender != null ? sender.getName() : "알 수 없음");
             map.put("isRead", msg.isRead());
+            map.put("isImportant", msg.isImportant()); // 🔥 이 줄만 추가하면 됨!
             map.put("createdAt", msg.getCreatedAt());
 
             result.add(map);

@@ -31,6 +31,24 @@
     height: 100%;
 }
 /*따로 추가한것 */
+
+/* 📦 예: message_inbox.css */
+#messagetitle,
+#messagedate,
+#messagename,
+#messagearticle {
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.rightarticle.show-detail #messagetitle,
+.rightarticle.show-detail #messagedate,
+.rightarticle.show-detail #messagename,
+.rightarticle.show-detail #messagearticle {
+    opacity: 1;
+}
+
+
 .getmessage.unread {
     background-color: #f8f8ff;
 }
