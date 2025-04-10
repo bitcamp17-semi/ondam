@@ -57,13 +57,7 @@
                         </div>
                     </div>
                     <div class="approvalline">
-                        <div class="profileset">
-                            <div class="lineprofile">
-                                <img src="">
-                                <span>ddd과장</span>
-                            </div>
-                            <div class="linebtn">미승인</div>
-                        </div>
+                        <!-- 결재 라인 -->
                     </div>
                 </div>
             </div>
@@ -71,54 +65,43 @@
     </div>
 </div>
 <script>
-
+    const storageUrl = "https://kr.object.ncloudstorage.com/bitcamp-semi/users/";
+    var selectedUsers = [];
+    var allUsers = [];
     // Quill 에디터 초기화
     var quill = new Quill('#editor-container', {
         theme: 'snow',
         placeholder: '내용을 입력하세요...',
         modules: {
             toolbar: [
-                [{ header: [1, 2, false] }],
+                [{header: [1, 2, false]}],
                 ['bold', 'italic', 'underline'],
                 ['image', 'code-block']
             ]
         }
     });
-    // 템플릿 목록 불러오기
-    function loadTemplateList() {
-        $.ajax({
-            url: '/template/list',
-            method: 'GET',
-            success: function (templates) {
-                $('#template-list').empty().append('<option disabled selected>템플릿 선택</option>');
-                templates.forEach(function (template) {
-                    $('#template-list').append(
-                        $('<option>', { value: template.id, text: template.title })
-                    );
-                });
-            }
-        });
-    }
 
     // 템플릿 선택 시 내용 불러오기
     $('#template-list').on('change', function () {
         const id = $(this).val();
-
-        $.ajax({
-            url: '/template/load/' + id,
-            method: 'GET',
-            success: function (data) {
-                quill.root.innerHTML = data.content;
-            },
-            error: function () {
-                alert('템플릿 불러오기 실패');
-            }
+        $.get('/api/draft/readTemplate', {id: id}, function (res) {
+            const template = res.result.template;
+            const approvals = res.result.approvalList;
+            $("#titleInput").val(template.title);
+            quill.root.innerHTML = template.content;
+            selectedUsers = [];
+            const mapped = mapApprovalsToSelectedUsers(approvals, allUsers);
+            selectedUsers = mapped;
+            console.log(mapped)
+            $('.approvalline').empty();
+            showSelectedUsers(mapped);
         });
     });
 
     //  페이지 로딩 시 템플릿 목록 자동 불러오기
     $(document).ready(function () {
         loadTemplateList();
+        getAllUsers();
     });
 
     // 파일 선택 시 파일 이름 표시/ 뒤에 n개 갯수 표시
@@ -167,6 +150,54 @@
             }
         });
     });
+
+    function mapApprovalsToSelectedUsers(approvalList, allUsers) {
+        return approvalList.map(approval => {
+            const user = allUsers.find(u => u.id === approval.userId);
+            return {
+                id: approval.userId,
+                name: user?.name || "이름없음",
+                position: user?.position || "-",
+                profileImage: user?.profileImage || "../../images/Rectangle53.png",
+                status: approval.status
+            };
+        });
+    }
+
+    function showSelectedUsers(users) {
+        users.forEach(user => {
+            $('.approvalline').append(`
+            <div class="profileset" data-userid="${user.id}">
+                <div class="lineprofile">
+                    <img src="${storageUrl}${user.profileImage}" onerror="this.src='../../images/Rectangle53.png'">
+                    <span>${user.name} ${user.position}</span>
+                </div>
+                <div class="linebtn" value="${user.status}">미승인</div>
+            </div>
+        `);
+        })
+    }
+
+    function getAllUsers() {
+        $.get("/api/users/readAllUsers", function (res) {
+            if (res.status === "ok") {
+                allUsers = res.result;
+            }
+        });
+    }
+
+    // 템플릿 목록 불러오기
+    function loadTemplateList() {
+        $.get('/api/draft/readAllTemplate', function (res) {
+            if (res.status === "ok") {
+                $('#template-list').empty().append('<option disabled selected>템플릿 선택</option>');
+                res.result.forEach(item => {
+                    $('#template-list').append(`<option value="${item.id}">${item.title}</option>`);
+                });
+            }
+        });
+    }
+
 </script>
 </body>
 </html>

@@ -5,7 +5,7 @@
     <title>Title</title>
     <link rel="stylesheet" th:href="@{/style/globals.css}"/>
     <link rel="stylesheet" th:href="@{/style/approval_inbox.css}"/>
-    <link rel="stylesheet" th:href="@{/style/header.css}" />
+    <link rel="stylesheet" th:href="@{/style/header.css}"/>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
     <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
@@ -60,6 +60,7 @@
 </div>
 <script>
     $(document).ready(function () {
+        loadDrafts();
         // 상위 체크박스 클릭 시
         $('.selectAll').on('change', function () {
             $('.childCheckbox').prop('checked', $(this).prop('checked'));
@@ -73,11 +74,44 @@
             $('.selectAll').prop('checked', total === checked);
         });
     });
+
+    // 본인 차례의 수신 목록 호출
     function loadDrafts() {
         $.ajax({
-            url: "/api/draft/"
-        })
+            url: "/api/draft/actionRequired", // 또는 /todo
+            type: "GET",
+            success: function (res) {
+                if (res.status === "ok") {
+                    const drafts = res.result;
+                    const $listMain = $(".listmain");
+                    $listMain.empty();
+
+                    drafts.forEach((draft, idx) => {
+                        $listMain.append(`
+                        <div class="listcontent" data-id="${draft.id}">
+                            <input type="checkbox" class="childCheckbox list-cell">
+                            <div class="list-cell">${idx + 1}</div>
+                            <div class="list-cell listtitle clickable" data-id="${draft.id}">${draft.title}</div>
+                            <div class="list-cell">기안문</div>
+                            <div class="list-cell">${draft.authorName || "-"}</div>
+                            <div class="list-cell">${draft.createdAt?.split(" ")[0]}</div>
+                            <div class="list-cell">${draft.status === "PENDING" ? "대기중" : draft.status}</div>
+                        </div>
+                    `);
+                    });
+                }
+            },
+            error: function () {
+                alert("문서 불러오기 실패");
+            }
+        });
     }
+
+    // 제목 클릭 시 상세보기로 이동
+    $(document).on("click", ".listtitle.clickable", function () {
+        const draftId = $(this).data("id");
+        location.href = `/draft/approvalDetail?id=${draftId}`;
+    });
 </script>
 </body>
 </html>

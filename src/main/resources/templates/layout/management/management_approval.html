@@ -68,8 +68,9 @@
 </div>
 <script>
     const storageUrl = "https://kr.object.ncloudstorage.com/bitcamp-semi/users/";
-    let depMap = {};
-    let selectedUsers = [];
+    var depMap = {};
+    var selectedUsers = [];
+    var allUsers = [];
     const quill = new Quill('#editor-container', {
         theme: 'snow',
         placeholder: '내용을 입력하세요...',
@@ -161,20 +162,16 @@
             $("#titleInput").val(template.title);
             quill.root.innerHTML = template.content;
 
-            // 전체 유저 목록 필요 (한번만 호출되도록 외부에서 정의되었어야 함)
-            $.get("/api/users/readAllUsers", function (userRes) {
-                if (userRes.status === "ok") {
-                    const mapped = mapApprovalsToSelectedUsers(approvals, userRes.result);
-                    selectedUsers = mapped;
-                    $('.approvalline').empty();
-                    showSelectedUsers(mapped);
-                }
-            });
+            const mapped = mapApprovalsToSelectedUsers(approvals, allUsers);
+            selectedUsers = mapped;
+            $('.approvalline').empty();
+            showSelectedUsers(mapped);
         });
     });
     $(document).ready(function () {
         loadTemplateList();
         fetchDepartments();
+        getAllUsers();
     });
     $(function () {
         $(".approvalline").sortable({axis: "x", containment: "parent"});
@@ -192,6 +189,14 @@
                 position: user?.position || "-",
                 profileImage: user?.profileImage || "../../images/Rectangle53.png"
             };
+        });
+    }
+
+    function getAllUsers() {
+        $.get("/api/users/readAllUsers", function (res) {
+            if (res.status === "ok") {
+                allUsers = res.result;
+            }
         });
     }
 

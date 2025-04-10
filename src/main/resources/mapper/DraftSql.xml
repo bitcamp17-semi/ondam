@@ -46,4 +46,18 @@
         set status = #{status}
         where id = #{id}
     </delete>
+    <select id="readPendingDraftsForUser" resultType="DraftsDto">
+        SELECT d.*
+        FROM drafts d
+                 JOIN approvals a ON d.id = a.draftId
+        WHERE d.status = 'PENDING'
+          AND a.userId = #{userId}
+          AND a.status = 'PENDING'
+          AND NOT EXISTS (SELECT 1
+                          FROM approvals prev
+                          WHERE prev.draftId = d.id
+                            AND prev.`order` &lt; a.`order`
+                            AND prev.status != 'APPROVED')
+    </select>
+
 </mapper>

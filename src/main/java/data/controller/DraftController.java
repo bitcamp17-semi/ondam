@@ -234,4 +234,20 @@ public class DraftController {
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @GetMapping("/actionRequired")
+    public ResponseEntity<Object> getPendingDrafts(HttpSession session) {
+        Map<String, Object> response = new LinkedHashMap<>();
+        try {
+            Integer userId = (Integer) session.getAttribute("userId");
+            List<DraftsDto> drafts = draftService.getPendingDraftsForUser(userId);
+            response.put("status", "ok");
+            response.put("result", drafts);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("message", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }
