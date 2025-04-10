@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // ✅ AJAX로 로그인한 사용자 ID 받아오기
     $.ajax({
-      url: "/api/users/readUserById",
+      url: "/api/users/readUserBySession",
       type: "GET",
       success: function (res) {
         if (res.status === "ok" && res.result.id) {
