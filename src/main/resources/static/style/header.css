@@ -61,7 +61,15 @@
     align-items: center;
     display: flex;
     justify-content: center;
+}
+
+.header-layout .div-2:hover {
+    background-color: #dddddd;
     cursor: pointer;
+}
+
+.header-layout .div-2 img {
+    user-select: none;
 }
 
 .header-layout .profileimage {

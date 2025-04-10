@@ -64,52 +64,56 @@
 
         </div>
     </div>
-</div>
-<script>
-    $(document).ready(function () {
-        $.ajax({
-            url: "/api/users/readUserBySession",
-            type: "GET",
-            success: function (res) {
-                if (res.status === "ok") {
-                    let storageUrl = "https://kr.object.ncloudstorage.com/bitcamp-semi/users/";
-                    let profileImageUrl = storageUrl + res.result.profileImage;
-                    $("#header-profileImage img").attr("src", profileImageUrl);
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+                url: "/api/users/readUserBySession",
+                type: "GET",
+                success: function (res) {
+                    if (res.status === "ok") {
+                        let storageUrl = "https://kr.object.ncloudstorage.com/bitcamp-semi/users/";
+                        let profileImageUrl = storageUrl + res.result.profileImage;
+                        $("#header-profileImage img").attr("src", profileImageUrl);
+                    }
                 }
-            }
-        })
-    });
-    $("#header-logout").click(function () { // ✅ 중첩 제거
-        $.ajax({
-            url: "/api/logout",
-            type: "GET",
-            success: function (response) {
-                if (response.status === "ok") {
-                    alert("로그아웃 되었습니다.");
-                    window.location.href = "/login";  // 로그인 페이지로 이동
-                } else {
-                    alert("로그아웃 실패: " + response.result);
-                }
-            },
-            error: function (xhr, status, error) {
-                alert("오류 발생: " + error);
-            }
+            })
         });
-    });
-</script>
+        $("#header-logout").click(function () { // ✅ 중첩 제거
+            $.ajax({
+                url: "/api/logout",
+                type: "GET",
+                success: function (response) {
+                    if (response.status === "ok") {
+                        alert("로그아웃 되었습니다.");
+                        window.location.href = "/login";  // 로그인 페이지로 이동
+                    } else {
+                        alert("로그아웃 실패: " + response.result);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    alert("오류 발생: " + error);
+                }
+            });
+        });
+        $("#header-approval").click(function () {
+            window.location.href = "/draft/approvalInbox";
+        })
+    </script>
 
-<!-- 알람 토스트 노출 영역 -->
-<div class="position-fixed p-3" style="bottom: 3%;left:5%;z-index: 9999;">
-    <div id="alarmToast" class="toast align-items-center border-0" role="alert" aria-live="assertive" aria-atomic="true"
-         style="background-color: lightgray;">
-        <div class="d-flex">
-            <div class="toast-body" id="toastMessage"></div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
-                    aria-label="Close"></button>
+    <!-- 알람 토스트 노출 영역 -->
+    <div class="position-fixed p-3" style="bottom: 3%;left:5%;z-index: 9999;">
+        <div id="alarmToast" class="toast align-items-center border-0" role="alert" aria-live="assertive"
+             aria-atomic="true"
+             style="background-color: lightgray;">
+            <div class="d-flex">
+                <div class="toast-body" id="toastMessage"></div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                        aria-label="Close"></button>
+            </div>
         </div>
     </div>
-</div>
 
-<script th:src="@{/js/alarm.js}"></script>
+    <script th:src="@{/js/alarm.js}"></script>
+</div>
 </body>
 </html>
