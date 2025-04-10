@@ -12,6 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Controller
@@ -106,6 +107,7 @@ public class MessageController {
         Map<String, Object> response = new LinkedHashMap<>();
         try {
             messageService.deleteMessage(messageId);
+            List<MessagesDto> messageList = messageService.readMessagesForReceiver(messageId);
             response.put("status", "ok");
             response.put("message", "Message has been deleted.");
             return new ResponseEntity<>(response, HttpStatus.OK);
@@ -247,7 +249,26 @@ public class MessageController {
             map.put("senderName", sender != null ? sender.getName() : "알 수 없음");
             map.put("isRead", msg.isRead());
             map.put("isImportant", msg.isImportant()); // 🔥 이 줄만 추가하면 됨!
-            map.put("createdAt", msg.getCreatedAt());
+            /*map.put("createdAt", msg.getCreatedAt());*/
+
+            SimpleDateFormat dateOnlyFormat = new SimpleDateFormat("yyyy-MM-dd");
+            SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+            // 포맷팅한 값들
+            String dateOnly = null;
+            String dateTime = null;
+
+            // msg.getCreatedAt()이 null이 아닌 경우에만 포맷팅
+            if (msg.getCreatedAt() != null) {
+                dateOnly = dateOnlyFormat.format(msg.getCreatedAt());
+                dateTime = dateTimeFormat.format(msg.getCreatedAt());
+            }
+
+            // map에 두 값 추가
+            map.put("createdAtWithTime", dateTime != null ? dateTime : ""); // 날짜+시간
+            map.put("createdAt", dateOnly != null ? dateOnly : ""); // 날짜만
+
+
 
             result.add(map);
         }
