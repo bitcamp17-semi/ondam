@@ -15,41 +15,47 @@
         </div>
         <div class="div">
             <div class="div-2" id="header-home">
-                <img th:src="@{/images/home.svg}"/>
-            </div>
-            <div class="div-2" id="header-mail">
-                <img th:src="@{/images/mail.svg}"/>
+                <i class="bi bi-house"></i>
+                <span class="label">메인화면</span>
             </div>
             <div class="div-2" id="header-note">
-                <img th:src="@{/images/note.svg}"/>
+                <i class="bi bi-send"></i>
+                <span class="label">쪽지</span>
             </div>
             <div class="div-2" id="header-orgchart">
-                <img th:src="@{/images/orgchart.svg}"/>
+                <i class="bi bi-diagram-3"></i>
+                <span class="label">조직도</span>
             </div>
             <div class="div-2" id="header-calendar">
-                <img th:src="@{/images/calendar.svg}"/>
+                <i class="bi bi-calendar4-week"></i>
+                <span class="label">일정관리</span>
             </div>
             <div class="div-2" id="header-approval">
-                <img th:src="@{/images/approval.svg}"/>
+                <i class="bi bi-clipboard-check"></i>
+                <span class="label">전자결재</span>
             </div>
             <div class="div-2" id="header-board">
-                <img th:src="@{/images/board.svg}"/>
+                <i class="bi bi-list-task"></i>
+                <span class="label">게시판</span>
             </div>
             <div class="div-2" id="header-storage">
-                <img th:src="@{/images/storage.svg}"/>
+                <i class="bi bi-cloud-download"></i>
+                <span class="label">드라이브</span>
             </div>
             <div class="div-2" id="header-chat">
-                <img th:src="@{/images/chat.svg}"/>
+                <i class="bi bi-chat-text"></i>
+                <span class="label">채팅</span>
             </div>
             <div class="div-2" id="header-info">
-                <img th:src="@{/images/info.svg}"/>
+                <i class="bi bi-gear"></i>
+                <span class="label">관리자</span>
             </div>
         </div>
         <div class="div">
             <div class="div-2" id="header-alarm">
                 <div class="group">
                     <div class="overlap-group">
-                        <img class="alarm" th:src="@{/images/alarm.svg}"/>
+                        <i class="bi bi-bell"></i>
                         <div class="ellipse"></div>
                     </div>
                 </div>
@@ -59,7 +65,7 @@
                      th:onerror="'this.src=\'' + @{/images/Rectangle53.png} + '\''"/>
             </div>
             <div class="div-2" id="header-logout">
-                <img th:src="@{/images/logout.svg}"/>
+                <i class="bi bi-box-arrow-right"></i>
             </div>
 
         </div>
@@ -112,7 +118,6 @@
             </div>
         </div>
     </div>
-
     <script th:src="@{/js/alarm.js}"></script>
 </div>
 </body>
