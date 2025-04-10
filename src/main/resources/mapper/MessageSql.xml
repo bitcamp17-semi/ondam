@@ -76,7 +76,7 @@
     </select>
     <select id="readMessageDetail" parameterType="int" resultType="MessagesDto">
         SELECT id, title,content, senderid AS senderId, receiverid AS receiverId,
-               isread AS isRead, createdat AS createdAt, readat AS readAt
+               isread AS isRead, createdat AS createdAt, readat AS readAt,isImportant
         FROM messages
         WHERE id = #{id}
     </select>
@@ -91,7 +91,7 @@
     </select>
     <select id="readUnreadMessagesForReceiver" parameterType="int" resultType="MessagesDto">
         SELECT m.id, m.title, m.content, m.senderid AS senderId, m.receiverid AS receiverId,
-               m.isread AS isRead, m.createdat AS createdAt, m.readat AS readAt, m.isImportant,
+               m.isread AS isRead, m.createdat AS createdAt, m.readat AS readAt, m.isimportant AS isImportant,
                u.username AS senderName
         FROM messages m
                  JOIN users u ON m.senderid = u.id

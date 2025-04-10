@@ -37,12 +37,49 @@
 .nav {
     display: flex;
     flex-direction: column;
-    gap: 30px;
+    height: 200px;
+    width: 100%;
+    align-items: flex-start;
+    justify-content: flex-end;
+    margin-left: 10px;
+    gap: 25px;
+}
+.navtitle{
+    font-size: 30px;
+    font-weight: bold;
+    color: #3f3f3f;
+}
+.navbar {
+    display: flex;
     align-items: flex-start;
     justify-content: flex-start;
-    align-self: stretch;
-    flex-shrink: 0;
+    gap: 30px;
     position: relative;
+    align-self: stretch;
+    width: 100%;
+    font-size: 16px;
+    white-space: nowrap;
+}
+#navlist1{
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#navlist2{
+    color: #3f3f3f;
+    border-left: rgba(0, 0, 0, 0.15) 1px solid;
+    padding-left: 30px;
+    cursor: pointer;
+}
+#navlist3{
+    border-left: rgba(0, 0, 0, 0.15) 1px solid;
+    padding-left: 30px;
+    cursor: pointer;
+}
+#navlist4{
+    border-left: rgba(0, 0, 0, 0.15) 1px solid;
+    padding-left: 30px;
+    cursor: pointer;
 }
 .title {
     display: flex;
@@ -216,13 +253,12 @@
     height: 40px;
     position: relative;
 }
-.btnred {
+.btnwhite3 {
     margin-left: 30px;
     cursor: pointer;
-    background: #ff1d11;
+    background: #ffffff;
     border-radius: 8px;
     border-style: solid;
-    color: white;
     border-color: rgba(0, 0, 0, 0.15);
     border-width: 1px;
     padding: 10px 20px 10px 20px;

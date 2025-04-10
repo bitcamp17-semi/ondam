@@ -185,4 +185,19 @@ public class DepartmentTeamController {
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
     }
+
+    @GetMapping("/readDepById")
+    public ResponseEntity<Object> readDepById(@RequestParam(value = "id") int id) {
+        Map<String, Object> response = new LinkedHashMap<>();
+        try {
+            DepartmentDto dto = departmentService.readDepById(id);
+            response.put("status", "ok");
+            response.put("result", dto);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("result", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

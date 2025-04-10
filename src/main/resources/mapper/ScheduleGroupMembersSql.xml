@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="data.mapper.ScheduleGroupMembersMapper">
+
+	<!-- 그룹 멤버 등록 -->
+	<insert id="scheGroupMemberInsert" parameterType="map" >
+		insert into schedule_group_members (userId, groupId, color, createdAt)
+		values
+		<foreach collection="memberList" item="member" separator=",">
+			(#{member.userId}, #{member.groupId}, #{member.color}, now())
+		</foreach>
+	</insert>
+	
+	<!-- 그룹아이디가 갖고있는 그룹멤버 조회 -->
+	<select id="readGroupMemByGroupId" parameterType="int" resultType="ScheduleGroupMembersDto">
+		SELECT u.id AS userId, u.name, u.departmentId
+		FROM schedule_group_members m
+		JOIN users u ON m.userId = u.id
+		WHERE m.groupId = #{groupId};
+	</select>
+	
+	<!-- 그룹멤버 삭제 -->
+	<delete id="deleteScheGroupMem" parameterType="int">
+		delete from schedule_group_members where groupId=#{groupId}
+	</delete>
+</mapper>

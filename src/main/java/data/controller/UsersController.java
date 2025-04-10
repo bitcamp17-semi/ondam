@@ -11,10 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/users")
@@ -59,8 +56,9 @@ public class UsersController {
         }
     }
 
+    // 본인 수정 (비밀번호 수정. 추후 더 필요하면 usersDto에 값 추가)
     @PostMapping("/updateUser")
-    public ResponseEntity<Object> updateUser(
+    public ResponseEntity<Object> updateSelf(
             @ModelAttribute UsersDto paramDto,
             HttpSession session) {
         Map<String, Object> response = new LinkedHashMap<String, Object>();
@@ -79,12 +77,61 @@ public class UsersController {
         }
     }
 
-    @GetMapping("/readUserById")
-    public ResponseEntity<Object> getUserById(HttpSession session) {
+    // 관리자 수정
+    @PostMapping("/updateUserAdmin")
+    public ResponseEntity<Object> updateUser(
+            @ModelAttribute UsersDto paramDto,
+            @RequestParam(value = "upload", required = false) MultipartFile upload) {
+        Map<String, Object> response = new LinkedHashMap<String, Object>();
+        try {
+            UsersDto usersDto = usersService.readUserById(paramDto.getId());
+            // 이미지 파일 처리 (기존 파일과 같으면 실행하지 않는다)
+            if (upload != null && !upload.isEmpty() && !upload.getOriginalFilename().equals("") && !upload.getOriginalFilename().equals(usersDto.getProfileImage())) {
+                // 기존 파일 제거
+                storageService.deleteFile(storageService.getBucketName(), "users", usersDto.getProfileImage());
+                // 새 파일 업로드
+                String imageUrl = storageService.uploadFile(storageService.getBucketName(), "users", upload);
+                usersDto.setProfileImage(imageUrl);
+            }
+            usersDto.setName(paramDto.getName());
+            usersDto.setEmail(paramDto.getEmail());
+            usersDto.setDepartmentId(paramDto.getDepartmentId());
+            usersDto.setTeam(paramDto.getTeam());
+            usersDto.setPosition(paramDto.getPosition());
+            usersDto.setPassword(paramDto.getPassword());
+            usersService.updateUser(usersDto);
+            response.put("status", "ok");
+            response.put("result", "updated user");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            response.put("status", "fail");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/readUserBySession")
+    public ResponseEntity<Object> getUserBySession(HttpSession session) {
         Map<String, Object> response = new LinkedHashMap<>();
         try {
             response.put("status", "ok");
             UsersDto usersDto = usersService.readUserById((Integer) session.getAttribute("userId"));
+            usersDto.setPassword(null);
+            response.put("result", usersDto);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            response.put("status", "fail");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/readUserById")
+    public ResponseEntity<Object> getUserById(int userId) {
+        Map<String, Object> response = new LinkedHashMap<>();
+        try {
+            response.put("status", "ok");
+            UsersDto usersDto = usersService.readUserById(userId);
             usersDto.setPassword(null);
             response.put("result", usersDto);
             return new ResponseEntity<>(response, HttpStatus.OK);
@@ -117,19 +164,71 @@ public class UsersController {
     }
 
     @GetMapping("/readUsersByDep")
-    public ResponseEntity<Object> readUsersByDep(@RequestParam(value = "department") String department,
+    public ResponseEntity<Object> readUsersByDep(@RequestParam(value = "departmentId") int departmentId,
                                                  @RequestParam(defaultValue = "1") int page,
                                                  @RequestParam(defaultValue = "10") int size) {
         Map<String, Object> response = new LinkedHashMap<>();
         try {
             Map<String, Object> result = new HashMap<>();
             int offset = (page - 1) * size;
-            List<UsersDto> list = usersService.readUsersByDep(department, offset, size);
-            int totalCnt = usersService.readCountUsersByDep(department);
+            List<UsersDto> list = usersService.readUsersByDep(departmentId, offset, size);
+            int totalCnt = usersService.readCountUsersByDep(departmentId);
             result.put("totalCnt", totalCnt);
             result.put("list", list);
             response.put("status", "ok");
             response.put("result", result);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/readAllUsersByDep")
+    public ResponseEntity<Object> readAllUsersByDep(@RequestParam("departmentId") int departmentId) {
+        Map<String, Object> response = new LinkedHashMap<>();
+        try {
+            List<UsersDto> userList = usersService.readAllUsersByDep(departmentId);
+            List<UsersDto> list = new ArrayList<>();
+            for (UsersDto user:userList) {
+                user.setPassword(null);
+                list.add(user);
+            }
+            response.put("status", "ok");
+            response.put("result", list);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("result", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @GetMapping("/readUsersByTeam")
+    public ResponseEntity<Object> readUsersByTeam(@RequestParam(value = "team") String team) {
+        Map<String, Object> response = new LinkedHashMap<>();
+        try {
+            Map<String, Object> result = new HashMap<>();
+            List<UsersDto> list = usersService.readUsersByTeam(team);
+            response.put("status", "ok");
+            response.put("result", list);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/readUsersByTeamId")
+    public ResponseEntity<Object> readUsersByTeamId(@RequestParam(value = "teamId") int teamId) {
+        Map<String, Object> response = new LinkedHashMap<>();
+        try {
+            Map<String, Object> result = new HashMap<>();
+            List<UsersDto> list = usersService.readUsersByTeamId(teamId);
+            response.put("status", "ok");
+            response.put("result", list);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             response.put("status", "error");
@@ -169,6 +268,7 @@ public class UsersController {
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
     @PostMapping("/deleteUsers")
     public ResponseEntity<Object> deleteUsers(@RequestParam(value = "userList") List<Integer> userList) {
         Map<String, Object> response = new HashMap<>();
@@ -176,6 +276,41 @@ public class UsersController {
             usersService.deleteUsers(userList);
             response.put("status", "ok");
             response.put("result", "deactivate users");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            response.put("status", "fail");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/readUsersByName")
+    public ResponseEntity<Object> readUsersByName(@RequestParam(value = "name") String name) {
+        Map<String, Object> response = new LinkedHashMap<>();
+        try {
+            List<UsersDto> list = usersService.readUsersByName(name);
+            response.put("status", "ok");
+            response.put("result", list);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            response.put("status", "fail");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/readAllUsers")
+    public ResponseEntity<Object> readAllUsers() {
+        Map<String, Object> response = new LinkedHashMap<>();
+        try {
+            List<UsersDto> userList = usersService.readAllActiveUsers();
+            List<UsersDto> list = new ArrayList<>();
+            for (UsersDto user:userList) {
+                user.setPassword(null);
+                list.add(user);
+            }
+            response.put("status", "ok");
+            response.put("result", list);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             response.put("status", "fail");

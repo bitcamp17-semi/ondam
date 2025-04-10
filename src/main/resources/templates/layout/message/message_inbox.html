@@ -5,7 +5,7 @@
     <title>Title</title>
     <link rel="stylesheet" th:href="@{/style/globals.css}"/>
     <link rel="stylesheet" th:href="@{/style/message_inbox.css}"/>
-    <link rel="stylesheet" th:href="@{/style/header.css}" />
+    <link rel="stylesheet" th:href="@{/style/header.css}"/>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
     <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
@@ -17,8 +17,8 @@
         <form id="modal-form">
             <div id="modal-content">
                 <h2>쪽지쓰기</h2>
-                <input type="hidden" id="receiverId" th:value="${userId}" />
-                <input type="hidden" id="userId" th:value="${userId}" />
+                <input type="hidden" id="receiverId" th:value="${userId}"/>
+                <input type="hidden" id="userId" th:value="${userId}"/>
                 <div class="selectset">
                     <div class="dropdown" id="modaldepartment">
                         <span>부서</span>
@@ -75,8 +75,7 @@
                 <div class="dropdown">
                     <button class="dropdown-btn">정렬방식</button>
                     <div class="dropdown-menu">
-                        <a href="#" data-filter="all">전체보기</a>
-                        <a href="#" data-filter="unread">안 읽은 메세지</a>
+                        <a href="#" data-filter="all" class="selected">전체보기</a>
                         <a href="#" data-filter="important">중요 메세지</a>
                     </div>
                 </div>
@@ -95,7 +94,7 @@
                 <div class="righttop">
                     <div class="listnumber">
                         <i class="bi bi-arrow-left leftbtn"></i>&nbsp&nbsp
-                        <span id="pagenum">nowpage / totalpage</span>&nbsp&nbsp
+                        <span id="pagenum">이전 / 다음</span>&nbsp&nbsp
                         <i class="bi bi-arrow-right rightbtn"></i>
                     </div>
                     <i class="bi bi-trash trashbox"></i>
@@ -109,23 +108,40 @@
                     <div id="writedate">25. 03. 29 10:30AM</div>
                 </div>
                 <div class="rightmain">
-                    <div id="rightmaintitle">
-                        <i class="bi bi-suit-heart heart"></i>
-                        제목입니다
+                    <div id="rightmaintitle" data-message-id="">
+                       <span class="title-text">제목입니다</span>
+                       <i class="bi bi-suit-heart heart"></i>
                     </div>
                     <div id="rightmaincontents">내용입니다</div>
+                </div>
+
                 </div>
             </div>
         </div>
     </div>
-</div>
 <script>
     $(document).ready(function () {
-
+        let page = 0; // 페이지
+        let currentPage = 0;
+        let loading = false; //로딩상태
+        let messages = []; //메세지 목록
+        let totalMessages = 0; // 총메세지 개수
+        let currentFilter = "all";
         const receiverId = $("#receiverId").val();
         console.log("receiverId:", receiverId);
         const userId = $("#userId").val();
         console.log("userId: " + userId);
+        loadMessages("all", receiverId);
+        $("#rightmaintitle .title-text").text("");
+        $("#rightmaincontents").text("");
+        $("#profilename").text("");
+        $("#writedate").text("");
+        $("#profileteam").text("");
+        $("#profilephoto").attr("src", ""); // 프로필 사진 초기화
+        // 페이지 로드 시 기본적으로 "전체보기"를 선택된 상태로 설정
+        $(".dropdown-menu a[data-filter='all']").addClass("selected");
+        $(".dropdown-btn").text("전체보기");
+
 
 
         // ===== 즐겨찾기 색칠 토글 기능 =====
@@ -140,17 +156,23 @@
             $(".dropdown-menu").not(dropdownContent).hide();
             dropdownContent.toggle();
         });
-
         $(document).click(function () {
             $(".dropdown-menu").hide();
         });
 
         // 선택한 옵션을 버튼에 표시
-        $(".dropdown-menu a").click(function () {
+        $(".dropdown-menu a").on("click", function(e) {
             let selectedText = $(this).text();
+            // 선택된 항목에 'selected' 클래스 추가하고, 다른 항목에서는 제거
+            $(this).addClass("selected").siblings().removeClass("selected");
+
+            // 버튼 텍스트를 선택된 항목 텍스트로 변경
             $(this).closest(".dropdown").find(".dropdown-btn").text(selectedText);
-            $(this).closest(".dropdown-menu").hide(); // 선택 후 닫기
+
+            // 드롭다운 메뉴 숨기기
+            $(this).closest(".dropdown-menu").hide();
         });
+
 
         // ===== 모달 열기 =====
         $('#navlist1').click(function () {
@@ -198,60 +220,63 @@
             });
         });
 
-        let selectedUserId = null;
+
         $(document).on("click", ".user-option", function () {
             let name = $(this).text();
             let userId = $(this).data("userid");
-            selectedUserId = $(this).data("userid");
+
             $("#modalname .dropdown-btn").text(name);
-            $("#selectedUserId").val(userId); // ✅ 여기 고침
-            console.log("선택한 이름:", name);
-            console.log("선택한 ID:", userId);
+            $("#receiverId").val(userId); // ✅ receiverId 로 바로 대입
         });
 
 
         $(document).on("click", "#submit-modal", function (e) {
+            e.preventDefault();
 
-            const selectedUserId = $("#selectedUserId").val();
+            const senderId = $("#userId").val();
+            const receiverId = $("#receiverId").val();
             const title = $("#modaltitle").val();
             const content = $("#modalsection").val();
-            console.log(selectedUserId, title, content);
-            if (!selectedUserId || !title || !content) {
+
+            console.log(receiverId, title, content);
+
+            if (!receiverId || !title || !content) {
                 alert("모든 항목을 작성해주세요.");
                 return;
             }
-            loadMessage("all")
-            // AJAX 요청 보내기
+
             $.ajax({
                 url: "/messages/createMessage",
                 type: "POST",
                 contentType: "application/json",
                 data: JSON.stringify({
-                    receiverId: selectedUserId,
+                    senderId: senderId,
+                    receiverId: receiverId,
                     title: title,
                     content: content
                 }),
                 success: function (response) {
                     alert("쪽지를 보냈습니다.");
-                    // 모달 닫고 초기화
                     $("#modal-overlay").hide();
                     $("#modaltitle").val("");
                     $("#modalsection").val("");
-                    $("#selectedUserId").val("");
-                    $("#selectedUserName").text("이름 선택");
+                    /*$("#receiverId").val("");*/
+                    $("#modalname .dropdown-btn").text("이름 선택");
+
+                    loadMessages("all", userId); // ✅ 새로고침
                 },
                 error: function () {
                     alert("쪽지 보내기에 실패했습니다.");
                 }
             });
-        })
-        loadMessages("all");
+        });
+
 
         // 카테고리 필터 선택 시
         $(document).on("click", ".dropdown-menu a", function () {
             const filter = $(this).data("filter");
             $(this).closest(".dropdown").find(".dropdown-btn").text($(this).text());
-            loadMessages(filter);
+            loadMessages(filter, $("#receiverId").val());
         });
 
         // 중요 표시 토글
@@ -264,7 +289,7 @@
             $.ajax({
                 url: `/messages/important/${messageId}`,
                 method: "POST",
-                data: { isImportant: !isNowImportant },
+                data: {isImportant: !isNowImportant},
                 success: function () {
                     icon.toggleClass("bi-star bi-star-fill");
                 },
@@ -278,91 +303,351 @@
         $(document).on("click", ".getmessage", function () {
             const $this = $(this);
             const messageId = $this.data("id");
+            console.log("클릭한 메시지 ID: ", messageId);  // 메시지 ID 확인
 
-            $("#rightmaintitle").text($this.data("title"));
+            const $heart = $("#rightmaintitle .heart");
+            const isImportant = $this.find(".important-icon").hasClass("bi-star-fill");
+            console.log("Is Important: ", isImportant);  // 중요 여부 확인
+
+
+
+            // 제목, 내용 등 상세 정보 표시
+            $heart
+                .removeClass("bi-suit-heart bi-suit-heart-fill")
+                .addClass(isImportant ? "bi-suit-heart-fill" : "bi-suit-heart")
+                .data("id", messageId)
+                .attr("data-id", messageId);
+
+            $("#rightmaintitle").attr("data-message-id", messageId);
             $("#rightmaincontents").text($this.data("content"));
-            $("#profilename").text($this.data("name"));
+            $("#rightmaintitle .title-text").text($this.data("title"));
             $("#writedate").text($this.data("date"));
 
+            $("#profilename,#profileteam, #profilephoto, .heart").show();
+
+
+
+            // 메시지 세부 정보 요청
+            $.ajax({
+                url: `/messages/${messageId}`,  // 서버에서 메시지 세부 정보 요청
+                method: "GET",
+                success: function(response) {
+                    console.log("메시지 세부 정보 응답: ", response);  // 메시지 응답 확인
+                    if (response.status === "ok") {
+                        const message = response.result;
+                        const senderId = message.senderId;
+                        console.log("메시지의 senderId: ", senderId);  // senderId 확인
+                        $("#writedate").text(message.createdAtWithTime); // 날짜 + 시간 표시
+                        // 사용자의 이름과 프로필 정보 AJAX 호출
+                        $.ajax({
+                            url: `/api/users/readUserById?userId=${message.senderId}`,  // senderId로 해당 사용자의 정보 요청
+                            method: "GET",
+                            success: function(userResponse) {
+                                console.log("사용자 정보 응답: ", userResponse);  // 사용자 정보 응답 확인
+                                if (userResponse.status === "ok") {
+                                    const userData = userResponse.result;
+                                    console.log("사용자 데이터: ", userData);  // 사용자 데이터 확인
+
+                                    // 사용자 이름을 화면에 표시
+                                    $("#profilename").text(userData.name);
+                                    $("#profilephoto").show().attr("src", `https://kr.object.ncloudstorage.com/bitcamp-semi/users/${userData.profileImage}`);
+                                    console.log(userData.profileImage);
+                                    $("#profilephoto").on("error", function() {
+                                        $(this).attr("src", "../../images/Rectangle53.png");
+                                    });
+
+                                    // 부서 정보 AJAX 호출
+                                    $.ajax({
+                                        url: '/api/dep/readDeps',  // 부서 목록을 요청
+                                        method: 'GET',
+                                        success: function(depResponse) {
+                                            console.log("부서 목록 응답: ", depResponse);  // 부서 목록 응답 확인
+                                            if (depResponse.status === "ok") {
+                                                // 부서 정보 조회
+                                                const department = depResponse.result.find(dep => dep.id == userData.departmentId); // departmentId로 찾기
+                                                console.log("찾은 부서: ", department);  // 찾은 부서 정보 확인
+
+                                                if (userData.position === 'admin') {
+                                                    // admin 사용자에게는 '관리자'로만 표시
+                                                    $("#profileteam").text("관리자");
+                                                } else {
+                                                    // 일반 사용자에게는 부서명과 직위 표시
+                                                    if (department) {
+                                                        const departmentName = department.name;
+                                                        const position = userData.position;
+
+                                                        // 화면에 부서명과 직위 정보 표시
+                                                        $("#profileteam").text(departmentName + " | " + position);
+                                                    } else {
+                                                        console.log("부서가 없습니다.");  // 부서 정보가 없을 때
+                                                    }
+                                                }
+                                            } else {
+                                                console.log("부서 목록 요청 실패");  // 부서 목록 요청 실패 시
+                                            }
+                                        }
+                                    });
+                                } else {
+                                    console.log("사용자 정보 요청 실패");  // 사용자 정보 요청 실패 시
+                                }
+                            },
+                            error: function(err) {
+                                console.log("사용자 정보 요청 오류: ", err);  // 사용자 정보 요청 오류 시
+                            }
+                        });
+
+                    } else {
+                        console.log("메시지 세부 정보 요청 실패");  // 메시지 세부 정보 요청 실패 시
+                    }
+                },
+                error: function(err) {
+                    console.log("메시지 세부 정보 요청 오류: ", err);  // 메시지 세부 정보 요청 오류 시
+                }
+            });
+
+            $(".rightarticle").addClass("show-detail");
+
+            // 읽음 처리 AJAX
             $.ajax({
                 url: `/messages/read/${messageId}`,
                 method: "POST",
                 success: function () {
                     $this.removeClass("unread").addClass("read");
-                    $this.find(".getmessage_first > div:first-child").css("font-weight", "normal");
+                    $this.find(".getmessage_first div:first-child").css("font-weight", "normal");
+                },
+                error: function(err) {
+                    console.log("읽음 처리 오류: ", err);  // 읽음 처리 오류 시
                 }
             });
         });
 
-        function loadMessages(filter) {
-            $.ajax({
-                url: "/messages/list",
-                data: { receiverId: receiverId },
-                method: "GET",
-                success: function (data) {
-                    const container = $(".messages");
-                    container.empty();
 
-                    let filtered = data;
-                    if (filter === "unread") filtered = data.filter((m) => !m.isRead);
-                    else if (filter === "important") filtered = data.filter((m) => m.isImportant);
 
-                    if (filtered.length === 0) {
-                        container.append(`<div class="placeholder">📭 해당 조건의 쪽지가 없습니다.</div>`);
-                        return;
-                    }
 
-                    $("#totalcount").text(`총 ${filtered.length}개의 쪽지가 있습니다.`);
 
-                    filtered.forEach((msg) => {
-                        const isRead = msg.isRead;
-                        const isImportant = msg.isImportant;
-                        const starIcon = isImportant ? "bi-star-fill" : "bi-star";
-                        const readClass = isRead ? "read" : "unread";
-                        const title = msg.title ?? "제목 없음";
-                        const date = formatDate(msg.createdAt);
-                        const sender = msg.senderName ?? "알 수 없음";
-                        const content = msg.content.length > 30 ? msg.content.slice(0, 30) + "..." : msg.content;
-
-                        const html = `
-                                <div class="getmessage ${readClass}"
-                                    data-id="${msg.id}"
-                                    data-title="${title}"
-                                    data-date="${date}"
-                                    data-name="${sender}"
-                                    data-content="${msg.content}"
-                                    data-important="${isImportant}">
-
-                                  <div class="getmessage_first" style="display: flex; justify-content: space-between; align-items: center;">
-                                    <div style="font-weight: ${isRead ? "normal" : "bold"}; font-size: 16px;">${title}</div>
-                                    <div style="display: flex; align-items: center; gap: 8px;">
-                                      <i class="bi ${starIcon} important-icon" data-id="${msg.id}" style="cursor: pointer;"></i>
-                                      <div style="font-size: 12px; color: gray;">${date}</div>
-                                    </div>
-                                  </div>
-                                  <div style="font-size: 13px; color: #444;">${sender}</div>
-                                  <div style="font-size: 13px; color: #666;">${content}</div>
-                                </div>
-                              `;
-
-                        container.append(html);
-                    });
-                },
-                error: function (xhr, status, error) {
-                    console.error("🔥 AJAX 오류 발생 🔥");
-                    console.log("상태 코드:", xhr.status);
-                    console.log("응답 텍스트:", xhr.responseText);
-                    console.log("에러 메시지:", error);
-                },
-            });
-        }
 
         function formatDate(dateStr) {
             const d = new Date(dateStr);
             return `${d.getFullYear().toString().slice(2)}.${d.getMonth() + 1}.${d.getDate()}`;
         }
 
+        function createMessageHTML(msg) {
+            const isRead = msg.isRead;
+            const isImportant = msg.isImportant;
+            const starIcon = isImportant ? "bi-star-fill" : "bi-star";
+            const readClass = isRead ? "read" : "unread";
+            const title = msg.title ?? "제목 없음";
+            const date = formatDate(msg.createdAt);
+            const sender = msg.senderName ?? "알 수 없음";
+            const content = msg.content.length > 30 ? msg.content.slice(0, 30) + "..." : msg.content;
+
+            return `
+        <div class="getmessage ${readClass}"
+             data-id="${msg.id}"
+             data-title="${title}"
+             data-date="${date}"
+             data-name="${sender}"
+             data-content="${msg.content}"
+             data-important="${isImportant}">
+            <div class="getmessage_first" style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="font-weight: ${isRead ? "normal" : "bold"}; font-size: 16px;">${title}</div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <i class="bi ${starIcon} important-icon" data-id="${msg.id}" style="cursor: pointer;"></i>
+                    <div style="font-size: 12px; color: gray;">${date}</div>
+                </div>
+            </div>
+            <div style="font-size: 13px; color: #444;">${sender}</div>
+            <div style="font-size: 13px; color: #666;">${content}</div>
+        </div>
+    `;
+        }
+
+
+        function loadMessages(filter, receiverId) {
+            currentFilter = filter; // ✅ 따옴표 붙이기
+            page = 0;
+            $(".messages").empty();
+            loadMoreMessages(filter, receiverId); // 페이지 0부터 로딩 시작
+        }
+
+        function loadMoreMessages(filter, receiverId) {
+            if (loading) return;
+            loading = true;
+
+            $.ajax({
+                url: "/messages/list",
+                data: {
+                    receiverId: receiverId,
+                    page: page,
+                    size: 10,
+                    filter: filter,
+                },
+                method: "GET",
+                success: function (data) {
+                    const container = $(".messages");
+
+                    let filtered = filter === "important" ? data.filter(m => m.isImportant) : data;
+
+                    if (filtered.length === 0) return;
+
+                    // 쪽지 개수 업데이트
+                    $("#totalcount").text(`총 ${filtered.length} 개의 쪽지가 있습니다.`);
+
+                    filtered.forEach(msg => {
+                        container.append(createMessageHTML(msg));
+                    });
+
+                    page++; // 다음 페이지 로드용 증가
+                    loading = false;
+                    updatePagination();
+                },
+                error: function (xhr) {
+                    console.error("🔥 무한스크롤 AJAX 오류 🔥", xhr.responseText);
+                    loading = false;
+                }
+            });
+        }
+        function updatePagination() {
+            const totalPages = Math.ceil(totalMessages / 10);
+            $(".leftbtn").prop("disabled",currentPage <=0);
+            $(".rightbtn").prop("disabled",currentPage >= totalPages-1);
+
+        }
+
+        $(".rightbtn").on("click", function () {
+            currentPage++;
+            loadMessages(currentFilter,receiverId);
+        });
+        $(".leftbtn").on("click", function () {
+            currentPage--;
+            loadMessages(currentFilter,receiverId);
+        });
+
+        $(window).on("scroll", function () {
+            if ($(window).scrollTop() + $(window).height() >= $(document).height() - 100) {
+                const receiverId = $("#receiverId").val();
+                loadMoreMessages(currentFilter, receiverId);
+            }
+        });
+        updatePagination();
+
+        $(document).on("click", "#rightmaintitle .heart", function (e) {
+            e.stopPropagation(); // 이벤트 전파 방지
+            e.preventDefault();   // 기본 동작 방지
+
+            const $heart = $(this);
+            const messageId = $heart.attr("data-id") || $heart.data("id");
+
+            console.log("🧪 messageId:", messageId);
+
+            if (!messageId) return alert("❌ 메시지 ID가 없습니다!");
+
+            const isImportant = $heart.hasClass("bi-suit-heart-fill");
+            const isNowImportant = !isImportant;
+
+            // 중요 표시 AJAX
+            $.ajax({
+                url: `/messages/important/${messageId}`,
+                method: "POST",
+                data: { isImportant: isNowImportant },
+                success: function () {
+                    // 중요 표시 상태 반영
+                    $heart
+                        .removeClass("bi-suit-heart bi-suit-heart-fill")
+                        .addClass(isNowImportant ? "bi-suit-heart-fill" : "bi-suit-heart");
+
+                    // 리스트에서도 반영
+                    const $listHeart = $(`.important-icon[data-id="${messageId}"]`);
+                    $listHeart
+                        .removeClass("bi-star bi-star-fill")
+                        .addClass(isNowImportant ? "bi-star-fill" : "bi-star");
+
+                    // .getmessage 데이터에도 반영
+                    $(`.getmessage[data-id="${messageId}"]`).data("important", isNowImportant);
+                },
+                error: function () {
+                    alert("중요 표시 실패");
+                }
+            });
+        });
+
+        $(document).on("click", ".trashbox", function() {
+            const messageItem = $(this).closest(".message-item");
+            const messageId = $("#rightmaintitle").data("message-id");  // rightmaintitle에서 메시지 ID 찾기
+
+            console.log("messageItem:", messageItem);  // messageItem 확인
+            console.log("삭제할 메시지 ID:", messageId);  // 메시지 ID 확인
+
+            // messageId가 undefined일 경우 경고하고 종료
+            if (messageId === undefined) {
+                console.error("메시지 ID가 없습니다. 'data-id'가 설정되어 있는지 확인하세요.");
+                alert("메시지 ID가 없어서 삭제할 수 없습니다.");
+                return;  // 삭제 요청 중단
+            }
+
+            if (confirm("정말로 이 메시지를 삭제하시겠습니까?")) {
+                console.log("삭제 확인됨");
+
+                // YES! 삭제 요청
+                $.ajax({
+                    url: `/messages/${messageId}`,
+                    method: "DELETE",
+                    success: function(response) {
+                        console.log("삭제 성공 응답:", response);  // 2. 삭제 성공 응답 확인
+                        if (response.status === "ok") {
+                            // 삭제된 메시지 항목을 화면에서 제거
+                            messageItem.remove();
+                            console.log("메시지 항목 삭제 완료");
+
+                            // 메시지 목록을 다시 불러옴
+                            const currentFilter = $(".dropdown-btn").text().toLowerCase(); // 현재 필터 가져오기
+                            const receiverId = $("#receiverId").val(); // 받는 사람 ID 가져오기
+
+                            console.log("현재 필터:", currentFilter);
+                            console.log("받는 사람 ID:", receiverId);
+
+                            if (currentFilter && receiverId) {
+                                loadMessages(currentFilter, receiverId);  // 목록을 새로 불러오기
+                            } else {
+                                console.error("필터나 받는 사람 ID가 잘못되었습니다.");
+                            }
+
+                            // 만약 현재 보고 있는 메시지가 삭제된 메시지라면, 화면 초기화
+                            const currentMessageId = $("#rightmaintitle").data("message-id");
+                            console.log("현재 보고 있는 메시지 ID:", currentMessageId);
+
+                            if (currentMessageId == messageId) {
+                                // 메시지가 삭제되었으므로 화면 초기화
+                                console.log("현재 보고 있는 메시지가 삭제된 메시지입니다. 화면 초기화...");
+                                $("#rightmaintitle .title-text").text('');
+                                $("#rightmaincontents").text('');
+                                $("#profilename").text('');
+                                $("#profileteam").text('');
+                                $("#profilephoto").attr('src', '');
+                                $("#profilephoto").hide();
+                                $("#writedate").text('');
+                                $(".heart").hide();
+                            }
+
+                            alert(response.message);  // 삭제 완료 메시지
+                        } else {
+                            console.log("삭제 실패 메시지:", response.message);
+                            alert("삭제 실패: " + response.message);
+                        }
+                    },
+                    error: function(err) {
+                        console.log("삭제 실패 오류:", err);  // 3. 삭제 실패 오류 확인
+                        alert("삭제에 실패했습니다");
+                    }
+                });
+            }
+        });
+
     });
+
+
+
+
 
 
 </script>

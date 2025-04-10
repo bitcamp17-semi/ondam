@@ -31,6 +31,26 @@
     height: 100%;
 }
 /*따로 추가한것 */
+
+/* 📦 예: message_inbox.css */
+#messagetitle,
+#messagedate,
+#messagename,
+#messagearticle {
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.rightarticle.show-detail #messagetitle,
+.rightarticle.show-detail #messagedate,
+.rightarticle.show-detail #messagename,
+.rightarticle.show-detail #messagearticle {
+    opacity: 1;
+}
+#profilename, #profileteam, #profilephoto, .heart {
+    display: none;
+}
+
 .getmessage.unread {
     background-color: #f8f8ff;
 }
@@ -160,6 +180,12 @@
     cursor: pointer;
     color: #686868;
 }
+/* 기본적으로 전체보기 항목을 선택된 상태로 표시 */
+.dropdown-menu a.selected {
+    font-weight: bold;
+    color: #fa7000; /* 선택된 항목의 색상 변경 */
+}
+
 
 .dropdown-menu a:hover {
     background-color: #fa7000;
@@ -282,14 +308,30 @@
 #rightmaintitle{
     font-size: 30px;
     color: #3f3f3f;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    width:100%;
+}
+#rightmaintitle .title-text{
+    margin-right: auto;
 }
 .heart{
     cursor: pointer;
     color: rgba(0, 0, 0, 0.15);
+    margin-left:10px;
 }
 .heart.bi-suit-heart-fill{
     color: #fa7000;
+}
+
+#rightmaincontents{
+    font-size:16px;
+    color:#666;
+    line-height: 1.5;
+    margin-top:15px;
+    padding: 0;
+
 }
 
 #modal-overlay {

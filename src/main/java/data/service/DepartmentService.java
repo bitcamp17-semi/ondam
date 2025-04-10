@@ -27,4 +27,8 @@ public class DepartmentService {
     public void deleteDep(int id) {
         departmentMapper.deleteDep(id);
     }
+
+    public DepartmentDto readDepById(int id) {
+        return departmentMapper.readDepById(id);
+    }
 }

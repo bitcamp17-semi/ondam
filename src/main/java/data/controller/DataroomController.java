@@ -78,7 +78,7 @@ public class DataroomController {
         model.addAttribute("currentPage", page);     // 현재 페이지
         model.addAttribute("pageSize", size);        // 페이지 크기
         model.addAttribute("roomId", roomId);        // roomId를 명시적으로 추가
-        model.addAttribute("department", user.getDepartment()); //user의 department 를 가져옴
+        model.addAttribute("department", user.getDepartmentId()); //user의 department 를 가져옴
 
         return "dataroom/files";
     }

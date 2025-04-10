@@ -13,16 +13,20 @@ public class SchedulesDto {
     private int userId;
     private String content;
     private int isAlltime;
-    private String sort;
     
     private String startTime; //HH:mm
     private String endTime;//HH:mm
     private String startDate;//yyyy-MM-dd
     private String endDate;//yyyy-MM-dd
-    
+    private Integer groupId;
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
     private Timestamp createdAt;
-    
     //작성자
     private String writer;
+    //작성자가 가진 userId
+    private int writerId;
+    //그룹명
+    private String groupName;
+    //그룹이 가진 색상
+    private String color;
 }
