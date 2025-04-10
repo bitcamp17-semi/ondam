@@ -20,9 +20,9 @@
             </div>
             <div class="navbar">
                 <div id="navlist1">+ 작성하기</div>
-                <div class="navlistnone">수신함</div>
+                <div class="navlistnone" id="inbox">수신함</div>
                 <div id="navlist2">발신함</div>
-                <div class="navlistnone">결재완료</div>
+                <div class="navlistnone" id="donebox">결재완료</div>
             </div>
         </div>
         <div class="section">
@@ -108,3 +108,17 @@
 </script>
 </body>
 </html>
+<script>
+    $("#navlist1").click(function () {
+        location.href = "/draft/approvalWrite";
+    })
+    $("#inbox").click(function () {
+        location.href = "/draft/approvalInbox";
+    })
+    $("#navlist2").click(function () {
+        location.href = "/draft/approvalOutBox";
+    })
+    $("#donebox").click(function () {
+        location.href = "/draft/approvalDone";
+    })
+</script>

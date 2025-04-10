@@ -21,8 +21,8 @@
             <div class="navbar">
                 <div id="navlist1">+ 작성하기</div>
                 <div id="navlist2">수신함</div>
-                <div class="navlistnone">발신함</div>
-                <div class="navlistnone">결재완료</div>
+                <div class="navlistnone" id="outbox">발신함</div>
+                <div class="navlistnone" id="donebox">결재완료</div>
             </div>
         </div>
         <div class="section">
@@ -76,8 +76,8 @@
 
         // 초기 결재라인 (프론트에서 테스트용 데이터)
         const approvalLine = [
-            { name: "김대리", rank: "대리", imgUrl: "/img/profile1.png", status: "대기" },
-            { name: "이과장", rank: "과장", imgUrl: "/img/profile2.png", status: "대기" }
+            {name: "김대리", rank: "대리", imgUrl: "/img/profile1.png", status: "대기"},
+            {name: "이과장", rank: "과장", imgUrl: "/img/profile2.png", status: "대기"}
         ];
         renderApprovalLine(approvalLine);
 
@@ -180,3 +180,17 @@
 </script>
 </body>
 </html>
+<script>
+    $("#navlist1").click(function () {
+        location.href = "/draft/approvalWrite";
+    })
+    $("#navlist2").click(function () {
+        location.href = "/draft/approvalInbox";
+    })
+    $("#outbox").click(function () {
+        location.href = "/draft/approvalOutBox";
+    })
+    $("#donebox").click(function () {
+        location.href = "/draft/approvalDone";
+    })
+</script>
