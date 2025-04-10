@@ -11,10 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/users")
@@ -188,6 +185,26 @@ public class UsersController {
         }
     }
 
+    @GetMapping("/readAllUsersByDep")
+    public ResponseEntity<Object> readAllUsersByDep(@RequestParam("departmentId") int departmentId) {
+        Map<String, Object> response = new LinkedHashMap<>();
+        try {
+            List<UsersDto> userList = usersService.readAllUsersByDep(departmentId);
+            List<UsersDto> list = new ArrayList<>();
+            for (UsersDto user:userList) {
+                user.setPassword(null);
+                list.add(user);
+            }
+            response.put("status", "ok");
+            response.put("result", list);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("result", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
     @GetMapping("/readUsersByTeam")
     public ResponseEntity<Object> readUsersByTeam(@RequestParam(value = "team") String team) {
         Map<String, Object> response = new LinkedHashMap<>();
@@ -272,6 +289,26 @@ public class UsersController {
         Map<String, Object> response = new LinkedHashMap<>();
         try {
             List<UsersDto> list = usersService.readUsersByName(name);
+            response.put("status", "ok");
+            response.put("result", list);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            response.put("status", "fail");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/readAllUsers")
+    public ResponseEntity<Object> readAllUsers() {
+        Map<String, Object> response = new LinkedHashMap<>();
+        try {
+            List<UsersDto> userList = usersService.readAllActiveUsers();
+            List<UsersDto> list = new ArrayList<>();
+            for (UsersDto user:userList) {
+                user.setPassword(null);
+                list.add(user);
+            }
             response.put("status", "ok");
             response.put("result", list);
             return new ResponseEntity<>(response, HttpStatus.OK);

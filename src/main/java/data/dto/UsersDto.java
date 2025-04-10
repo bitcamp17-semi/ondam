@@ -19,7 +19,7 @@ public class UsersDto {
     private String phone;
     private String addr;
     private String profileImage;
-    private int departmentId;
+    private Integer departmentId;
     private String team;
     private String position;
     private String gender;

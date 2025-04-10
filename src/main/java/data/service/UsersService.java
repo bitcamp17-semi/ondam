@@ -59,6 +59,10 @@ public class UsersService {
         return usersMapper.readUsersByDep(departmentId, offset, size);
     }
 
+    public List<UsersDto> readAllUsersByDep(int departmentId) {
+        return usersMapper.readAllUsersByDep(departmentId);
+    }
+
     public int readCountUsersByDep(int departmentId) {
         return usersMapper.readCountUsersByDep(departmentId);
     }
