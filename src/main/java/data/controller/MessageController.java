@@ -398,16 +398,36 @@ public class MessageController {
     public ResponseEntity<Object> readNextMessageById(@RequestParam int receiverId,
                                                       @RequestParam int currentMessageId) {
         MessagesDto next = messageService.readNextMessageById(receiverId, currentMessageId);
-        return ResponseEntity.ok(Map.of("status", "ok", "result", next));
+        if (next == null) {
+            return ResponseEntity.ok(Map.of(
+                    "status", "fail",
+                    "message", "다음 메시지가 없습니다"
+            ));
+        }
+        return ResponseEntity.ok(Map.of(
+                "status", "ok",
+                "result", next
+        ));
     }
+
 
     @GetMapping("/prevById")
     @ResponseBody
     public ResponseEntity<Object> readPrevMessageById(@RequestParam int receiverId,
                                                       @RequestParam int currentMessageId) {
         MessagesDto prev = messageService.readPrevMessageById(receiverId, currentMessageId);
-        return ResponseEntity.ok(Map.of("status", "ok", "result", prev));
+        if (prev == null) {
+            return ResponseEntity.ok(Map.of(
+                    "status", "fail",
+                    "message", "이전 메시지가 없습니다"
+            ));
+        }
+        return ResponseEntity.ok(Map.of(
+                "status", "ok",
+                "result", prev
+        ));
     }
+
     @GetMapping("/bounds")
     @ResponseBody
     public ResponseEntity<Object> getMinMaxMessageId(@RequestParam int receiverId) {

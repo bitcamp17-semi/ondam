@@ -166,29 +166,58 @@
         function renderMessageDetail(msg) {
             $("#rightmaincontents").text(msg.content);
             $("#rightmaintitle .title-text").text(msg.title);
-            $("#rightmaintitle").attr("data-message-id", msg.id);
-            $("#rightmaintitle").attr("data-createAt", msg.createdAt);
+            $("#rightmaintitle")
+                .attr("data-message-id", msg.id)
+                .data("message-id", msg.id)
+                .attr("data-createAt", msg.createdAt)
+                .data("createAt", msg.createdAt);
 
-
-            // 중요 표시
             const $heart = $("#rightmaintitle .heart");
             $heart
                 .removeClass("bi-suit-heart bi-suit-heart-fill")
                 .addClass(msg.isImportant ? "bi-suit-heart-fill" : "bi-suit-heart")
                 .attr("data-id", msg.id);
 
-            // 날짜 포맷
             const formatted = formatDateTime(msg.createdAt);
             $("#writedate").text(formatted);
 
-            // 이름 불러오기
-            $.get("/messages/users/name", {id: msg.senderId}, function (name) {
+            $.get("/messages/users/name", { id: msg.senderId }, function (name) {
                 $("#profilename").text(name);
             });
 
             const receiverId = $("#receiverId").val();
-            updateNavButtonState(receiverId, msg.id);
+
+            setTimeout(() => {
+                updateNavButtonState(receiverId, msg.id);
+            }, 100);
+
+            $.get(`/api/users/readUserById?userId=${msg.senderId}`, function (userRes) {
+                if (userRes.status === "ok") {
+                    const user = userRes.result;
+                    $("#profilename").text(user.name);
+                    $("#profilephoto").show().attr("src", `https://kr.object.ncloudstorage.com/bitcamp-semi/users/${user.profileImage}`);
+                    $("#profilephoto").on("error", function () {
+                        $(this).attr("src", "../../images/Rectangle53.png");
+                    });
+
+                    $.get("/api/dep/readDeps", function (depRes) {
+                        if (depRes.status === "ok") {
+                            const dept = depRes.result.find(dep => dep.id == user.departmentId);
+                            if (user.position === "admin") {
+                                $("#profileteam").text("관리자");
+                            } else if (dept) {
+                                $("#profileteam").text(`${dept.name} | ${user.position}`);
+                            } else {
+                                $("#profileteam").text(`(부서 없음) | ${user.position}`);
+                            }
+                        } else {
+                            $("#profileteam").text(user.position);
+                        }
+                    });
+                }
+            });
         }
+
 
         // 검색 결과 처리 후 오른쪽 패널 초기화
         function resetMessageDetailPanel() {
@@ -363,6 +392,8 @@
             $("#navlist2").css("font-weight", "bold").attr("data-active", "true");
             $("#navlist3").css("font-weight", "normal").removeAttr("data-active");
 
+            $(".leftbtn, .rightbtn, .trashbox, #pagenum").show();
+
             resetMessageDetailPanel();
             const userId = $("#userId").val();
             loadMessages("all", userId);
@@ -372,6 +403,8 @@
         $("#navlist3").on("click", function () {
             $("#navlist3").css("font-weight", "bold").attr("data-active", "true");
             $("#navlist2").css("font-weight", "normal").removeAttr("data-active");
+
+            $(".leftbtn, .rightbtn, .trashbox, #pagenum").hide();
 
             const userId = $("#userId").val();
             const category = $(".dropdown-menu a.selected").data("filter") || "all"; // ✅ 이 줄 추가
@@ -526,7 +559,7 @@
                     /*$("#receiverId").val("");*/
                     $("#modalname .dropdown-btn").text("이름 선택");
 
-                    loadMessages("all", userId); // ✅ 새로고침
+                    loadMessages("all", receiverId); // ✅ 새로고침
                 },
                 error: function () {
                     alert("쪽지 보내기에 실패했습니다.");
@@ -775,6 +808,7 @@
 
             const receiverId = $("#receiverId").val();
             const currentMessageId = $("#rightmaintitle").data("message-id");
+            console.log("⬅️ LEFT BTN CLICK - currentMessageId:", currentMessageId); // 🔍
 
             if (!currentMessageId) return;
 
@@ -796,7 +830,7 @@
 
             const receiverId = $("#receiverId").val();
             const currentMessageId = $("#rightmaintitle").data("message-id");
-
+            console.log("➡️ RIGHT BTN CLICK - currentMessageId:", currentMessageId); // 🔍
             if (!currentMessageId) return;
 
             $.get("/messages/nextById", {
@@ -939,7 +973,6 @@
             }
         });
     });
-
 
 
 
