@@ -61,6 +61,10 @@ public class DraftService {
         return draftMapper.readCountDraftsForActions(userId);
     }
 
+    public Integer readCheckIsOrder(int userId, int draftId) {
+        return draftMapper.readCheckIsOrder(userId, draftId);
+    }
+
     public void stringToEnumAndUpdate(int id, String status) {
         ApprovalsDto.ApprovalStatus approvalStatus = ApprovalsDto.ApprovalStatus.valueOf(status);
     }
@@ -69,11 +73,12 @@ public class DraftService {
         return ApprovalLogDto.ApprovalAction.valueOf(status.toUpperCase());
     }
 
-    public void stringToApprovalLogEnumAndCreateLog(int draftId, int userId, String action) {
+    public void stringToApprovalLogEnumAndCreateLog(int draftId, int userId, String action, String reason) {
         ApprovalLogDto logDto = new ApprovalLogDto();
         logDto.setAction(stringToApprovalLogEnum(action));
         logDto.setDraftId(draftId);
         logDto.setApprovalId(userId);
+        logDto.setReason(reason);
         approvalsService.createApprovalLog(logDto);
     }
 }

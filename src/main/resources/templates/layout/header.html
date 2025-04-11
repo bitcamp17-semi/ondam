@@ -73,8 +73,8 @@
     </div>
     <script>
         $(document).ready(function () {
-            checkLoginStatus();
             getProfile();
+            checkLoginStatus();
         });
         $("#header-logout").click(function () { // ✅ 중첩 제거
             $.ajax({
@@ -102,7 +102,6 @@
         function checkLoginStatus() {
             $.get("/api/checkLogin", function (res) {
                 if (res.status === "ok") {
-                    return;
                 } else {
                     alert("로그인이 필요합니다.");
                     location.href = "/login";
