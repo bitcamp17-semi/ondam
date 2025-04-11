@@ -67,6 +67,9 @@ public class UsersController {
             UsersDto usersDto = usersService.readUserById((Integer) session.getAttribute("userId"));
 //            UsersDto usersDto = usersService.readUserById(paramDto.getId());
             usersDto.setPassword(usersService.hashingPassword(paramDto.getPassword()));
+            usersDto.setEmail(paramDto.getEmail());
+            usersDto.setPhone(paramDto.getPhone());
+            usersDto.setAddr(paramDto.getAddr());
             usersService.updateUser(usersDto);
             response.put("status", "ok");
             response.put("result", "updated user");

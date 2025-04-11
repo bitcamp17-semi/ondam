@@ -15,34 +15,259 @@
     <div th:replace="~{layout/header :: header}"></div>
     <div class="main">
         <div class="nav">
-            <div class="navtitle">안녕하세요 name님!</div>
+            <div class="navtitle">안녕하세요 <span id="userName">name</span>님!</div>
             <div class="navbar">
-                <div id="navlist2">오늘은 date 수요일 입니다!</div>
+                <div id="navlist2">오늘은 <span id="todayDate">date</span> <span id="todayWeekday">요일</span> 입니다!</div>
             </div>
         </div>
         <div class="section">
             <div class="left">
                 <div class="lefttop">
-                    <div class="profilephoto">
+                    <img id="profileImage"
+                         th:src="@{/images/Rectangle53.png}"
+                         onerror="this.onerror=null; this.src='/images/Rectangle53.png';"
+                         alt="프로필 이미지" />
 
+                    <div class="profileinfo" id="profileInfo">
+                        <div><span>이름</span><span id="infoName">홍길동</span></div>
+                        <div><span>직급</span><span id="infoPosition">대리</span></div>
+                        <div><span>부서</span><span id="infoDepartment">개발팀</span></div>
+                        <div><span>번호</span><span id="infoPhone">010-1234-5678</span></div>
                     </div>
+
+                    <button class="whitebtn" id="editUserBtn">개인정보 수정하기</button>
                 </div>
                 <div class="leftmiddle">
-                    공지사항
+                    <span>공지사항</span>
+                    <div class="notice">
+                        <span>[공지] 제목입니다</span>
+                        <a>등록일</a>
+                    </div>
+                    <div class="notice">
+                        <span>[공지] 제목입니다</span>
+                        <a>등록일</a>
+                    </div>
                 </div>
                 <div class="leftbottom">
-                    결재관련
+                    <span>전자결재</span>
+                    <div class="approvalmini">
+                        <div class="approvalcontent" th:data-url="@{/draft/approvalInbox}">
+                            <span>결재할 문서</span>
+                            <a>7</a>
+                        </div>
+                        <div class="approvalcontent" th:data-url="@{/draft/approvalOutBox}">
+                            <span>진행중 문서</span>
+                            <a>7</a>
+                        </div>
+                        <div class="approvalcontent" th:data-url="@{/draft/approvalOutBox}">
+                            <span>진행중 문서</span>
+                            <a>7</a>
+                        </div>
+                        <div class="approvalcontent" th:data-url="@{/draft/approvalOutBox}">
+                            <span>대기중 문서</span>
+                            <a>7</a>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="middle">
                 달력
             </div>
             <div class="right">
-
+                <div id="weather-today" class="weather-today"></div>
+                <div id="weather-week" class="weather-cards"></div>
             </div>
         </div>
     </div>
 </div>
-
+<!-- 모달 HTML -->
+<div id="modalOverlay" class="modal-overlay">
+    <div class="modal-content">
+        <h2>개인정보 수정</h2>
+        <div class="modaltitle">
+            <span>이메일</span>
+            <input type="text" class="modaltitlebox" id="modalEmail">
+        </div>
+        <div class="modaltitle">
+            <span>전화번호</span>
+            <input type="text" class="modaltitlebox" id="modalPhone">
+        </div>
+        <div class="modaltitle">
+            <span>주소</span>
+            <input type="text" class="modaltitlebox" id="modalAddress">
+        </div>
+        <div class="modaltitle">
+            <span>로그인 비밀번호</span>
+            <input type="password" class="modaltitlebox" id="modalPassword">
+        </div>
+        <div class="buttonset">
+            <button class="submit-modal">저장</button>
+            <button class="close-modal">닫기</button>
+        </div>
+    </div>
+</div>
+<!-- 비밀번호 확인 모달 -->
+<div id="passwordCheckModal" class="modal-overlay">
+    <div class="modal-content">
+        <h2>비밀번호 확인</h2>
+        <input type="password" id="checkPasswordInput" placeholder="현재 비밀번호 입력" class="modaltitlebox" />
+        <div class="buttonset">
+            <button class="submit-password">확인</button>
+            <button class="close-password">취소</button>
+        </div>
+    </div>
+</div>
 </body>
 </html>
+<script>
+    let currentUser = null;
+
+    $(document).ready(function () {
+        $.ajax({
+            url: "/api/users/readUserBySession",
+            method: "GET",
+            success: function (res) {
+                if (res.status === "ok") {
+                    currentUser = res.result;
+
+                    // 화면 바깥 정보 출력
+                    $("#userName").text(currentUser.name);
+                    $("#todayDate").text(getToday());
+                    $("#todayWeekday").text(getWeekday());
+                    $("#infoName").text(currentUser.name);
+                    $("#infoPosition").text(currentUser.position);
+                    $("#infoDepartment").text(currentUser.department);
+                    $("#infoPhone").text(currentUser.phone);
+                    if (currentUser.profileImage) {
+                        $("#profileImage").attr("src", "/images/" + currentUser.profileImage);
+                    }
+                }
+            }
+        });
+
+        // 비밀번호 입력창에서 Enter 키 입력 시 자동 제출
+        $("#checkPasswordInput").on("keypress", function (e) {
+            if (e.which === 13) { // 13 = Enter
+                $(".submit-password").click(); // 클릭 이벤트 트리거
+            }
+        });
+
+        // 개인정보 수정 버튼 → 비번 확인 모달
+        $("#editUserBtn").on("click", function () {
+            $("#checkPasswordInput").val(""); // 입력 초기화
+            $("#passwordCheckModal").fadeIn(200).css("display", "flex");
+
+            // 모달이 다 뜬 후 포커스
+            setTimeout(() => {
+                $("#checkPasswordInput").focus();
+            }, 10);
+        });
+
+        // 비밀번호 확인 취소
+        $(".close-password").on("click", function () {
+            $("#passwordCheckModal").fadeOut(200);
+        });
+
+        // 비밀번호 확인 제출
+        $(".submit-password").on("click", function () {
+            const pw = $("#checkPasswordInput").val();
+
+            $.ajax({
+                url: "/api/users/checkPassword",
+                method: "POST",
+                data: { password: pw },
+                success: function (res) {
+                    if (res.status === "ok") {
+                        // 인증 성공 시 → 수정 모달 열기
+                        $("#passwordCheckModal").fadeOut(200);
+                        $("#checkPasswordInput").val(""); // 입력 초기화
+
+                        openEditModal();
+                    } else {
+                        alert("비밀번호가 일치하지 않습니다.");
+                    }
+                },
+                error: function (xhr) {
+                    if (xhr.status === 403) {
+                        alert("비밀번호가 틀렸습니다.");
+                    } else {
+                        alert("서버 오류가 발생했습니다.");
+                    }
+                }
+            });
+        });
+
+        // 수정 모달 열기
+        function openEditModal() {
+            $("#modalEmail").val(currentUser.email);
+            $("#modalPhone").val(currentUser.phone);
+            $("#modalAddress").val(currentUser.addr);
+            $("#modalPassword").val("");
+            $("#modalOverlay").fadeIn(200).css("display", "flex");
+        }
+    });
+
+        // 저장 버튼 클릭
+    $(".submit-modal").on("click", function () {
+        const email = $("#modalEmail").val().trim();
+        const phone = $("#modalPhone").val().trim();
+        const addr = $("#modalAddress").val().trim();
+        const password = $("#modalPassword").val().trim();
+
+        if (!email || !phone || !password) {
+            alert("이메일, 전화번호, 비밀번호는 필수 입력입니다.");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("email", email);
+        formData.append("phone", phone);
+        formData.append("addr", addr);
+        formData.append("password", password);
+
+
+        $.ajax({
+            url: "/api/users/updateUser",
+            method: "POST",
+            data: formData,
+            contentType: false, // 중요: multipart/form-data 자동 설정
+            processData: false, // 중요: 쿼리스트링 변환 방지
+            success: function (res) {
+                if (res.status === "ok") {
+                    alert("수정 완료!");
+                    closeModal();
+                    location.reload();
+                } else {
+                    alert("수정 실패: " + res.error);
+                }
+            },
+            error: function (xhr) {
+                alert("서버 오류: " + xhr.status);
+            }
+        });
+    });
+
+        // 닫기 버튼 클릭 시 모달 닫기
+        $(".close-modal").on("click", function () {
+            closeModal();
+        });
+
+        // 공통 모달 닫기 함수
+        function closeModal() {
+            $("#modalOverlay").fadeOut(200);
+        }
+
+        function getToday() {
+            const now = new Date();
+            return `${now.getFullYear()}년 ${String(now.getMonth() + 1).padStart(2, "0")}월 ${String(now.getDate()).padStart(2, "0")}일`;
+        }
+        function getWeekday() {
+            return new Date().toLocaleDateString("ko-KR", { weekday: 'long' });
+        }
+
+    $(".approvalcontent").on("click", function () {
+        const url = $(this).data("url");
+        window.location.href = url;
+    });
+</script>
+
