@@ -5,6 +5,7 @@ import data.service.EmailService;
 import data.service.ObjectStorageService;
 import data.service.UsersService;
 import jakarta.servlet.http.HttpSession;
+import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -321,6 +322,27 @@ public class UsersController {
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             response.put("status", "fail");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/checkPassword")
+    public ResponseEntity<Object> checkPassword(@RequestParam(value = "password") String password, HttpSession session) {
+        Map<String, Object> response = new LinkedHashMap<>();
+        try {
+            int userId = (Integer) session.getAttribute("userId");
+            if (BCrypt.checkpw(password, usersService.readUserById(userId).getPassword())) {
+                response.put("status", "ok");
+                response.put("result", "password is matched");
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            } else {
+                response.put("status", "fail");
+                response.put("result", "password does not match");
+                return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+            }
+        } catch (Exception e) {
+            response.put("status", "error");
             response.put("error", e.getMessage());
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }

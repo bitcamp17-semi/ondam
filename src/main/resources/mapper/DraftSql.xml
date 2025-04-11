@@ -77,6 +77,21 @@
                             AND prev.`order` &lt; a.`order`
                             AND prev.status != 'APPROVED')
     </select>
+    <select id="readCheckIsOrder" parameterType="map" resultType="Integer">
+        SELECT count(*)
+        FROM drafts d
+                 JOIN approvals a ON d.id = a.draftId
+                 JOIN users u ON d.authorId = u.id
+        WHERE d.status = 'PENDING'
+          AND d.id = ${draftId}
+          AND a.userId = #{userId}
+          AND a.status = 'PENDING'
+          AND NOT EXISTS (SELECT 1
+                          FROM approvals prev
+                          WHERE prev.draftId = d.id
+                            AND prev.`order` &lt; a.`order`
+                            AND prev.status != 'APPROVED')
+    </select>
 
 
 </mapper>

@@ -195,6 +195,27 @@ public class DraftController {
         }
     }
 
+    @GetMapping("/checkOrder")
+    public ResponseEntity<Object> checkOrder(@RequestParam(value = "draftId") int draftId, HttpSession session) {
+        Map<String, Object> response = new LinkedHashMap<>();
+        int userId = (Integer) session.getAttribute("userId");
+        try {
+            if (draftService.readCheckIsOrder(userId, draftId) == 1) {
+                response.put("status", "ok");
+                response.put("result", "check order successfully");
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            } else {
+                response.put("status", "fail");
+                response.put("result", "check order failed");
+                return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+            }
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("result", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @GetMapping("/readAllDraft")
     public ResponseEntity<Object> readAllDraft() {
         Map<String, Object> response = new LinkedHashMap<>();
@@ -229,6 +250,7 @@ public class DraftController {
     public ResponseEntity<Object> actions(
             @PathVariable int draftId,
             @RequestParam(value = "action") String action,
+            @RequestParam(value = "reason", required = false) String reason,
             HttpSession session
     ) {
         Map<String, Object> response = new LinkedHashMap<>();
@@ -237,7 +259,7 @@ public class DraftController {
         try {
             if (actionUpperCase.equals("APPROVED") || actionUpperCase.equals("REJECTED")) {
                 approvalsService.updateApprovalsStatus(draftId, userId, action); // approvals 상태 변경
-                draftService.stringToApprovalLogEnumAndCreateLog(draftId, userId, action); // 승인 / 반려에 대해서만 로그 생성
+                draftService.stringToApprovalLogEnumAndCreateLog(draftId, userId, action, reason); // 승인 / 반려에 대해서만 로그 생성
             }
             int nextApprovalId = approvalsService.readNextApprovalId(draftId, userId);
             if (nextApprovalId == 0) { // 다음 결재자가 없을 경우

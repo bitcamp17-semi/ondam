@@ -62,31 +62,47 @@
 </div>
 
 <script>
-    const storageUrl = "https://kr.object.ncloudstorage.com/bitcamp-semi/users/";
+    const storageUrl = "https://kr.object.ncloudstorage.com/bitcamp-semi/";
+    const draftId = window.location.pathname.split("/").pop(); // 마지막 경로값
     $(document).ready(function () {
-        const draftId = window.location.pathname.split("/").pop(); // 마지막 경로값
         loadDraftDetail(draftId);
-    });
-    document.addEventListener('DOMContentLoaded', () => {
-
-        // 초기 결재라인 (프론트에서 테스트용 데이터)
-        const approvalLine = [
-            {name: "김대리", position: "대리", imgUrl: "/img/profile1.png", status: "APPROVED"},
-            {name: "이과장", position: "과장", imgUrl: "/img/profile2.png", status: "PENDING"}
-        ];
-        renderApprovalLine(approvalLine);
 
         // 목록보기 버튼
         $("#list-btn").on("click", function () {
-            location.href = "/draft/approvalInbox";
+            toList();
         })
 
         // 승인 버튼 클릭
         $('#approve-btn').on('click', () => {
-            alert('결재되었습니다!');
-            // 첫 번째 대기 중인 결재자의 상태를 승인으로 바꿈
-            // 이건 나중에 수정해야할듯 일단확인하려고 그렇게 만듬
-            updateFirstPending('승인');
+            if (confirm("승인하시겠습니까?")) {
+                $.ajax({
+                    url: "/api/draft/checkOrder",
+                    type: "get",
+                    data: {draftId},
+                    success: function (res) {
+                        if (res.status === "ok") {
+                            $.ajax({
+                                url: "/api/draft/"+draftId+"/actions",
+                                type: "get",
+                                data: {action: "APPROVED"},
+                                success: function (res) {
+                                    if (res.status === "ok") {
+                                        alert('승인되었습니다!');
+                                        toList();
+                                    }
+                                }
+                            })
+                        } else {
+                            alert("현재 결재 대상자가 아닙니다.");
+                            toList();
+                        }
+                    },
+                    error: function () {
+                        alert("현재 결재 대상자가 아닙니다.");
+                        toList();
+                    }
+                })
+            }
         });
 
         // 반려 버튼 클릭 → 모달 표시
@@ -106,17 +122,37 @@
                 alert('반려 사유를 입력해주세요.');
                 return;
             }
+            if (confirm("반려하시겠습니까?")) {
+                $.ajax({
+                    url: "/api/draft/checkOrder",
+                    type: "get",
+                    data: {draftId},
+                    success: function (res) {
+                        if (res.status === "ok") {
+                            $.ajax({
+                                url: "/api/draft/"+draftId+"/actions",
+                                type: "get",
+                                data: {action: "REJECTED", reason: reason},
+                                success: function (res) {
+                                    if (res.status === "ok") {
+                                        alert('반려 처리되었습니다.\n사유: ' + reason);
+                                        $('#reject-modal').fadeOut(200);
+                                        toList();
+                                    }
+                                }
+                            })
+                        } else {
+                            alert("현재 결재 대상자가 아닙니다.");
+                            toList();
+                        }
+                    },
+                    error: function () {
+                        alert("현재 결재 대상자가 아닙니다.");
+                        toList();
+                    }
+                })
+            }
 
-            alert('반려 처리되었습니다.\n사유: ' + reason);
-            $('#reject-modal').fadeOut(200);
-
-            // 반려 처리 시 사유 저장
-            const target = approvalLine.find(user => user.status === 'PENDING');
-            if (!target) return;
-            target.status = 'REJECTED';
-            target.rejectReason = reason;
-
-            renderApprovalLine(approvalLine);
             $('#approve-btn').prop('disabled', true);
             $('#reject-btn').prop('disabled', true);
         });
@@ -127,20 +163,6 @@
             // 실제 URL로 교체 필요
             // window.location.href = '/api/approval/download?approvalId=123';
         });
-
-        // 상태 업데이트 함수
-        function updateFirstPending(newStatus) {
-            const target = approvalLine.find(user => user.status === '대기');
-            if (!target) return;
-
-            target.status = newStatus;
-            renderApprovalLine(approvalLine);
-
-            // 승인 또는 반려 처리된 경우 버튼 비활성화
-            $('#approve-btn').prop('disabled', true);
-            $('#reject-btn').prop('disabled', true);
-        }
-
 
     });
 
@@ -156,9 +178,10 @@
                     const logs = res.result.approvalsLog;
 
                     const approvalLine = approvals.map(a => ({
+                        userId: a.userId,
                         name: a.userName,
                         position: a.position,
-                        imgUrl: a.profileImage ? (storageUrl + a.profileImage) : "../../images/Rectangle53.png",
+                        imgUrl: a.profileImage ? (storageUrl + "users/" + a.profileImage) : "../../images/Rectangle53.png",
                         status: a.status // 예: "PENDING", "APPROVED", "REJECTED"
                     }));
                     // 문서 내용
@@ -178,13 +201,14 @@
     }
 
     // 결재라인 렌더링 함수
-    function renderApprovalLine(data, log) {
+    function renderApprovalLine(data, logs) {
         const container = $('.approvalline');
         container.empty();
 
         data.forEach(user => {
             const isRejected = user.status === 'REJECTED';
-            const tooltipText = isRejected ? (log.reason || '사유 없음') : '';
+            const userLog = logs.find(l => l.approvalId === user.userId && l.action === 'REJECTED');
+            const tooltipText = isRejected && userLog ? (userLog.reason || '사유 없음') : '';
 
             const profile = `
             <div class="profileset">
@@ -206,11 +230,14 @@
             container.append(profile);
         });
 
-        // 클릭 시 반려 사유 박스 토글
         $('.linebtn.rejected').off('click').on('click', function () {
             const reasonBox = $(this).closest('.profileset').next('.reject-reason-box');
             reasonBox.slideToggle(200);
         });
+    }
+
+    function toList() {
+        location.href = "/draft/approvalInbox";
     }
 </script>
 </body>
@@ -220,7 +247,7 @@
         location.href = "/draft/approvalWrite";
     })
     $("#navlist2").click(function () {
-        location.href = "/draft/approvalInbox";
+        toList();
     })
     $("#outbox").click(function () {
         location.href = "/draft/approvalOutBox";
