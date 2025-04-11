@@ -1,14 +1,14 @@
 package data.controller;
 
 import data.dto.*;
-import data.service.ApprovalsService;
-import data.service.DraftService;
-import data.service.UsersService;
+import data.service.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -24,6 +24,10 @@ public class DraftController {
     ApprovalsService approvalsService;
     @Autowired
     UsersService usersService;
+    @Autowired
+    DraftFilesService draftFilesService;
+    @Autowired
+    ObjectStorageService storageService;
 
     @PostMapping("/createTemplate")
     public ResponseEntity<Object> createTemplate(@RequestBody TemplateCreateReqDto request,
@@ -134,25 +138,42 @@ public class DraftController {
         }
     }
 
-    @PostMapping("/createDraft")
-    public ResponseEntity<Object> createDraft(@ModelAttribute DraftsDto paramsDto, HttpSession session) {
+    @PostMapping(value = "/createDraft", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Object> createDraft(@RequestPart(value = "data") DraftFileReqDto data,
+                                              @RequestPart(value = "uploads", required = false) MultipartFile[] uploads,
+                                              HttpSession session) {
         Map<String, Object> response = new LinkedHashMap<>();
         int userId = (Integer) session.getAttribute("userId");
-        if (usersService.isAdmin(userId)) {
-            try {
-                draftService.createDraft(paramsDto);
-                response.put("status", "ok");
-                response.put("result", paramsDto);
-                return new ResponseEntity<>(response, HttpStatus.OK);
-            } catch (Exception e) {
-                response.put("status", "error");
-                response.put("result", e.getMessage());
-                return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        try {
+            DraftsDto drafts = data.getDraft();
+            drafts.setAuthorId(userId);
+            draftService.createDraft(drafts);
+            int draftId = drafts.getId(); // 생성된 기안문 id
+            if (uploads != null && uploads.length > 0) {
+                for (MultipartFile upload : uploads) {
+                    if (upload != null && !upload.isEmpty() && !upload.getOriginalFilename().equals("")) {
+                        String imageUrl = storageService.uploadFile(storageService.getBucketName(), "drafts", upload);
+                        DraftFilesDto filesDto = new DraftFilesDto();
+                        filesDto.setDraftId(draftId);
+                        filesDto.setName(upload.getOriginalFilename());
+                        filesDto.setPath(imageUrl); // storageUrl은 제외하고 생성된 파일명
+                        draftFilesService.createFiles(filesDto);
+                    }
+                }
             }
-        } else {
-            response.put("status", "fail");
-            response.put("result", "you're not admin");
-            return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+            for (ApprovalsDto approval : data.getApprovals()) {
+                approval.setDraftId(draftId);
+                approval.setTemplateId(drafts.getTemplateId());
+                approval.setStatus(ApprovalsDto.ApprovalStatus.PENDING);
+                approvalsService.createApprovals(approval);
+            }
+            response.put("status", "ok");
+            response.put("result", draftId);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("result", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -231,6 +252,30 @@ public class DraftController {
         } catch (Exception e) {
             response.put("status", "error");
             response.put("result", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/actionRequired")
+    public ResponseEntity<Object> getPendingDrafts(
+            HttpSession session,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
+        Map<String, Object> response = new LinkedHashMap<>();
+        try {
+            Map<String, Object> result = new HashMap<>();
+            Integer userId = (Integer) session.getAttribute("userId");
+            int offset = (page - 1) * size;
+            List<DraftsDto> drafts = draftService.getPendingDraftsForUser(userId, size, offset);
+            Integer totalCnt = draftService.readCountDraftsForActions(userId);
+            result.put("list", drafts);
+            result.put("totalCnt", totalCnt);
+            response.put("status", "ok");
+            response.put("result", result);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("message", e.getMessage());
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

@@ -18,7 +18,7 @@
                 <i class="bi bi-house"></i>
                 <span class="label">메인화면</span>
             </div>
-            <div class="div-2" id="header-note" th:data-url="@{/draft/messageInBox}">
+            <div class="div-2" id="header-note" th:data-url="@{/message/inBox}">
                 <i class="bi bi-send"></i>
                 <span class="label">쪽지</span>
             </div>
@@ -26,7 +26,7 @@
                 <i class="bi bi-diagram-3"></i>
                 <span class="label">조직도</span>
             </div>
-            <div class="div-2" id="header-calendar" th:data-url="@{/schedules}">
+            <div class="div-2" id="header-calendar" th:data-url="@{/}">
                 <i class="bi bi-calendar4-week"></i>
                 <span class="label">일정관리</span>
             </div>
@@ -52,7 +52,7 @@
             </div>
         </div>
         <div class="div">
-            <div class="div-3" id="header-alarm" th:data-url2="@{/}">
+            <div class="div-2" id="header-alarm">
                 <div class="group">
                     <div class="overlap-group">
                         <i class="bi bi-bell"></i>
@@ -67,25 +67,14 @@
             </div>
             <div class="div-2" id="header-logout">
                 <i class="bi bi-box-arrow-right"></i>
-                <span class="label">로그아웃</span>
             </div>
 
         </div>
     </div>
     <script>
         $(document).ready(function () {
-            $.ajax({
-                url: "/api/users/readUserBySession",
-                type: "GET",
-                success: function (res) {
-                    if (res.status === "ok") {
-                        let storageUrl = "https://kr.object.ncloudstorage.com/bitcamp-semi/users/";
-                        let profileImageUrl = storageUrl + res.result.profileImage;
-                        $("#header-profileImage img").attr("src", profileImageUrl);
-                        $("#header-profileImage").attr("data-id", res.result.id);
-                    }
-                }
-            })
+            checkLoginStatus();
+            getProfile();
         });
         $("#header-logout").click(function () { // ✅ 중첩 제거
             $.ajax({
@@ -110,10 +99,34 @@
             window.location.href = url;
         });
 
-        $(".div-3").on("click", function () {
-            const url2 = $(this).data("url2");
-            window.location.href = url2;
-        });
+        function checkLoginStatus() {
+            $.get("/api/checkLogin", function (res) {
+                if (res.status === "ok") {
+                    return;
+                } else {
+                    alert("로그인이 필요합니다.");
+                    location.href = "/login";
+                }
+            }).error(function () {
+                alert("로그인이 필요합니다.");
+                location.href = "/login";
+            });
+        }
+
+        function getProfile() {
+            $.ajax({
+                url: "/api/users/readUserBySession",
+                type: "GET",
+                success: function (res) {
+                    if (res.status === "ok") {
+                        let storageUrl = "https://kr.object.ncloudstorage.com/bitcamp-semi/users/";
+                        let profileImageUrl = storageUrl + res.result.profileImage;
+                        $("#header-profileImage img").attr("src", profileImageUrl);
+                        $("#header-profileImage").attr("data-id", res.result.id);
+                    }
+                }
+            })
+        }
     </script>
 
     <!-- 알람 토스트 노출 영역 -->

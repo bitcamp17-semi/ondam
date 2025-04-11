@@ -273,6 +273,13 @@ public class UsersController {
     public ResponseEntity<Object> deleteUsers(@RequestParam(value = "userList") List<Integer> userList) {
         Map<String, Object> response = new HashMap<>();
         try {
+            for (Integer userId : userList) {
+                UsersDto dto = usersService.readUserById(userId);
+                String img = dto.getProfileImage();
+                if (!img.isEmpty()) {
+                    storageService.deleteFile(storageService.getBucketName(), "users", img);
+                }
+            }
             usersService.deleteUsers(userList);
             response.put("status", "ok");
             response.put("result", "deactivate users");
