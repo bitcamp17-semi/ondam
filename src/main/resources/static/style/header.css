@@ -47,7 +47,17 @@
     position: relative;
     flex: 0 0 auto;
 }
-
+.header-layout .div-3 {
+    position: relative;
+    align-self: stretch;
+    width: 100%;
+    height: 50px;
+    background-color: #eeeeee;
+    border-radius: 5px;
+    border: 1px solid #eeeeeecc;
+    overflow: hidden;
+    cursor: pointer;
+}
 .header-layout .div-2 {
     position: relative;
     align-self: stretch;
