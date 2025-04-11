@@ -9,6 +9,21 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpHeaders;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -185,6 +200,7 @@ public class DraftController {
             result.put("draft", draftService.readDraft(id));
             result.put("approvals", approvalsService.readApprovalsByDraft(id));
             result.put("approvalsLog", approvalsService.readApprovalLogByDraft(id));
+            result.put("files", draftFilesService.readFilesByDraft(id));
             response.put("status", "ok");
             response.put("result", result);
             return new ResponseEntity<>(response, HttpStatus.OK);
@@ -301,4 +317,65 @@ public class DraftController {
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @GetMapping("/downloadAll/{draftId}")
+    public ResponseEntity<Resource> downloadAll(@PathVariable int draftId) throws IOException {
+        List<DraftFilesDto> files = draftFilesService.readFilesByDraft(draftId);
+        if (files == null || files.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if (files.size() < 4) {
+            // 단일 파일 처리 (가장 첫 번째 파일만 다운로드)
+            DraftFilesDto file = files.get(0);
+            String fileUrl = "https://kr.object.ncloudstorage.com/bitcamp-semi/drafts/" + file.getPath();
+            UrlResource resource = new UrlResource(fileUrl);
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .header(HttpHeaders.CONTENT_DISPOSITION,
+                            "attachment; filename=\"" + URLEncoder.encode(file.getName(), StandardCharsets.UTF_8) + "\"")
+                    .body(resource);
+        }
+
+        // ZIP 압축 처리 (4개 이상일 때)
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ZipOutputStream zipOut = new ZipOutputStream(baos);
+
+        for (DraftFilesDto file : files) {
+            String fileUrl = "https://kr.object.ncloudstorage.com/bitcamp-semi/drafts/" + file.getPath();
+            try (InputStream in = new URL(fileUrl).openStream()) {
+                zipOut.putNextEntry(new ZipEntry(file.getName()));
+                in.transferTo(zipOut);
+                zipOut.closeEntry();
+            }
+        }
+        zipOut.finish();
+
+        ByteArrayResource zipResource = new ByteArrayResource(baos.toByteArray());
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"draft_" + draftId + "_files.zip\"")
+                .contentLength(zipResource.contentLength())
+                .body(zipResource);
+    }
+    @GetMapping("/downloadFile/{fileId}")
+    public ResponseEntity<Resource> downloadFile(@PathVariable int fileId) throws MalformedURLException {
+        DraftFilesDto file = draftFilesService.readFileById(fileId);
+        if (file == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        String fileUrl = "https://kr.object.ncloudstorage.com/bitcamp-semi/drafts/" + file.getPath();
+        UrlResource resource = new UrlResource(fileUrl);
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + URLEncoder.encode(file.getName(), StandardCharsets.UTF_8) + "\"")
+                .body(resource);
+    }
+
 }

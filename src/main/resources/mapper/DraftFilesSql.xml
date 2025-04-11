@@ -5,4 +5,14 @@
         insert into draft_files (name, draftId, path, createdAt)
         values (#{name}, #{draftId}, #{path}, now())
     </insert>
+    <select id="readFilesByDraft" parameterType="int" resultType="DraftFilesDto">
+        select *
+        from draft_files
+        where draftId = #{draftId}
+    </select>
+    <select id="readFileById" resultType="DraftFilesDto" parameterType="int">
+        select *
+        from draft_files
+        where id = #{id}
+    </select>
 </mapper>

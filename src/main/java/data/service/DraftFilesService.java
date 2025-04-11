@@ -5,6 +5,8 @@ import data.mapper.DraftFilesMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class DraftFilesService {
     @Autowired
@@ -12,5 +14,13 @@ public class DraftFilesService {
 
     public void createFiles(DraftFilesDto draftFilesDto) {
         draftFilesMapper.createFiles(draftFilesDto);
+    }
+
+    public List<DraftFilesDto> readFilesByDraft(int draftId) {
+        return draftFilesMapper.readFilesByDraft(draftId);
+    }
+
+    public DraftFilesDto readFileById(int fileId) {
+        return draftFilesMapper.readFileById(fileId);
     }
 }
