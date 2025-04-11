@@ -99,9 +99,12 @@
     gap: 8px;
 }
 
-.profileinfo div span {
+.profileinfo div>span {
     font-weight: bold;
     margin-right: 5px;
+}
+#infoName, #infoPosition, #infoDepartment, #infoPhone{
+    font-weight: normal;
 }
 .whitebtn{
     margin-left: auto;
