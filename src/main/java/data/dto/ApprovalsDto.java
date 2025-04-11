@@ -15,4 +15,8 @@ public class ApprovalsDto {
     private Integer templateId;
     private int order;
     private ApprovalStatus status;
+    // user 정보를 위한 필드
+    private String userName;
+    private String profileImage;
+    private String position;
 }

@@ -27,8 +27,9 @@
           and userId = #{userId}
     </update>
     <select id="readApprovalsByDraft" parameterType="int" resultType="ApprovalsDto">
-        select *
-        from approvals
+        select a.userId, a.draftId, a.order, a.status, u.name as userName, u.profileImage, u.position
+        from approvals as a
+                 join users as u on a.userId = u.id
         where draftId = #{draftId}
     </select>
     <select id="readApprovalsByTemplate" parameterType="int" resultType="ApprovalsDto">
@@ -52,16 +53,15 @@
         values #{approvalId}, #{action}, now()
     </insert>
     <select id="readApprovalLogByDraft" parameterType="map" resultType="ApprovalLogDto">
-        SELECT
-        al.approvalId,
-        al.draftId,
-        al.action,
-        al.approvalTime,
-        a.`order`
+        SELECT al.approvalId,
+               al.draftId,
+               al.action,
+               al.approvalTime,
+               a.`order`
         FROM approval_log al
-        JOIN approvals a
-        ON al.approvalId = a.userId
-        AND al.draftId = a.draftId
+                 JOIN approvals a
+                      ON al.approvalId = a.userId
+                          AND al.draftId = a.draftId
         WHERE al.draftId = #{draftId};
     </select>
 </mapper>

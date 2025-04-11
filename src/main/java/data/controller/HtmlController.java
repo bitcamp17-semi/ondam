@@ -2,6 +2,8 @@ package data.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class HtmlController {
@@ -33,8 +35,8 @@ public class HtmlController {
         return "layout/approval/approval_inbox";
     }
 
-    @GetMapping("/draft/approvalInboxFile")
-    public String approvalInboxFile() {
+    @GetMapping("/draft/approvalInboxFile/{id}")
+    public String approvalInboxFile(@PathVariable int id) {
         return "layout/approval/approval_inbox_file";
     }
 
@@ -43,8 +45,8 @@ public class HtmlController {
         return "layout/approval/approval_outbox";
     }
 
-    @GetMapping("/draft/approvalOutBoxFile")
-    public String approvalOutBoxFile() {
+    @GetMapping("/draft/approvalOutBoxFile/{id}")
+    public String approvalOutBoxFile(@PathVariable int id) {
         return "layout/approval/approval_outbox_file";
     }
 

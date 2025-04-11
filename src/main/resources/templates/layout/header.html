@@ -74,18 +74,7 @@
     <script>
         $(document).ready(function () {
             checkLoginStatus();
-            $.ajax({
-                url: "/api/users/readUserBySession",
-                type: "GET",
-                success: function (res) {
-                    if (res.status === "ok") {
-                        let storageUrl = "https://kr.object.ncloudstorage.com/bitcamp-semi/users/";
-                        let profileImageUrl = storageUrl + res.result.profileImage;
-                        $("#header-profileImage img").attr("src", profileImageUrl);
-                        $("#header-profileImage").attr("data-id", res.result.id);
-                    }
-                }
-            })
+            getProfile();
         });
         $("#header-logout").click(function () { // ✅ 중첩 제거
             $.ajax({
@@ -123,21 +112,36 @@
                 location.href = "/login";
             });
         }
+
+        function getProfile() {
+            $.ajax({
+                url: "/api/users/readUserBySession",
+                type: "GET",
+                success: function (res) {
+                    if (res.status === "ok") {
+                        let storageUrl = "https://kr.object.ncloudstorage.com/bitcamp-semi/users/";
+                        let profileImageUrl = storageUrl + res.result.profileImage;
+                        $("#header-profileImage img").attr("src", profileImageUrl);
+                        $("#header-profileImage").attr("data-id", res.result.id);
+                    }
+                }
+            })
+        }
     </script>
 
     <!-- 알람 토스트 노출 영역 -->
-    <div class="position-fixed p-3" style="bottom: 3%;left:5%;z-index: 9999;">
-        <div id="alarmToast" class="toast align-items-center border-0" role="alert" aria-live="assertive"
-             aria-atomic="true"
-             style="background-color: lightgray;">
-            <div class="d-flex">
-                <div class="toast-body" id="toastMessage"></div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
-                        aria-label="Close"></button>
-            </div>
-        </div>
-    </div>
-    <script th:src="@{/js/alarm.js}"></script>
+<!--    <div class="position-fixed p-3" style="bottom: 3%;left:5%;z-index: 9999;">-->
+<!--        <div id="alarmToast" class="toast align-items-center border-0" role="alert" aria-live="assertive"-->
+<!--             aria-atomic="true"-->
+<!--             style="background-color: lightgray;">-->
+<!--            <div class="d-flex">-->
+<!--                <div class="toast-body" id="toastMessage"></div>-->
+<!--                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"-->
+<!--                        aria-label="Close"></button>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--    <script th:src="@{/js/alarm.js}"></script>-->
 </div>
 </body>
 </html>

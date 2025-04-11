@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>전자결재</title>
     <link rel="stylesheet" th:href="@{/style/globals.css}"/>
     <link rel="stylesheet" th:href="@{/style/approval_write.css}"/>
     <link rel="stylesheet" th:href="@{/style/header.css}"/>
@@ -154,7 +154,7 @@
             success: function (res) {
                 if (res.status === "ok") {
                     alert('결재 등록 완료!');
-                    // todo : 해당 문서 상세 페이지로 이동(백엔드에서 보내야 할 듯??)
+                    location.href = "/draft/approvalOutBoxFile/" + res.result
                 }
             },
             error: function (err) {

@@ -163,11 +163,12 @@ public class DraftController {
             }
             for (ApprovalsDto approval : data.getApprovals()) {
                 approval.setDraftId(draftId);
+                approval.setTemplateId(drafts.getTemplateId());
                 approval.setStatus(ApprovalsDto.ApprovalStatus.PENDING);
                 approvalsService.createApprovals(approval);
             }
             response.put("status", "ok");
-            response.put("result", "create successfully");
+            response.put("result", draftId);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             response.put("status", "error");
@@ -256,13 +257,21 @@ public class DraftController {
     }
 
     @GetMapping("/actionRequired")
-    public ResponseEntity<Object> getPendingDrafts(HttpSession session) {
+    public ResponseEntity<Object> getPendingDrafts(
+            HttpSession session,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
         Map<String, Object> response = new LinkedHashMap<>();
         try {
+            Map<String, Object> result = new HashMap<>();
             Integer userId = (Integer) session.getAttribute("userId");
-            List<DraftsDto> drafts = draftService.getPendingDraftsForUser(userId);
+            int offset = (page - 1) * size;
+            List<DraftsDto> drafts = draftService.getPendingDraftsForUser(userId, size, offset);
+            Integer totalCnt = draftService.readCountDraftsForActions(userId);
+            result.put("list", drafts);
+            result.put("totalCnt", totalCnt);
             response.put("status", "ok");
-            response.put("result", drafts);
+            response.put("result", result);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             response.put("status", "error");

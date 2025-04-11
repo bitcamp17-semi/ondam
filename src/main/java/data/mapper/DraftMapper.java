@@ -26,5 +26,7 @@ public interface DraftMapper {
 
     public void updateDraftStatus(int id, String status);
 
-    public List<DraftsDto> readPendingDraftsForUser(int userId);
+    public List<DraftsDto> readPendingDraftsForUser(int userId, int size, int offset);
+
+    public Integer readCountDraftsForActions(int userId);
 }

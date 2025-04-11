@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>전자결재</title>
     <link rel="stylesheet" th:href="@{/style/globals.css}"/>
     <link rel="stylesheet" th:href="@{/style/approval_inbox.css}"/>
     <link rel="stylesheet" th:href="@{/style/header.css}"/>
@@ -42,25 +42,23 @@
                 </div>
                 <div class="listmain">
                     <div class="listcontent">
-                        <input type="checkbox" class="childCheckbox list-cell">
-                        <div class="list-cell">1</div>
-                        <div class="list-cell listtitle" id="listtitlebtn">제목입니다</div>
-                        <div class="list-cell">기안문</div>
-                        <div class="list-cell">홍길동</div>
-                        <div class="list-cell">2025.03.28</div>
-                        <div class="list-cell">미결재</div>
+                    <!-- 기안문 목록 영역 -->
                     </div>
                 </div>
             </div>
-            <div class="pagenumber">
-                1234
+            <div class="pagenumset">
+                <i class="bi bi-arrow-left leftbtn page-arrow"></i>
+                <div class="pagenum">
+                    <!-- page 부분 -->
+                </div>
+                <i class="bi bi-arrow-right rightbtn page-arrow"></i>
             </div>
         </div>
     </div>
 </div>
 <script>
     $(document).ready(function () {
-        loadDrafts();
+        loadDrafts(1);
         // 상위 체크박스 클릭 시
         $('.selectAll').on('change', function () {
             $('.childCheckbox').prop('checked', $(this).prop('checked'));
@@ -76,13 +74,14 @@
     });
 
     // 본인 차례의 수신 목록 호출
-    function loadDrafts() {
+    function loadDrafts(page) {
         $.ajax({
-            url: "/api/draft/actionRequired", // 또는 /todo
+            url: "/api/draft/actionRequired",
+            data: {page: page},
             type: "GET",
             success: function (res) {
                 if (res.status === "ok") {
-                    const drafts = res.result;
+                    const drafts = res.result.list;
                     const $listMain = $(".listmain");
                     $listMain.empty();
 
@@ -99,6 +98,9 @@
                         </div>
                     `);
                     });
+                    let totalCnt = res.result.totalCnt;
+                    let totalPages = Math.ceil(totalCnt / 10);
+                    renderPagination(totalPages, page);
                 }
             },
             error: function () {
@@ -107,10 +109,48 @@
         });
     }
 
+    function renderPagination(totalPages, currentPage) {
+        let pageNumContainer = $(".pagenum");
+        pageNumContainer.empty();
+
+        // 페이지 번호 생성
+        for (let i = 1; i <= totalPages; i++) {
+            let pageDiv = $(`<div>${i}</div>`);
+
+            // 클래스 부여
+            if (i === currentPage) {
+                pageDiv.addClass("currentPage");
+            } else {
+                pageDiv.addClass("otherPage");
+            }
+
+            // 클릭 이벤트
+            pageDiv.on("click", function () {
+                loadDrafts(i);
+            });
+
+            pageNumContainer.append(pageDiv);
+        }
+
+        // 왼쪽 화살표 (이전)
+        $(".leftbtn").off("click").on("click", function () {
+            if (currentPage > 1) {
+                loadDrafts(currentPage - 1);
+            }
+        });
+
+        // 오른쪽 화살표 (다음)
+        $(".rightbtn").off("click").on("click", function () {
+            if (currentPage < totalPages) {
+                loadDrafts(currentPage + 1);
+            }
+        });
+    }
+
     // 제목 클릭 시 상세보기로 이동
     $(document).on("click", ".listtitle.clickable", function () {
         const draftId = $(this).data("id");
-        location.href = `/draft/approvalDetail?id=${draftId}`;
+        location.href = `/draft/approvalInboxFile/${draftId}`;
     });
 </script>
 </body>

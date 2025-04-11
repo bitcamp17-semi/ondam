@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>전자결재</title>
     <link rel="stylesheet" th:href="@{/style/globals.css}"/>
     <link rel="stylesheet" th:href="@{/style/approval_inbox_file.css}"/>
     <link rel="stylesheet" th:href="@{/style/header.css}"/>
@@ -27,28 +27,22 @@
         </div>
         <div class="section">
             <div class="btnset">
-                <button class="whitebtn">< 목록보기</button>
+                <button class="whitebtn" id="list-btn">< 목록보기</button>
                 <button class="whitebtn" id="reject-btn">반려하기</button>
                 <button class="whitebtn" id="download-btn">첨부파일 다운로드</button>
                 <button class="orangebtn" id="approve-btn">결재승인</button>
             </div>
             <div class="approvallist">
                 <div class="listtop">
-                    <div class="list-cell">제목</div>
-                    <div class="list-cell">작성자</div>
-                    <div class="list-cell">작성일</div>
+                    <div class="list-cell" id="title"></div>
+                    <div class="list-cell" id="author"></div>
+                    <div class="list-cell" id="date"></div>
                 </div>
                 <div id="readonly-content">
                     <!-- 여기에 결재문서 출력 -->
                 </div>
                 <div class="approvalline">
-                    <div class="profileset">
-                        <div class="lineprofile">
-                            <img src="">
-                            <span>ddd과장</span>
-                        </div>
-                        <div class="linebtn">미승인</div>
-                    </div>
+                <!-- 결재 라인 영역 -->
                 </div>
 
             </div>
@@ -68,18 +62,24 @@
 </div>
 
 <script>
+    const storageUrl = "https://kr.object.ncloudstorage.com/bitcamp-semi/users/";
+    $(document).ready(function () {
+        const draftId = window.location.pathname.split("/").pop(); // 마지막 경로값
+        loadDraftDetail(draftId);
+    });
     document.addEventListener('DOMContentLoaded', () => {
-        // 저장된 콘텐츠 예시 (readonly-content에 표시)
-        const savedHtml = `<h1>출장 신청서</h1>
-        <p>일자: 4월 10일 ~ 4월 12일</p><p>장소: 부산</p>`;
-        document.getElementById('readonly-content').innerHTML = savedHtml;
 
         // 초기 결재라인 (프론트에서 테스트용 데이터)
         const approvalLine = [
-            {name: "김대리", rank: "대리", imgUrl: "/img/profile1.png", status: "대기"},
-            {name: "이과장", rank: "과장", imgUrl: "/img/profile2.png", status: "대기"}
+            {name: "김대리", position: "대리", imgUrl: "/img/profile1.png", status: "APPROVED"},
+            {name: "이과장", position: "과장", imgUrl: "/img/profile2.png", status: "PENDING"}
         ];
         renderApprovalLine(approvalLine);
+
+        // 목록보기 버튼
+        $("#list-btn").on("click", function () {
+            location.href = "/draft/approvalInbox";
+        })
 
         // 승인 버튼 클릭
         $('#approve-btn').on('click', () => {
@@ -111,9 +111,9 @@
             $('#reject-modal').fadeOut(200);
 
             // 반려 처리 시 사유 저장
-            const target = approvalLine.find(user => user.status === '대기');
+            const target = approvalLine.find(user => user.status === 'PENDING');
             if (!target) return;
-            target.status = '반려';
+            target.status = 'REJECTED';
             target.rejectReason = reason;
 
             renderApprovalLine(approvalLine);
@@ -141,22 +141,58 @@
             $('#reject-btn').prop('disabled', true);
         }
 
-        // 결재라인 렌더링 함수
-        function renderApprovalLine(data) {
-            const container = $('.approvalline');
-            container.empty();
 
-            data.forEach(user => {
-                const isRejected = user.status === '반려';
-                const tooltipText = isRejected ? (user.rejectReason || '사유 없음') : '';
+    });
 
-                const profile = `
+    function loadDraftDetail(id) {
+        $.ajax({
+            url: "/api/draft/readDraft",
+            data: {id},
+            type: "GET",
+            success: function (res) {
+                if (res.status === "ok") {
+                    const draft = res.result.draft;
+                    const approvals = res.result.approvals;
+                    const logs = res.result.approvalsLog;
+
+                    const approvalLine = approvals.map(a => ({
+                        name: a.userName,
+                        position: a.position,
+                        imgUrl: a.profileImage ? (storageUrl + a.profileImage) : "../../images/Rectangle53.png",
+                        status: a.status // 예: "PENDING", "APPROVED", "REJECTED"
+                    }));
+                    // 문서 내용
+                    $("#title").text(draft.title);
+                    $("#author").text(draft.authorName)
+                    $("#date").text(draft.createdAt.split(" ")[0]);
+                    $("#readonly-content").html(draft.content);
+
+
+                    renderApprovalLine(approvalLine, logs);
+                }
+            },
+            error: function () {
+                alert("기안문 정보 로딩 실패");
+            }
+        });
+    }
+
+    // 결재라인 렌더링 함수
+    function renderApprovalLine(data, log) {
+        const container = $('.approvalline');
+        container.empty();
+
+        data.forEach(user => {
+            const isRejected = user.status === 'REJECTED';
+            const tooltipText = isRejected ? (log.reason || '사유 없음') : '';
+
+            const profile = `
             <div class="profileset">
                 <div class="lineprofile">
                     <img src="${user.imgUrl}">
-                    <span>${user.name}${user.rank}</span>
+                    <span>${user.name} ${user.position}</span>
                 </div>
-                <div class="linebtn ${user.status === '승인' ? 'approved' : isRejected ? 'rejected' : ''}">
+                <div class="linebtn ${user.status === 'APPROVED' ? 'approved' : isRejected ? 'rejected' : ''}">
                     ${user.status}
                 </div>
             </div>
@@ -167,16 +203,15 @@
             ` : ''}
         `;
 
-                container.append(profile);
-            });
+            container.append(profile);
+        });
 
-            // 클릭 시 반려 사유 박스 토글
-            $('.linebtn.rejected').off('click').on('click', function () {
-                const reasonBox = $(this).closest('.profileset').next('.reject-reason-box');
-                reasonBox.slideToggle(200);
-            });
-        }
-    });
+        // 클릭 시 반려 사유 박스 토글
+        $('.linebtn.rejected').off('click').on('click', function () {
+            const reasonBox = $(this).closest('.profileset').next('.reject-reason-box');
+            reasonBox.slideToggle(200);
+        });
+    }
 </script>
 </body>
 </html>
