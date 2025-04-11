@@ -23,31 +23,104 @@
         <div class="section">
             <div class="left">
                 <div class="lefttop">
-                    <div class="profilephoto"></div>
+                    <img th:src="@{/images/Rectangle53.png}">
+
                     <div class="profileinfo">
                         <div><span>이름</span>홍길동</div>
                         <div><span>직급</span>대리</div>
                         <div><span>부서</span>개발팀</div>
-                        <div><span>전화</span>010-1234-5678</div>
-                        <div><span>입사일</span>2022-03-01</div>
+                        <div><span>번호</span>010-1234-5678</div>
                     </div>
+                    <button class="whitebtn" id="editUserBtn">개인정보 수정하기</button>
                 </div>
                 <div class="leftmiddle">
-                    공지사항
+                    <span>공지사항</span>
+                    <div class="notice">
+                        <span>[공지] 제목입니다</span>
+                        <a>등록일</a>
+                    </div>
+                    <div class="notice">
+                        <span>[공지] 제목입니다</span>
+                        <a>등록일</a>
+                    </div>
                 </div>
                 <div class="leftbottom">
-                    결재관련
+                    <span>전자결재</span>
+                    <div class="approvalmini">
+                        <div class="approvalcontent" th:data-url="@{/draft/approvalInbox}">
+                            <span>결재할 문서</span>
+                            <a>7</a>
+                        </div>
+                        <div class="approvalcontent" th:data-url="@{/draft/approvalOutBox}">
+                            <span>상신한 문서</span>
+                            <a>7</a>
+                        </div>
+                        <div class="approvalcontent" th:data-url="@{/draft/approvalOutBox}">
+                            <span>진행중 문서</span>
+                            <a>7</a>
+                        </div>
+                        <div class="approvalcontent" th:data-url="@{/draft/approvalOutBox}">
+                            <span>대기중 문서</span>
+                            <a>7</a>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="middle">
                 달력
             </div>
             <div class="right">
-
+                <div id="weather-today" class="weather-today"></div>
+                <div id="weather-week" class="weather-cards"></div>
             </div>
         </div>
     </div>
 </div>
-
+<!-- 모달 HTML -->
+<div id="modalOverlay" class="modal-overlay">
+    <div class="modal-content">
+        <h2>개인정보 수정</h2>
+        <div class="modaltitle">
+            <span>이메일</span>
+            <input type="text" class="modaltitlebox" value=""/>
+        </div>
+        <div class="modaltitle">
+            <span>전화번호</span>
+            <input type="text" class="modaltitlebox" value=""/>
+        </div>
+        <div class="modaltitle">
+            <span>주소</span>
+            <input type="text" class="modaltitlebox" value=""/>
+        </div>
+        <div class="modaltitle">
+            <span>로그인 비밀번호</span>
+            <input type="password" class="modaltitlebox" value=""/>
+        </div>
+        <div class="buttonset">
+            <button class="submit-modal">저장</button>
+            <button class="close-modal">닫기</button>
+        </div>
+    </div>
+</div>
 </body>
 </html>
+<script>
+    $(document).ready(function () {
+        // 모달 열기
+        $('#editUserBtn').on('click', function () {
+            $('#modalOverlay').fadeIn(200).css('display', 'flex');
+        });
+
+        // 닫기 버튼 클릭 시 모달 닫기
+        $('.close-modal').on('click', function () {
+            $('#modalOverlay').fadeOut(200);
+        });
+
+    });
+
+    $(".approvalcontent").on("click", function () {
+        const url = $(this).data("url");
+        window.location.href = url;
+    });
+</script>
+
