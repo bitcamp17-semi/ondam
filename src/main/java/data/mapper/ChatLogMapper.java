@@ -1,23 +1,16 @@
 package data.mapper;
 
-import java.util.List;
-import org.apache.ibatis.annotations.Mapper;
 import data.dto.ChatLogDto;
+import org.apache.ibatis.annotations.Mapper;
+import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface ChatLogMapper {
-
-    // C: 메시지 생성
-    public void createChatLog(ChatLogDto chatLog);
-
-    // R: 그룹 내 메시지 조회
-    public List<ChatLogDto> readChatLogsByGroupId(int groupId);
-
-    // U: 메시지 수정
-    public void updateChatLog(ChatLogDto chatLog);
-
-    // D: 메시지 삭제
-    public void deleteChatLog(long id);
-    
-    
+    void createChatLog(ChatLogDto chatLogDto); // 채팅 로그 저장
+    List<ChatLogDto> readAllLogsByGroupId(Long groupId); // 그룹 채팅 메시지 전체 조회
+    ChatLogDto readLastGroupMessage(Long groupId); // 그룹 채팅의 마지막 메시지 조회
+    ChatLogDto readLastPrivateMessage(Map<String, Integer> params); // 1:1 채팅의 마지막 메시지 조회
+    List<ChatLogDto> readAllPrivateChatsWithLastMessages(Long userId); // 사용자의 모든 1:1 채팅과 마지막 메시지 조회
+    List<ChatLogDto> readAllPrivateLogs(Map<String, Integer> params); // 1:1 채팅 메시지 전체 조회
 }

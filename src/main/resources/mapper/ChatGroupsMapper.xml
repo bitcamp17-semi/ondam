@@ -2,53 +2,63 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-
 <mapper namespace="data.mapper.ChatGroupsMapper">
+    <insert id="createGroup" parameterType="ChatGroupsDto">
+        insert into chat_groups (name, createdby, createdat)
+        values (#{name}, #{createdBy}, now())
+    </insert>
 
-	<!-- C: 그룹 생성 -->
-	<insert id="createChatGroup" parameterType="ChatGroupsDto" useGeneratedKeys="true" keyProperty="id">
-		insert into
-		chat_groups (name, createdAt, createdBy)
-		values (#{name}, now(),
-		#{createdBy})
-	</insert>
+    <select id="readAllGroupsWithLastMessages" resultType="ChatGroupsDto">
+        select
+            cg.id,
+            cg.name as groupName,
+            cg.createdby,
+            cg.createdat,
+            (
+                select message
+                from chat_log cl
+                where cl.groupid = cg.id
+                order by cl.createdat desc
+                limit 1
+            ) as lastMessage
+        from chat_groups cg
+        join junction_chat_users_groups j on cg.id = j.groupid
+        where j.userid = #{userId}
+        order by cg.createdat desc
+    </select>
 
-	<!-- R: 그룹 ID로 조회 -->
-	<select id="readChatGroupById" parameterType="int"
-		resultType="ChatGroupsDto">
-		select * from chat_groups where id = #{id}
-	</select>
+    <select id="readGroupById" parameterType="int" resultType="ChatGroupsDto">
+        select * from chat_groups where id = #{id} <!-- groupid -> id, #{Id} -> #{id} -->
+    </select>
 
-	<!-- R: 모든 그룹 조회 -->
-	<select id="readAllChatGroups" resultType="ChatGroupsDto">
-		select * from
-		chat_groups order by id desc
-	</select>
+    <update id="updateGroup" parameterType="ChatGroupsDto">
+        update chat_groups
+        set name = #{name} <!-- groupname -> name -->
+        where id = #{id} <!-- groupid -> id -->
+    </update>
 
-	<select id="readGroupById" parameterType="int"
-		resultType="ChatGroupsDto">
-		select * from chat_groups where id = #{groupId}
-	</select>
+    <delete id="deleteGroup" parameterType="long">
+        delete from chat_groups where id = #{groupId} <!-- groupid -> id -->
+    </delete>
 
-	<select id="readGroupsByUserId" parameterType="int"
-		resultType="ChatGroupsDto">
-		select cg.*
-		from chat_groups cg
-		join junction_chat_users_groups j on cg.id = j.groupid
-		where j.userid = #{userId}
-	</select>
+    <insert id="createGroupUser">
+        insert into junction_chat_users_groups (userid, groupid)
+        values (#{param1}, #{param2})
+    </insert>
 
-	<!-- U: 그룹 수정 -->
-	<update id="updateChatGroup" parameterType="ChatGroupsDto">
-		update chat_groups
-		set name = #{name}
-		where id = #{id}
-	</update>
+    <select id="readGroupUserIds" parameterType="long" resultType="long">
+        select userid from junction_chat_users_groups where groupid = #{groupId}
+    </select>
 
-	<!-- D: 그룹 삭제 -->
-	<delete id="deleteChatGroup" parameterType="int">
-		delete from
-		chat_groups where id = #{id}
-	</delete>
+    <select id="readJoinedGroupIds" parameterType="long" resultType="long">
+        select groupid from junction_chat_users_groups where userid = #{userId}
+    </select>
 
+    <!-- 누락된 readAllGroupsByUserId 추가 -->
+    <select id="readAllGroupsByUserId" parameterType="long" resultType="ChatGroupsDto">
+        select cg.*
+        from chat_groups cg
+        join junction_chat_users_groups j on cg.id = j.groupid
+        where j.userid = #{userId}
+    </select>
 </mapper>

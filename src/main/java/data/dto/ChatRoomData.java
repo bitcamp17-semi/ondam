@@ -1,14 +1,13 @@
 package data.dto;
 
 import lombok.Data;
+import java.util.List;
 
 @Data
-public class ChatMessage {
-    private Integer senderId;
-    private String senderName;
-    private String content;
-    private String time;
+public class ChatRoomData {
     private Integer roomId;
+    private String roomName;
     private String roomType;
     private Integer targetUserId;
+    private List<ChatLogDto> messages;
 }
