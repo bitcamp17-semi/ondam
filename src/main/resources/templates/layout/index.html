@@ -145,10 +145,22 @@
             }
         });
 
+        // 비밀번호 입력창에서 Enter 키 입력 시 자동 제출
+        $("#checkPasswordInput").on("keypress", function (e) {
+            if (e.which === 13) { // 13 = Enter
+                $(".submit-password").click(); // 클릭 이벤트 트리거
+            }
+        });
+
         // 개인정보 수정 버튼 → 비번 확인 모달
         $("#editUserBtn").on("click", function () {
-            $("#checkPasswordInput").val("");
+            $("#checkPasswordInput").val(""); // 입력 초기화
             $("#passwordCheckModal").fadeIn(200).css("display", "flex");
+
+            // 모달이 다 뜬 후 포커스
+            setTimeout(() => {
+                $("#checkPasswordInput").focus();
+            }, 10);
         });
 
         // 비밀번호 확인 취소
@@ -159,23 +171,28 @@
         // 비밀번호 확인 제출
         $(".submit-password").on("click", function () {
             const pw = $("#checkPasswordInput").val();
-            if (!pw) return alert("비밀번호를 입력하세요.");
 
             $.ajax({
                 url: "/api/users/checkPassword",
                 method: "POST",
-                contentType: "application/json",
-                data: JSON.stringify({ id: currentUser.id, password: pw }),
+                data: { password: pw },
                 success: function (res) {
                     if (res.status === "ok") {
+                        // 인증 성공 시 → 수정 모달 열기
                         $("#passwordCheckModal").fadeOut(200);
-                        openEditModal(); // 진짜 수정 모달 열기
+                        $("#checkPasswordInput").val(""); // 입력 초기화
+
+                        openEditModal();
                     } else {
                         alert("비밀번호가 일치하지 않습니다.");
                     }
                 },
-                error: function () {
-                    alert("서버 오류 발생");
+                error: function (xhr) {
+                    if (xhr.status === 403) {
+                        alert("비밀번호가 틀렸습니다.");
+                    } else {
+                        alert("서버 오류가 발생했습니다.");
+                    }
                 }
             });
         });
@@ -184,39 +201,51 @@
         function openEditModal() {
             $("#modalEmail").val(currentUser.email);
             $("#modalPhone").val(currentUser.phone);
-            $("#modalAddress").val(currentUser.addr || "");
+            $("#modalAddress").val(currentUser.addr);
             $("#modalPassword").val("");
-
             $("#modalOverlay").fadeIn(200).css("display", "flex");
         }
     });
 
         // 저장 버튼 클릭
-        $(".submit-modal").on("click", function () {
-            const updated = {
-                id: currentUser.id,
-                email: $("#modalEmail").val(),
-                phone: $("#modalPhone").val(),
-                addr: $("#modalAddress").val(),
-                password: $("#modalPassword").val()
-            };
+    $(".submit-modal").on("click", function () {
+        const email = $("#modalEmail").val().trim();
+        const phone = $("#modalPhone").val().trim();
+        const addr = $("#modalAddress").val().trim();
+        const password = $("#modalPassword").val().trim();
 
-            $.ajax({
-                url: "/api/users/updateUser",
-                method: "POST",
-                contentType: "application/json",
-                data: JSON.stringify(updated),
-                success: function (res) {
-                    if (res.status === "ok") {
-                        alert("수정 완료!");
-                        closeModal(); // 모달 닫기
-                        location.reload();
-                    } else {
-                        alert("수정 실패: " + res.error);
-                    }
+        if (!email || !phone || !password) {
+            alert("이메일, 전화번호, 비밀번호는 필수 입력입니다.");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("email", email);
+        formData.append("phone", phone);
+        formData.append("addr", addr);
+        formData.append("password", password);
+
+
+        $.ajax({
+            url: "/api/users/updateUser",
+            method: "POST",
+            data: formData,
+            contentType: false, // 중요: multipart/form-data 자동 설정
+            processData: false, // 중요: 쿼리스트링 변환 방지
+            success: function (res) {
+                if (res.status === "ok") {
+                    alert("수정 완료!");
+                    closeModal();
+                    location.reload();
+                } else {
+                    alert("수정 실패: " + res.error);
                 }
-            });
+            },
+            error: function (xhr) {
+                alert("서버 오류: " + xhr.status);
+            }
         });
+    });
 
         // 닫기 버튼 클릭 시 모달 닫기
         $(".close-modal").on("click", function () {
