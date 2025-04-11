@@ -42,7 +42,7 @@
             </div>
             <div class="tableset">
                 <div class="tabletitle">
-                    <input type="checkbox" class="list-cell" id="head-check"/>
+                    <input type="checkbox" class="checkbox list-cell" id="head-check"/>
                     <div class="list-cell">부서</div>
                     <div class="list-cell">이름</div>
                     <div class="list-cell">팀</div>
@@ -352,7 +352,7 @@
                             let createdAt = user.createdAt.split(" ")[0];
                             let row = `
                         <div class="table">
-                            <input type="checkbox" class="user-check list-cell">
+                            <input type="checkbox" class="checkbox user-check list-cell" data-user-id="${user.id}">
                     	    <div class="list-cell">${depMap[user.departmentId]}</div>
                     	    <div class="list-cell">${user.name}</div>
                     	    <div class="list-cell">${user.team}</div>
