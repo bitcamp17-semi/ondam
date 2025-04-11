@@ -28,6 +28,9 @@ public interface MessageMapper {
     // 대상 필터링 및 검색
     List<MessagesDto> readSearchMessagesByKeyword(Map<String, Object> params);
 
+    List<MessagesDto> readSearchSentMessagesByKeyword(Map<String, Object> params);
+
+
     MessagesDto readMessageDetail(int id);
 
     void updateMessageImportance(@Param("id") int id, @Param("isImportant") boolean isImportant);
@@ -44,6 +47,15 @@ public interface MessageMapper {
                                           @Param("currentCreatedAt") java.sql.Timestamp currentCreatedAt);
 
     List<MessagesDto> readMessagesBySender(int senderId);
+
+    MessagesDto readNextMessageById(@Param("receiverId") int receiverId,
+                                    @Param("currentMessageId") int currentMessageId);
+
+    MessagesDto readPrevMessageById(@Param("receiverId") int receiverId,
+                                    @Param("currentMessageId") int currentMessageId);
+
+    int getMinMessageId(@Param("receiverId") int receiverId);
+    int getMaxMessageId(@Param("receiverId") int receiverId);
 
 
 

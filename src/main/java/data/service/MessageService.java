@@ -3,6 +3,7 @@ package data.service;
 import data.dto.MessagesDto;
 import data.dto.UsersDto;
 import data.mapper.MessageMapper;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -51,6 +52,14 @@ public class MessageService {
         params.put("receiverId", receiverId);
         return messageMapper.readSearchMessagesByKeyword(params);
     }
+    public List<MessagesDto> readSearchSentMessagesByKeyword(String keyword, String category, int senderId) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("keyword", keyword.trim());
+        params.put("category", category.trim());
+        params.put("senderId", senderId);
+        return messageMapper.readSearchSentMessagesByKeyword(params);
+    }
+
     // 쪽지 상세 조회(Service)=
     public MessagesDto readMessageDetail(int messageId) {
         return messageMapper.readMessageDetail(messageId);
@@ -81,6 +90,19 @@ public class MessageService {
     }
 
 
+    public MessagesDto readNextMessageById(int receiverId, int currentMessageId) {
+        return messageMapper.readNextMessageById(receiverId, currentMessageId);
+    }
 
+    public MessagesDto readPrevMessageById(int receiverId, int currentMessageId) {
+        return messageMapper.readPrevMessageById(receiverId, currentMessageId);
+    }
+
+    public int getMinMessageId(@Param("receiverId") int receiverId) {
+        return messageMapper.getMinMessageId(receiverId);
+    }
+    public int getMaxMessageId(@Param("receiverId") int receiverId) {
+        return messageMapper.getMaxMessageId(receiverId);
+    }
 
 }

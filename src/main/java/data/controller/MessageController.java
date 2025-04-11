@@ -328,6 +328,7 @@ public class MessageController {
                 map.put("receiverName", receiver != null ? receiver.getName() : "알 수 없음");
 
 
+
                 result.add(map);
             }
 
@@ -343,18 +344,46 @@ public class MessageController {
         }
     }
 
+    @GetMapping("/search/sent")
+    public ResponseEntity<Object> searchSentMessages(
+            @RequestParam String keyword,
+            @RequestParam(defaultValue = "LATEST") String category,
+            @RequestParam int senderId) {
 
-    @GetMapping("/next")
-    @ResponseBody
-    public ResponseEntity<Object> readNextMessage(@RequestParam int receiverId,
-                                                  @RequestParam String currentCreatedAt) {
-        Map<String, Object> response = new HashMap<>();
+        Map<String, Object> response = new LinkedHashMap<>();
         try {
-            Timestamp timestamp = Timestamp.valueOf(currentCreatedAt);
-            MessagesDto next = messageService.readNextMessageByReceiver(receiverId, timestamp);
+            List<MessagesDto> messages = messageService.readSearchSentMessagesByKeyword(keyword, category, senderId);
+
+            if ("important".equalsIgnoreCase(category)) {
+                messages = messages.stream()
+                        .filter(MessagesDto::isImportant)
+                        .collect(Collectors.toList());
+            }
+
+            List<Map<String, Object>> result = new ArrayList<>();
+
+            for (MessagesDto msg : messages) {
+                UsersDto receiver = usersService.readUserById(msg.getReceiverId());
+
+                Map<String, Object> map = new HashMap<>();
+                map.put("id", msg.getId());
+                map.put("title", msg.getTitle());
+                map.put("content", msg.getContent());
+                map.put("createdAt", msg.getCreatedAt());
+                map.put("receiverId", msg.getReceiverId());
+                map.put("receiverName", receiver != null ? receiver.getName() : "알 수 없음");
+                map.put("isImportant", msg.isImportant());
+                map.put("isRead", true);
+                result.add(map);
+            }
+            response.put("result", result);
             response.put("status", "ok");
-            response.put("result", next);
+
             return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            response.put("status", "error");
+            response.put("message", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             response.put("status", "error");
             response.put("message", e.getMessage());
@@ -362,23 +391,31 @@ public class MessageController {
         }
     }
 
-    @GetMapping("/prev")
+
+
+    @GetMapping("/nextById")
     @ResponseBody
-    public ResponseEntity<Object> readPrevMessage(@RequestParam int receiverId,
-                                                  @RequestParam String currentCreatedAt) {
-        Map<String, Object> response = new HashMap<>();
-        try {
-            Timestamp timestamp = Timestamp.valueOf(currentCreatedAt);
-            MessagesDto prev = messageService.readPrevMessageByReceiver(receiverId, timestamp);
-            response.put("status", "ok");
-            response.put("result", prev);
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        } catch (Exception e) {
-            response.put("status", "error");
-            response.put("message", e.getMessage());
-            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    public ResponseEntity<Object> readNextMessageById(@RequestParam int receiverId,
+                                                      @RequestParam int currentMessageId) {
+        MessagesDto next = messageService.readNextMessageById(receiverId, currentMessageId);
+        return ResponseEntity.ok(Map.of("status", "ok", "result", next));
     }
+
+    @GetMapping("/prevById")
+    @ResponseBody
+    public ResponseEntity<Object> readPrevMessageById(@RequestParam int receiverId,
+                                                      @RequestParam int currentMessageId) {
+        MessagesDto prev = messageService.readPrevMessageById(receiverId, currentMessageId);
+        return ResponseEntity.ok(Map.of("status", "ok", "result", prev));
+    }
+    @GetMapping("/bounds")
+    @ResponseBody
+    public ResponseEntity<Object> getMinMaxMessageId(@RequestParam int receiverId) {
+        int minId = messageService.getMinMessageId(receiverId);
+        int maxId = messageService.getMaxMessageId(receiverId);
+        return ResponseEntity.ok(Map.of("status", "ok", "min", minId, "max", maxId));
+    }
+
 
 
 

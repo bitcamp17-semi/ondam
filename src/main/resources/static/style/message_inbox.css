@@ -31,6 +31,10 @@
     height: 100%;
 }
 /*따로 추가한것 */
+.disabled {
+    pointer-events: none; /* 클릭 막기 */
+    opacity: 0.4;         /* 흐릿하게 */
+}
 
 /* 📦 예: message_inbox.css */
 #messagetitle,

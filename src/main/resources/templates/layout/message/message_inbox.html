@@ -154,6 +154,15 @@
             return `${year}-${month}-${day} ${hours}:${minutes}`;
         }
 
+        function updateNavButtonState(receiverId, currentId) {
+            $.get("/messages/bounds", { receiverId }, function (res) {
+                if (res.status === "ok") {
+                    $(".leftbtn").toggleClass("disabled", currentId == res.min);
+                    $(".rightbtn").toggleClass("disabled", currentId == res.max);
+                }
+            });
+        }
+
         function renderMessageDetail(msg) {
             $("#rightmaincontents").text(msg.content);
             $("#rightmaintitle .title-text").text(msg.title);
@@ -176,6 +185,9 @@
             $.get("/messages/users/name", {id: msg.senderId}, function (name) {
                 $("#profilename").text(name);
             });
+
+            const receiverId = $("#receiverId").val();
+            updateNavButtonState(receiverId, msg.id);
         }
 
         // 검색 결과 처리 후 오른쪽 패널 초기화
@@ -237,96 +249,136 @@
 
         $("#searchbtn").on("click", function (e) {
             e.preventDefault();
+            performSearch();
+        });
 
+        $("#searchinsert").on("keypress", function (e) {
+            if (e.which === 13) {
+                e.preventDefault();
+                performSearch();
+            }
+        });
+
+        function performSearch() {
             let keyword = $("#searchinsert").val().trim();
             let category = $(".dropdown-menu a.selected").data("filter") || "all";
             const userId = $("#userId").val();
+            const isSentTab = $("#navlist3").attr("data-active") === "true";
+            console.log("🟡 검색 시작", { keyword, category, userId, isSentTab });
 
-            resetMessageDetailPanel(); // ✅ 무조건 검색 전에 한 번 초기화
+            resetMessageDetailPanel();
 
             if (keyword === "") {
-                $("#receiverId").val(userId);
-                loadMessages(category, userId); // ✅ 전체 메시지 보기
-            } else {
-                $.get("/messages/search", {
-                    keyword: keyword,
-                    category: category === "important" ? "IMPORTANT" : "LATEST",
-                    receiverId: $("#userId").val()
-                }, function (res) {
-                    $(".messages").empty();
-                    if (res.status === "ok") {
-                        if (res.result.length === 0) {
-                            $(".messages").append(`
-                        <div class="no-result" style="padding: 20px; text-align: center; color: #888;">
-                            검색 결과가 없습니다.
-                        </div>
-                    `);
+                if (isSentTab) {
+                    console.log("🔵 전체 보낸 쪽지 로딩");
+                    $.get("/messages/sent", { senderId: userId }, function (res) {
+                        console.log("🟢 보낸 쪽지 응답:", res);
+
+                        $(".messages").empty();
+                        if (res.status === "ok") {
+                            if (res.result.length === 0) {
+                                $(".messages").append(`<div class="no-result">보낸 쪽지가 없습니다.</div>`);
+                            } else {
+                                res.result.forEach(msg => {
+                                    console.log("📨 보낸 쪽지 메시지:", msg);
+                                    $(".messages").append(createSentMessageHTML(msg));
+                                });
+                            }
+                            $("#totalcount").text(`총 ${res.result.length}개의 보낸 쪽지가 있습니다.`);
                         } else {
-                            res.result.forEach(msg => {
-                                $(".messages").append(createMessageHTML(msg, true)); // ← 검색결과는 강제 읽음 처리
-                            });
+                            alert("보낸 쪽지 로딩 실패");
                         }
-                        $("#totalcount").text(`총 ${res.result.length}개의 쪽지가 있습니다.`);
-                    } else {
-                        alert("검색 실패: " + res.message);
-                    }
-                });
+                    });
+                } else {
+                    console.log("🔵 전체 받은 쪽지 로딩");
+                    loadMessages(category, userId);
+                }
+                return;
             }
-        });
+
+            const url = isSentTab ? "/messages/search/sent" : "/messages/search";
+            const paramKey = isSentTab ? "senderId" : "receiverId";
+
+            console.log("🟣 검색 API 호출", { url, paramKey, keyword });
+
+            $.get(url, {
+                keyword,
+                category: category === "important" ? "IMPORTANT" : "LATEST",
+                [paramKey]: userId
+            }, function (res) {
+                console.log("🟢 검색 응답:", res);
+
+                $(".messages").empty();
+                if (res.status === "ok") {
+                    if (res.result.length === 0) {
+                        $(".messages").append(`<div class="no-result">검색 결과가 없습니다.</div>`);
+                    } else {
+                        res.result.forEach(msg => {
+                            console.log("📩 검색 메시지:", msg);
+                            const html = isSentTab
+                                ? createSentMessageHTML(msg)
+                                : createMessageHTML(msg, true);
+                            $(".messages").append(html);
+                        });
+                    }
+                    $("#totalcount").text(`총 ${res.result.length}개의 쪽지가 있습니다.`);
+                } else {
+                    alert("검색 실패: " + res.message);
+                }
+            });
+        }
+
+
+
 
 
         // 받은 쪽지함
         // 받은 쪽지함 클릭 시
-        $("#navlist2").on("click", function () {
-            $("#navlist2").css("font-weight", "bold");
-            $("#navlist3").css("font-weight", "normal");
 
-            resetMessageDetailPanel();
-            const userId = $("#userId").val();
 
-            $.get("/messages/inbox", { receiverId: userId }, function (res) {
+
+
+        function loadSentMessages(userId,category = "all") {
+            $.get("/messages/sent", { senderId: userId , category}, function (res) {
+                $(".messages").empty();
+                resetMessageDetailPanel();
+
                 if (res.status === "ok") {
-                    $(".messages").empty();
-
-                    if (res.result.length === 0) {
-                        $(".messages").append(`<div class="no-result">받은 쪽지가 없습니다.</div>`);
-                    } else {
-                        res.result.forEach(msg => {
-                            $(".messages").append(createMessageHTML(msg)); // ✅ 받은 메시지
-                        });
-                    }
-
-                    $("#totalcount").text(`총 ${res.result.length}개의 받은 쪽지가 있습니다.`);
-                }
-            });
-        });
-
-
-// 보낸 쪽지함
-        // 보낸 쪽지함 클릭 시
-        $("#navlist3").on("click", function () {
-            $("#navlist3").css("font-weight", "bold");
-            $("#navlist2").css("font-weight", "normal");
-
-            resetMessageDetailPanel();
-            const userId = $("#userId").val();
-
-            $.get("/messages/sent", { senderId: userId }, function (res) {
-                if (res.status === "ok") {
-                    $(".messages").empty();
-
                     if (res.result.length === 0) {
                         $(".messages").append(`<div class="no-result">보낸 쪽지가 없습니다.</div>`);
                     } else {
                         res.result.forEach(msg => {
-                            $(".messages").append(createSentMessageHTML(msg)); // ✅ 보낸 메시지
+                            $(".messages").append(createSentMessageHTML(msg));
                         });
                     }
-
                     $("#totalcount").text(`총 ${res.result.length}개의 보낸 쪽지가 있습니다.`);
+                } else {
+                    alert("보낸 쪽지 로딩 실패");
                 }
             });
+        }
+
+        // 받은 쪽지함 클릭
+        $("#navlist2").on("click", function () {
+            $("#navlist2").css("font-weight", "bold").attr("data-active", "true");
+            $("#navlist3").css("font-weight", "normal").removeAttr("data-active");
+
+            resetMessageDetailPanel();
+            const userId = $("#userId").val();
+            loadMessages("all", userId);
         });
+
+// 보낸 쪽지함 클릭
+        $("#navlist3").on("click", function () {
+            $("#navlist3").css("font-weight", "bold").attr("data-active", "true");
+            $("#navlist2").css("font-weight", "normal").removeAttr("data-active");
+
+            const userId = $("#userId").val();
+            const category = $(".dropdown-menu a.selected").data("filter") || "all"; // ✅ 이 줄 추가
+            loadSentMessages(userId,category);
+        });
+
+
 
 
 
@@ -536,14 +588,45 @@
                         $("#writedate").text(date);
 
                         // 수신자 이름
-                        $.get("/messages/users/name", {id: msg.receiverId}, function (name) {
+                        $.get(`/api/users/readUserById?userId=${msg.receiverId}`, function (userRes) {
+                            if(userRes.status === "ok") {
+                                const user = userRes.result;
+                                $("#profilename").text(user.name);
+                                $("#profilephoto").show().attr("src", `https://kr.object.ncloudstorage.com/bitcamp-semi/users/${user.profileImage}`);
+                                $("#profilephoto").on("error", function () {
+                                    $(this).attr("src", "../../images/Rectangle53.png");
+                                });
+                                $.get("/api/dep/readDeps", function (depRes) {
+                                    if (depRes.status === "ok") {
+                                        const dept = depRes.result.find(dep => dep.id == user.departmentId);
+                                        console.log("🔍 user.departmentId:", user.departmentId);
+                                        console.log("🧾 사용자 정보:", user);
+                                        console.log("🧾 부서 전체:", depRes.result);
+                                        console.log("🧾 매칭된 부서:", dept);
+                                        if (user.position === "admin") {
+                                            $("#profileteam").text("관리자");
+                                        } else if (dept) {
+                                            $("#profileteam").text(`${dept.name} | ${user.position}`);
+                                        } else {
+                                            $("#profileteam").text(`(부서 없음) | ${user.position}`);
+                                        }
+                                    }else{
+                                        $("#profileteam").text(user.position);
+                                    }
+                                    $("#profilename, #profilephoto, #profileteam").show();
+                                });
+                            }
+                        });
+                        $(".heart").hide();
+                        $(".rightarticle").addClass("show-detail");
+                        /*$.get("/messages/users/name", {id: msg.receiverId}, function (name) {
                             $("#profilename").text(name);
                         });
 
                         $("#profileteam").text("수신자");
                         $("#profilephoto").hide();
                         $(".heart").hide();
-                        $(".rightarticle").addClass("show-detail");
+                        $(".rightarticle").addClass("show-detail");*/
                     }
                 });
             } else {
@@ -686,32 +769,39 @@
             });
         }
 
+        // ⬅ 이전 메시지
         $(".leftbtn").on("click", function (e) {
-            e.preventDefault();  // ✅ 기본 제출/이동 방지
-            const currentTime = $("#rightmaintitle").attr("data-createAt"); // 현재 보고 있는 메시지 시간
-            const receiverId = $("#receiverId").val();
+            e.preventDefault();
 
-            $.get("/messages/prev", {
+            const receiverId = $("#receiverId").val();
+            const currentMessageId = $("#rightmaintitle").data("message-id");
+
+            if (!currentMessageId) return;
+
+            $.get("/messages/prevById", {
                 receiverId: receiverId,
-                currentCreatedAt: currentTime
+                currentMessageId: currentMessageId
             }, function (res) {
                 if (res.status === "ok" && res.result) {
-                    const msg = res.result;
-                    renderMessageDetail(msg);
+                    renderMessageDetail(res.result);
                 } else {
                     alert("이전 메시지가 없습니다.");
                 }
             });
         });
 
+// ➡ 다음 메시지
         $(".rightbtn").on("click", function (e) {
-            e.preventDefault();  // ✅ 기본 제출/이동 방지
-            const currentTime = $("#rightmaintitle").attr("data-createAt");
-            const receiverId = $("#receiverId").val();
+            e.preventDefault();
 
-            $.get("/messages/next", {
+            const receiverId = $("#receiverId").val();
+            const currentMessageId = $("#rightmaintitle").data("message-id");
+
+            if (!currentMessageId) return;
+
+            $.get("/messages/nextById", {
                 receiverId: receiverId,
-                currentCreatedAt: currentTime
+                currentMessageId: currentMessageId
             }, function (res) {
                 if (res.status === "ok" && res.result) {
                     renderMessageDetail(res.result);
@@ -720,6 +810,7 @@
                 }
             });
         });
+
 
 
         $(window).on("scroll", function () {
@@ -741,8 +832,7 @@
 
             if (!messageId) return alert("❌ 메시지 ID가 없습니다!");
 
-            const isImportant = $heart.hasClass("bi-suit-heart-fill");
-            const isNowImportant = !isImportant;
+            const isNowImportant = !$(`.getmessage[data-id="${messageId}"]`).data("important");
 
             // 중요 표시 AJAX
             $.ajax({
@@ -770,7 +860,7 @@
             });
         });
 
-        $(document).on("click", ".trashbox", function () {
+        $(document).on("click", ".trashbox", function (e) {
             e.preventDefault();
             const messageItem = $(this).closest(".message-item");
             const messageId = $("#rightmaintitle").data("message-id");  // rightmaintitle에서 메시지 ID 찾기

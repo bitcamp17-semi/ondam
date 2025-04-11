@@ -61,23 +61,43 @@
                m.isImportant,
                u.name AS senderName
         FROM messages m
-        JOIN users u ON m.senderid = u.id
-        WHERE m.receiverid = #{receiverID}
+            JOIN users u ON m.senderid = u.id
+        WHERE m.receiverid = #{receiverId}
+                AND (
+                    m.title LIKE CONCAT('%', #{keyword}, '%') OR
+                    m.content LIKE CONCAT('%', #{keyword}, '%') OR
+                    m.senderid IN (
+                    SELECT id FROM users WHERE name LIKE CONCAT('%', #{keyword}, '%')
+                    )
+            )
+          <if test="category eq 'IMPORTANT'">
+          AND m.isImportant = TRUE
+        </if>
+        ORDER BY m.createdat DESC
+    </select>
+    <select id="readSearchSentMessagesByKeyword" parameterType="map" resultType="MessagesDto">
+        SELECT m.id, m.title, m.content,
+               m.senderid AS senderId,m.receiverid AS receiverId,
+               m.isread AS isRead,m.createdat AS createdAt,
+               m.readat AS readAt,m.isImportant,
+               u.name AS receiverName
+        FROM messages m
+            JOIN users u ON m.receiverid = u.id
+        WHERE m.senderid = #{senderId}
           AND (
-              m.title LIKE CONCAT('%', #{keyword}, '%') OR
-              m.content LIKE CONCAT('%', #{keyword}, '%') OR
-              m.senderid IN (
-              SELECT id FROM users WHERE name LIKE CONCAT('%', #{keyword}, '%')
-                                   ) OR
-              m.receiverid IN (
-              SELECT id FROM users WHERE name LIKE CONCAT('%', #{keyword}, '%')
-                                   )
+              m.title LIKE CONCAT('%', #{keyword}, '%')
+                  OR m.content LIKE CONCAT('%', #{keyword}, '%')
+                  OR u.name LIKE CONCAT('%', #{keyword}, '%')
               )
           <if test="category eq 'IMPORTANT'">
           AND m.isImportant = TRUE
         </if>
         ORDER BY m.createdat DESC
     </select>
+
+
+
+
 
     <select id="readMessageDetail" parameterType="int" resultType="MessagesDto">
         SELECT id,
@@ -164,7 +184,7 @@
                m.isImportant
         FROM messages m
         WHERE m.receiverid = #{receiverId}
-          AND m.createdat < #{currentCreatedAt}
+          AND m.createdat &lt; #{currentCreatedAt}
         ORDER BY m.createdat DESC
             LIMIT 1
         ]]>
@@ -184,9 +204,36 @@
                m.isImportant
         FROM messages m
         WHERE m.receiverid = #{receiverId}
-          AND m.createdat > #{currentCreatedAt}
+          AND m.createdat &gt; #{currentCreatedAt}
         ORDER BY m.createdat ASC LIMIT 1
     </select>
+
+    <select id="readNextMessageById" parameterType="map" resultType="MessagesDto">
+        SELECT *
+        FROM messages
+        WHERE receiverid = #{receiverId}
+          AND id &gt; #{currentMessageId}
+        ORDER BY id ASC
+            LIMIT 1
+    </select>
+
+    <select id="readPrevMessageById" parameterType="map" resultType="MessagesDto">
+        SELECT *
+        FROM messages
+        WHERE receiverid = #{receiverId}
+          AND id &lt; #{currentMessageId}
+        ORDER BY id DESC LIMIT 1
+    </select>
+
+    <select id="getMinMessageId" parameterType="int" resultType="int">
+        SELECT MIN(id) FROM messages WHERE receiverid = #{receiverId}
+    </select>
+
+    <select id="getMaxMessageId" parameterType="int" resultType="int">
+        SELECT MAX(id) FROM messages WHERE receiverid = #{receiverId}
+    </select>
+
+
 
 
 </mapper>
