@@ -19,24 +19,6 @@ public class AlarmService {
 	final AlarmEmitterRepository emitterRepository;
 	final AlarmMapper alarmMapper;
 	
-	//알람 발생
-    public void sendScheduleNotification(Long userId, String scheduleTitle) {
-        //SseEmitter emitter = emitterRepository.get(userId);
-    	List<SseEmitter> originalEmitters = emitterRepository.get((long) userId);
-        List<SseEmitter> emitters = new ArrayList<>(originalEmitters); // 복사본 생성
-    	for (SseEmitter emitter : emitters) {
-    	//if (emitter != null) {
-            try {
-                emitter.send(SseEmitter.event()
-                        .name("schedule")
-                        .data("새 일정 등록: " + scheduleTitle));
-            } catch (IOException e) {
-            	emitter.completeWithError(e);//명시적으로 연결 종료
-            	emitterRepository.remove((long) userId, emitter);
-            }
-        }
-    }
-    
     //알람 db에 저장
     public void insertAlarm(AlarmDto dto)
     {
@@ -52,12 +34,12 @@ public class AlarmService {
     	dto.setCausedBy(causedBy);
     	dto.setContent(content);
     	dto.setCreatedAt(new Timestamp(System.currentTimeMillis()));
-    	dto.setRead(false); //기본으로 읽지않은 상태 저장
+    	dto.setIsRead('0'); //기본으로 읽지않은 상태 저장
     	
     	insertAlarm(dto);
     }
     
-    //userId가 받은 모든 알람 조회
+    //모든 알람 조회
   	public List<AlarmDto> allAlarm(int userId, int startNum, int perPage)
   	{
   		return alarmMapper.allAlarm(userId, startNum,perPage);
@@ -93,11 +75,27 @@ public class AlarmService {
   		return alarmMapper.countReadAlarm(userId);
   	}
   	
-  	//알람 읽음 상태 수정
-  	public void updateIsRead(int id)
+  	//알림 상태 읽음으로 변경
+  	public void updateIsRead(List<Integer> ids)
   	{
-  		alarmMapper.updateIsRead(id);
+  		alarmMapper.updateIsRead(ids);
   	}
+  	
+  	//한명한테만 일정 알림 전송
+    public void sendScheduleNotification(Long userId, String scheduleTitle) {
+        //SseEmitter emitter = emitterRepository.get(userId);
+    	SseEmitter emitter = emitterRepository.get(userId);
+        if (emitter != null) {
+            try {
+                emitter.send(SseEmitter.event()
+                        .name("schedule")
+                        .data("새 일정 등록: " + scheduleTitle));
+            } catch (IOException e) {
+                emitter.completeWithError(e);
+                emitterRepository.remove(userId, emitter);
+            }
+        }
+    }
   	
   	//일정 등록 시 선택된 그룹의 멤버들(본인포함)한테 알람전송
   	public void sendScheduleAlarmGroupMem(List<Integer> groupMems, int causedBy, String content)
@@ -111,16 +109,17 @@ public class AlarmService {
   	    	dto.setCausedBy(causedBy);
   	    	dto.setContent(content);
   	    	dto.setCreatedAt(new Timestamp(System.currentTimeMillis()));
-  	    	dto.setRead(false); //기본으로 읽지않은 상태 저장
+  	    	dto.setIsRead('0'); //기본으로 읽지않은 상태 저장
   	    	
   			//alarm DB 저장
   			insertAlarm(dto);
   			
   			//SSE 전송
-  			List<SseEmitter> originalEmitters = emitterRepository.get((long) groupMem);
-  	        List<SseEmitter> emitters = new ArrayList<>(originalEmitters); // 복사본 생성
-  			for (SseEmitter emitter : emitters) {
-  			//if(emitter !=null) {
+  			//List<SseEmitter> originalEmitters = emitterRepository.get((long) groupMem);
+  	        //List<SseEmitter> emitters = new ArrayList<>(originalEmitters); // 복사본 생성
+  			SseEmitter emitter = emitterRepository.get((long) groupMem);
+  			//for (SseEmitter emitter : emitters) {
+  			if(emitter !=null) {
   				try {
   					//System.out.println("SSE 전송 시도: userId = " + groupMem);
   				  	emitter.send(SseEmitter.event().name("alarm").data(content));

@@ -31,5 +31,5 @@ public interface AlarmMapper {
 	public int countReadAlarm(int userId);
 	
 	//알람 확인여부 업데이트
-	public int updateIsRead(int id);
+	public int updateIsRead(List<Integer> ids);
 }

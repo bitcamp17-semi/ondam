@@ -2,6 +2,7 @@ package data.controller;
 
 import java.io.Console;
 import java.io.PrintWriter;
+import java.lang.System.Logger;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -47,7 +49,7 @@ public class SchedulesController {
 	final ScheduleGroupService scheduleGroupService;
 	final ScheduleGroupMembersService scheduleGroupMemberService;
 	final AlarmService alarmService;
-	
+	private static final org.slf4j.Logger log = LoggerFactory.getLogger(SchedulesController.class);
 	//일정관리 페이지 진입
 	@GetMapping
 	public String scheduleMain(Model model, HttpSession session) {
@@ -61,10 +63,21 @@ public class SchedulesController {
 		    return "redirect:/login";
 		}
 		
+		UsersDto user = userService.readUserById(sUserId);
+		log.info("🧑‍💼 DB에서 조회된 user = {}", user);
+		if (user == null) {
+		    // 사용자 정보가 없을 때 처리 방식
+		   log.warn("❗ userId={}인 유저를 찾을 수 없습니다.", sUserId);
+		    return "redirect:/login"; // 또는 에러 페이지로
+		}
+		
+		
 		//아이디를 통해서 유저 테이블의 작성자 얻기
-		String writer=userService.readUserById(sUserId).getName();
+		//String writer=userService.readUserById(sUserId).getName();
+		String writer = user.getName();
 		//그룹장이름
-		String ownerName=userService.readUserById(sUserId).getName();
+		//String ownerName=userService.readUserById(sUserId).getName();
+		String ownerName = user.getName();
 		
 		//로그인 시 로그인한 계정이 그룹장이며 그룹이름이 '개인일정'인 그룹
 		//있는지 체크 후 없으면 그룹 자동 생성
@@ -110,9 +123,19 @@ public class SchedulesController {
 		//내가 그룹장이거나 그룹인원으로 있는 그룹 목록 불러오기
 		List<ScheduleGroupDto> groupList=scheduleGroupService.readAllGroup(sUserId);
 		for (ScheduleGroupDto group : groupList) {
-		    int ownerId = group.getOwnerId();
-		    String gownerName = userService.readUserById(ownerId).getName();
-		    group.setOwnerName(gownerName); // ScheduleGroupDto에 ownerName 필드 필요
+		    //int ownerId = group.getOwnerId();
+		    //String gownerName = userService.readUserById(ownerId).getName();
+		    //group.setOwnerName(gownerName); // ScheduleGroupDto에 ownerName 필드 필요
+			int ownerId = group.getOwnerId();
+		    UsersDto ownerUser = userService.readUserById(ownerId);
+
+		    if (ownerUser != null) {
+		        group.setOwnerName(ownerUser.getName());
+		    } else {
+		        group.setOwnerName("알 수 없음");
+		        log.warn("❗ 그룹 ID={}의 ownerId={} 유저 정보가 없습니다.", group.getId(), ownerId);
+		    }
+			
 		}
 		// 모든 그룹에 대해 그룹 멤버 조회 후 Map으로 담기
 	    Map<Integer, List<Integer>> groupMemberMap = new HashMap<>();
@@ -202,7 +225,7 @@ public class SchedulesController {
             response.put("result", map);
             return new ResponseEntity<>(response, HttpStatus.OK);
 	    } catch (Exception e) {
-	    	e.printStackTrace();
+	    	//e.printStackTrace();
 	    	response.put("status", "error");
             response.put("result", e.getMessage());
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);

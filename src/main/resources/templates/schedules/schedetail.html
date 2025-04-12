@@ -199,7 +199,7 @@ $("#updateForm").submit(function(e){
 		type:"post",
 		dataType:"text",
 		data:form,
-		url:"./scheUpdate",
+		url:"/schedules/scheUpdate",
 		processData:false,
 		contentType:false,
 		success:function(res){
@@ -292,10 +292,10 @@ $("#updateForm").submit(function(e){
 				type: "get",
 				dataType: "text",
 				data: { "id": "[[${dto.id}]]" },
-				url: "./scheDelete",
+				url: "/schedules/scheDelete",
 				success: function(){
 					alert("삭제되었습니다.");
-					location.href = "./schedules";
+					location.href = "/schedules";
 				},
 				error: function(){
 					console.log("실패입니다.");

@@ -221,7 +221,7 @@ document.addEventListener("DOMContentLoaded", function () {
             	var event = info.event;
 				var id = event.id;
 				//상세페이지 이동
-				window.location.href = './scheDetail?id=' + id;
+				window.location.href = '/schedules/scheDetail?id=' + id;
 			}
     		
         });
@@ -360,7 +360,7 @@ document.addEventListener("DOMContentLoaded", function () {
     	      }
     	      
     	      $.ajax({
-    	        url: '/scheduleinsert',
+    	        url: '/schedules/scheduleinsert',
     	        type: 'POST',
     	        contentType: 'application/json',
     	        data: JSON.stringify({

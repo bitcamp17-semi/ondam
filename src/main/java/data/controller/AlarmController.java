@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
@@ -66,7 +67,7 @@ public class AlarmController {
     	String userName=userService.readUserById(userId).getName();
     	
     	//페이징처리
-        int perPage=9;//한페이지당 출력할 글의 갯수
+        int perPage=10;//한페이지당 출력할 글의 갯수
         int perBlock=10;//한 블럭당 출력할 페이지 갯수
         int totalCount;//전체 게시글 갯수
         int totalPage;//총 페이지수
@@ -95,7 +96,7 @@ public class AlarmController {
         
         Map<String, Object> response = new LinkedHashMap<>();
         try {
-        	response.put("userName", userName);
+        	//response.put("userName", userName);
         	response.put("totalCount", totalCount);
         	response.put("totalPage", totalPage);
         	response.put("currentPage", pageNum);
@@ -126,7 +127,7 @@ public class AlarmController {
     	String userName=userService.readUserById(userId).getName();
     	
     	//페이징처리
-        int perPage=9;//한페이지당 출력할 글의 갯수
+        int perPage=10;//한페이지당 출력할 글의 갯수
         int perBlock=10;//한 블럭당 출력할 페이지 갯수
         int totalCount;//전체 게시글 갯수
         int totalPage;//총 페이지수
@@ -136,7 +137,7 @@ public class AlarmController {
         int no;//각 페이지에서 출력할 시작번호
     	
         //전체 알람 개수
-        totalCount=alarmService.countAllAlarm(userId);
+        totalCount=alarmService.countReadAlarm(userId);
         totalPage=(int)Math.ceil((double)totalCount/perPage);
         
         //시작페이지
@@ -185,7 +186,7 @@ public class AlarmController {
     	String userName=userService.readUserById(userId).getName();
     	
     	//페이징처리
-        int perPage=9;//한페이지당 출력할 글의 갯수
+        int perPage=10;//한페이지당 출력할 글의 갯수
         int perBlock=10;//한 블럭당 출력할 페이지 갯수
         int totalCount;//전체 게시글 갯수
         int totalPage;//총 페이지수
@@ -195,7 +196,7 @@ public class AlarmController {
         int no;//각 페이지에서 출력할 시작번호
     	
         //전체 알람 개수
-        totalCount=alarmService.countAllAlarm(userId);
+        totalCount=alarmService.countUnreadAlarm(userId);
         totalPage=(int)Math.ceil((double)totalCount/perPage);
         
         //시작페이지
@@ -234,10 +235,10 @@ public class AlarmController {
     
     //알람 상태 읽음으로 변경
     @GetMapping("/updateIsRead")
-    public ResponseEntity<Object> updateIsRead(@RequestParam(value = "id") int id) {
+    public ResponseEntity<Object> updateIsRead(@RequestParam(value = "id") List<Integer> ids) {
         Map<String, Object> response = new LinkedHashMap<>();
         try {
-            alarmService.updateIsRead(id); // void 메서드 실행
+        	alarmService.updateIsRead(ids);// void 메서드 실행
             response.put("status", "ok");
             response.put("result", "알람 상태가 업데이트되었습니다.");
             return new ResponseEntity<>(response, HttpStatus.OK);
