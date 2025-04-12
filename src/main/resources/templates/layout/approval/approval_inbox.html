@@ -1,84 +1,97 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.w3.org/1999/xhtml">
+<html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <link rel="stylesheet" th:href="@{/style/globals.css}" />
-    <link rel="stylesheet" th:href="@{/style/approval_inbox.css}" />
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" th:href="@{/style/globals.css}"/>
+    <link rel="stylesheet" th:href="@{/style/approval_inbox.css}"/>
+    <link rel="stylesheet" th:href="@{/style/header.css}" />
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
 </head>
 <body>
-<div th:replace="/layout/header :: header"></div>
-<div class="approval_inbox">
+<div class="fullbox">
+    <div th:replace="~{layout/header :: header}"></div>
     <div class="main">
-        <div class="top">
-            <div class="nav">
-                <div class="title">
-                    <div class="div">전자결재</div>
-                </div>
-                <div class="menu">
-                    <div class="div2">+ 작성하기</div>
-                    <div class="div3">|</div>
-                    <div class="div4">수신함</div>
-                    <div class="div3">|</div>
-                    <div class="div5">발신함</div>
-                    <div class="div3">|</div>
-                    <div class="div5">반려함</div>
-                </div>
+        <div class="nav">
+            <div class="navtitle">
+                전자결재
+            </div>
+            <div class="navbar">
+                <div id="navlist1">+ 작성하기</div>
+                <div id="navlist2">수신함</div>
+                <div class="navlistnone" id="outbox">발신함</div>
+                <div class="navlistnone" id="donebox">결재완료</div>
             </div>
         </div>
         <div class="section">
-            <div class="article">
-                <div class="btnframe">
-                    <button class="btnwhite">
-                        <div class="div6">선택 결재</div>
-                    </button>
-                    <button class="btnwhite">
-                        <div class="div6">선택 반려</div>
-                    </button>
+            <div class="btnset">
+                <button class="orangebtn">선택 결재</button>
+                <button class="whitebtn">선택 반려</button>
+            </div>
+            <div class="approvallist">
+                <div class="listtop">
+                    <input type="checkbox" class="selectAll list-cell">
+                    <div class="list-cell">번호</div>
+                    <div class="list-cell listtitle">제목</div>
+                    <div class="list-cell">문서분류</div>
+                    <div class="list-cell">작성자</div>
+                    <div class="list-cell">작성일</div>
+                    <div class="list-cell">결재상태</div>
                 </div>
-                <div class="tableset">
-                    <div class="tabletitle">
-                        <input class="checkbox" type="checkbox" />
-                        <div class="div7">|</div>
-                        <div class="div8">번호</div>
-                        <div class="div7">|</div>
-                        <div class="div9">제목</div>
-                        <div class="div7">|</div>
-                        <div class="div10">문서분류</div>
-                        <div class="div7">|</div>
-                        <div class="div11">작성자</div>
-                        <div class="div7">|</div>
-                        <div class="div12">작성일</div>
-                        <div class="div7">|</div>
-                        <div class="div10">결재상태</div>
+                <div class="listmain">
+                    <div class="listcontent">
+                        <input type="checkbox" class="childCheckbox list-cell">
+                        <div class="list-cell">1</div>
+                        <div class="list-cell listtitle" id="listtitlebtn">제목입니다</div>
+                        <div class="list-cell">기안문</div>
+                        <div class="list-cell">홍길동</div>
+                        <div class="list-cell">2025.03.28</div>
+                        <div class="list-cell">미결재</div>
                     </div>
-                    <div class="table">
-                        <input class="checkbox" type="checkbox" />
-                        <div class="div7">|</div>
-                        <div class="_1">1</div>
-                        <div class="div7">|</div>
-                        <div class="div13">ㅇㅇ보고의 건</div>
-                        <div class="div7">|</div>
-                        <div class="div14">기안문</div>
-                        <div class="div7">|</div>
-                        <div class="div15">홍길동</div>
-                        <div class="div7">|</div>
-                        <div class="_2025-03-25">2025.03.25</div>
-                        <div class="div7">|</div>
-                        <div class="div14">미승인</div>
-                    </div>
-                    <div class="frame-136"></div>
                 </div>
+            </div>
+            <div class="pagenumber">
+                1234
             </div>
         </div>
     </div>
-    <div class="pagenumset">
-        <img class="before" src="before0.svg" />
-        <div class="pagenum">
-            <div class="_12">1</div>
-            <div class="_2">2</div>
-        </div>
-        <img class="next" src="next0.svg" />
-    </div>
 </div>
+<script>
+    $(document).ready(function () {
+        // 상위 체크박스 클릭 시
+        $('.selectAll').on('change', function () {
+            $('.childCheckbox').prop('checked', $(this).prop('checked'));
+        });
+
+        // 하위 체크박스 클릭 시
+        $('.childCheckbox').on('change', function () {
+            const total = $('.childCheckbox').length;
+            const checked = $('.childCheckbox:checked').length;
+
+            $('.selectAll').prop('checked', total === checked);
+        });
+    });
+    function loadDrafts() {
+        $.ajax({
+            url: "/api/draft/"
+        })
+    }
+</script>
 </body>
 </html>
+<script>
+    $("#navlist1").click(function () {
+        location.href = "/draft/approvalWrite";
+    })
+    $("#navlist2").click(function () {
+        location.href = "/draft/approvalInbox";
+    })
+    $("#outbox").click(function () {
+        location.href = "/draft/approvalOutBox";
+    })
+    $("#donebox").click(function () {
+        location.href = "/draft/approvalDone";
+    })
+</script>

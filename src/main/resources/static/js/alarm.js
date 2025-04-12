@@ -14,15 +14,15 @@ document.addEventListener("DOMContentLoaded", function () {
 	  fontLink.href = "https://fonts.googleapis.com/css2?family=Jua";
 	  document.head.appendChild(fontLink);
 	}
-	
+
     // AJAX로 로그인한 사용자 ID 받아오기
     $.ajax({
-        url: "/api/users/readUserById",
-        type: "GET",
-        success: function (res) {
-            if (res.status === "ok" && res.result.id) {
-                const userId = res.result.id;
-                console.log("로그인 userId:", userId);
+      url: "/api/users/readUserBySession",
+      type: "GET",
+      success: function (res) {
+        if (res.status === "ok" && res.result.id) {
+          const userId = res.result.id;
+          //console.log("로그인 userId:", userId);
 
                 const eventSource = new EventSource("/alarm/connect?userId=" + userId);
 

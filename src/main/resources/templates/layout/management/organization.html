@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>jQuery 드롭다운 & 조직도</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        /* ======= 드롭다운 스타일 ======= */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+            width: 150px; /* 버튼 크기 유지 */
+            margin: 10px;
+        }
+
+        .dropdown-btn {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%; /* 버튼 크기와 동일하게 */
+            background-color: white;
+            border: 1px solid #ddd;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .dropdown-menu a {
+            display: block;
+            padding: 10px;
+            text-decoration: none;
+            color: black;
+        }
+
+        .dropdown-menu a:hover {
+            background-color: #f1f1f1;
+        }
+
+        /* ======= 조직도 스타일 ======= */
+        ul {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+
+        .tree li {
+            cursor: pointer;
+            margin: 5px 0;
+            position: relative;
+        }
+
+        .tree li::before {
+            content: "▶"; /* 접기 아이콘 */
+            position: absolute;
+            left: -15px;
+            font-size: 12px;
+        }
+
+        .tree li.open::before {
+            content: "▼"; /* 펼치기 아이콘 */
+        }
+
+        .tree ul {
+            display: none; /* 기본적으로 하위 메뉴 숨김 */
+        }
+
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltip-text {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 105%; /* 오른쪽에 위치 */
+            transform: translateY(-50%);
+            background-color: #fff;
+            color: #fff;
+            padding: 6px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            z-index: 10;
+        }
+
+        .tooltip.active .tooltip-text {
+            display: block;
+        }
+
+        button {
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+        .tooltip-text,
+        .tooltip-text * {
+            box-sizing: border-box;
+        }
+        .tooltip-text {
+            width: 311px;
+            height: 199px;
+            position: relative;
+        }
+        .rectangle-75 {
+            background: #f7f7f7;
+            border-radius: 5px;
+            width: 300px;
+            height: 178px;
+            position: absolute;
+            left: 11px;
+            top: 21px;
+        }
+        .loginbtn {
+            background: #fa7000;
+            border-radius: 5px;
+            border-style: solid;
+            border-color: rgba(0, 0, 0, 0.15);
+            border-width: 1px;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            width: 261px;
+            height: 35px;
+            position: absolute;
+            left: 29px;
+            top: 152px;
+        }
+        .btn {
+            color: #ffffff;
+            text-align: center;
+            font-family: "NotoSans-Bold", sans-serif;
+            font-size: 16px;
+            line-height: 22px;
+            font-weight: 700;
+            position: relative;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .rectangle-76 {
+            background: #f7f7f7;
+            border-radius: 5px;
+            width: 140px;
+            height: 140px;
+            position: absolute;
+            left: 23px;
+            top: 0px;
+        }
+        .profileimage {
+            border-radius: 5px;
+            width: 125px;
+            height: 125px;
+            position: absolute;
+            left: 31px;
+            top: 8px;
+            object-fit: cover;
+        }
+
+        .name {
+            color: #3f3f3f;
+            text-align: left;
+            font-family: "NotoSans-Bold", sans-serif;
+            font-size: 16px;
+            line-height: 22px;
+            font-weight: 700;
+            position: absolute;
+            left: 217px;
+            top: 57px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+        .phone {
+            color: #3f3f3f;
+            text-align: left;
+            font-family: "NotoSans-Regular", sans-serif;
+            font-size: 12px;
+            line-height: 22px;
+            font-weight: 400;
+            position: absolute;
+            left: 184px;
+            top: 88px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+        .team {
+            color: #3f3f3f;
+            text-align: left;
+            font-family: "NotoSans-Regular", sans-serif;
+            font-size: 12px;
+            line-height: 22px;
+            font-weight: 400;
+            position: absolute;
+            left: 176px;
+            top: 57px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+        .date {
+            color: #3f3f3f;
+            text-align: left;
+            font-family: "NotoSans-Regular", sans-serif;
+            font-size: 12px;
+            line-height: 22px;
+            font-weight: 400;
+            position: absolute;
+            left: 177px;
+            top: 108px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+    </style>
+</head>
+<body>
+
+<!-- ===== 드롭다운 영역 ===== -->
+<h2>드롭다운 메뉴</h2>
+<div class="dropdown">
+    <button class="dropdown-btn">메뉴 1</button>
+    <div class="dropdown-menu">
+        <a href="#">옵션 1-1</a>
+        <a href="#">옵션 1-2</a>
+        <a href="#">옵션 1-3</a>
+    </div>
+</div>
+
+<div class="dropdown">
+    <button class="dropdown-btn">메뉴 2</button>
+    <div class="dropdown-menu">
+        <a href="#">옵션 2-1</a>
+        <a href="#">옵션 2-2</a>
+        <a href="#">옵션 2-3</a>
+    </div>
+</div>
+
+<div class="dropdown">
+    <button class="dropdown-btn">메뉴 3</button>
+    <div class="dropdown-menu">
+        <a href="#">옵션 3-1</a>
+        <a href="#">옵션 3-2</a>
+        <a href="#">옵션 3-3</a>
+    </div>
+</div>
+
+<!-- ===== 조직도 영역 ===== -->
+<h2>조직도</h2>
+<ul class="tree">
+    <li class="parent">대표이사 홍길동
+        <ul>
+            <li class="parent">기획팀
+                <ul>
+                    <li>기획팀장 김철수</li>
+                    <li>기획팀원 이영희</li>
+                </ul>
+            </li>
+            <li class="parent">개발팀
+                <ul>
+                    <li>개발팀장 박준형</li>
+                    <li>개발팀원 정다은</li>
+                </ul>
+            </li>
+            <li class="parent">디자인팀
+                <ul>
+                    <li>디자인팀장 오수민</li>
+                    <li>디자인팀원 강민지</li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+</ul>
+
+<script>
+    $(document).ready(function () {
+        // ===== 드롭다운 기능 =====
+        $(".dropdown-btn").click(function (event) {
+            event.stopPropagation();
+            let menu = $(this).next(".dropdown-menu");
+
+            $(".dropdown-menu").not(menu).hide(); // 다른 메뉴 닫기
+            menu.toggle(); // 현재 메뉴 열기/닫기
+        });
+
+        // 화면 아무 곳이나 클릭하면 닫힘
+        $(document).click(function () {
+            $(".dropdown-menu").hide();
+        });
+
+        // 버튼 내부 클릭해도 닫히지 않도록 설정
+        $(".dropdown").click(function (event) {
+            event.stopPropagation();
+        });
+
+        // 선택한 옵션을 버튼에 표시
+        $(".dropdown-menu a").click(function () {
+            let selectedText = $(this).text();
+            $(this).closest(".dropdown").find(".dropdown-btn").text(selectedText);
+            $(this).closest(".dropdown-menu").hide(); // 선택 후 닫기
+        });
+
+        // ===== 조직도 기능 =====
+        $(".parent").click(function (event) {
+            event.stopPropagation(); // 부모 요소로 이벤트 전파 방지
+            $(this).toggleClass("open");
+            $(this).children("ul").slideToggle();
+        });
+    });
+</script>
+
+
+
+<div class="tooltip" id="myTooltip">
+    <button onclick="toggleTooltip()">툴팁 보기</button>
+    <div class="tooltip-text">
+            <div class="rectangle-75"></div>
+            <button class="loginbtn">
+                <div class="btn">개인정보 수정하기</div>
+            </button>
+            <div class="rectangle-76"></div>
+            <img class="profileimage" src="profileimage0.png" />
+            <div class="name">ㅇㅇ사원</div>
+            <div class="phone">010-1111-2222</div>
+            <div class="team">인사팀</div>
+            <div class="date">입사일 : 2025.04.04</div>
+
+    </div>
+</div>
+
+<script>
+    function toggleTooltip() {
+        const tooltip = document.getElementById('myTooltip');
+        tooltip.classList.toggle('active');
+    }
+
+    // 바깥 클릭 시 닫기
+    document.addEventListener('click', function(e) {
+        const tooltip = document.getElementById('myTooltip');
+        if (!tooltip.contains(e.target)) {
+            tooltip.classList.remove('active');
+        }
+    });
+</script>
+
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>전자결재 템플릿 편집기</title>
+
+    <!-- Quill 에디터 CSS -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <!-- Quill 에디터 JS -->
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+
+    <style>
+        #editor-container {
+            height: 400px;
+            margin-top: 10px;
+        }
+        #controls {
+            margin-bottom: 10px;
+        }
+        input, select, button {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<h2>전자결재 템플릿 편집기</h2>
+
+<div id="controls">
+    <!-- 템플릿 저장 -->
+    <input type="text" id="template-title" placeholder="템플릿 제목" />
+    <button id="save-template">템플릿 저장</button>
+
+    <!-- 템플릿 불러오기 -->
+    <select id="template-list">
+        <option disabled selected>템플릿 선택</option>
+    </select>
+</div>
+
+<!-- Quill 에디터 -->
+<div id="editor-container"></div>
+
+<script>
+    // 1. Quill 에디터 초기화
+    var quill = new Quill('#editor-container', {
+        theme: 'snow',
+        placeholder: '내용을 입력하세요...',
+        modules: {
+            toolbar: [
+                [{ header: [1, 2, false] }],
+                ['bold', 'italic', 'underline'],
+                ['image', 'code-block']
+            ]
+        }
+    });
+
+    // 2. 템플릿 저장
+    $('#save-template').on('click', function () {
+        const title = $('#template-title').val();
+        const content = quill.root.innerHTML;
+
+        if (!title.trim()) {
+            alert('템플릿 제목을 입력하세요!');
+            return;
+        }
+
+        $.ajax({
+            url: '/template/save', // 서버에 맞게 URL 조정
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ title: title, content: content }),
+            success: function () {
+                alert('템플릿이 저장되었습니다!');
+                loadTemplateList(); // 저장 후 목록 갱신
+            },
+            error: function () {
+                alert('템플릿 저장 실패');
+            }
+        });
+    });
+
+    // 3. 템플릿 목록 불러오기
+    function loadTemplateList() {
+        $.ajax({
+            url: '/template/list',
+            method: 'GET',
+            success: function (templates) {
+                $('#template-list').empty().append('<option disabled selected>템플릿 선택</option>');
+                templates.forEach(function (template) {
+                    $('#template-list').append(
+                        $('<option>', { value: template.id, text: template.title })
+                    );
+                });
+            }
+        });
+    }
+
+    // 4. 템플릿 선택 시 내용 불러오기
+    $('#template-list').on('change', function () {
+        const id = $(this).val();
+
+        $.ajax({
+            url: '/template/load/' + id,
+            method: 'GET',
+            success: function (data) {
+                quill.root.innerHTML = data.content;
+            },
+            error: function () {
+                alert('템플릿 불러오기 실패');
+            }
+        });
+    });
+
+    // 5. 페이지 로딩 시 템플릿 목록 자동 불러오기
+    $(document).ready(function () {
+        loadTemplateList();
+    });
+</script>
+
+<h2>결재 문서 보기</h2>
+
+<!-- 내용 출력 -->
+<div id="readonly-content" style="border:1px solid #ccc; padding:20px;">
+    <!-- 여기에 내용 들어감 -->
+</div>
+
+<!-- 결재선 -->
+<h3 style="margin-top:30px;">결재선</h3>
+<table border="1" cellpadding="10" style="width:100%; text-align:center;">
+    <thead>
+    <tr>
+        <th>기안자</th>
+        <th>팀장</th>
+        <th>부서장</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>홍길동 (결재완료)</td>
+        <td>김팀장 (대기)</td>
+        <td>이부장 (대기)</td>
+    </tr>
+    </tbody>
+</table>
+
+<!-- 결재 / 반려 버튼 -->
+<div style="margin-top:20px;">
+    <button id="approve-btn">결재</button>
+    <button id="reject-btn">반려</button>
+</div>
+
+<script>
+    // 저장된 HTML 콘텐츠 가져오기 (예시)
+    const savedHtml = `<h1>출장 신청서</h1><p>일자: 4월 10일 ~ 4월 12일</p><p>장소: 부산</p>`;
+
+    // 읽기 전용 영역에 출력
+    document.getElementById('readonly-content').innerHTML = savedHtml;
+
+    // 버튼 동작
+    $('#approve-btn').on('click', () => {
+        alert('결재되었습니다!');
+        // 여기에 AJAX로 결재 상태 전송
+    });
+
+    $('#reject-btn').on('click', () => {
+        alert('반려 처리되었습니다.');
+        // 여기에 AJAX로 반려 상태 전송
+    });
+</script>
+
+
+</body>
+</html>

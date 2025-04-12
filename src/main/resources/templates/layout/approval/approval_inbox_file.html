@@ -1,90 +1,196 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.w3.org/1999/xhtml">
+<html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <link rel="stylesheet" th:href="@{/style/globals.css}" />
-    <link rel="stylesheet" th:href="@{/style/approval_inbox_file.css}" />
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" th:href="@{/style/globals.css}"/>
+    <link rel="stylesheet" th:href="@{/style/approval_inbox_file.css}"/>
+    <link rel="stylesheet" th:href="@{/style/header.css}"/>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
 </head>
 <body>
-<div th:replace="/layout/header :: header"></div>
-<div class="approval_inbox_file">
+<div class="fullbox">
+    <div th:replace="~{layout/header :: header}"></div>
     <div class="main">
-        <div class="top">
-            <div class="nav">
-                <div class="title">
-                    <div class="div">전자결재</div>
-                </div>
-                <div class="menu">
-                    <div class="div2">+ 작성하기</div>
-                    <div class="div3">|</div>
-                    <div class="div4">수신함</div>
-                    <div class="div3">|</div>
-                    <div class="div5">발신함</div>
-                    <div class="div3">|</div>
-                    <div class="div5">반려함</div>
-                </div>
+        <div class="nav">
+            <div class="navtitle">
+                전자결재
+            </div>
+            <div class="navbar">
+                <div id="navlist1">+ 작성하기</div>
+                <div id="navlist2">수신함</div>
+                <div class="navlistnone" id="outbox">발신함</div>
+                <div class="navlistnone" id="donebox">결재완료</div>
             </div>
         </div>
         <div class="section">
-            <div class="article">
-                <div class="btnframe">
-                    <button class="btnwhitebefore">
-                        <img class="before" src="before0.svg" />
-                        <div class="div6">목록보기</div>
-                    </button>
-                    <button class="btnwhite">
-                        <div class="div6">반려</div>
-                    </button>
-                    <button class="btnorange">
-                        <div class="div7">결재 승인</div>
-                    </button>
+            <div class="btnset">
+                <button class="whitebtn">< 목록보기</button>
+                <button class="whitebtn" id="reject-btn">반려하기</button>
+                <button class="whitebtn" id="download-btn">첨부파일 다운로드</button>
+                <button class="orangebtn" id="approve-btn">결재승인</button>
+            </div>
+            <div class="approvallist">
+                <div class="listtop">
+                    <div class="list-cell">제목</div>
+                    <div class="list-cell">작성자</div>
+                    <div class="list-cell">작성일</div>
                 </div>
-                <div class="contentsset">
-                    <div class="contentstitle">
-                        <div class="div8">ㅇㅇ보고의 건</div>
-                        <div class="div9">|</div>
-                        <div class="div10">홍길동</div>
-                        <div class="div9">|</div>
-                        <div class="_2025-03-25">2025.03.25</div>
-                    </div>
-                    <div class="frame-139">
-                        <div class="contents"></div>
-                        <div class="approvalline">
-                            <div class="linetitle">
-                                <div class="div4">결재선</div>
-                            </div>
-                            <div class="linecontents">
-                                <div class="lineprofile">
-                                    <div class="profile">
-                                        <div class="profileimage">
-                                            <img class="profileimage2" src="profileimage1.png" />
-                                        </div>
-                                        <div class="div11">홍길동 과장</div>
-                                    </div>
-                                    <button class="approvalbtno">
-                                        <div class="div12">승인</div>
-                                    </button>
-                                </div>
-                                <div class="lineprofile">
-                                    <div class="profile">
-                                        <div class="profileimage">
-                                            <img class="profileimage2" src="profileimage3.png" />
-                                        </div>
-                                        <div class="div11">홍길동 대표</div>
-                                    </div>
-                                    <button class="approvalbtnw">
-                                        <div class="div13">미결</div>
-                                    </button>
-                                </div>
-                            </div>
+                <div id="readonly-content">
+                    <!-- 여기에 결재문서 출력 -->
+                </div>
+                <div class="approvalline">
+                    <div class="profileset">
+                        <div class="lineprofile">
+                            <img src="">
+                            <span>ddd과장</span>
                         </div>
+                        <div class="linebtn">미승인</div>
                     </div>
                 </div>
+
             </div>
         </div>
     </div>
-    <div class="header"></div>
+</div>
+<!-- 반려 사유 입력 모달 -->
+<div id="reject-modal" class="modal-bg" style="display: none;">
+    <div class="modal-box">
+        <h3>반려 사유 입력</h3>
+        <textarea id="reject-reason" rows="5" placeholder="반려 사유를 입력해주세요.(최대5줄)"></textarea>
+        <div class="modal-btns">
+            <button id="cancel-reject" class="whitebtn">취소</button>
+            <button id="confirm-reject" class="orangebtn">반려</button>
+        </div>
+    </div>
 </div>
 
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // 저장된 콘텐츠 예시 (readonly-content에 표시)
+        const savedHtml = `<h1>출장 신청서</h1>
+        <p>일자: 4월 10일 ~ 4월 12일</p><p>장소: 부산</p>`;
+        document.getElementById('readonly-content').innerHTML = savedHtml;
+
+        // 초기 결재라인 (프론트에서 테스트용 데이터)
+        const approvalLine = [
+            {name: "김대리", rank: "대리", imgUrl: "/img/profile1.png", status: "대기"},
+            {name: "이과장", rank: "과장", imgUrl: "/img/profile2.png", status: "대기"}
+        ];
+        renderApprovalLine(approvalLine);
+
+        // 승인 버튼 클릭
+        $('#approve-btn').on('click', () => {
+            alert('결재되었습니다!');
+            // 첫 번째 대기 중인 결재자의 상태를 승인으로 바꿈
+            // 이건 나중에 수정해야할듯 일단확인하려고 그렇게 만듬
+            updateFirstPending('승인');
+        });
+
+        // 반려 버튼 클릭 → 모달 표시
+        $('#reject-btn').on('click', () => {
+            $('#reject-modal').fadeIn(200);
+        });
+
+        // 모달 내 취소
+        $('#cancel-reject').on('click', () => {
+            $('#reject-modal').fadeOut(200);
+        });
+
+        // 모달 내 확인 (반려 처리)
+        $('#confirm-reject').on('click', () => {
+            const reason = $('#reject-reason').val().trim();
+            if (reason === '') {
+                alert('반려 사유를 입력해주세요.');
+                return;
+            }
+
+            alert('반려 처리되었습니다.\n사유: ' + reason);
+            $('#reject-modal').fadeOut(200);
+
+            // 반려 처리 시 사유 저장
+            const target = approvalLine.find(user => user.status === '대기');
+            if (!target) return;
+            target.status = '반려';
+            target.rejectReason = reason;
+
+            renderApprovalLine(approvalLine);
+            $('#approve-btn').prop('disabled', true);
+            $('#reject-btn').prop('disabled', true);
+        });
+
+        // 첨부파일 다운로드
+        $('.whitebtn:contains("첨부파일 다운로드")').on('click', () => {
+            alert('첨부파일 다운로드 처리');
+            // 실제 URL로 교체 필요
+            // window.location.href = '/api/approval/download?approvalId=123';
+        });
+
+        // 상태 업데이트 함수
+        function updateFirstPending(newStatus) {
+            const target = approvalLine.find(user => user.status === '대기');
+            if (!target) return;
+
+            target.status = newStatus;
+            renderApprovalLine(approvalLine);
+
+            // 승인 또는 반려 처리된 경우 버튼 비활성화
+            $('#approve-btn').prop('disabled', true);
+            $('#reject-btn').prop('disabled', true);
+        }
+
+        // 결재라인 렌더링 함수
+        function renderApprovalLine(data) {
+            const container = $('.approvalline');
+            container.empty();
+
+            data.forEach(user => {
+                const isRejected = user.status === '반려';
+                const tooltipText = isRejected ? (user.rejectReason || '사유 없음') : '';
+
+                const profile = `
+            <div class="profileset">
+                <div class="lineprofile">
+                    <img src="${user.imgUrl}">
+                    <span>${user.name}${user.rank}</span>
+                </div>
+                <div class="linebtn ${user.status === '승인' ? 'approved' : isRejected ? 'rejected' : ''}">
+                    ${user.status}
+                </div>
+            </div>
+            ${isRejected ? `
+                <div class="reject-reason-box" style="display:none;">
+                    반려 사유: ${tooltipText}
+                </div>
+            ` : ''}
+        `;
+
+                container.append(profile);
+            });
+
+            // 클릭 시 반려 사유 박스 토글
+            $('.linebtn.rejected').off('click').on('click', function () {
+                const reasonBox = $(this).closest('.profileset').next('.reject-reason-box');
+                reasonBox.slideToggle(200);
+            });
+        }
+    });
+</script>
 </body>
 </html>
+<script>
+    $("#navlist1").click(function () {
+        location.href = "/draft/approvalWrite";
+    })
+    $("#navlist2").click(function () {
+        location.href = "/draft/approvalInbox";
+    })
+    $("#outbox").click(function () {
+        location.href = "/draft/approvalOutBox";
+    })
+    $("#donebox").click(function () {
+        location.href = "/draft/approvalDone";
+    })
+</script>

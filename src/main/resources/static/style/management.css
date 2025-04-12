@@ -12,7 +12,7 @@
     background: #ffffff;
     display: flex;
     flex-direction: column;
-    gap: 0px;
+    gap: 0;
     align-items: flex-start;
     justify-content: flex-start;
     width: 1840px;
@@ -37,12 +37,49 @@
 .nav {
     display: flex;
     flex-direction: column;
-    gap: 30px;
+    height: 200px;
+    width: 100%;
+    align-items: flex-start;
+    justify-content: flex-end;
+    margin-left: 10px;
+    gap: 25px;
+}
+.navtitle{
+    font-size: 30px;
+    font-weight: bold;
+    color: #3f3f3f;
+}
+.navbar {
+    display: flex;
     align-items: flex-start;
     justify-content: flex-start;
-    align-self: stretch;
-    flex-shrink: 0;
+    gap: 30px;
     position: relative;
+    align-self: stretch;
+    width: 100%;
+    font-size: 16px;
+    white-space: nowrap;
+}
+#navlist1{
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#navlist2{
+    color: #3f3f3f;
+    border-left: rgba(0, 0, 0, 0.15) 1px solid;
+    padding-left: 30px;
+    cursor: pointer;
+}
+#navlist3{
+    border-left: rgba(0, 0, 0, 0.15) 1px solid;
+    padding-left: 30px;
+    cursor: pointer;
+}
+#navlist4{
+    border-left: rgba(0, 0, 0, 0.15) 1px solid;
+    padding-left: 30px;
+    cursor: pointer;
 }
 .title {
     display: flex;
@@ -216,6 +253,26 @@
     height: 40px;
     position: relative;
 }
+.btnwhite3 {
+    margin-left: 30px;
+    cursor: pointer;
+    background: #ffffff;
+    border-radius: 8px;
+    border-style: solid;
+    border-color: rgba(0, 0, 0, 0.15);
+    border-width: 1px;
+    padding: 10px 20px 10px 20px;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    align-content: center;
+    flex-shrink: 0;
+    height: 40px;
+    position: relative;
+}
 .div5 {
     color: #686868;
     text-align: center;
@@ -237,6 +294,7 @@
     flex: 1;
     width: 1680px;
     position: relative;
+    height: 50vh;
 }
 .tabletitle {
     background: #f7f7f7;
@@ -436,11 +494,30 @@
 .pagenumset {
     display: flex;
     flex-direction: row;
-    gap: 45px;
+    /*gap: 45px;*/
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
     position: relative;
+}
+.pagenumset > * {
+    cursor: pointer;
+}
+.page-arrow {
+    padding: 6px 12px;
+    border-radius: 6px;
+    transition: background-color 0.2s;
+}
+.page-arrow:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+.pagenum > * {
+    padding: 6px 12px;
+    border-radius: 6px;
+    transition: background-color 0.2s;
+}
+.pagenum > *:hover {
+    background-color: rgba(0, 0, 0, 0.1);
 }
 .before {
     flex-shrink: 0;
@@ -453,14 +530,14 @@
 .pagenum {
     display: flex;
     flex-direction: row;
-    gap: 20px;
+    /*gap: 20px;*/
     align-items: center;
     justify-content: flex-start;
     flex-shrink: 0;
     position: relative;
 }
-._1 {
-    color: #3f3f3f;
+.currentPage {
+    /*color: #3f3f3f;*/
     text-align: left;
     font-family: "NotoSans-Bold", sans-serif;
     font-size: 16px;
@@ -470,8 +547,11 @@
     display: flex;
     align-items: center;
     justify-content: flex-start;
+    background-color: #fa7000;
+    color: white;
+    border-radius: 4px;
 }
-._2 {
+.otherPage {
     color: #686868;
     text-align: left;
     font-family: "NotoSans-Regular", sans-serif;
@@ -890,7 +970,6 @@
     display: none;
 }
 
-
 .dropdown-content{
     display: none; /* 기본적으로 숨김 */
     position: absolute;
@@ -915,4 +994,15 @@
 .dropdown-content a:hover {
     background-color: #fa7000;
     color: white;
+}
+.no-users {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-55%, -50%);
+    text-align: center;
+    font-size: 1.1rem;
+    color: #888;
+    border-radius: 10px;
+    margin: 20px;
 }
