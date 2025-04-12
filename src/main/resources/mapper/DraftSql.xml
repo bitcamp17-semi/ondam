@@ -28,22 +28,70 @@
         from draft_templates
         where id = #{id}
     </delete>
-    <insert id="createDraft" parameterType="DraftsDto">
+    <insert id="createDraft" parameterType="DraftsDto" useGeneratedKeys="true" keyProperty="id">
         insert into drafts (title, authorId, content, templateId)
         values (#{title}, #{authorId}, #{content}, #{templateId})
     </insert>
     <select id="readDraft" parameterType="int" resultType="DraftsDto">
-        select *
-        from draft
-        where id = #{id}
+        SELECT d.*, u.name AS authorName
+        FROM drafts AS d
+                 JOIN users AS u ON d.authorId = u.id
+        WHERE d.id = #{id}
     </select>
     <select id="readAllDrafts" resultType="DraftsDto">
         select *
-        from draft
+        from drafts
     </select>
     <delete id="updateDraftStatus" parameterType="map">
         update drafts
         set status = #{status}
         where id = #{id}
     </delete>
+    <select id="readPendingDraftsForUser" resultType="DraftsDto" parameterType="map">
+        SELECT d.*, u.name AS authorName
+        FROM drafts d
+                 JOIN approvals a ON d.id = a.draftId
+                 JOIN users u ON d.authorId = u.id
+        WHERE d.status = 'PENDING'
+          AND a.userId = #{userId}
+          AND a.status = 'PENDING'
+          AND NOT EXISTS (SELECT 1
+                          FROM approvals prev
+                          WHERE prev.draftId = d.id
+                            AND prev.`order` &lt; a.`order`
+                            AND prev.status != 'APPROVED')
+            LIMIT #{size}
+        OFFSET #{offset}
+    </select>
+    <select id="readCountDraftsForActions" resultType="Integer" parameterType="map">
+        SELECT count(*)
+        FROM drafts d
+                 JOIN approvals a ON d.id = a.draftId
+                 JOIN users u ON d.authorId = u.id
+        WHERE d.status = 'PENDING'
+          AND a.userId = #{userId}
+          AND a.status = 'PENDING'
+          AND NOT EXISTS (SELECT 1
+                          FROM approvals prev
+                          WHERE prev.draftId = d.id
+                            AND prev.`order` &lt; a.`order`
+                            AND prev.status != 'APPROVED')
+    </select>
+    <select id="readCheckIsOrder" parameterType="map" resultType="Integer">
+        SELECT count(*)
+        FROM drafts d
+                 JOIN approvals a ON d.id = a.draftId
+                 JOIN users u ON d.authorId = u.id
+        WHERE d.status = 'PENDING'
+          AND d.id = ${draftId}
+          AND a.userId = #{userId}
+          AND a.status = 'PENDING'
+          AND NOT EXISTS (SELECT 1
+                          FROM approvals prev
+                          WHERE prev.draftId = d.id
+                            AND prev.`order` &lt; a.`order`
+                            AND prev.status != 'APPROVED')
+    </select>
+
+
 </mapper>

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>전자결재</title>
     <link rel="stylesheet" th:href="@{/style/globals.css}"/>
     <link rel="stylesheet" th:href="@{/style/approval_inbox_file.css}"/>
     <link rel="stylesheet" th:href="@{/style/header.css}"/>
@@ -51,6 +51,10 @@
 </div>
 
 <script>
+    $(document).ready(function () {
+        const draftId = window.location.pathname.split("/").pop(); // 마지막 경로값
+        loadDraftDetail(draftId);
+    });
     document.addEventListener('DOMContentLoaded', () => {
         // 예시 문서 출력
         const savedHtml = `<h1>출장 신청서</h1>
@@ -76,7 +80,7 @@
             container.empty();
 
             data.forEach(user => {
-                const isRejected = user.status === '반려';
+                const isRejected = user.status === 'REJECTED';
                 const tooltipText = isRejected ? (user.rejectReason || '사유 없음') : '';
 
                 const profile = `
@@ -105,6 +109,42 @@
             });
         }
     });
+    function loadDraftDetail(id) {
+        $.ajax({
+            url: "/api/draft/readDraft",
+            data: { id },
+            type: "GET",
+            success: function (res) {
+                if (res.status === "ok") {
+                    const draft = res.result.draft;
+                    const approvals = res.result.approvals;
+                    const logs = res.result.approvalsLog;
+
+                    // ✏️ 여기서 화면에 draft 정보, 결재자 목록, 로그를 그려야 함
+                    $("#title").text(draft.title);
+                    $("#content").html(draft.content);
+
+                    renderApprovalList(approvals);
+                    renderApprovalLog(logs);
+                }
+            },
+            error: function () {
+                alert("기안문 정보 로딩 실패");
+            }
+        });
+    }
+
+    function renderApprovalList(approvals) {
+        approvals.forEach(a => {
+            $("#approvers").append(`<div>${a.userId} / 순서: ${a.order}</div>`);
+        });
+    }
+
+    function renderApprovalLog(logs) {
+        logs.forEach(l => {
+            $("#logs").append(`<div>${l.action} / 사유: ${l.reason}</div>`);
+        });
+    }
 </script>
 </body>
 </html>

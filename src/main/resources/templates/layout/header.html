@@ -72,18 +72,8 @@
     </div>
     <script>
         $(document).ready(function () {
-            $.ajax({
-                url: "/api/users/readUserBySession",
-                type: "GET",
-                success: function (res) {
-                    if (res.status === "ok") {
-                        let storageUrl = "https://kr.object.ncloudstorage.com/bitcamp-semi/users/";
-                        let profileImageUrl = storageUrl + res.result.profileImage;
-                        $("#header-profileImage img").attr("src", profileImageUrl);
-                        $("#header-profileImage").attr("data-id", res.result.id);
-                    }
-                }
-            })
+            getProfile();
+            checkLoginStatus();
         });
         $("#header-logout").click(function () { // ✅ 중첩 제거
             $.ajax({
@@ -107,6 +97,34 @@
             const url = $(this).data("url");
             window.location.href = url;
         });
+
+        function checkLoginStatus() {
+            $.get("/api/checkLogin", function (res) {
+                if (res.status === "ok") {
+                } else {
+                    alert("로그인이 필요합니다.");
+                    location.href = "/login";
+                }
+            }).error(function () {
+                alert("로그인이 필요합니다.");
+                location.href = "/login";
+            });
+        }
+
+        function getProfile() {
+            $.ajax({
+                url: "/api/users/readUserBySession",
+                type: "GET",
+                success: function (res) {
+                    if (res.status === "ok") {
+                        let storageUrl = "https://kr.object.ncloudstorage.com/bitcamp-semi/users/";
+                        let profileImageUrl = storageUrl + res.result.profileImage;
+                        $("#header-profileImage img").attr("src", profileImageUrl);
+                        $("#header-profileImage").attr("data-id", res.result.id);
+                    }
+                }
+            })
+        }
     </script>
 
 <!-- 토스트 노출 -->

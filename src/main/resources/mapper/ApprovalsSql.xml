@@ -27,16 +27,18 @@
           and userId = #{userId}
     </update>
     <select id="readApprovalsByDraft" parameterType="int" resultType="ApprovalsDto">
-        select *
-        from approvals
+        select a.userId, a.draftId, a.order, a.status, u.name as userName, u.profileImage, u.position
+        from approvals as a
+                 join users as u on a.userId = u.id
         where draftId = #{draftId}
     </select>
     <select id="readApprovalsByTemplate" parameterType="int" resultType="ApprovalsDto">
         select *
         from approvals
         where templateId = #{templateId}
+          and draftId is null;
     </select>
-    <select id="readNextApproval" parameterType="map" resultType="java.lang.Integer">
+    <select id="readNextApprovalId" parameterType="map" resultType="java.lang.Integer">
         SELECT userId
         FROM approvals
         WHERE draftId = #{draftId}
@@ -48,20 +50,23 @@
             LIMIT 1;
     </select>
     <insert id="createApprovalLog" parameterType="ApprovalLogDto">
-        insert into approval_log (approvalId, action, approvalTime)
-        values #{approvalId}, #{action}, now()
+        insert into approval_log (approvalId, action, draftId, approvalTime
+        <if test="reason != null">, reason</if>)
+        values (#{approvalId}, #{action}, #{draftId}, now()
+        <if test="reason != null">, #{reason}</if>)
     </insert>
+
     <select id="readApprovalLogByDraft" parameterType="map" resultType="ApprovalLogDto">
-        SELECT
-        al.approvalId,
-        al.draftId,
-        al.action,
-        al.approvalTime,
-        a.`order`
+        SELECT al.approvalId,
+               al.draftId,
+               al.action,
+               al.approvalTime,
+               a.`order`,
+               al.reason
         FROM approval_log al
-        JOIN approvals a
-        ON al.approvalId = a.userId
-        AND al.draftId = a.draftId
+                 JOIN approvals a
+                      ON al.approvalId = a.userId
+                          AND al.draftId = a.draftId
         WHERE al.draftId = #{draftId};
     </select>
 </mapper>
