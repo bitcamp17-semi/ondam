@@ -27,12 +27,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.fasterxml.jackson.databind.util.JSONPObject;
 
+import data.dto.DepartmentDto;
 import data.dto.ScheduleGroupDto;
 import data.dto.ScheduleGroupMembersDto;
 import data.dto.SchedulesDto;
 import data.dto.UsersDto;
 import data.mapper.ScheduleGroupMapper;
 import data.service.AlarmService;
+import data.service.DepartmentService;
 import data.service.ScheduleGroupMembersService;
 import data.service.ScheduleGroupService;
 import data.service.SchedulesService;
@@ -49,7 +51,9 @@ public class SchedulesController {
 	final ScheduleGroupService scheduleGroupService;
 	final ScheduleGroupMembersService scheduleGroupMemberService;
 	final AlarmService alarmService;
+	final DepartmentService departmentService;
 	private static final org.slf4j.Logger log = LoggerFactory.getLogger(SchedulesController.class);
+	
 	//일정관리 페이지 진입
 	@GetMapping
 	public String scheduleMain(Model model, HttpSession session) {
@@ -67,10 +71,9 @@ public class SchedulesController {
 		//log.info("DB에서 조회된 user = {}", user);
 		if (user == null) {
 		    // 사용자 정보가 없을 때 처리 방식
-		   //log.warn("❗ userId={}인 유저를 찾을 수 없습니다.", sUserId);
-		    return "redirect:/login"; // 또는 에러 페이지로
+		   //System.out.println("userId={}인 유저를 찾을 수 없습니다."+sUserId); 
+			return "redirect:/login"; // 또는 에러 페이지로
 		}
-		
 		
 		//아이디를 통해서 유저 테이블의 작성자 얻기
 		//String writer=userService.readUserById(sUserId).getName();
@@ -120,15 +123,16 @@ public class SchedulesController {
 		List<SchedulesDto> list = schedulesService.readAllSche(sUserId);
 		//전체 user 읽어오기
 		List<UsersDto> userList=userService.readAllActiveUsers();
+		
 		for (UsersDto u : userList) {
 	        int depId = u.getDepartmentId();
 	        String depName = "";
 
 	        // 부서 ID가 존재할 경우 이름 추출
 	        if (depId != 0) {
-	            List<UsersDto> depUsers = userService.readAllUsersByDep(depId);
-	            if (!depUsers.isEmpty()) {
-	                depName = depUsers.get(0).getName(); // 또는 부서명만 따로 조회하는 서비스로 대체 가능
+	        	DepartmentDto depUsers = departmentService.readDepById(depId);
+	            if (depUsers!= null) {
+	            	depName = depUsers.getName();
 	            }
 	        }
 
@@ -143,12 +147,12 @@ public class SchedulesController {
 		    //group.setOwnerName(gownerName); // ScheduleGroupDto에 ownerName 필드 필요
 			int ownerId = group.getOwnerId();
 		    UsersDto ownerUser = userService.readUserById(ownerId);
-
+		    
 		    if (ownerUser != null) {
 		        group.setOwnerName(ownerUser.getName());
 		    } else {
 		        group.setOwnerName("알 수 없음");
-		        log.warn("❗ 그룹 ID={}의 ownerId={} 유저 정보가 없습니다.", group.getId(), ownerId);
+		        System.out.println("그룹 ID={}의 ownerId={} 유저 정보가 없습니다."+ group.getId()+ ownerId);
 		    }
 			
 		}
