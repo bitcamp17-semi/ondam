@@ -7,6 +7,7 @@
 <link rel="stylesheet" th:href="@{/style/alarmlist.css}"/>
 <link rel="stylesheet" th:href="@{/style/globals.css}"/>
 <link rel="stylesheet" th:href="@{/style/header.css}" >
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
 	
 </head>
 <body>
@@ -63,7 +64,7 @@
 		</div>
 	</div>
 	</div>
-	<div th:replace="layout/header :: header"></div>
+	<div th:replace="~{header :: header}"></div>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.7.1.js"></script>

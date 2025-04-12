@@ -559,7 +559,7 @@ document.addEventListener("DOMContentLoaded", function () {
          			 <select class="groupMembers" name="groupMembers" multiple="multiple" style="width: 100%;">
   						<option th:each="user : ${userList}"
      						     th:value="${user.id}"
-        						 th:text="${user.name + ' (' + user.department + ')'}">
+        						 th:text="${user.name + ' (' + user.departmentName + ')'}">
   						</option>
 					</select>
          		</td>
@@ -624,7 +624,7 @@ document.addEventListener("DOMContentLoaded", function () {
   						
   						<option th:each="user : ${userList}"
      						     th:value="${user.id}"
-        						 th:text="${user.name + ' (' + user.department + ')'}">
+        						 th:text="${user.name + ' (' + user.departmentName + ')'}">
   						</option>
 					</select>
          		</td>
@@ -634,7 +634,7 @@ document.addEventListener("DOMContentLoaded", function () {
          			 
          		</td>
          	</tr>      	
-         </table> 
+         </table>
       </div>
 		
       <!-- Modal footer -->

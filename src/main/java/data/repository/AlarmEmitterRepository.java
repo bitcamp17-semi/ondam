@@ -36,4 +36,9 @@ public class AlarmEmitterRepository {
     	        emitters.remove(userId);
     	    }
     }
+    
+    // 무조건 해당 userId emitter 제거
+    public void remove(Long userId) {
+        emitters.remove(userId);
+    }
 }

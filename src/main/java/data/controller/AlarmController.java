@@ -38,16 +38,19 @@ public class AlarmController {
     @GetMapping(value = "/connect", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter connect(@RequestParam(name = "userId") Long userId) {
         SseEmitter emitter = new SseEmitter(60 * 10000L); // 10분
+        // 이전 emitter는 무조건 삭제하고 새 emitter 저장
+        emitterRepository.remove(userId);
         emitterRepository.save(userId, emitter);
 
         // 연결 종료 시 정리
-        emitter.onCompletion(() -> emitterRepository.remove(userId, emitter));
-        emitter.onTimeout(() -> emitterRepository.remove(userId, emitter));
+        emitter.onCompletion(() -> emitterRepository.remove(userId));
+        emitter.onTimeout(() -> emitterRepository.remove(userId));
 
         try {
             emitter.send(SseEmitter.event()
                     .name("connect")
                     .data("SSE 연결됨"));
+            log.info("✅ SSE 연결 성공: userId = {}", userId);
         } catch (IOException e) {
             log.error("SSE 연결 초기 전송 실패", e);
         }
@@ -67,7 +70,7 @@ public class AlarmController {
     	String userName=userService.readUserById(userId).getName();
     	
     	//페이징처리
-        int perPage=10;//한페이지당 출력할 글의 갯수
+        int perPage=5;//한페이지당 출력할 글의 갯수
         int perBlock=10;//한 블럭당 출력할 페이지 갯수
         int totalCount;//전체 게시글 갯수
         int totalPage;//총 페이지수

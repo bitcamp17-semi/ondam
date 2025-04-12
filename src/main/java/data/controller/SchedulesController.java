@@ -64,10 +64,10 @@ public class SchedulesController {
 		}
 		
 		UsersDto user = userService.readUserById(sUserId);
-		log.info("🧑‍💼 DB에서 조회된 user = {}", user);
+		//log.info("DB에서 조회된 user = {}", user);
 		if (user == null) {
 		    // 사용자 정보가 없을 때 처리 방식
-		   log.warn("❗ userId={}인 유저를 찾을 수 없습니다.", sUserId);
+		   //log.warn("❗ userId={}인 유저를 찾을 수 없습니다.", sUserId);
 		    return "redirect:/login"; // 또는 에러 페이지로
 		}
 		
@@ -120,6 +120,21 @@ public class SchedulesController {
 		List<SchedulesDto> list = schedulesService.readAllSche(sUserId);
 		//전체 user 읽어오기
 		List<UsersDto> userList=userService.readAllActiveUsers();
+		for (UsersDto u : userList) {
+	        int depId = u.getDepartmentId();
+	        String depName = "";
+
+	        // 부서 ID가 존재할 경우 이름 추출
+	        if (depId != 0) {
+	            List<UsersDto> depUsers = userService.readAllUsersByDep(depId);
+	            if (!depUsers.isEmpty()) {
+	                depName = depUsers.get(0).getName(); // 또는 부서명만 따로 조회하는 서비스로 대체 가능
+	            }
+	        }
+
+	        u.setDepartmentName(depName);
+	    }
+		
 		//내가 그룹장이거나 그룹인원으로 있는 그룹 목록 불러오기
 		List<ScheduleGroupDto> groupList=scheduleGroupService.readAllGroup(sUserId);
 		for (ScheduleGroupDto group : groupList) {
