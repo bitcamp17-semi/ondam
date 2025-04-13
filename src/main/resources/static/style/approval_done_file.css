@@ -143,15 +143,16 @@
     border-left: none;
 }
 
-.list-cell:nth-child(1) {
-    width: 75%;
+#title{
+    width: 65%;
 }
-
-.list-cell:nth-child(2) {
+#sendname{
     width: 10%;
 }
-
-.list-cell:nth-child(3) {
+#status{
+    width: 10%;
+}
+#date{
     width: 15%;
 }
 

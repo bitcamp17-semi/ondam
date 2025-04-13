@@ -128,7 +128,7 @@
                     const loginUserId = Number($("#header-profileImage").data("id"));
                     if (loginUserId !== draft.authorId) {
                         $('#approve-btn').hide(); // 재상신 버튼 숨김
-                        $('#title').after(`<div class="list-cell">${draft.authorName}</div>`);
+                        $('#title').after(`<div class="list-cell" id="sendname">${draft.authorName}</div>`);
                     }
 
                     const approvalLine = approvals.map(a => ({

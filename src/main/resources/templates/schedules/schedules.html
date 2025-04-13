@@ -29,11 +29,9 @@
         <div class="modal-content">
 
             <!-- Modal Header -->
-            <div class="modal-header" style="background-color: orange;color: white;">
+            <div class="modal-header">
                 <h4 class="modal-title">일정 추가</h4>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-
             <!-- Modal body -->
             <div class="modal-body">
                 <table class="form-control">
@@ -107,7 +105,7 @@
         <div class="modal-content">
 
             <!-- Modal Header -->
-            <div class="modal-header" style="background-color: orange;color: white;">
+            <div class="modal-header">
                 <h4 class="modal-title">일정 그룹 추가</h4>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
@@ -140,7 +138,7 @@
                     <tr>
                         <th>인원 추가</th>
                         <td width="85%">
-                            <select class="groupMembers" name="groupMembers" multiple="multiple" style="width: 100%;">
+                            <select class="groupMembers" name="groupMembers" multiple="multiple" >
                                 <option th:each="user : ${userList}"
                                         th:value="${user.id}"
                                         th:text="${user.name + ' (' + user.departmentName + ')'}">
@@ -168,7 +166,7 @@
         <div class="modal-content">
 
             <!-- Modal Header -->
-            <div class="modal-header" style="background-color: orange;color: white;">
+            <div class="modal-header">
                 <h4 class="modal-title">그룹 수정</h4>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
@@ -204,7 +202,7 @@
                     <tr>
                         <th>인원 추가</th>
                         <td width="85%">
-                            <select class="groupMembers" name="groupMembers" multiple="multiple" style="width: 100%;">
+                            <select class="groupMembers" name="groupMembers" multiple="multiple" >
 
                                 <option th:each="user : ${userList}"
                                         th:value="${user.id}"
@@ -237,46 +235,45 @@
     <!-- 상단 타이틀 영역 -->
     <div class="main">
         <div id='scheTitle' class="nav">
-			<div class="navtitle">일정관리</div>
-        <div class="navbar">
-            <span id="navlist2">오늘은 [[${#calendars.format(today, 'yyyy년 MM월 dd일')}]] 입니다.</span>
+            <div class="navtitle">일정관리</div>
+            <div class="navbar">
+                <span id="navlist2">오늘은 [[${#calendars.format(today, 'yyyy년 MM월 dd일')}]] 입니다.</span>
+            </div>
         </div>
-		</div>
-		<div class="section">
-        <div class="leftarticle">
-            <button class="addbtn" id="addteambtn">그룹추가</button>
-            <!-- 그룹 목록 노출시키기 -->
-            <input type="hidden" id="userId" th:value="${userId}"/>
-            <div id="scheGroupList" class="scheGroupList">
+        <div class="section">
+            <div class="leftarticle">
                 <a><input type="checkbox" class="allCheck" checked>&nbsp;전체</a>
-                <div th:each="gList : ${groupList}" class="groupCheckItem"
-                     th:style="|background-color:${gList.color};color:white;|">
-                    <!-- 기본으로 체크된 상태로 노출시키기 -->
-                    <input type="checkbox" checked th:attr="data-group-id=${gList.id}">
-                    <span class="scheGroupName"
-                          th:data-group-id="${gList.id}"
-                          th:data-owner-id="${gList.ownerId}"
-                          th:data-owner-name="${gList.ownerName}"
-                          th:data-group-name="${gList.name}"
-                          th:data-group-color="${gList.color}"
-                          th:data-department-id="${gList.departmentId}"
-                          style="cursor: pointer;">&nbsp;[[${gList.name}]]</span>
+                <!-- 그룹 목록 노출시키기 -->
+                <input type="hidden" id="userId" th:value="${userId}"/>
+                <div id="scheGroupList" class="scheGroupList">
+                    <div th:each="gList : ${groupList}" class="groupCheckItem"
+                         th:style="|background-color:${gList.color};color:white;|">
+                        <!-- 기본으로 체크된 상태로 노출시키기 -->
+                        <input type="checkbox" checked th:attr="data-group-id=${gList.id}">
+                        <span class="scheGroupName"
+                              th:data-group-id="${gList.id}"
+                              th:data-owner-id="${gList.ownerId}"
+                              th:data-owner-name="${gList.ownerName}"
+                              th:data-group-name="${gList.name}"
+                              th:data-group-color="${gList.color}"
+                              th:data-department-id="${gList.departmentId}"
+                              style="cursor: pointer;">&nbsp;[[${gList.name}]]</span>
+                    </div>
+                </div>
+            </div>
+            <!-- 캘린더 출력 영역 -->
+            <div id='calendar'></div>
+            <!-- 오른쪽 상세보기 -->
+            <div class="rightarticle">
+                <div class="righttop">
+
+                </div>
+                <div class="rightmain">
+
                 </div>
             </div>
         </div>
-        <!-- 캘린더 출력 영역 -->
-        <div id='calendar'></div>
-		<!-- 오른쪽 상세보기 -->
-		<div class="rightarticle">
-			<div class="righttop">
-				<button id="deleteSelected" class="whitebtn">선택 삭제</button>
-			</div>
-			<div class="rightmain">
-
-			</div>
-		</div>
     </div>
-	</div>
 </div>
 </body>
 </html>
