@@ -48,9 +48,10 @@
         where id = #{id}
     </delete>
     <select id="readPendingDraftsForUser" resultType="DraftsDto" parameterType="map">
-        SELECT d.*, u.name AS authorName
+        SELECT d.*, u.name AS authorName, t.title as templateTitle
         FROM drafts d
                  JOIN approvals a ON d.id = a.draftId
+                 join draft_templates t on d.templateid = t.id
                  JOIN users u ON d.authorId = u.id
         WHERE d.status = 'PENDING'
           AND a.userId = #{userId}
@@ -92,6 +93,19 @@
                             AND prev.`order` &lt; a.`order`
                             AND prev.status != 'APPROVED')
     </select>
-
-
+    <select id="readPendingDraftsById" parameterType="map" resultType="DraftsDto">
+        select d.*, t.title as templateTitle
+        from drafts as d
+                 join draft_templates as t on d.templateId = t.id
+        where d.authorId = #{userId}
+          and d.`status` = 'PENDING'
+            LIMIT #{size}
+        OFFSET #{offset}
+    </select>
+    <select id="readCountPendingdraftsById" parameterType="int" resultType="Integer">
+        select count(*)
+        from drafts
+        where authorId = #{userId}
+          and `status` = 'PENDING'
+    </select>
 </mapper>

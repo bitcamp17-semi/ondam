@@ -27,8 +27,8 @@
         </div>
         <div class="section">
             <div class="btnset">
-                <button class="orangebtn">선택 결재</button>
-                <button class="whitebtn">선택 반려</button>
+                <button class="orangebtn" id="sel-app">선택 결재</button>
+                <button class="whitebtn" id="sel-rej">선택 반려</button>
             </div>
             <div class="approvallist">
                 <div class="listtop">
@@ -41,9 +41,7 @@
                     <div class="list-cell">결재상태</div>
                 </div>
                 <div class="listmain">
-                    <div class="listcontent">
                     <!-- 기안문 목록 영역 -->
-                    </div>
                 </div>
             </div>
             <div class="pagenumset">
@@ -71,6 +69,75 @@
 
             $('.selectAll').prop('checked', total === checked);
         });
+
+        // 선택 승인
+        $("#sel-app").on("click", function () {
+            const checkedIds = $(".childCheckbox:checked").closest(".listcontent").map(function () {
+                return $(this).data("id");
+            }).get();
+
+            if (checkedIds.length === 0) {
+                alert("선택된 문서가 없습니다.");
+                return;
+            }
+
+            if (!confirm("선택된 문서를 모두 승인하시겠습니까?")) return;
+
+            checkedIds.forEach(id => {
+                $.ajax({
+                    url: `/api/draft/${id}/actions`,
+                    type: "GET",
+                    data: { action: "APPROVED" },
+                    success: function (res) {
+                        if (res.status === "ok") {
+                            console.log(`Draft ${id} 승인 완료`);
+                        }
+                    }
+                });
+            });
+
+            alert("승인 요청이 완료되었습니다.");
+            setTimeout(() => location.reload(), 300); // 새로고침
+        });
+
+        // 선택 반려
+        $("#sel-rej").on("click", function () {
+            const checkedIds = $(".childCheckbox:checked").closest(".listcontent").map(function () {
+                return $(this).data("id");
+            }).get();
+
+            if (checkedIds.length === 0) {
+                alert("선택된 문서가 없습니다.");
+                return;
+            }
+
+            const reason = prompt("반려 사유를 입력해주세요.");
+            if (!reason || reason.trim() === "") {
+                alert("반려 사유가 필요합니다.");
+                return;
+            }
+
+            if (!confirm("선택된 문서를 모두 반려하시겠습니까?")) return;
+
+            checkedIds.forEach(id => {
+                $.ajax({
+                    url: `/api/draft/${id}/actions`,
+                    type: "GET",
+                    data: {
+                        action: "REJECTED",
+                        reason: reason
+                    },
+                    success: function (res) {
+                        if (res.status === "ok") {
+                            console.log(`Draft ${id} 반려 완료`);
+                        }
+                    }
+                });
+            });
+
+            alert("반려 요청이 완료되었습니다.");
+            setTimeout(() => location.reload(), 300);
+        });
     });
 
     // 본인 차례의 수신 목록 호출
@@ -89,9 +156,9 @@
                         $listMain.append(`
                         <div class="listcontent" data-id="${draft.id}">
                             <input type="checkbox" class="childCheckbox list-cell">
-                            <div class="list-cell">${idx + 1}</div>
+                            <div class="list-cell">${draft.id}</div>
                             <div class="list-cell listtitle clickable" data-id="${draft.id}">${draft.title}</div>
-                            <div class="list-cell">기안문</div>
+                            <div class="list-cell">${draft.templateTitle}</div>
                             <div class="list-cell">${draft.authorName || "-"}</div>
                             <div class="list-cell">${draft.createdAt?.split(" ")[0]}</div>
                             <div class="list-cell">${draft.status === "PENDING" ? "대기중" : draft.status}</div>

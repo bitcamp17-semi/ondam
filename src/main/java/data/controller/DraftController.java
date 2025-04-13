@@ -318,6 +318,30 @@ public class DraftController {
         }
     }
 
+    @GetMapping("readSendDraftsById")
+    public ResponseEntity<Object> readSendDraftsById(
+            HttpSession session,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
+        Map<String, Object> response = new LinkedHashMap<>();
+        try {
+            Map<String, Object> result = new HashMap<>();
+            int userId = (Integer) session.getAttribute("userId");
+            int offset = (page - 1) * size;
+            List<DraftsDto> list = draftService.readPendingDraftsById(userId, size, offset);
+            int totalCnt = draftService.readCountPendingdraftsById(userId);
+            result.put("list", list);
+            result.put("totalCnt", totalCnt);
+            response.put("status", "ok");
+            response.put("result", result);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("message", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @GetMapping("/downloadAll/{draftId}")
     public ResponseEntity<Resource> downloadAll(@PathVariable int draftId) throws IOException {
         List<DraftFilesDto> files = draftFilesService.readFilesByDraft(draftId);

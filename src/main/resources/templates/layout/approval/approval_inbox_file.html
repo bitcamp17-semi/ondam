@@ -208,6 +208,10 @@
                         : [res.result.files];
                     window.attachedFiles = files;
 
+                    if (draft.status === "APPROVED" || draft.status === "REJECTED") {
+                        location.href = "/draft/approvalDoneFile/" + draftId;
+                    }
+
                     const currentUserId = parseInt($("#header-profileImage").data("id"));
                     const userIsApprover = approvals.some(a => a.userId === currentUserId);
                     if (!userIsApprover) {

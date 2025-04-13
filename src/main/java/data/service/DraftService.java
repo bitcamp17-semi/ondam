@@ -65,6 +65,14 @@ public class DraftService {
         return draftMapper.readCheckIsOrder(userId, draftId);
     }
 
+    public List<DraftsDto> readPendingDraftsById(int userId, int size, int offset) {
+        return draftMapper.readPendingDraftsById(userId, size, offset);
+    }
+
+    public Integer readCountPendingdraftsById(int userId) {
+        return draftMapper.readCountPendingdraftsById(userId);
+    }
+
     public void stringToEnumAndUpdate(int id, String status) {
         ApprovalsDto.ApprovalStatus approvalStatus = ApprovalsDto.ApprovalStatus.valueOf(status);
     }

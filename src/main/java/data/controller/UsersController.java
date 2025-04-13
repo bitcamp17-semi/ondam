@@ -350,4 +350,25 @@ public class UsersController {
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @GetMapping("/checkAdmin")
+    public ResponseEntity<Object> checkAdmin(HttpSession session) {
+        Map<String, Object> response = new LinkedHashMap<>();
+        try {
+            int userId = (Integer) session.getAttribute("userId");
+            if (usersService.isAdmin(userId)) {
+                response.put("status", "ok");
+                response.put("result", "isAdmin");
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            } else {
+                response.put("status", "fail");
+                response.put("result", "is not admin");
+                return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+            }
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

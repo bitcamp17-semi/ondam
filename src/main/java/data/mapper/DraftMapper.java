@@ -31,4 +31,8 @@ public interface DraftMapper {
     public Integer readCountDraftsForActions(int userId);
 
     public Integer readCheckIsOrder(int userId, int draftId);
+
+    public List<DraftsDto> readPendingDraftsById(int userId, int size, int offset);
+
+    public Integer readCountPendingdraftsById(int userId);
 }

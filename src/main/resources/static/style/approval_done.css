@@ -60,9 +60,14 @@
     cursor: pointer;
 }
 
-#navlist2,
-.navlistnone {
+#navlist2 {
     font-weight: bold;
+    color: #3f3f3f;
+    border-left: rgba(0, 0, 0, 0.15) 1px solid;
+    padding-left: 30px;
+    cursor: pointer;
+}
+.navlistnone {
     color: #3f3f3f;
     border-left: rgba(0, 0, 0, 0.15) 1px solid;
     padding-left: 30px;

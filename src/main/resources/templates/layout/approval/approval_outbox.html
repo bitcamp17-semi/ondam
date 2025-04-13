@@ -5,7 +5,7 @@
     <title>전자결재</title>
     <link rel="stylesheet" th:href="@{/style/globals.css}"/>
     <link rel="stylesheet" th:href="@{/style/approval_outbox.css}"/>
-    <link rel="stylesheet" th:href="@{/style/header.css}" />
+    <link rel="stylesheet" th:href="@{/style/header.css}"/>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
     <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
@@ -40,25 +40,22 @@
                     <div class="list-cell">결재상태</div>
                 </div>
                 <div class="listmain">
-                    <div class="listcontent">
-                        <input type="checkbox" class="childCheckbox list-cell">
-                        <div class="list-cell">1</div>
-                        <div class="list-cell listtitle" id="listtitlebtn">제목입니다</div>
-                        <div class="list-cell">기안문</div>
-
-                        <div class="list-cell">2025.03.28</div>
-                        <div class="list-cell">진행중</div>
-                    </div>
+                    <!-- 발신 문서 목록 영역 -->
                 </div>
             </div>
-            <div class="pagenumber">
-                1234
+            <div class="pagenumset">
+                <i class="bi bi-arrow-left leftbtn page-arrow"></i>
+                <div class="pagenum">
+                    <!-- page 부분 -->
+                </div>
+                <i class="bi bi-arrow-right rightbtn page-arrow"></i>
             </div>
         </div>
     </div>
 </div>
 <script>
     $(document).ready(function () {
+        loadDrafts(1);
         // 상위 체크박스 클릭 시
         $('.selectAll').on('change', function () {
             $('.childCheckbox').prop('checked', $(this).prop('checked'));
@@ -71,6 +68,85 @@
 
             $('.selectAll').prop('checked', total === checked);
         });
+    })
+
+    // 본인 차례의 수신 목록 호출
+    function loadDrafts(page) {
+        $.ajax({
+            url: "/api/draft/readSendDraftsById",
+            data: {page: page},
+            type: "GET",
+            success: function (res) {
+                if (res.status === "ok") {
+                    const drafts = res.result.list;
+                    const $listMain = $(".listmain");
+                    $listMain.empty();
+
+                    drafts.forEach((draft, idx) => {
+                        $listMain.append(`
+                        <div class="listcontent" data-id="${draft.id}">
+                            <input type="checkbox" class="childCheckbox list-cell">
+                            <div class="list-cell">${draft.id}</div>
+                            <div class="list-cell listtitle clickable" data-id="${draft.id}">${draft.title}</div>
+                            <div class="list-cell">${draft.templateTitle}</div>
+                            <div class="list-cell">${draft.createdAt?.split(" ")[0]}</div>
+                            <div class="list-cell">${draft.status === "PENDING" ? "진행중" : draft.status}</div>
+                        </div>
+                    `);
+                    });
+                    let totalCnt = res.result.totalCnt;
+                    let totalPages = Math.ceil(totalCnt / 10);
+                    renderPagination(totalPages, page);
+                }
+            },
+            error: function () {
+                alert("문서 불러오기 실패");
+            }
+        });
+    }
+
+    function renderPagination(totalPages, currentPage) {
+        let pageNumContainer = $(".pagenum");
+        pageNumContainer.empty();
+
+        // 페이지 번호 생성
+        for (let i = 1; i <= totalPages; i++) {
+            let pageDiv = $(`<div>${i}</div>`);
+
+            // 클래스 부여
+            if (i === currentPage) {
+                pageDiv.addClass("currentPage");
+            } else {
+                pageDiv.addClass("otherPage");
+            }
+
+            // 클릭 이벤트
+            pageDiv.on("click", function () {
+                loadDrafts(i);
+            });
+
+            pageNumContainer.append(pageDiv);
+        }
+
+        // 왼쪽 화살표 (이전)
+        $(".leftbtn").off("click").on("click", function () {
+            if (currentPage > 1) {
+                loadDrafts(currentPage - 1);
+            }
+        });
+
+        // 오른쪽 화살표 (다음)
+        $(".rightbtn").off("click").on("click", function () {
+            if (currentPage < totalPages) {
+                loadDrafts(currentPage + 1);
+            }
+        });
+    }
+
+    // 제목 클릭 시 상세보기로 이동
+    $(document).on("click", ".listtitle.clickable", function () {
+        const draftId = $(this).data("id");
+        location.href = `/draft/approvalOutBoxFile/${draftId}`;
     });
 </script>
 </body>
