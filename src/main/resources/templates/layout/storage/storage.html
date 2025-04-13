@@ -98,6 +98,20 @@
         }
     };
 
+    function renderFolderNode(folder) {
+        const $li = $("<li>");
+        const $span = $("<span>").addClass("folder").attr("data-id", folder.id).text(`📁 ${folder.name}`);
+
+        // 자식 폴더가 있다면 화살표 붙이기
+        if (folder.hasChild) {
+            $span.prepend('<i class="bi bi-chevron-right toggle-icon"></i> ');
+        }
+
+        $li.append($span);
+        return $li;
+    }
+
+
     function createFolderTree(id, activeId = null) {
         const folder = storageManager.folders[id];
         const $li = $("<li>");
@@ -185,6 +199,22 @@
 
         let clickLocked = false;
 
+
+        function loadFolders() {
+            $.get("/api/dataroom/folders", function (folders) {
+                storageManager.folders = {};
+                folders.forEach(f => {
+                    storageManager.folders[f.id] = { name: f.name, children: [] };
+                });
+                folders.forEach(f => {
+                    if (f.parentId && storageManager.folders[f.parentId]) {
+                        storageManager.folders[f.parentId].children.push(f.id);
+                    }
+                });
+                renderFolderTree();
+            });
+        }
+
         $(document).on("click", ".folder", function (e) {
             if (clickLocked) return;
             clickLocked = true;
@@ -194,27 +224,51 @@
             $(".folder").removeClass("selected");
             $(this).addClass("selected");
 
-            const $li = $(this).closest("li");
-            const $childUl = $li.children("ul");
-            const $icon = $(this).find(".toggle-icon");
+            const $span = $(this);
+            const $li = $span.closest("li");
+            const folderId = $span.data("id");
+            const $icon = $span.find(".toggle-icon");
 
-            if ($childUl.length > 0) {
-                const isOpen = $li.hasClass("open");
-                if (isOpen) {
-                    $li.removeClass("open");
-                    $childUl.slideUp(200, () => {
-                        $icon.removeClass("bi-chevron-down").addClass("bi-chevron-right");
+            const isOpen = $li.hasClass("open");
+
+            if (isOpen) {
+                // 폴더 닫기
+                $li.removeClass("open");
+                $li.children("ul").slideUp(200, () => {
+                    $li.children("ul").remove();
+                    $icon.removeClass("bi-chevron-down").addClass("bi-chevron-right");
+                });
+            } else {
+                // 폴더 열기
+                const $existingUl = $li.children("ul");
+                if ($existingUl.length > 0) {
+                    $li.addClass("open");
+                    $existingUl.slideDown(200, () => {
+                        $icon.removeClass("bi-chevron-right").addClass("bi-chevron-down");
                     });
                 } else {
-                    $li.addClass("open");
-                    $childUl.slideDown(200, () => {
+                    // Ajax로 자식 폴더 로딩
+                    $.get(`/api/dataroom/subfolders/json/${folderId}`, function (subfolders) {
+                        const $ul = $("<ul>");
+                        subfolders.forEach(f => {
+                            const $childLi = $("<li>");
+                            const $childSpan = $("<span>").addClass("folder").attr("data-id", f.id).text(`📁 ${f.name}`);
+                            if (f.hasChild) {
+                                $childSpan.prepend('<i class="bi bi-chevron-right toggle-icon"></i> ');
+                            }
+                            $childLi.append($childSpan);
+                            $ul.append($childLi);
+                        });
+                        $li.append($ul).addClass("open");
                         $icon.removeClass("bi-chevron-right").addClass("bi-chevron-down");
                     });
                 }
             }
-            renderFileList($(this).data("id"));
+
+            renderFileList(folderId);
             saveOpenFolders();
         });
+
 
         $(document).on("dblclick", ".folder", function (e) {
             e.stopPropagation();
@@ -316,6 +370,29 @@
         $(document).on("change", ".selectAll", function () {
             $(".childCheckbox").prop("checked", $(this).is(":checked"));
         });
+
+        $("#teammodal-form").on("submit", function (e) {
+            e.preventDefault();
+            const name = $("#teammodal-title").val().trim();
+            const parentId = parseInt($("#parent-folder-select").val());
+            if (!name || isNaN(parentId)) return;
+
+            $.ajax({
+                url: "/api/dataroom/addFolderAjax",
+                method: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({ name: name, parentId: parentId }),
+                success: function () {
+                    alert("폴더가 성공적으로 추가되었습니다");
+                    $("#teammodal").hide();
+                    loadFolders(); // 새로 불러오기
+                },
+                error: function () {
+                    alert("폴더 추가 실패");
+                }
+            });
+        });
+
     });
 </script>
 
