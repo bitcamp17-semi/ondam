@@ -11,4 +11,5 @@ public class ChatMessage {
     private Integer roomId;
     private String roomType;
     private Integer targetUserId;
+    private boolean isMyMessage;
 }

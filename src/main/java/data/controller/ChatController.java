@@ -22,7 +22,6 @@ public class ChatController {
 
     @Autowired
     private ChatService chatService;
-	private Model session;
 
     // 채팅 메인 페이지
     @GetMapping("/main")
@@ -30,6 +29,7 @@ public class ChatController {
                            @RequestParam(value = "activeTab", required = false) String activeTab) {
         Integer userId = (Integer) session.getAttribute("userId");
         if (userId == null) {
+        	userId = 1;
             return "redirect:/login"; // 로그인 페이지로 리다이렉트
         }
 
@@ -71,6 +71,16 @@ public class ChatController {
                 firstChatData.setMessages(messages);
             }
         }
+
+        // 불필요한 블록 제거: 이미 위에서 setMyMessage를 설정했으므로 중복 작업 불필요
+        /*
+        if (firstChatData != null) {
+            for (Message msg : firstChatData.getMessages()) {
+                msg.setIsMyMessage(msg.getSenderId().equals(userId));
+            }
+        }
+        */
+
         model.addAttribute("firstChatData", firstChatData);
 
         // 사용자 정보
@@ -78,7 +88,9 @@ public class ChatController {
         if (user != null) {
             session.setAttribute("user", user);
         }
-
+        
+        List<ChatGroupsDto> chatGroupsList = chatService.getAllGroupsWithLastMessages(userId);
+        model.addAttribute("chatGroupsList", chatGroupsList);
         model.addAttribute("userId", userId);
         model.addAttribute("activeTab", activeTab != null ? activeTab : "chats");
         return "chat/chatmain";
@@ -110,7 +122,7 @@ public class ChatController {
     }
     
     @PostMapping("/switchChat")
-    public String switchChat(@RequestParam("chatId") String chatId, RedirectAttributes redirectAttributes) {
+    public String switchChat(HttpSession session,@RequestParam("chatId") String chatId, RedirectAttributes redirectAttributes) {
         // 세션에서 openChats 가져오기
         List<String> openChats = (List<String>) session.getAttribute("openChats");
         if (openChats == null) {
@@ -123,13 +135,14 @@ public class ChatController {
         }
 
         // 선택한 chatId를 세션에 저장 (활성화된 채팅방으로 설정)
-        ((HttpSession) session).setAttribute("activeChatId", chatId);
-        ((HttpSession) session).setAttribute("openChats", openChats);
+        session.setAttribute("activeChatId", chatId);
+        session.setAttribute("openChats", openChats);
 
         // 리다이렉트 시 activeTab 유지
         redirectAttributes.addAttribute("activeTab", session.getAttribute("activeTab"));
         return "redirect:/chat/main";
     }   
+
     @PostMapping("/invite")
     public String inviteUserToGroup(
             @RequestParam("groupId") Integer groupId,
@@ -151,4 +164,69 @@ public class ChatController {
         return "redirect:/chat/main";
     }
     
+    //그룹 생성
+    @PostMapping("/createGroup")
+    public String createGroup(
+            @RequestParam("groupName") String groupName,
+            @RequestParam(value = "invitedUserIds", required = false) List<Long> invitedUserIds,
+            @RequestParam(value = "activeTab", defaultValue = "chats") String activeTab,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+        Integer userId = (Integer) session.getAttribute("userId");
+        if (userId == null) {
+            return "redirect:/login";
+        }
+
+        try {
+            // 그룹 이름 유효성 검사
+            if (groupName == null || groupName.trim().isEmpty()) {
+                redirectAttributes.addFlashAttribute("error", "그룹 이름은 필수입니다.");
+                redirectAttributes.addAttribute("activeTab", activeTab);
+                return "redirect:/chat/main";
+            }
+            chatService.createGroup(groupName, Long.valueOf(userId), invitedUserIds);
+            redirectAttributes.addFlashAttribute("message", "그룹 채팅이 생성되었습니다.");
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
+        redirectAttributes.addAttribute("activeTab", activeTab);
+        return "redirect:/chat/main";
+    }
+    
+    // 개인 채팅 생성
+    @PostMapping("/createPrivateChat")
+    public String createPrivateChat(
+            @RequestParam("targetUserId") Integer targetUserId,
+            @RequestParam(value = "activeTab", defaultValue = "chats") String activeTab,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+        Integer userId = (Integer) session.getAttribute("userId");
+        if (userId == null) {
+            return "redirect:/login";
+        }
+
+        try {
+            // 자기 자신과의 채팅 방지
+            if (userId.equals(targetUserId)) {
+                redirectAttributes.addFlashAttribute("error", "자기 자신과는 채팅할 수 없습니다.");
+                redirectAttributes.addAttribute("activeTab", activeTab);
+                return "redirect:/chat/main";
+            }
+            Integer chatId = chatService.createPrivateChat(Long.valueOf(userId), Long.valueOf(targetUserId));
+            // 열린 채팅 목록에 추가
+            List<Integer> openChats = (List<Integer>) session.getAttribute("openChats");
+            if (openChats == null) {
+                openChats = new ArrayList<>();
+            }
+            if (!openChats.contains(chatId)) {
+                openChats.add(chatId);
+                session.setAttribute("openChats", openChats);
+            }
+            redirectAttributes.addFlashAttribute("message", "개인 채팅이 생성되었습니다.");
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
+        redirectAttributes.addAttribute("activeTab", activeTab);
+        return "redirect:/chat/main";
+    }
 }

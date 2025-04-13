@@ -1,402 +1,478 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>My Messenger</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Apple SD Gothic Neo', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f5f5f5;
-            height: 100vh;
-        }
+<meta charset="UTF-8">
+<title>My Messenger</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+	rel="stylesheet">
+<style>
+body {
+	font-family: 'Apple SD Gothic Neo', sans-serif;
+	margin: 0;
+	padding: 0;
+	background-color: #f5f5f5;
+	height: 100vh;
+	overflow: hidden;
+}
 
-        .chat-container {
-            display: flex;
-            height: 100%;
-        }
+.chat-container {
+	display: flex;
+	height: 100vh;
+	overflow: hidden;
+}
 
-        .sidebar {
-            width: 350px;
-            background-color: #fff;
-            border-right: 1px solid #e0e0e0;
-            display: flex;
-            flex-direction: column;
-        }
+.sidebar {
+	width: 350px;
+	background-color: #fff;
+	border-right: 1px solid #e0e0e0;
+	display: flex;
+	flex-direction: column;
+}
 
-        .sidebar-header {
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-bottom: 1px solid #e0e0e0;
-            font-weight: bold;
-        }
+.sidebar-header {
+	padding: 15px;
+	background-color: #f8f9fa;
+	border-bottom: 1px solid #e0e0e0;
+	font-weight: bold;
+}
 
-        .tab-buttons {
-            display: flex;
-            border-bottom: 1px solid #e0e0e0;
-        }
+.tab-buttons {
+	display: flex;
+	border-bottom: 1px solid #e0e0e0;
+}
 
-        .tab-button {
-            flex: 1;
-            padding: 12px;
-            text-align: center;
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 14px;
-        }
+.tab-button {
+	flex: 1;
+	padding: 12px;
+	text-align: center;
+	background: none;
+	border: none;
+	cursor: pointer;
+	font-size: 14px;
+}
 
-        .tab-button.active {
-            font-weight: bold;
-            border-bottom: -2px solid #3c7eff;
-            color: #3c7eff;
-        }
+.tab-button.active {
+	font-weight: bold;
+	border-bottom: -2px solid #3c7eff;
+	color: #3c7eff;
+}
 
-        .chat-list, .contact-list {
-            flex: 1;
-            overflow-y: auto;
-        }
+.chat-list, .contact-list {
+	flex: 1;
+	overflow-y: auto;
+}
 
-        .chat-item {
-            padding: 12px 15px;
-            border-bottom: 1px solid #f0f0f0;
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-        }
+.chat-item {
+	padding: 12px 15px;
+	border-bottom: 1px solid #f0f0f0;
+	display: flex;
+	align-items: center;
+	cursor: pointer;
+}
 
-        .contact-item {
-            padding: 12px 15px;
-            border-bottom: 1px solid #f0f0f0;
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-        }
+.contact-item {
+	padding: 12px 15px;
+	border-bottom: 1px solid #f0f0f0;
+	display: flex;
+	align-items: center;
+	cursor: pointer;
+}
 
-        .chat-avatar, .contact-avatar {
-            width: 40px;
-            height: 40px;
-            background-color: #e0e0e0;
-            border-radius: 50%;
-            margin-right: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            color: #fff;
-        }
+.chat-avatar, .contact-avatar {
+	width: 40px;
+	height: 40px;
+	background-color: #e0e0e0;
+	border-radius: 50%;
+	margin-right: 10px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: bold;
+	color: #fff;
+}
 
-        .chat-info {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
+.chat-info {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+}
 
-        .chat-name {
-            font-weight: 500;
-            margin-bottom: 3px;
-        }
+.chat-name {
+	font-weight: 500;
+	margin-bottom: 3px;
+}
 
-        .chat-preview {
-            font-size: 13px;
-            color: #777;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
+.chat-preview {
+	font-size: 13px;
+	color: #777;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
 
-        .chat-time {
-            font-size: 11px;
-            color: #999;
-        }
+.chat-time {
+	font-size: 11px;
+	color: #999;
+}
 
-        .chat-area {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
+.chat-area {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
 
-        .chat-tabs {
-            display: flex;
-            background-color: #f8f9fa;
-            border-bottom: 1px solid #e0e0e0;
-        }
+.chat-tabs {
+	display: flex;
+	background-color: #f8f9fa;
+	border-bottom: 1px solid #e0e0e0;
+}
 
-        .chat-tab {
-            padding: 12px 20px;
-            cursor: pointer;
-            border-right: 1px solid #e0e0e0;
-            font-size: 14px;
-            max-width: 200px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
+.chat-tab {
+	padding: 12px 20px;
+	cursor: pointer;
+	border-right: 1px solid #e0e0e0;
+	font-size: 14px;
+	max-width: 200px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
 
-        .chat-tab.active {
-            background-color: #fff;
-            font-weight: bold;
-        }
+.chat-tab.active {
+	background-color: #fff;
+	font-weight: bold;
+}
 
-        .chat-tab-close {
-            margin-left: 8px;
-            color: #999;
-            border: none;
-            background: transparent;
-        }
+.chat-tab-close {
+	margin-left: 8px;
+	color: #999;
+	border: none;
+	background: transparent;
+}
 
-        .chat-tab-close:hover {
-            color: #333;
-        }
+.chat-tab-close:hover {
+	color: #333;
+}
 
-        .chat-content {
-            flex: 1;
-            background-color: #fff;
-            display: flex;
-            flex-direction: column;
-        }
+.chat-content {
+	flex: 1;
+	background-color: #fff;
+	display: flex;
+	flex-direction: column;
+	position: relative;
+	height: 100%;
+}
 
-        .chat-messages {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-        }
+.chat-messages {
+	flex: 1 1 auto;
+	padding: 20px;
+	overflow-y: auto;
+	max-height: calc(100% - 70px - 44px);
+	height: calc(100% - 70px - 44px);
+}
 
-        .message {
-            display: flex;
-            margin-bottom: 15px;
-        }
+.message {
+	display: flex;
+	margin-bottom: 15px;
+}
 
-        .message.my-message {
-            justify-content: flex-end;
-        }
+.message.my-message {
+	justify-content: flex-end;
+}
 
-        .message-content {
-            max-width: 70%;
-        }
+.message-content {
+	max-width: 70%;
+}
 
-        .message-sender {
-            font-weight: 500;
-            font-size: 13px;
-            margin-bottom: 3px;
-        }
+.message-sender {
+	font-weight: 500;
+	font-size: 13px;
+	margin-bottom: 3px;
+}
 
-        .message-text {
-            background-color: #f0f0f0;
-            padding: 10px 12px;
-            border-radius: 18px;
-            font-size: 14px;
-            display: inline-block;
-        }
+.message-text {
+	background-color: #f0f0f0;
+	padding: 10px 12px;
+	border-radius: 18px;
+	font-size: 14px;
+	display: inline-block;
+}
 
-        .message-time {
-            font-size: 11px;
-            color: #999;
-            margin-top: 5px;
-            margin-left: 10px;
-        }
+.message-time {
+	font-size: 11px;
+	color: #999;
+	margin-top: 5px;
+	margin-left: 10px;
+}
 
-        .my-message .message-text {
-            background-color: #3c7eff;
-            color: #fff;
-        }
+.my-message .message-text {
+	background-color: #3c7eff;
+	color: #fff;
+}
 
-        .chat-input-area {
-            padding: 15px;
-            border-top: 1px solid #e0e0e0;
-            background-color: #fff;
-        }
+.chat-input-area {
+	padding: 15px;
+	border-top: 1px solid #e0e0e0;
+	background-color: #fff;
+	flex: 0 0 auto;
+	position: sticky;
+	bottom: 0;
+	width: 100%;
+}
 
-        .no-chat-selected {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: #999;
-            font-size: 16px;
-        }
+.no-chat-selected {
+	flex: 1;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	color: #999;
+	font-size: 16px;
+}
 
-        #connection-status {
-            position: fixed;
-            bottom: 10px;
-            right: 10px;
-            padding: 5px 10px;
-            border-radius: 4px;
-            background-color: #fff;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
+#connection-status {
+	position: fixed;
+	bottom: 10px;
+	right: 10px;
+	padding: 5px 10px;
+	border-radius: 4px;
+	background-color: #fff;
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
 
-        /* 초대 버튼 및 폼 스타일 */
-        .invite-button {
-            font-size: 12px;
-            padding: 5px 10px;
-            background-color: #3c7eff;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
+/* 초대 버튼 및 폼 스타일 */
+.invite-button {
+	font-size: 12px;
+	padding: 5px 10px;
+	background-color: #3c7eff;
+	color: #fff;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+}
 
-        .invite-button:hover {
-            background-color: #2a5cd6;
-        }
+.invite-button:hover {
+	background-color: #2a5cd6;
+}
 
-        .invite-form {
-            display: none;
-            padding: 10px;
-            background-color: #f8f9fa;
-            border-bottom: 1px solid #e0e0e0;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 1000;
-            width: 300px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
+.invite-form {
+	display: none;
+	padding: 10px;
+	background-color: #f8f9fa;
+	border-bottom: 1px solid #e0e0e0;
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	z-index: 1000;
+	width: 300px;
+	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
 
-        .invite-form.active {
-            display: block;
-        }
+.invite-form.active {
+	display: block;
+}
 
-        .chat-item-content {
-            display: flex;
-            align-items: center;
-            flex: 1;
-        }
+.chat-item-content {
+	display: flex;
+	align-items: center;
+	flex: 1;
+}
 
-        .overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-        }
+.overlay {
+	display: none;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: rgba(0, 0, 0, 0.5);
+	z-index: 999;
+}
 
-        .overlay.active {
-            display: block;
-        }
-    </style>
+.overlay.active {
+	display: block;
+}
+
+.groupbtn {
+	margin-left: 80px;
+}
+
+.onechat{
+	margin-left: 180px;
+}
+</style>
 </head>
 <body>
-<div class="chat-container">
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <div class="sidebar-header">My Messenger</div>
-        <div class="tab-buttons">
-            <button class="tab-button" onclick="switchTab('chats')"
-                    th:classappend="${activeTab == 'chats'} ? ' active'">채팅</button>
-            <button class="tab-button" onclick="switchTab('contacts')"
-                    th:classappend="${activeTab == 'contacts'} ? ' active'">멤버</button>
-        </div>
+	<div class="chat-container">
+		<!-- Sidebar -->
+		<div class="sidebar">
+			<div class="sidebar-header">
+				My Messenger
+				<button class="btn btn-primary groupbtn">그룹 채팅 생성</button>
+			</div>
 
-        <div class="chat-list" th:if="${activeTab == 'chats'}">
-            <div class="chat-item" th:each="group : ${chatGroupsList}">
-                <div class="chat-item-content" th:onclick="|openChat('${group.id}')|">
-                    <div class="chat-avatar"
-                         th:text="${#strings.substring(group.name, 0, 1)}"></div>
-                    <div class="chat-info">
-                        <div class="chat-name" th:text="${group.name}"></div>
-                        <div class="chat-preview" th:text="${group.lastMessage}"></div>
-                    </div>
-                </div>
-                <button class="invite-button"
-                        th:attr="data-group-id=${group.id},data-group-name=${group.name}"
-                        onclick="showInviteForm(event)">초대</button>
-            </div>
-        </div>
+			<div class="tab-buttons">
+				<button class="tab-button" onclick="switchTab('chats')"
+					th:classappend="${activeTab == 'chats'} ? ' active'">채팅</button>
+				<button class="tab-button" onclick="switchTab('contacts')"
+					th:classappend="${activeTab == 'contacts'} ? ' active'">멤버</button>
+			</div>
 
-        <div class="contact-list" th:if="${activeTab == 'contacts'}">
-            <div class="contact-item" th:each="contact : ${contacts}"
-                 th:onclick="|openChat('${contact.id}')|">
-                <div class="contact-avatar"
-                     th:text="${#strings.substring(contact.name, 0, 1)}"></div>
-                <div class="contact-info">
-                    <div class="contact-name" th:text="${contact.name}"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Chat Area -->
-    <div class="chat-area">
-        <div class="chat-tabs" th:if="${openChats != null and !openChats.isEmpty()}">
-            <div class="chat-tab"
-                 th:each="chatId : ${openChats}"
-                 th:classappend="${firstChatData != null and chatId == firstChatData.roomId} ? ' active'">
-                <span th:text="${firstChatData != null and chatId == firstChatData.roomId} ?
+			<div class="chat-list" th:if="${activeTab == 'chats'}">
+				<div class="chat-item" th:each="group : ${chatGroupsList}">
+					<div class="chat-item-content"
+						th:onclick="|openChat('${group.id}')|">
+						<div class="chat-avatar"
+							th:text="${#strings.substring(group.name, 0, 1)}"></div>
+						<div class="chat-info">
+							<div class="chat-name" th:text="${group.name}"></div>
+							<div class="chat-preview" th:text="${group.lastMessage}"></div>
+						</div>
+					</div>
+					<button class="invite-button"
+						th:attr="data-group-id=${group.id},data-group-name=${group.name}"
+						onclick="showInviteForm(event)">초대</button>
+				</div>
+			</div>
+
+			<div class="contact-list" th:if="${activeTab == 'contacts'}">
+				<div class="contact-item" th:each="contact : ${contacts}">
+					<div class="contact-info" th:onclick="|openChat('${contact.id}')|">
+						<div class="contact-avatar"
+							th:text="${#strings.substring(contact.name, 0, 1)}"></div>
+						<div class="contact-name" th:text="${contact.name}"></div>
+					</div>
+					<form th:action="@{/chat/createPrivateChat}" method="post"
+						style="display: inline;">
+						<input type="hidden" name="targetUserId" th:value="${contact.id}" />
+						<input type="hidden" name="activeTab" th:value="${activeTab}" />
+						<button type="submit"
+							class="btn btn-sm btn-outline-primary private-chat-btn onechat"
+							title="개인 채팅">1 대1 채팅							
+						</button>
+					</form>
+				</div>
+			</div>
+		</div>
+		<!-- Chat Area -->
+		<div class="chat-area">
+			<div class="chat-tabs"
+				th:if="${openChats != null and !openChats.isEmpty()}">
+				<div class="chat-tab" th:each="chatId : ${openChats}"
+					th:classappend="${firstChatData != null and chatId == firstChatData.roomId} ? ' active'">
+					<span
+						th:text="${firstChatData != null and chatId == firstChatData.roomId} ?
                                 ${firstChatData.roomName} : '채팅방 ' + ${chatId}"></span>
-                <form th:action="@{/chat/closeChat}" method="post" style="display: inline;">
-                    <input type="hidden" name="chatId" th:value="${chatId}"/>
-                    <button type="submit" class="chat-tab-close">×</button>
-                </form>
-            </div>
-        </div>
+					<form th:action="@{/chat/closeChat}" method="post"
+						style="display: inline;">
+						<input type="hidden" name="chatId" th:value="${chatId}" />
+						<button type="submit" class="chat-tab-close">×</button>
+					</form>
+				</div>
+			</div>
 
-        <div class="chat-content">
-            <div class="chat-messages" th:if="${firstChatData != null}">
-                <div class="message"
-                     th:each="msg : ${firstChatData.messages}"
-                     th:classappend="${msg.isMyMessage} ? ' my-message'">
-                    <div class="message-avatar"
-                         th:text="${#strings.substring(msg.senderName, 0, 1)}"></div>
-                    <div class="message-content">
-                        <div class="message-sender" th:text="${msg.senderName}"></div>
-                        <div class="message-text" th:text="${msg.message}"></div>
-                        <div class="message-time" th:text="${msg.formattedCreatedAt}"></div>
-                    </div>
-                </div>
-            </div>
+			<div class="chat-content">
+				<div class="chat-messages" th:if="${firstChatData != null}">
+					<div class="message" th:each="msg : ${firstChatData.messages}"
+						th:classappend="${msg.isMyMessage} ? ' my-message'">
+						<div class="message-avatar"
+							th:text="${#strings.substring(msg.senderName, 0, 1)}"></div>
+						<div class="message-content">
+							<div class="message-sender" th:text="${msg.senderName}"></div>
+							<div class="message-text" th:text="${msg.message}"></div>
+							<div class="message-time" th:text="${msg.formattedCreatedAt}"></div>
+						</div>
+					</div>
+				</div>
 
-            <div class="no-chat-selected" th:unless="${firstChatData != null}">
-                사용 중인 메신저룸이 없습니다.
-            </div>
+				<div class="no-chat-selected" th:unless="${firstChatData != null}">
+					사용 중인 메신저룸이 없습니다.</div>
 
-            <div th:if="${firstChatData != null}" class="chat-input-area">
-                <div class="input-group">
-                    <input type="text" id="messageInput" class="form-control"
-                           placeholder="메시지를 입력하세요" required />
-                    <button id="sendButton" class="btn btn-primary">전송</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+				<div th:if="${firstChatData != null}" class="chat-input-area">
+					<div class="input-group">
+						<input type="text" id="messageInput" class="form-control"
+							placeholder="메시지를 입력하세요" required />
+						<button id="sendButton" class="btn btn-primary">전송</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 
-<!-- 초대 폼을 chat-container 밖에 배치 -->
-<div class="overlay" id="overlay"></div>
-<div class="invite-form" id="inviteForm">
-    <form th:action="@{/chat/invite}" method="post">
-        <input type="hidden" name="groupId" id="inviteGroupId"/>
-        <input type="hidden" name="activeTab" th:value="${activeTab}"/>
-        <div class="input-group mb-2">
-            <select name="userId" id="inviteUserId" class="form-control" required>
-                <option value="" disabled selected>초대할 사용자 선택</option>
-                <option th:each="contact : ${contacts}"
-                        th:value="${contact.id}"
-                        th:text="${contact.name}"></option>
-            </select>
-            <button type="submit" class="btn btn-primary">초대하기</button>
-        </div>
-        <div>
-            <span>초대할 그룹: </span>
-            <span id="inviteGroupName"></span>
-        </div>
-    </form>
-</div>
+	<!-- 초대 폼을 chat-container 밖에 배치 -->
+	<div class="overlay" id="overlay"></div>
+	<div class="invite-form" id="inviteForm">
+		<form th:action="@{/chat/invite}" method="post">
+			<input type="hidden" name="groupId" id="inviteGroupId" /> <input
+				type="hidden" name="activeTab" th:value="${activeTab}" />
+			<div class="input-group mb-2">
+				<select name="userId" id="inviteUserId" class="form-control"
+					required>
+					<option value="" disabled selected>초대할 사용자 선택</option>
+					<option th:each="contact : ${contacts}" th:value="${contact.id}"
+						th:text="${contact.name}"></option>
+				</select>
+				<button type="submit" class="btn btn-primary">초대하기</button>
+			</div>
+			<div>
+				<span>초대할 그룹: </span> <span id="inviteGroupName"></span>
+			</div>
+		</form>
+	</div>
 
-<form id="openChatForm" th:action="@{/chat/openChat}" method="post" style="display: none;">
-    <input type="hidden" name="chatId" id="chatIdInput"/>
-</form>
+	<!-- 그룹 채팅 생성 모달 -->
+	<div class="modal fade" id="createGroupModal" tabindex="-1"
+		aria-labelledby="createGroupModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="createGroupModalLabel">그룹 채팅 생성</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"
+						aria-label="Close"></button>
+				</div>
+				<form th:action="@{/chat/createGroup}" method="post">
+					<div class="modal-body">
+						<div class="mb-3">
+							<label for="groupName" class="form-label">그룹 이름</label> <input
+								type="text" class="form-control" id="groupName" name="groupName"
+								required>
+						</div>
+						<div class="mb-3">
+							<label class="form-label">초대할 멤버</label>
+							<div class="contact-list"
+								style="max-height: 200px; overflow-y: auto;">
+								<div class="contact-item" th:each="contact : ${contacts}">
+									<input type="checkbox" th:name="invitedUserIds"
+										th:value="${contact.id}"> <span
+										th:text="${contact.name}"></span>
+								</div>
+							</div>
+						</div>
+						<input type="hidden" name="activeTab" th:value="${activeTab}" />
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary"
+							data-bs-dismiss="modal">취소</button>
+						<button type="submit" class="btn btn-primary">생성</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
 
-<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
-<script th:inline="javascript">
+	<form id="openChatForm" th:action="@{/chat/openChat}" method="post"
+		style="display: none;">
+		<input type="hidden" name="chatId" id="chatIdInput" />
+	</form>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+	<script
+		src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+	<script
+		src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+	<script th:inline="javascript">
     class ChatClient {
         static DESTINATIONS = {
             GROUP: '/app/chat.send.group',
@@ -438,13 +514,11 @@
             this.stompClient.connect(
                 { 'userId': this.userId },
                 (frame) => {
-                    this.connected = true;
-                    this.updateStatus('🟢 Connected', 'green');
+                    this.connected = true;                    
                     this.subscribe();
                 },
                 (error) => {
-                    this.connected = false;
-                    this.updateStatus('🔴 Disconnected', 'red');
+                    this.connected = false;                    
                     console.error('WebSocket Connection Error:', error);
                     setTimeout(() => this.connect(), 5000);
                 }
@@ -464,8 +538,11 @@
         handleMessage(message) {
             const messagesContainer = document.querySelector('.chat-messages');
             if (!messagesContainer) return;
-
-            const isMyMessage = message.senderId == this.userId;
+            
+            const isMyMessage = message.isMyMessage !== undefined ? 
+                    message.isMyMessage : 
+                    message.senderId == this.userId;
+            
             const messageElement = this.createMessageElement(message, isMyMessage);
             messagesContainer.appendChild(messageElement);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
@@ -536,13 +613,16 @@
             }
 
             return {
-                senderId: this.userId,
-                senderName: this.senderName,
-                message: content,
-                time: new Date().toISOString(),
-                roomId: Number(this.roomId),
-                roomType: this.roomType,
-                targetUserId: this.targetUserId ? Number(this.targetUserId) : null
+            	 senderId: this.userId,
+                 senderName: this.senderName,
+                 message: content,
+                 time: new Date().toISOString(),
+                 createdAt: new Date().toISOString(),  // 명시적으로 createdAt 추가
+                 groupId: this.roomType === 'GROUP' ? Number(this.roomId) : null,
+                 roomId: Number(this.roomId),
+                 roomType: this.roomType,
+                 targetUserId: this.targetUserId ? Number(this.targetUserId) : null,
+                 isMyMessage: true   // 명시적으로 표시
             };
         }
 
@@ -660,6 +740,12 @@
         console.log('switchTab called with tabName:', tabName);
         window.location.href = `/chat/main?activeTab=${tabName}`;
     }
+    
+ 	// 그룹 채팅 생성 버튼 클릭 시 모달 표시
+    document.querySelector('.groupbtn').addEventListener('click', () => {
+        const modal = new bootstrap.Modal(document.getElementById('createGroupModal'));
+        modal.show();
+    });
 
     // Thymeleaf 변수로 config 객체 생성
     const chatClientConfig = {
@@ -673,7 +759,7 @@
     // DOM 로드 시 초기화
     document.addEventListener('DOMContentLoaded', () => {
         console.log('DOM fully loaded, ChatClient Config:', chatClientConfig);
-        new ChatClient(chatClientConfig);
+        new ChatClient(chatClientConfig);	
     });
 </script>
 </body>

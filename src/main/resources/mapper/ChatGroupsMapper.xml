@@ -3,62 +3,88 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="data.mapper.ChatGroupsMapper">
-    <insert id="createGroup" parameterType="ChatGroupsDto">
-        insert into chat_groups (name, createdby, createdat)
-        values (#{name}, #{createdBy}, now())
-    </insert>
+	<insert id="createGroup" parameterType="ChatGroupsDto"
+		useGeneratedKeys="true" keyProperty="id">
+		insert into chat_groups (name,
+		createdby)
+		values (#{name}, #{createdBy})
+	</insert>
 
-    <select id="readAllGroupsWithLastMessages" resultType="ChatGroupsDto">
-        select
-            cg.id,
-            cg.name as groupName,
-            cg.createdby,
-            cg.createdat,
-            (
-                select message
-                from chat_log cl
-                where cl.groupid = cg.id
-                order by cl.createdat desc
-                limit 1
-            ) as lastMessage
-        from chat_groups cg
-        join junction_chat_users_groups j on cg.id = j.groupid
-        where j.userid = #{userId}
-        order by cg.createdat desc
-    </select>
+	<select id="readAllGroupsWithLastMessages"
+		resultType="ChatGroupsDto">
+		SELECT
+		cg.id,
+		cg.name,
+		cg.createdby,
+		(SELECT message
+		FROM
+		chat_log cl
+		WHERE cl.groupid = cg.id
+		ORDER BY cl.createdat DESC
+		LIMIT 1)
+		AS lastMessage,
+		(SELECT COUNT(*)
+		FROM junction_chat_users_groups jcug
+		WHERE jcug.groupId = cg.id) AS memberCount
+		FROM chat_groups cg
+		JOIN
+		junction_chat_users_groups jcug ON cg.id = jcug.groupId
+		WHERE
+		jcug.userId = #{userId}
+	</select>
 
-    <select id="readGroupById" parameterType="int" resultType="ChatGroupsDto">
-        select * from chat_groups where id = #{id} <!-- groupid -> id, #{Id} -> #{id} -->
-    </select>
+	<select id="readGroupById" parameterType="int"
+		resultType="ChatGroupsDto">
+		select * from chat_groups where id = #{id} <!-- groupid -> id, #{Id} -> 
+			#{id} -->
+	</select>
 
-    <update id="updateGroup" parameterType="ChatGroupsDto">
-        update chat_groups
-        set name = #{name} <!-- groupname -> name -->
-        where id = #{id} <!-- groupid -> id -->
-    </update>
+	<update id="updateGroup" parameterType="ChatGroupsDto">
+		update chat_groups
+		set name = #{name} <!-- groupname -> name -->
+		where id = #{id} <!-- groupid -> id -->
+	</update>
 
-    <delete id="deleteGroup" parameterType="long">
-        delete from chat_groups where id = #{groupId} <!-- groupid -> id -->
-    </delete>
+	<delete id="deleteGroup" parameterType="long">
+		delete from chat_groups where id = #{groupId} <!-- groupid -> id -->
+	</delete>
 
-    <insert id="createGroupUser">
-        insert into junction_chat_users_groups (userid, groupid)
-        values (#{param1}, #{param2})
-    </insert>
+	<insert id="createGroupUser">
+		insert into junction_chat_users_groups (userid,
+		groupid)
+		values (#{param1}, #{param2})
+	</insert>
 
-    <select id="readGroupUserIds" parameterType="long" resultType="long">
-        select userid from junction_chat_users_groups where groupid = #{groupId}
-    </select>
+	<select id="readGroupUserIds" parameterType="long"
+		resultType="long">
+		select userid from junction_chat_users_groups where groupid
+		= #{groupId}
+	</select>
 
-    <select id="readJoinedGroupIds" parameterType="long" resultType="long">
-        select groupid from junction_chat_users_groups where userid = #{userId}
-    </select>
+	<select id="readJoinedGroupIds" parameterType="long"
+		resultType="long">
+		select groupid from junction_chat_users_groups where userid
+		= #{userId}
+	</select>
 
-    <!-- 누락된 readAllGroupsByUserId 추가 -->
-    <select id="readAllGroupsByUserId" parameterType="long" resultType="ChatGroupsDto">
-        select cg.*
-        from chat_groups cg
-        join junction_chat_users_groups j on cg.id = j.groupid
-        where j.userid = #{userId}
-    </select>
+	<!-- 누락된 readAllGroupsByUserId 추가 -->
+	<select id="readAllGroupsByUserId" parameterType="long"
+		resultType="ChatGroupsDto">
+		select cg.*
+		from chat_groups cg
+		join
+		junction_chat_users_groups j on cg.id = j.groupid
+		where j.userid =
+		#{userId}
+	</select>
+	<select id="readPrivateChatBetweenUsers"
+		resultType="ChatGroupsDto">
+		select cg.*
+		from chat_groups cg
+		join junction_chat_users_groups j1 on cg.id = j1.groupid
+		join junction_chat_users_groups j2 on cg.id = j2.groupid
+		where cg.roomtype = 'PRIVATE'
+		and j1.userid = #{param1}
+		and j2.userid = #{param2}
+	</select>
 </mapper>

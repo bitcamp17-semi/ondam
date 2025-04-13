@@ -10,4 +10,5 @@ public class ChatRoomData {
     private String roomType;
     private Integer targetUserId;
     private List<ChatLogDto> messages;
+    private Integer memberCount;
 }
