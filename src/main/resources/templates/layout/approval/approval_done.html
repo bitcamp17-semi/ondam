@@ -83,12 +83,12 @@
         `);
             } else {
                 header.html(`
-            <div class="list-cell">번호</div>
-            <div class="list-cell listtitle">제목</div>
-            <div class="list-cell">발신자</div>
-            <div class="list-cell">문서분류</div>
-            <div class="list-cell">작성일</div>
-            <div class="list-cell">결재상태</div>
+            <div class="list-cell2">번호</div>
+            <div class="list-cell2 listtitle">제목</div>
+            <div class="list-cell2">발신자</div>
+            <div class="list-cell2">문서분류</div>
+            <div class="list-cell2">작성일</div>
+            <div class="list-cell2">결재상태</div>
         `);
             }
         }
@@ -145,12 +145,12 @@
             `
                     : `
                 <div class="listcontent row-item" data-id="${item.id}">
-                    <div class="list-cell">${item.id}</div>
-                    <div class="list-cell listtitle">${item.title}</div>
-                    <div class="list-cell">${item.authorName}</div>
-                    <div class="list-cell">${item.templateTitle ?? '-'}</div>
-                    <div class="list-cell">${createdDate}</div>
-                    <div class="list-cell">${statusText}</div>
+                    <div class="list-cell2">${item.id}</div>
+                    <div class="list-cell2 listtitle">${item.title}</div>
+                    <div class="list-cell2">${item.authorName}</div>
+                    <div class="list-cell2">${item.templateTitle ?? '-'}</div>
+                    <div class="list-cell2">${createdDate}</div>
+                    <div class="list-cell2">${statusText}</div>
                 </div>
             `;
 
