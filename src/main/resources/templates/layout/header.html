@@ -122,6 +122,10 @@
                         let profileImageUrl = storageUrl + res.result.profileImage;
                         $("#header-profileImage img").attr("src", profileImageUrl);
                         $("#header-profileImage").attr("data-id", res.result.id);
+
+                        if (!res.result.admin) {
+                            $("#header-info").hide();
+                        }
                     }
                 }
             })

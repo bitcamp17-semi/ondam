@@ -172,6 +172,7 @@
         loadTemplateList();
         fetchDepartments();
         getAllUsers();
+        checkAdmin();
     });
     $(function () {
         $(".approvalline").sortable({axis: "x", containment: "parent"});
@@ -311,6 +312,22 @@
             });
         }
     });
+
+    function checkAdmin() {
+        $.ajax({
+            url: "/api/users/checkAdmin",
+            type: "get",
+            success: function (res) {
+                if (res.status === "ok") {
+                    console.log("admin ok")
+                }
+            },
+            error: function () {
+                alert("not admin");
+                history.back();
+            }
+        })
+    }
 </script>
 </body>
 </html>

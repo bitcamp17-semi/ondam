@@ -165,6 +165,7 @@
     $(document).ready(function () {
         readDeps();
         fetchDepartments();
+        checkAdmin();
         // 상위 체크박스 클릭 시
         $('#selectAll').on('change', function () {
             $('.childCheckbox').prop('checked', $(this).prop('checked'));
@@ -797,6 +798,22 @@
             });
         }
     })
+
+    function checkAdmin() {
+        $.ajax({
+            url: "/api/users/checkAdmin",
+            type: "get",
+            success: function (res) {
+                if (res.status === "ok") {
+                    console.log("admin ok")
+                }
+            },
+            error: function () {
+                alert("not admin");
+                history.back();
+            }
+        })
+    }
 
 </script>
 <script>

@@ -192,6 +192,7 @@
     let currentPage = 1; // 현재 페이지
     $(document).ready(function () {
         loadDepartments();
+        checkAdmin();
         const $headCheck = $('#head-check');
 
         // 전체 선택/해제
@@ -560,6 +561,21 @@
                 loadUsers(dep, currentPage + 1);
             }
         });
+    }
+    function checkAdmin() {
+        $.ajax({
+            url: "/api/users/checkAdmin",
+            type: "get",
+            success: function (res) {
+                if (res.status === "ok") {
+                    console.log("admin ok")
+                }
+            },
+            error: function () {
+                alert("not admin")
+                history.back();
+            }
+        })
     }
 
 </script>
