@@ -259,28 +259,28 @@ public class SchedulesController {
 		//세션에 저장된 userId 받기
 		int sUserId=(Integer)session.getAttribute("userId");
 		//System.out.println("로그인한 userId확인"+userId);
-		
+
 		SchedulesDto dto=schedulesService.readOneSche(id);
-		
+
 		//System.out.println("isAlltime from DB: " + dto.getIsAlltime());
-		
+
 		//시작 날짜 및 시간 분리
 		String[] startDateParts = dto.getStartTime().split(" ");
 	    String startDate = startDateParts[0]; //2025-03-31 시작날짜
 		String startTime = startDateParts[1];//15:52 시작 시간
-	    
+
 		//종료 날짜 및 시간 분리
 		String[] endDateParts = dto.getEndTime().split(" ");
 		String endDate=endDateParts[0];
 		String endTime=endDateParts[1];
-	    
+
 		//내가 그룹장이거나 그룹인원으로 있는 그룹 목록 불러오기
 		List<ScheduleGroupDto> groupList=scheduleGroupService.readAllGroup(sUserId);
 		String groupName = dto.getGroupName();
-		
+
 		//작성자가 가진userId
 		dto.setWriterId(dto.getUserId());
-		
+
 		model.addAttribute("dto",dto);
 		model.addAttribute("userId",sUserId);//로그인한 사용자
 		model.addAttribute("StartDate", startDate); //시작날짜
@@ -289,7 +289,8 @@ public class SchedulesController {
 		model.addAttribute("endTime",endTime);//마감 시간
 		model.addAttribute("groupList",groupList);//그룹목록
 		model.addAttribute("groupName", groupName);//그룹명
-		return "schedules/schedetail";
+//		return "schedules/schedetail";
+		return "schedules/schedetail :: #scheduleDetailContent";
 	}
 	
 	//일정 삭제
