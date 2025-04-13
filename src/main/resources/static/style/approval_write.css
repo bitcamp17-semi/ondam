@@ -1,499 +1,240 @@
-.approval-write,
-.approval-write * {
-    box-sizing: border-box;
-}
-.approval-write {
-    background: #ffffff;
-    height: 1080px;
+/*all*/
+
+.fullbox {
+    display: flex;
+    flex-direction: row;
+    width: 96vw;
+    height: 100dvh;
+    font-family: "Noto Sans-Bold", Helvetica, "Noto Sans-Regular";
+    color: #686868;
     position: relative;
-    /*overflow: hidden;*/
 }
+
 .main {
-    background: #ffffff;
     display: flex;
     flex-direction: column;
-    gap: 0px;
+    width: 95%;
+    margin-left: 80px;
     align-items: flex-start;
-    justify-content: flex-start;
-    width: 1840px;
-    position: absolute;
-    left: 80px;
-    top: 0px;
-}
-.top {
-    background: #ffffff;
-    padding: 1px 60px 1px 60px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    align-items: flex-start;
-    justify-content: flex-end;
-    align-self: stretch;
-    flex-shrink: 0;
-    height: 150px;
     position: relative;
-    overflow: hidden;
+    background-color: #fff;
+    height: 100%;
 }
+
 .nav {
     display: flex;
     flex-direction: column;
-    gap: 30px;
+    height: 200px;
+    width: 100%;
     align-items: flex-start;
-    justify-content: flex-start;
-    align-self: stretch;
-    flex-shrink: 0;
-    position: relative;
+    justify-content: flex-end;
+    margin-left: 70px;
+    gap: 25px;
 }
-.title {
-    display: flex;
-    flex-direction: row;
-    gap: 10px;
-    align-items: flex-start;
-    justify-content: flex-start;
-    align-self: stretch;
-    flex-shrink: 0;
-    position: relative;
-}
-.div {
-    color: #3f3f3f;
-    text-align: left;
-    font-family: "NotoSans-Bold", sans-serif;
+
+.navtitle {
     font-size: 30px;
-    line-height: 30px;
-    font-weight: 700;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-}
-.menu {
-    display: flex;
-    flex-direction: row;
-    gap: 30px;
-    align-items: flex-start;
-    justify-content: flex-start;
-    align-self: stretch;
-    flex-shrink: 0;
-    position: relative;
-}
-.div2 {
-    color: #fa7000;
-    text-align: left;
-    font-family: "NotoSans-Bold", sans-serif;
-    font-size: 16px;
-    line-height: 22px;
-    font-weight: 700;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-}
-.div3 {
-    color: rgba(238, 238, 238, 0.8);
-    text-align: left;
-    font-family: "NotoSans-Regular", sans-serif;
-    font-size: 16px;
-    line-height: 22px;
-    font-weight: 400;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-}
-.div4 {
-    color: #686868;
-    text-align: left;
-    font-family: "NotoSans-Regular", sans-serif;
-    font-size: 16px;
-    line-height: 22px;
-    font-weight: 400;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-}
-.section {
-    background: #ffffff;
-    padding: 50px 60px 50px 60px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    align-items: center;
-    justify-content: center;
-    align-self: stretch;
-    flex-shrink: 0;
-    height: 930px;
-    position: relative;
-    overflow: hidden;
-}
-.article {
-    background: #ffffff;
-    border-radius: 15px;
-    border-style: solid;
-    border-color: rgba(0, 0, 0, 0.05);
-    border-width: 1px;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    align-items: center;
-    justify-content: center;
-    align-self: stretch;
-    flex-shrink: 0;
-    height: 800px;
-    position: relative;
-    overflow: hidden;
-}
-.contentsselect {
-    display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-    justify-content: space-between;
-    align-self: stretch;
-    flex-shrink: 0;
-    position: relative;
-}
-.frame-137 {
-    display: flex;
-    flex-direction: row;
-    gap: 30px;
-    align-items: center;
-    justify-content: flex-start;
-    flex: 1;
-    position: relative;
-}
-.arraysetdown {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    align-items: flex-start;
-    justify-content: flex-start;
-    flex-shrink: 0;
-    width: 300px;
-    position: relative;
-}
-.arraybtn {
-    background: #ffffff;
-    border-radius: 5px;
-    border-style: solid;
-    border-color: rgba(0, 0, 0, 0.15);
-    border-width: 1px;
-    padding: 10px;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    align-self: stretch;
-    flex-shrink: 0;
-    height: 40px;
-    position: relative;
-}
-.div5 {
+    font-weight: bold;
     color: #3f3f3f;
-    text-align: left;
-    font-family: "NotoSans-Medium", sans-serif;
-    font-size: 16px;
-    line-height: 22px;
-    font-weight: 500;
-    position: relative;
 }
-.downbtn {
-    flex-shrink: 0;
-    width: 10px;
-    height: 10px;
-    position: relative;
-    overflow: visible;
-}
-.div6 {
-    color: #686868;
-    text-align: left;
-    font-family: "NotoSans-Medium", sans-serif;
-    font-size: 12px;
-    line-height: 22px;
-    font-weight: 500;
+
+.navbar {
+    display: flex;
+    align-items: flex-start;
+    gap: 30px;
     position: relative;
     align-self: stretch;
+    width: 100%;
+    font-size: 16px;
 }
-.arraysetcalander {
+
+#navlist1 {
+    color: #fa7000;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.navlistnone {
+    border-left: rgba(0, 0, 0, 0.15) 1px solid;
+    padding-left: 30px;
+    cursor: pointer;
+}
+
+.section {
     display: flex;
+    padding: 20px;
+    border: rgba(0, 0, 0, 0.05) 1px solid;
+    border-radius: 15px;
+    width: 96%;
+    height: 100%;
+    margin: 50px 50px 50px 70px;
     flex-direction: column;
-    gap: 5px;
-    align-items: flex-start;
-    justify-content: flex-start;
-    flex-shrink: 0;
-    width: 300px;
-    position: relative;
+    gap: 15px;
 }
-.downbtn2 {
-    flex-shrink: 0;
-    width: 10px;
-    height: 10px;
-    position: relative;
-    overflow: visible;
-}
+
 .btnset {
     display: flex;
-    flex-direction: column;
-    gap: 10px;
-    align-items: flex-start;
-    justify-content: center;
-    flex-shrink: 0;
-    position: relative;
-}
-.btnorange {
-    background: #fa7000;
-    border-radius: 8px;
-    border-style: solid;
-    border-color: rgba(0, 0, 0, 0.15);
-    border-width: 1px;
-    padding: 10px 20px 10px 20px;
-    display: flex;
     flex-direction: row;
+    width: 100%;
     gap: 10px;
-    align-items: center;
-    justify-content: center;
-    flex-wrap: wrap;
-    align-content: center;
-    flex-shrink: 0;
-    height: 40px;
-    position: relative;
+    height: 35px;
 }
-.div7 {
-    color: #ffffff;
-    text-align: center;
-    font-family: "NotoSans-Bold", sans-serif;
-    font-size: 16px;
-    line-height: 22px;
-    font-weight: 700;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.btnwhite {
-    background: #ffffff;
-    border-radius: 8px;
-    border-style: solid;
-    border-color: rgba(0, 0, 0, 0.15);
-    border-width: 1px;
-    padding: 10px 20px 10px 20px;
-    display: flex;
-    flex-direction: row;
-    gap: 10px;
-    align-items: center;
-    justify-content: center;
-    flex-wrap: wrap;
-    align-content: center;
-    flex-shrink: 0;
-    height: 40px;
-    position: relative;
-}
-.div8 {
-    color: #686868;
-    text-align: center;
-    font-family: "NotoSans-Regular", sans-serif;
-    font-size: 16px;
-    line-height: 22px;
-    font-weight: 400;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.contents {
-    display: flex;
-    flex-direction: row;
-    gap: 0px;
-    align-items: flex-start;
-    justify-content: flex-start;
-    align-self: stretch;
-    flex: 1;
-    position: relative;
-}
-.approvaltext {
-    background: #a1a1a1;
-    display: flex;
-    flex-direction: column;
-    gap: 0px;
-    align-items: flex-start;
-    justify-content: flex-start;
-    align-self: stretch;
-    flex: 1;
-    position: relative;
-}
-.approvalline {
-    border-style: solid;
-    border-color: rgba(0, 0, 0, 0.05);
-    border-width: 0px 0px 0px 1px;
-    display: flex;
-    flex-direction: column;
-    gap: 0px;
-    align-items: flex-start;
-    justify-content: flex-start;
-    align-self: stretch;
-    flex-shrink: 0;
-    position: relative;
-}
-.linetitle {
-    background: #ffffff;
-    border-style: solid;
-    border-color: rgba(0, 0, 0, 0.05);
-    border-width: 0px 0px 1px 0px;
-    padding: 0px 30px 0px 30px;
-    display: flex;
-    flex-direction: column;
-    gap: 0px;
-    align-items: flex-start;
-    justify-content: center;
-    flex-shrink: 0;
-    width: 300px;
-    height: 50px;
-    position: relative;
-}
-.div9 {
-    color: #3f3f3f;
-    text-align: left;
-    font-family: "NotoSans-Bold", sans-serif;
-    font-size: 16px;
-    line-height: 22px;
-    font-weight: 700;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-}
-.linecontents {
-    background: #ffffff;
-    padding: 30px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    align-items: flex-start;
-    justify-content: flex-start;
-    flex: 1;
-    width: 300px;
-    position: relative;
-}
-.lineprofile {
-    background: #ffffff;
+
+.orangebtn {
+    border: rgba(0, 0, 0, 0.15) 1px solid;
     border-radius: 5px;
-    border-style: solid;
-    border-color: rgba(0, 0, 0, 0.15);
-    border-width: 1px;
-    padding: 15px;
+    height: 35px;
+    padding: 0 10px 0 10px;
+    background-color: #fa7000;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+.file-upload-wrapper{
     display: flex;
     flex-direction: row;
+    justify-content: center;
     align-items: center;
+    gap: 10px;
+}
+
+.upload-label {
+    border: rgba(0, 0, 0, 0.15) 1px solid;
+    border-radius: 5px;
+    height: 35px;
+    padding: 0 10px 0 10px;
+    background-color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    font-size: 13px;
+}
+#file-name{
+    font-size: 12px;
+}
+
+#template-list {
+    border: rgba(0, 0, 0, 0.15) 1px solid;
+    border-radius: 5px;
+    height: 35px;
+    padding: 0 20px 0 10px;
+    background-color: white;
+    color: #686868;
+    cursor: pointer;
+}
+
+#submitBtn {
+    margin-left: auto;
+}
+
+.approvallist {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    flex-direction: column;
+
+}
+
+#titleInput {
+    width: 100%;
+    padding: 10px;
+    font-size: 18px;
+    border: none;
+    border-bottom: 1px solid #ddd;
+    outline: none;
+}
+
+.listcontent {
+    width: 100%;
+    height: 45px;
+    background-color: white;
+    display: flex;
+    flex-direction: row;
     justify-content: space-between;
-    align-self: stretch;
-    flex-shrink: 0;
-    position: relative;
+    align-items: center;
+    border-bottom: rgba(0, 0, 0, 0.05) 1px solid;
 }
-.profile {
+
+.approvalmain {
     display: flex;
     flex-direction: column;
-    gap: 0px;
-    align-items: center;
-    justify-content: center;
-    align-self: stretch;
-    flex-shrink: 0;
-    position: relative;
+    flex-grow: 1;
 }
-.profileimage {
+
+/*에디터 설정내용*/
+.editor-wrapper {
+    flex: 1;
+    height: 100%; /* 부모가 height: 100% 라고 했을 때 */
     display: flex;
-    flex-direction: row;
-    gap: 10px;
-    align-items: center;
-    justify-content: flex-start;
-    flex-shrink: 0;
-    position: relative;
+    flex-direction: column;
+    box-sizing: border-box;
 }
-.profileimage2 {
+
+/* 툴바는 자동 높이 */
+.ql-toolbar {
+    flex: 0 0 auto;
+}
+
+/* 에디터 본문은 남은 높이 모두 */
+.ql-container {
+    flex: 1 1 auto;
+    height: 100%;
+    overflow-y: auto;
+}
+
+/* 혹시 에디터가 width 작게 나올 경우 강제로 늘림 */
+#editor-container {
+    width: 100%;
+    height: 100%;
+}
+
+
+.approvalline {
+    width: 100%;
+    height: 100px;
+    background-color: white;
+    display: flex;
+    align-items: end;
+    gap: 10px;
+    overflow-x: auto;
+    min-width: 0;
+}
+
+.profileset {
+    border: rgba(0, 0, 0, 0.05) 1px solid;
     border-radius: 5px;
-    flex-shrink: 0;
-    width: 50px;
-    height: 50px;
-    position: relative;
-    object-fit: cover;
-}
-.div10 {
-    color: #3f3f3f;
-    text-align: left;
-    font-family: "NotoSans-Regular", sans-serif;
-    font-size: 12px;
-    line-height: 22px;
-    font-weight: 400;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-}
-.approvalbtno {
-    background: #fa7000;
-    border-radius: 8px;
-    border-style: solid;
-    border-color: rgba(0, 0, 0, 0.15);
-    border-width: 1px;
-    padding: 10px 20px 10px 20px;
+    width: 180px;
+    height: 80px;
     display: flex;
     flex-direction: row;
-    gap: 10px;
+    justify-content: space-between;
     align-items: center;
-    justify-content: center;
-    flex-wrap: wrap;
-    align-content: center;
-    flex-shrink: 0;
-    height: 20px;
-    position: relative;
+    padding: 10px;
+    min-width: 180px;
 }
-.div11 {
-    color: #ffffff;
-    text-align: center;
-    font-family: "NotoSans-Regular", sans-serif;
+
+.lineprofile {
+    display: flex;
+    flex-direction: column;
+}
+
+.lineprofile span {
     font-size: 12px;
-    line-height: 22px;
-    font-weight: 400;
-    position: relative;
+}
+
+.lineprofile img {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+}
+
+.linebtn {
+    border: rgba(0, 0, 0, 0.15) 1px solid;
+    border-radius: 5px;
+    height: 35px;
+    padding: 0 10px 0 10px;
+    background-color: white;
     display: flex;
     align-items: center;
-    justify-content: center;
-}
-.approvalbtnw {
-    background: #ffffff;
-    border-radius: 8px;
-    border-style: solid;
-    border-color: rgba(0, 0, 0, 0.15);
-    border-width: 1px;
-    padding: 10px 20px 10px 20px;
-    display: flex;
-    flex-direction: row;
-    gap: 10px;
-    align-items: center;
-    justify-content: center;
-    flex-wrap: wrap;
-    align-content: center;
-    flex-shrink: 0;
-    height: 20px;
-    position: relative;
-}
-.div12 {
-    color: #686868;
-    text-align: center;
-    font-family: "NotoSans-Regular", sans-serif;
-    font-size: 12px;
-    line-height: 22px;
-    font-weight: 400;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.header {
-    background: #ffffff;
-    width: 80px;
-    height: 1080px;
-    position: absolute;
-    left: 0px;
-    top: 0px;
-    overflow: hidden;
+    font-size: 13px;
 }

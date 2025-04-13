@@ -14,7 +14,7 @@ public interface SchedulesMapper {
 	public void scheduleInsert(Map<String,Object> map);
 	
 	//전체 검색
-	public List<SchedulesDto> readAllSche();
+	public List<SchedulesDto> readAllSche(int userId);
 	
 	//일정 하나 검색
 	public SchedulesDto readOneSche(int id);

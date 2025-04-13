@@ -1,17 +1,14 @@
 package data.controller;
 
-import data.dto.ApprovalLogDto;
-import data.dto.ApprovalsDto;
-import data.dto.DraftTemplatesDto;
-import data.dto.DraftsDto;
-import data.service.ApprovalsService;
-import data.service.DraftService;
-import data.service.UsersService;
+import data.dto.*;
+import data.service.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -27,15 +24,20 @@ public class DraftController {
     ApprovalsService approvalsService;
     @Autowired
     UsersService usersService;
+    @Autowired
+    DraftFilesService draftFilesService;
+    @Autowired
+    ObjectStorageService storageService;
 
-    @GetMapping("/createTemplate")
-    public ResponseEntity<Object> createTemplate(@ModelAttribute DraftTemplatesDto paramsDto,
-                                                 @RequestBody List<ApprovalsDto> approvalsList,
+    @PostMapping("/createTemplate")
+    public ResponseEntity<Object> createTemplate(@RequestBody TemplateCreateReqDto request,
                                                  HttpSession session) {
         Map<String, Object> response = new LinkedHashMap<>();
-        int userId = Integer.parseInt((String) session.getAttribute("userId"));
+        int userId = (Integer) session.getAttribute("userId");
         if (usersService.isAdmin(userId)) {
             try {
+                DraftTemplatesDto paramsDto = request.getTemplate();
+                List<ApprovalsDto> approvalsList = request.getApprovals();
                 paramsDto.setAuthorId(userId);
                 draftService.createDraftTemplate(paramsDto);
                 int templateId = paramsDto.getId();
@@ -92,10 +94,10 @@ public class DraftController {
         }
     }
 
-    @GetMapping("/updateTemplate")
+    @PostMapping("/updateTemplate")
     public ResponseEntity<Object> updateTemplate(@ModelAttribute DraftTemplatesDto paramsDto, HttpSession session) {
         Map<String, Object> response = new LinkedHashMap<>();
-        int userId = Integer.parseInt((String) session.getAttribute("userId"));
+        int userId = (Integer) session.getAttribute("userId");
         if (usersService.isAdmin(userId)) {
             try {
                 draftService.updateDraftTemplate(paramsDto);
@@ -117,7 +119,7 @@ public class DraftController {
     @GetMapping("/deleteTemplate")
     public ResponseEntity<Object> deleteTemplate(@RequestParam(value = "id") int id, HttpSession session) {
         Map<String, Object> response = new LinkedHashMap<>();
-        int userId = Integer.parseInt((String) session.getAttribute("userId"));
+        int userId = (Integer) session.getAttribute("userId");
         if (usersService.isAdmin(userId)) {
             try {
                 draftService.deleteDraftTemplate(id);
@@ -136,25 +138,42 @@ public class DraftController {
         }
     }
 
-    @GetMapping("/createDraft")
-    public ResponseEntity<Object> createDraft(@ModelAttribute DraftsDto paramsDto, HttpSession session) {
+    @PostMapping(value = "/createDraft", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Object> createDraft(@RequestPart(value = "data") DraftFileReqDto data,
+                                              @RequestPart(value = "uploads", required = false) MultipartFile[] uploads,
+                                              HttpSession session) {
         Map<String, Object> response = new LinkedHashMap<>();
-        int userId = Integer.parseInt((String) session.getAttribute("userId"));
-        if (usersService.isAdmin(userId)) {
-            try {
-                draftService.createDraft(paramsDto);
-                response.put("status", "ok");
-                response.put("result", paramsDto);
-                return new ResponseEntity<>(response, HttpStatus.OK);
-            } catch (Exception e) {
-                response.put("status", "error");
-                response.put("result", e.getMessage());
-                return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        int userId = (Integer) session.getAttribute("userId");
+        try {
+            DraftsDto drafts = data.getDraft();
+            drafts.setAuthorId(userId);
+            draftService.createDraft(drafts);
+            int draftId = drafts.getId(); // 생성된 기안문 id
+            if (uploads != null && uploads.length > 0) {
+                for (MultipartFile upload : uploads) {
+                    if (upload != null && !upload.isEmpty() && !upload.getOriginalFilename().equals("")) {
+                        String imageUrl = storageService.uploadFile(storageService.getBucketName(), "drafts", upload);
+                        DraftFilesDto filesDto = new DraftFilesDto();
+                        filesDto.setDraftId(draftId);
+                        filesDto.setName(upload.getOriginalFilename());
+                        filesDto.setPath(imageUrl); // storageUrl은 제외하고 생성된 파일명
+                        draftFilesService.createFiles(filesDto);
+                    }
+                }
             }
-        } else {
-            response.put("status", "fail");
-            response.put("result", "you're not admin");
-            return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+            for (ApprovalsDto approval : data.getApprovals()) {
+                approval.setDraftId(draftId);
+                approval.setTemplateId(drafts.getTemplateId());
+                approval.setStatus(ApprovalsDto.ApprovalStatus.PENDING);
+                approvalsService.createApprovals(approval);
+            }
+            response.put("status", "ok");
+            response.put("result", draftId);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("result", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -169,6 +188,27 @@ public class DraftController {
             response.put("status", "ok");
             response.put("result", result);
             return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("result", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/checkOrder")
+    public ResponseEntity<Object> checkOrder(@RequestParam(value = "draftId") int draftId, HttpSession session) {
+        Map<String, Object> response = new LinkedHashMap<>();
+        int userId = (Integer) session.getAttribute("userId");
+        try {
+            if (draftService.readCheckIsOrder(userId, draftId) == 1) {
+                response.put("status", "ok");
+                response.put("result", "check order successfully");
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            } else {
+                response.put("status", "fail");
+                response.put("result", "check order failed");
+                return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+            }
         } catch (Exception e) {
             response.put("status", "error");
             response.put("result", e.getMessage());
@@ -210,15 +250,16 @@ public class DraftController {
     public ResponseEntity<Object> actions(
             @PathVariable int draftId,
             @RequestParam(value = "action") String action,
+            @RequestParam(value = "reason", required = false) String reason,
             HttpSession session
     ) {
         Map<String, Object> response = new LinkedHashMap<>();
-        int userId = Integer.parseInt((String) session.getAttribute("userId"));
+        int userId = (Integer) session.getAttribute("userId");
         String actionUpperCase = action.toUpperCase();
         try {
             if (actionUpperCase.equals("APPROVED") || actionUpperCase.equals("REJECTED")) {
                 approvalsService.updateApprovalsStatus(draftId, userId, action); // approvals 상태 변경
-                draftService.stringToApprovalLogEnumAndCreateLog(draftId, userId, action); // 승인 / 반려에 대해서만 로그 생성
+                draftService.stringToApprovalLogEnumAndCreateLog(draftId, userId, action, reason); // 승인 / 반려에 대해서만 로그 생성
             }
             int nextApprovalId = approvalsService.readNextApprovalId(draftId, userId);
             if (nextApprovalId == 0) { // 다음 결재자가 없을 경우
@@ -233,6 +274,30 @@ public class DraftController {
         } catch (Exception e) {
             response.put("status", "error");
             response.put("result", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/actionRequired")
+    public ResponseEntity<Object> getPendingDrafts(
+            HttpSession session,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
+        Map<String, Object> response = new LinkedHashMap<>();
+        try {
+            Map<String, Object> result = new HashMap<>();
+            Integer userId = (Integer) session.getAttribute("userId");
+            int offset = (page - 1) * size;
+            List<DraftsDto> drafts = draftService.getPendingDraftsForUser(userId, size, offset);
+            Integer totalCnt = draftService.readCountDraftsForActions(userId);
+            result.put("list", drafts);
+            result.put("totalCnt", totalCnt);
+            response.put("status", "ok");
+            response.put("result", result);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("message", e.getMessage());
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

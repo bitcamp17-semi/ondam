@@ -7,15 +7,24 @@
     height: 100dvh;
     font-family: "Noto Sans-Bold", Helvetica, "Noto Sans-Regular";
     color: #686868;
+    position: relative;
 }
-.header{
+.header {
     width: 80px;
     height: 100%;
+    display: flex;
+    position: absolute;
+    left: 0;
+    top: 0;
+    overflow: hidden;
+    z-index: 10000;
 }
+
 .main {
     display: flex;
     flex-direction: column;
-    width: 100%;
+    width: 95%;
+    margin-left: 80px;
     align-items: flex-start;
     position: relative;
     background-color: #fff;

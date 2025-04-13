@@ -2,9 +2,9 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="data.mapper.UsersMapper">
     <insert id="createUser" parameterType="UsersDto" useGeneratedKeys="true" keyProperty="id">
-        insert into users (email, name, phone, profileImage, addr, department, team, gender, position, password,
+        insert into users (email, name, phone, profileImage, addr, departmentId, team, gender, position, password,
                            loginId)
-        values (#{email}, #{name}, #{phone}, #{profileImage}, #{addr}, #{department}, #{team}, #{gender},
+        values (#{email}, #{name}, #{phone}, #{profileImage}, #{addr}, #{departmentId}, #{team}, #{gender},
                 #{position}, #{password}, #{loginId})
     </insert>
     <select id="readUserById" parameterType="int" resultType="UsersDto">
@@ -23,6 +23,7 @@
         select *
         from users
         where isDeleted = 0
+          and departmentId is not null
     </select>
     <select id="readAllDeactivateUsers" resultType="UsersDto">
         select *
@@ -34,10 +35,24 @@
         FROM users
         ORDER BY loginId DESC LIMIT 1
     </select>
-    <select id="readUsersByDep" parameterType="String" resultType="UsersDto">
+    <select id="readUsersByDep" parameterType="map" resultType="UsersDto">
         select *
         from users
-        where department = #{department}
+        where departmentId = #{departmentId}
+          and isDeleted = 0
+            LIMIT #{size}
+        OFFSET #{offset}
+    </select>
+    <select id="readAllUsersByDep" parameterType="int" resultType="UsersDto">
+        select *
+        from users
+        where departmentId = #{departmentId}
+          and isDeleted = 0
+    </select>
+    <select id="readCountUsersByDep" parameterType="int" resultType="int">
+        SELECT COUNT(*)
+        FROM users
+        WHERE departmentId = #{departmentId}
           and isDeleted = 0
     </select>
     <select id="readUsersByTeam" parameterType="String" resultType="UsersDto">
@@ -46,13 +61,29 @@
         where team = #{team}
           and isDeleted = 0
     </select>
+    <select id="readUsersByTeamId" parameterType="int" resultType="UsersDto">
+        SELECT *
+        FROM users
+        WHERE id IN (SELECT userId
+                     FROM junction_users_teams
+                     WHERE teamId = #{teamId})
+    </select>
+    <select id="readUsersByName" parameterType="String" resultType="UsersDto">
+        SELECT *
+        FROM users
+        WHERE name LIKE CONCAT('%', #{name}, '%')
+          AND isDeleted = 0
+    </select>
     <update id="updateUser" parameterType="map">
         update users
         <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="profileImage != null">profileImage = #{profileImage},</if>
             <if test="password != null">password = #{password},</if>
             <if test="addr != null">addr = #{addr},</if>
             <if test="phone != null">phone = #{phone},</if>
-            <if test="department != null">department = #{department},</if>
+            <if test="departmentId != null">departmentId = #{departmentId},</if>
             <if test="team != null">team = #{team},</if>
             <if test="position != null">position = #{position},</if>
             updatedAt = now()
@@ -65,4 +96,9 @@
             isDeleted=1
         where id = #{id}
     </update>
+    <delete id="deleteUser" parameterType="int">
+        delete
+        from users
+        where id = #{id}
+    </delete>
 </mapper>
