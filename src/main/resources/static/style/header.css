@@ -92,7 +92,7 @@
 
 .header-layout .div-2 .label {
     position: absolute;
-    top: 72%;
+    top: 60%;
     left: 50%;
     transform: translate(-50%, 10px);
     opacity: 0;
