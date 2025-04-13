@@ -158,11 +158,38 @@
         });
 
         // 첨부파일 다운로드
-        $('.whitebtn:contains("첨부파일 다운로드")').on('click', () => {
-            alert('첨부파일 다운로드 처리');
-            // 실제 URL로 교체 필요
-            // window.location.href = '/api/approval/download?approvalId=123';
+        $('#download-btn').on('click', () => {
+            $.ajax({
+                url: `/api/draft/readDraft`,
+                data: { id: draftId },
+                type: "GET",
+                success: function (res) {
+                    const files = res.result.files;
+                    if (!files || files.length === 0) {
+                        alert("첨부파일이 없습니다.");
+                        return;
+                    }
+
+                    if (files.length >= 4) {
+                        window.location.href = `/api/draft/downloadAll/${draftId}`;
+                    } else {
+                        files.forEach(file => {
+                            const a = document.createElement('a');
+                            a.href = `/api/draft/downloadFile/${file.id}`;
+                            a.download = file.name;
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+                        });
+                    }
+                },
+                error: function () {
+                    alert("파일 정보를 불러오는 데 실패했습니다.");
+                }
+            });
         });
+
+
 
     });
 
@@ -176,6 +203,18 @@
                     const draft = res.result.draft;
                     const approvals = res.result.approvals;
                     const logs = res.result.approvalsLog;
+                    const files = Array.isArray(res.result.files)
+                        ? res.result.files
+                        : [res.result.files];
+                    window.attachedFiles = files;
+
+                    const currentUserId = parseInt($("#header-profileImage").data("id"));
+                    const userIsApprover = approvals.some(a => a.userId === currentUserId);
+                    if (!userIsApprover) {
+                        alert("접근 권한이 없습니다.");
+                        history.back();
+                        return;
+                    }
 
                     const approvalLine = approvals.map(a => ({
                         userId: a.userId,
@@ -189,6 +228,8 @@
                     $("#author").text(draft.authorName)
                     $("#date").text(draft.createdAt.split(" ")[0]);
                     $("#readonly-content").html(draft.content);
+
+
 
 
                     renderApprovalLine(approvalLine, logs);

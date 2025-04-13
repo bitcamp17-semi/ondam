@@ -81,4 +81,13 @@ public class HtmlController {
     public String organization() {
         return "layout/management/organization";
     }
+
+    @GetMapping("/alarm")
+    public String alarmList() { return "alarm/alarmlist"; }
+
+    @GetMapping("/errorpage")
+    public String error() { return "error/error"; }
+
+    @GetMapping("/ing")
+    public String ondaming() { return "error/ondaming"; }
 }
