@@ -207,6 +207,13 @@
                         ? res.result.files
                         : [res.result.files];
                     window.attachedFiles = files;
+                    const names = files.map(f => f.name); // 파일 이름 배열
+                    let finalText = '';
+                    if (files.length <= 4) {
+                        finalText = names.join(', ');
+                    } else {
+                        finalText = names.slice(0, 4).join(', ') + ` 외 ${files.length - 4}개`;
+                    }
 
                     if (draft.status === "APPROVED" || draft.status === "REJECTED") {
                         location.href = "/draft/approvalDoneFile/" + draftId;
@@ -232,6 +239,7 @@
                     $("#author").text(draft.authorName)
                     $("#date").text(draft.createdAt.split(" ")[0]);
                     $("#readonly-content").html(draft.content);
+                    $('.file-name').text(`${finalText} (${files.length})`);
 
 
 

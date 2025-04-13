@@ -29,6 +29,7 @@
             <div class="btnset">
                 <button class="whitebtn">< 목록보기</button>
                 <button class="whitebtn" id="download-btn">첨부파일 다운로드</button>
+                <span class="file-name">첨부파일 없음</span>
             </div>
             <div class="approvallist">
                 <div class="listtop">
@@ -111,7 +112,13 @@
                         ? res.result.files
                         : [res.result.files];
                     window.attachedFiles = files;
-
+                    const names = files.map(f => f.name); // 파일 이름 배열
+                    let finalText = '';
+                    if (files.length <= 4) {
+                        finalText = names.join(', ');
+                    } else {
+                        finalText = names.slice(0, 4).join(', ') + ` 외 ${files.length - 4}개`;
+                    }
                     const approvalLine = approvals.map(a => ({
                         userId: a.userId,
                         name: a.userName,
@@ -123,9 +130,7 @@
                     $("#title").text(draft.title);
                     $("#date").text(draft.createdAt.split(" ")[0]);
                     $("#readonly-content").html(draft.content);
-
-
-
+                    $('.file-name').text(`${finalText} (${files.length})`);
 
                     renderApprovalLine(approvalLine, logs);
                 }
