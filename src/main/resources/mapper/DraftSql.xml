@@ -99,6 +99,7 @@
                  join draft_templates as t on d.templateId = t.id
         where d.authorId = #{userId}
           and d.`status` = 'PENDING'
+        order by d.id desc
             LIMIT #{size}
         OFFSET #{offset}
     </select>
@@ -107,5 +108,41 @@
         from drafts
         where authorId = #{userId}
           and `status` = 'PENDING'
+    </select>
+    <select id="readSentDoneById" parameterType="map" resultType="DraftsDto">
+        select d.*, t.title as templateTitle, u.name as authorName
+        from drafts as d
+                 join draft_templates as t on d.templateId = t.id
+                 join users as u on d.authorId = u.id
+        where d.authorId = #{userId}
+          and d.status in ('APPROVED', 'REJECTED')
+        order by d.createdAt desc
+            limit #{size}
+        offset #{offset}
+    </select>
+    <select id="readCountSentDoneById" parameterType="int" resultType="Integer">
+        select count(*)
+        from drafts
+        where authorId = #{userId}
+          and `status` in ('APPROVED', 'REJECTED')
+    </select>
+    <select id="readReceivedDoneById" parameterType="map" resultType="DraftsDto">
+        SELECT d.*, t.title AS templateTitle, u.name AS authorName
+        FROM drafts AS d
+                 JOIN draft_templates AS t ON d.templateId = t.id
+                 JOIN users AS u ON d.authorId = u.id
+                 JOIN approvals AS a ON d.id = a.draftId
+        WHERE d.status IN ('APPROVED', 'REJECTED')
+          AND a.userId = #{userId}
+        ORDER BY d.createdAt DESC
+            LIMIT #{size}
+        OFFSET #{offset}
+    </select>
+    <select id="readCountReceivedDoneById" parameterType="int" resultType="Integer">
+        SELECT COUNT(*)
+        FROM drafts AS d
+                 JOIN approvals AS a ON d.id = a.draftId
+        WHERE d.status IN ('APPROVED', 'REJECTED')
+          AND a.userId = #{userId}
     </select>
 </mapper>

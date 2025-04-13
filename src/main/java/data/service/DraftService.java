@@ -73,6 +73,22 @@ public class DraftService {
         return draftMapper.readCountPendingdraftsById(userId);
     }
 
+    public List<DraftsDto> readSentDoneById(int userId, int size, int offset) {
+        return draftMapper.readSentDoneById(userId, size, offset);
+    }
+
+    public Integer readCountSentDoneById(int userId) {
+        return draftMapper.readCountSentDoneById(userId);
+    }
+
+    public List<DraftsDto> readReceivedDoneById(int userId, int size, int offset) {
+        return draftMapper.readReceivedDoneById(userId, size, offset);
+    }
+
+    public Integer readCountReceivedDoneById(int userId) {
+        return draftMapper.readCountReceivedDoneById(userId);
+    }
+
     public void stringToEnumAndUpdate(int id, String status) {
         ApprovalsDto.ApprovalStatus approvalStatus = ApprovalsDto.ApprovalStatus.valueOf(status);
     }

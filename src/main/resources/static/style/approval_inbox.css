@@ -135,8 +135,8 @@
 
 .list-cell:nth-child(1){ width: 3%; }
 .list-cell:nth-child(2){ width: 5%; }
-.list-cell:nth-child(3){ width: 47%; }
-.list-cell:nth-child(4){ width: 10%; }
+.list-cell:nth-child(3){ width: 45%; }
+.list-cell:nth-child(4){ width: 12%; }
 .list-cell:nth-child(5){ width: 10%; }
 .list-cell:nth-child(6){ width: 15%; }
 .list-cell:nth-child(7){ width: 10%; }

@@ -402,4 +402,52 @@ public class DraftController {
                 .body(resource);
     }
 
+    @GetMapping("/sentDoneList")
+    public ResponseEntity<Object> sentDoneList(
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size,
+            HttpSession session) {
+        Map<String, Object> response = new LinkedHashMap<>();
+        int userId = (Integer) session.getAttribute("userId");
+        try {
+            Map<String, Object> result = new HashMap<>();
+            int offset = (page - 1) * size;
+            List<DraftsDto> list = draftService.readSentDoneById(userId, size, offset);
+            int totalCnt = draftService.readCountSentDoneById(userId);
+            result.put("list", list);
+            result.put("totalCnt", totalCnt);
+            response.put("status", "ok");
+            response.put("result", result);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("message", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/receivedDoneList")
+    public ResponseEntity<Object> receivedDoneList(
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size,
+            HttpSession session
+    ) {
+        Map<String, Object> response = new LinkedHashMap<>();
+        int userId = (Integer) session.getAttribute("userId");
+        try {
+            Map<String, Object> result = new HashMap<>();
+            int offset = (page - 1) * size;
+            List<DraftsDto> list = draftService.readReceivedDoneById(userId, size, offset);
+            int totalCnt = draftService.readCountReceivedDoneById(userId);
+            result.put("list", list);
+            result.put("totalCnt", totalCnt);
+            response.put("status", "ok");
+            response.put("result", result);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("message", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

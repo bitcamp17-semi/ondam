@@ -30,6 +30,7 @@
                 <button class="whitebtn" id="list-btn">< 목록보기</button>
                 <button class="whitebtn" id="reject-btn">반려하기</button>
                 <button class="whitebtn" id="download-btn">첨부파일 다운로드</button>
+                <span class="file-name">첨부파일 없음</span>
                 <button class="orangebtn" id="approve-btn">결재승인</button>
             </div>
             <div class="approvallist">
@@ -201,6 +202,9 @@
             success: function (res) {
                 if (res.status === "ok") {
                     const draft = res.result.draft;
+                    if (draft.status !== "PENDING") {
+                        location.href = "/draft/approvalDoneFile/" + draftId;
+                    }
                     const approvals = res.result.approvals;
                     const logs = res.result.approvalsLog;
                     const files = Array.isArray(res.result.files)
@@ -270,7 +274,7 @@
                     <span>${user.name} ${user.position}</span>
                 </div>
                 <div class="linebtn ${user.status === 'APPROVED' ? 'approved' : isRejected ? 'rejected' : ''}">
-                    ${user.status}
+                    ${convertStatusText(user.status)}
                 </div>
             </div>
             ${isRejected ? `
@@ -287,6 +291,19 @@
             const reasonBox = $(this).closest('.profileset').next('.reject-reason-box');
             reasonBox.slideToggle(200);
         });
+    }
+
+    function convertStatusText(status) {
+        switch (status) {
+            case 'PENDING':
+                return '대기중';
+            case 'APPROVED':
+                return '승인';
+            case 'REJECTED':
+                return '반려';
+            default:
+                return '알 수 없음';
+        }
     }
 
     function toList() {

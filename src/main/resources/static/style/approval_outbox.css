@@ -120,16 +120,11 @@
     text-align: center;
 }
 
-.list-cell.first{
-    border-left: none;
-}
-
-.list-cell:nth-child(1){ width: 3%; }
-.list-cell:nth-child(2){ width: 5%; }
-.list-cell:nth-child(3){ width: 57%; }
-.list-cell:nth-child(4){ width: 10%; }
-.list-cell:nth-child(5){ width: 15%; }
-.list-cell:nth-child(6){ width: 10%; }
+.list-cell:nth-child(1){ width: 5%; }
+.list-cell:nth-child(2){ width: 57%; }
+.list-cell:nth-child(3){ width: 13%; }
+.list-cell:nth-child(4){ width: 15%; }
+.list-cell:nth-child(5){ width: 10%; }
 
 .listtitle {
     text-align: start;!important;

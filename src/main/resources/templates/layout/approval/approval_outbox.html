@@ -26,12 +26,12 @@
             </div>
         </div>
         <div class="section">
-            <div class="btnset">
-                <button class="whitebtn">선택 삭제</button>
-            </div>
+<!--            <div class="btnset">-->
+<!--                <button class="whitebtn">선택 삭제</button>-->
+<!--            </div>-->
             <div class="approvallist">
                 <div class="listtop">
-                    <input type="checkbox" class="selectAll list-cell">
+<!--                    <input type="checkbox" class="selectAll list-cell">-->
                     <div class="list-cell">번호</div>
                     <div class="list-cell listtitle">제목</div>
                     <div class="list-cell">문서분류</div>
@@ -56,18 +56,18 @@
 <script>
     $(document).ready(function () {
         loadDrafts(1);
-        // 상위 체크박스 클릭 시
-        $('.selectAll').on('change', function () {
-            $('.childCheckbox').prop('checked', $(this).prop('checked'));
-        });
-
-        // 하위 체크박스 클릭 시
-        $('.childCheckbox').on('change', function () {
-            const total = $('.childCheckbox').length;
-            const checked = $('.childCheckbox:checked').length;
-
-            $('.selectAll').prop('checked', total === checked);
-        });
+        // // 상위 체크박스 클릭 시
+        // $('.selectAll').on('change', function () {
+        //     $('.childCheckbox').prop('checked', $(this).prop('checked'));
+        // });
+        //
+        // // 하위 체크박스 클릭 시
+        // $('.childCheckbox').on('change', function () {
+        //     const total = $('.childCheckbox').length;
+        //     const checked = $('.childCheckbox:checked').length;
+        //
+        //     $('.selectAll').prop('checked', total === checked);
+        // });
     })
 
     // 본인 차례의 수신 목록 호출
@@ -85,7 +85,7 @@
                     drafts.forEach((draft, idx) => {
                         $listMain.append(`
                         <div class="listcontent" data-id="${draft.id}">
-                            <input type="checkbox" class="childCheckbox list-cell">
+<!--                            <input type="checkbox" class="childCheckbox list-cell">-->
                             <div class="list-cell">${draft.id}</div>
                             <div class="list-cell listtitle clickable" data-id="${draft.id}">${draft.title}</div>
                             <div class="list-cell">${draft.templateTitle}</div>

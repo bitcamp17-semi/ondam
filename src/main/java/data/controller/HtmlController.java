@@ -25,8 +25,8 @@ public class HtmlController {
         return "layout/approval/approval_done_file";
     }
 
-    @GetMapping("/draft/approvalDoneFileWrite")
-    public String approvalDoneFileWrite() {
+    @GetMapping("/draft/approvalDoneFileWrite/{id}")
+    public String approvalDoneFileWrite(@PathVariable int id) {
         return "layout/approval/approval_done_file_write";
     }
 
