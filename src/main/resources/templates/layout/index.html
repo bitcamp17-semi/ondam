@@ -9,6 +9,12 @@
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
     <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+
+    <!-- 풀캘린더 사용하기위한 script -->
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css' rel='stylesheet'/>
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js'></script>
+    <!-- 풀캘린더 상단 버튼 한글로 변경하기위한 스크립트-->
+    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.15/locales/ko.global.js"></script>
 </head>
 <body>
 <div class="fullbox">
@@ -71,7 +77,7 @@
                 </div>
             </div>
             <div class="middle">
-                달력
+                <div id='calendar'></div>
             </div>
             <div class="right">
                 <div id="weather-today" class="weather-today"></div>
