@@ -218,9 +218,12 @@ public class AlarmService {
   	    	dto.setContent(content);//알람 내용
   	    	dto.setCreatedAt(new Timestamp(System.currentTimeMillis()));//쪽지 받은 시간 저장하기
   	    	dto.setIsRead('0'); //기본으로 읽지않은 상태 저장
-  	    	
+
+  	    	System.out.println("알림 발생 시도: userId=" + userId + ", causedBy=" + causedBy + ", type=" + dto.getType());
   			//alarm DB 저장
   			insertAlarm(dto);
+  			System.out.println("insertAlarm 호출 완료");
+  			
   			
   			//SSE 전송
   			SseEmitter emitter = emitterRepository.get((long) userId);
