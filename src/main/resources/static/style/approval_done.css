@@ -47,7 +47,7 @@
     color: #3f3f3f;
 }
 
-.navbar {
+.mainnavbar {
     display: flex;
     gap: 30px;
     width: 100%;
