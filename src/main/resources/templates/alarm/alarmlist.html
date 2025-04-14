@@ -8,9 +8,10 @@
 <link rel="stylesheet" th:href="@{/style/globals.css}"/>
 <link rel="stylesheet" th:href="@{/style/header.css}" >
 <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
-	
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
 </head>
-<body>
+<body th:attr="data-user-id=${userId}">
+<div th:replace="~{layout/header :: header}"></div>
 <div class="alarmlist">
 	<div class="main">
         <div class="top">
@@ -64,7 +65,6 @@
 		</div>
 	</div>
 	</div>
-	<div th:replace="~{header :: header}"></div>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
