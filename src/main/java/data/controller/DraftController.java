@@ -184,6 +184,20 @@ public class DraftController {
                 approval.setStatus(ApprovalsDto.ApprovalStatus.PENDING);
                 approvalsService.createApprovals(approval);
             }
+            //생성된 draftId approvals 조회(sql문 있음) > 첫번째사람한테 알람 보내기 order가 1인 사람한테 알람 보내기
+            List<ApprovalsDto> approvals = approvalsService.readApprovalsByDraft(draftId);
+            for (ApprovalsDto a : approvals) {
+                if (a.getOrder() == 1) {
+                	try {
+                        alarmService.approvalTurnAlarm(a.getUserId(), userId); // SSE 포함 시 예외처리 필수
+                    } catch (Exception alarmEx) {
+                        // log만 찍고 진행
+                        System.err.println("알림 전송 중 오류: " + alarmEx.getMessage());
+                    }
+                    break;
+                }
+            }
+            
             response.put("status", "ok");
             response.put("result", draftId);
             return new ResponseEntity<>(response, HttpStatus.OK);
