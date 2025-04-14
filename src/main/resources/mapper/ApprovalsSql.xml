@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="data.mapper.ApprovalsMapper">
+    <!--    <resultMap id="ApprovalLogResultMap" type="ApprovalLogDto">-->
+    <!--        <id property="id" column="id"/> &lt;!&ndash; approval_log의 PK &ndash;&gt;-->
+    <!--        <result property="approvalId" column="approvalId"/>-->
+    <!--        <result property="draftId" column="draftId"/>-->
+    <!--        <result property="action" column="action"/>-->
+    <!--        <result property="approvalTime" column="approvalTime"/>-->
+    <!--        <result property="order" column="order"/>-->
+    <!--    </resultMap>-->
+    <insert id="createApprovals" parameterType="ApprovalsDto">
+        insert into approvals (
+        <if test="draftId != null">draftId,</if>
+        <if test="templateId != null">templateId,</if>
+        userId, `order`
+        ) values (
+        <if test="draftId != null">#{draftId},</if>
+        <if test="templateId != null">#{templateId},</if>
+        #{userId}, #{order}
+        )
+    </insert>
+    <update id="updateApprovalsStatus" parameterType="map">
+        update approvals
+        set status = #{status}
+        where draftId = #{draftId}
+          and userId = #{userId}
+    </update>
+    <select id="readApprovalsByDraft" parameterType="int" resultType="ApprovalsDto">
+        select a.userId, a.draftId, a.order, a.status, u.name as userName, u.profileImage, u.position
+        from approvals as a
+                 join users as u on a.userId = u.id
+        where draftId = #{draftId}
+    </select>
+    <select id="readApprovalsByTemplate" parameterType="int" resultType="ApprovalsDto">
+        select *
+        from approvals
+        where templateId = #{templateId}
+          and draftId is null;
+    </select>
+    <select id="readNextApprovalId" parameterType="map" resultType="java.lang.Integer">
+        SELECT userId
+        FROM approvals
+        WHERE draftId = #{draftId}
+          AND `order` = (SELECT `order` + 1
+                         FROM approvals
+                         WHERE draftId = #{draftId}
+                           AND userId = #{userId}
+                           AND status = 'APPROVED')
+            LIMIT 1;
+    </select>
+    <insert id="createApprovalLog" parameterType="ApprovalLogDto">
+        insert into approval_log (approvalId, action, draftId, approvalTime
+        <if test="reason != null">, reason</if>)
+        values (#{approvalId}, #{action}, #{draftId}, now()
+        <if test="reason != null">, #{reason}</if>)
+    </insert>
+
+    <select id="readApprovalLogByDraft" parameterType="map" resultType="ApprovalLogDto">
+        SELECT al.approvalId,
+               al.draftId,
+               al.action,
+               al.approvalTime,
+               a.`order`,
+               al.reason
+        FROM approval_log al
+                 JOIN approvals a
+                      ON al.approvalId = a.userId
+                          AND al.draftId = a.draftId
+        WHERE al.draftId = #{draftId};
+    </select>
+</mapper>

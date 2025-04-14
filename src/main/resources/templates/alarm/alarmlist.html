@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>알람 목록</title>
+<link rel="stylesheet" th:href="@{/style/alarmlist.css}"/>
+<link rel="stylesheet" th:href="@{/style/globals.css}"/>
+<link rel="stylesheet" th:href="@{/style/header.css}" >
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
+</head>
+<body th:attr="data-user-id=${userId}">
+<div th:replace="~{layout/header :: header}"></div>
+<div class="alarmlist">
+	<div class="main">
+        <div class="top">
+        	<div class="nav">
+			<div class="title">
+				<div class="div">알람</div>
+			</div>
+				<div class="menu">
+					<a class="div2" href="/alarm/all">전체 알람</a>
+               		<div class="div3">|</div>
+                	<a class="div4" href="/alarm/read">읽은 알람</a>
+                	<div class="div3">|</div>
+                	<a class="div4" href="/alarm/unread">읽지 않은 알람</a>
+				</div>
+			</div>
+		</div>
+	<div class="section">
+		<div class="article">
+			<div class="btnframe">
+				<button class="btnwhite" onclick="checkAllAlarm()">
+                        <div class="div5">알람 확인</div>
+                    </button>
+			</div>
+				<div class="tableset">
+                    <div class="tabletitle">
+                        <input class="checkbox" type="checkbox"/>
+                        <div class="div6">|</div>
+                        <div class="div7">알람 타입</div>
+                        <div class="div6">|</div>
+                        <div class="div7">보낸 사람</div>
+                        <div class="div6">|</div>
+                        <div class="div7">보낸 시간</div>
+                        <div class="div6">|</div>
+                        <div class="div8">알람 내용</div>
+                        <div class="div6">|</div>
+                        <div class="div7">확인 여부</div>
+                        <div class="div6">|</div>
+                        <div class="div10">확인</div>
+                    </div>
+                    <div id="userTableBody">
+                        <!-- 동적으로 데이터가 추가될 부분 -->
+                    </div>
+              </div>
+              <div class="pagenumset">
+                    <i class="bi bi-arrow-left leftbtn page-arrow"></i>
+                    <div class="pagenum">
+                    	<!-- 페이징 처리 부분 -->
+                    </div>
+                    <i class="bi bi-arrow-right rightbtn page-arrow"></i>
+              </div>
+		</div>
+	</div>
+	</div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+<script>
+$(document).ready(function () {
+
+    // 현재 탭 상태 저장
+    let currentTabUrl = "/alarm/all";
+    //마지막 페이징 
+    let lastPagingData = null;
+
+    // 탭 class 동기화 함수
+    function updateTabClass(activeUrl) {
+        $(".menu a").each(function () {
+            const $link = $(this);
+            const href = $link.attr("href");
+            if (href === activeUrl) {
+                $link.removeClass("div4").addClass("div2");
+            } else {
+                $link.removeClass("div2").addClass("div4");
+            }
+        });
+    }
+
+    // 알람 목록 불러오기
+    function loadAlarmList(pageNum = 1) {
+        $.ajax({
+            url: currentTabUrl,
+            method: 'GET',
+            data: { pageNum: pageNum },
+            success: function (res) {
+                if (res.status === "ok") {
+                    renderAlarmTable(res.result);
+                    renderPagination(res);
+                } else {
+                    alert("알람 데이터를 불러오는 데 실패했습니다.");
+                }
+            },
+            error: function () {
+                alert("서버 오류가 발생했습니다.");
+            }
+        });
+    }
+    
+    //알람 타입별 이동할 링크 지정
+    function getRedirectUrlByType(alarmType, causedId) {
+        switch (alarmType) {
+            case "MESSAGE":
+                return `/draft/messageInBox`;
+            case "APPROVAL":
+                return `/draft/approvalInbox`;
+            case "SYSTEM":
+                return `/`;
+            case "SCHEDULE":
+                return `/schedules`;
+            case "BOARD":
+                return `/board`; //임시 지정 게시판 페이지 링크로 수정할 예정
+            default:
+                return "#"; //정의되지 않은 알람이 들어올 경우 현재 페이지 머무르기
+        }
+    }
+
+    // 알람 테이블 렌더링
+    function renderAlarmTable(alarms) {
+        const $tbody = $("#userTableBody");
+        $tbody.empty();
+
+        alarms.forEach(alarm => {
+            const rowClass = alarm.isRead == 1 ? '' : 'unread-row';
+            const row = `
+              <div class="table_row ${rowClass}" data-type="${alarm.type}" data-id="${alarm.id}">
+                <input class="checkbox" type="checkbox" data-id="${alarm.id}" />
+                <div class="div6">|</div>
+                <div class="div7">${alarm.type}</div>
+                <div class="div6">|</div>
+                <div class="div7">${alarm.causedName}</div>
+                <div class="div6">|</div>
+                <div class="div7">${alarm.createdAt}</div>
+                <div class="div6">|</div>
+                <div class="div8">${alarm.content}</div>
+                <div class="div6">|</div>
+                <div class="div7">${alarm.isRead == 1 ? "확인완료" : "미확인"}</div>
+                <div class="div6">|</div>
+                <div class="div10">
+                  <button class="btnwhite2" data-id="${alarm.id}">확인</button>
+                </div>
+              </div>
+            `;
+            $tbody.append(row);
+        });
+    }
+
+    // 페이징 처리
+    function renderPagination(res) {
+    	lastPagingData = res; // 좌우 버튼에서 페이지 정보 접근용
+        const $pagination = $(".pagenum");
+        $pagination.empty();
+
+        const currentPage = res.currentPage;
+        const startPage = res.startPage;
+        const endPage = res.endPage;
+
+        for (let i = startPage; i <= endPage; i++) {
+            const pageBtn = $(`<div class="page-btn">${i}</div>`);
+            
+         	// 클래스 부여
+            if (i === currentPage) {
+            	pageBtn.addClass("currentPage");
+            } else {
+            	pageBtn.addClass("otherPage");
+            }
+            
+            if (i == currentPage) {
+                pageBtn.addClass("active");
+            }
+            pageBtn.on("click", function () {
+                loadAlarmList(i);
+            });
+            $pagination.append(pageBtn);
+        }
+    }
+ 	// 좌/우 화살표 이벤트 추가
+    $(document).on("click", ".leftbtn", function () {
+        if (lastPagingData && lastPagingData.currentPage > 1) {
+            loadAlarmList(lastPagingData.currentPage - 1);
+        }
+    });
+    $(document).on("click", ".rightbtn", function () {
+        if (lastPagingData && lastPagingData.currentPage < lastPagingData.totalPage) {
+            loadAlarmList(lastPagingData.currentPage + 1);
+        }
+    });
+
+    // 알람 읽음 처리
+    function updateAlarmReadStatus(ids) {
+        const idParam = Array.isArray(ids) ? ids.join(",") : ids;
+
+        $.ajax({
+            url: '/alarm/updateIsRead',
+            method: 'GET',
+            data: { id: idParam },
+            success: function (res) {
+                if (res.status === "ok") {
+                    //loadAlarmList(); // 새로고침
+                	location.reload();
+                } else {
+                    alert("알람 상태 업데이트 실패: " + res.result);
+                }
+            },
+            error: function () {
+                alert("서버 오류 발생");
+            }
+        });
+    }
+
+    // 전체 선택 확인 버튼
+    window.checkAllAlarm = function () {
+        let selectedIds = [];
+        let hasAlreadyRead = false;
+
+        $(".checkbox:checked").each(function () {
+            const id = $(this).data("id");
+            if (!id) return; // 헤더 체크박스 무시
+
+            const row = $(this).closest(".table_row");
+            const isReadText = row.find(".div7").last().text().trim();
+
+            if (isReadText == "확인완료") {
+                hasAlreadyRead = true;
+            } else {
+                selectedIds.push(id);
+            }
+        });
+
+        if (hasAlreadyRead) {
+            alert("확인 완료 된 목록이 포함되어 있습니다");
+            return;
+        }
+
+        if (selectedIds.length == 0) {
+            alert("선택된 알람이 없습니다.");
+            return;
+        }
+
+        updateAlarmReadStatus(selectedIds);
+    };
+
+    // 개별 확인 버튼
+    $(document).on("click", ".btnwhite2", function (e) {
+        const id = $(e.currentTarget).data("id");
+        const row = $(this).closest(".table_row");
+        const isReadText = row.find(".div7").last().text().trim();
+
+        if (isReadText == "확인완료") {
+            alert("이미 확인된 알람입니다.");
+            return;
+        }
+        updateAlarmReadStatus(id);
+        alert("알람을 확인했습니다.");
+    });
+
+    // 탭 클릭 처리
+    $(".menu a").on("click", function (e) {
+        e.preventDefault();
+        const url = $(this).attr("href");
+        currentTabUrl = url;
+
+        updateTabClass(url); //탭 스타일 업데이트
+
+        $.get(url, function (res) {
+            if (res.status === "ok") {
+                renderAlarmTable(res.result);
+                renderPagination(res);
+            }
+        });
+    });
+
+    // 헤더 체크박스 클릭 시 전체 체크
+    $(document).on("change", ".tabletitle .checkbox", function () {
+        const checked = $(this).is(":checked");
+        $("#userTableBody .checkbox").prop("checked", checked);
+    });
+
+    // 개별 체크박스 변경 시 헤더 동기화
+    $(document).on("change", "#userTableBody .checkbox", function () {
+        const total = $("#userTableBody .checkbox").length;
+        const checked = $("#userTableBody .checkbox:checked").length;
+        $(".tabletitle .checkbox").prop("checked", total == checked);
+    });
+	
+ 	// 알람 행 클릭 시 해당 타입에 따라 페이지 이동
+    $(document).on("click", ".table_row", function (e) {
+        if ($(e.target).is("input[type='checkbox']") || $(e.target).is("button")) return;
+
+        const type = $(this).data("type");
+        const id = $(this).data("id");
+
+        const url = getRedirectUrlByType(type, id);
+        if (url && url !== "#") {
+            window.location.href = url;
+        } else {
+            alert("해당 알람은 이동할 수 없습니다.");
+        }
+    });
+    // 초기 로딩
+    updateTabClass(currentTabUrl); // 초기 탭 class 적용
+    loadAlarmList();
+});
+</script>
+
+</body>
+</html>

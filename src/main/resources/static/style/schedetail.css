@@ -1,0 +1,86 @@
+
+#scheDetail {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+    height: 100%;
+    margin-top: 30px;
+}
+
+.sctitle{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 2px;
+}
+.sctitlecheck{
+    display: flex;
+    gap: 10px;
+}
+.scstart , .scend{
+    display: flex;
+    width: 50%;
+    gap: 10px;
+}
+.sctitle span, .sctitlecheck span{
+    font-size: 12px;
+}
+.scbtnset{
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+    width: 100%;
+}
+.scupdate{
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 5px;
+    height: 35px;
+    background-color: #fa7000;
+    color: white;
+    cursor: pointer;
+}
+.scdelete{
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 5px;
+    height: 35px;
+    background-color: white;
+    color: #686868;
+    cursor: pointer;
+}
+#scheDetail .groupCheckItem {
+    height: 30px;
+}
+
+/*일정상세 하루종일 체크 아이콘 크기 조정*/
+#scheDetail input.isAlltime{
+    font-size: 35px;
+    width: 20px;
+    height: 20px;
+}
+
+/* 비활성화된 체크박스 색을 변경하고싶은데 css안먹음 이유를 모르겠음
+#scheDetail .isAlltime:disabled{
+     accent-color: red;
+ }*/
+.form-control{
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+.form-control tr{
+    display: flex;
+    width: 100%;
+    font-size: 15px;
+    justify-content: flex-start;
+    align-items: center;
+    flex: 1;
+}
+.form-control td{
+    flex: 1;
+}

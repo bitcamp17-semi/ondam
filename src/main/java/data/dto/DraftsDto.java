@@ -10,7 +10,7 @@ import java.sql.Timestamp;
 @Data
 public class DraftsDto {
     public enum DraftStatus {
-        DRAFT, PENDING, APPROVED, REJECTED, CANCELED
+        PENDING, APPROVED, REJECTED
     }
     private int id;
     private String title;
@@ -20,4 +20,6 @@ public class DraftsDto {
     private DraftStatus status;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/Seoul")
     private Timestamp createdAt;
+    private String authorName; // 기안문 목록 조회용 필드 추가함
+    private String templateTitle; // 템플릿 명 필드
 }

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <link rel="stylesheet" th:href="@{/style/globals.css}"/>
+    <link rel="stylesheet" th:href="@{/style/header.css}"/>
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+</head>
+<body>
+<div th:fragment="header">
+    <div class="header-layout">
+        <div class="frame">
+            <div class="logo"><img class="ondam-w" th:src="@{/images/ondam_W.png}"/></div>
+        </div>
+        <div class="div">
+            <div class="div-2" id="header-home" th:data-url="@{/}">
+                <i class="bi bi-house"></i>
+                <span class="label">메인화면</span>
+            </div>
+            <div class="div-2" id="header-note" th:data-url="@{/messages/inbox}">
+                <i class="bi bi-send"></i>
+                <span class="label">쪽지</span>
+            </div>
+            <div class="div-2" id="header-orgchart" th:data-url="@{/organization}">
+                <i class="bi bi-diagram-3"></i>
+                <span class="label">조직도</span>
+            </div>
+            <div class="div-2" id="header-calendar" th:data-url="@{/schedules}">
+                <i class="bi bi-calendar4-week"></i>
+                <span class="label">일정관리</span>
+            </div>
+            <div class="div-2" id="header-approval" th:data-url="@{/draft/approvalInbox}">
+                <i class="bi bi-clipboard-check"></i>
+                <span class="label">전자결재</span>
+            </div>
+            <div class="div-2" id="header-board" th:data-url="@{/}">
+                <i class="bi bi-list-task"></i>
+                <span class="label">게시판</span>
+            </div>
+            <div class="div-2" id="header-storage" th:data-url="@{/draft/storage}">
+                <i class="bi bi-cloud-download"></i>
+                <span class="label">드라이브</span>
+            </div>
+            <div class="div-2" id="header-chat" th:data-url="@{/chat/main}">
+                <i class="bi bi-chat-text"></i>
+                <span class="label">채팅</span>
+            </div>
+            <div class="div-2" id="header-info" th:data-url="@{/admin/management}">
+                <i class="bi bi-gear"></i>
+                <span class="label">관리자</span>
+            </div>
+        </div>
+        <div class="div">
+            <div class="div-2" id="header-alarm">
+                <div class="group">
+                    <div class="overlap-group">
+                        <i class="bi bi-bell"></i>
+                        <div class="ellipse"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="profileimage" id="header-profileImage">
+                <img class="img"
+                     th:src="@{/images/Rectangle53.png}"
+                     onerror="this.src='/images/Rectangle53.png'"/>
+            </div>
+            <div class="div-2" id="header-logout">
+                <i class="bi bi-box-arrow-right"></i>
+            </div>
+
+        </div>
+    </div>
+    <script>
+        $(document).ready(function () {
+            getProfile();
+            checkLoginStatus();
+        });
+        $("#header-logout").click(function () { // ✅ 중첩 제거
+            $.ajax({
+                url: "/api/logout",
+                type: "GET",
+                success: function (response) {
+                    if (response.status === "ok") {
+                        alert("로그아웃 되었습니다.");
+                        window.location.href = "/login";  // 로그인 페이지로 이동
+                    } else {
+                        alert("로그아웃 실패: " + response.result);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    alert("오류 발생: " + error);
+                }
+            });
+        });
+
+        $(".div-2").on("click", function () {
+            const url = $(this).data("url");
+            window.location.href = url;
+        });
+
+        function checkLoginStatus() {
+            $.get("/api/checkLogin", function (res) {
+                if (res.status === "ok") {
+                } else {
+                    alert("로그인이 필요합니다.");
+                    location.href = "/login";
+                }
+            }).error(function () {
+                alert("로그인이 필요합니다.");
+                location.href = "/login";
+            });
+        }
+
+        function getProfile() {
+            $.ajax({
+                url: "/api/users/readUserBySession",
+                type: "GET",
+                success: function (res) {
+                    if (res.status === "ok") {
+                        let storageUrl = "https://kr.object.ncloudstorage.com/bitcamp-semi/users/";
+                        let profileImageUrl = storageUrl + res.result.profileImage;
+                        $("#header-profileImage img").attr("src", profileImageUrl);
+                        $("#header-profileImage").attr("data-id", res.result.id);
+
+                        if (!res.result.admin) {
+                            $("#header-info").hide();
+                        }
+                    }
+                }
+            })
+        }
+    </script>
+
+<!-- 토스트 노출-->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/alarm.js}"></script>
+
+</div>
+</body>
+</html>

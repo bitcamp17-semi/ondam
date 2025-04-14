@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>일정관리</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" />
+    <link rel="stylesheet" th:href="@{/style/globals.css}"/>
+    <link rel="stylesheet" th:href="@{/style/header.css}"/>
+    <link rel="stylesheet" th:href="@{/style/schedules.css}"/>
+    <link rel="stylesheet" th:href="@{/style/schedetail.css}"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- 풀캘린더 사용하기위한 script -->
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css' rel='stylesheet'/>
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js'></script>
+    <!-- 풀캘린더 상단 버튼 한글로 변경하기위한 스크립트-->
+    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.15/locales/ko.global.js"></script>
+    <!-- 부트스트랩에서 드롭다운 목록 다중 선택 시 필요한 css,js -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+</head>
+
+<body th:attr="data-user-id=${userId}">
+<div th:replace="~{layout/header :: header}"></div>
+
+<!-- 일정 추가 모달 -->
+<div class="modal" id="calAddModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title">일정 추가</h4>
+            </div>
+            <!-- Modal body -->
+            <div class="modal-body">
+                <table class="form-control">
+                    <tr>
+                        <th>하루종일</th>
+                        <td>
+                            <input class="form-check-input isAlltime" name="isAlltime" type="checkbox">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="scheGroup">일정 그룹</th>
+                        <td>
+                            <select class="groupCheckItem" name="groupId">
+                                <option th:each="gList : ${groupList}"
+                                        th:value="${gList.id}"
+                                        th:text="${gList.name}"
+                                        th:disabled="${gList.name == '회사일정' and userId != 1}">
+                                </option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>일정 제목</th>
+                        <td colspan="3">
+                            <input class="form-control name" name="name" type="text">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>내용</th>
+                        <td colspan="3">
+                            <textarea class="form-control content" name="content" rows="2"></textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>시작 날짜</th>
+                        <td>
+                            <input class="form-control startDate" name="startDate" type="date">
+                        </td>
+                        <th>시작 시간</th>
+                        <td>
+                            <input class="form-control startTime" name="startTime" type="time">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>종료 날짜</th>
+                        <td>
+                            <input class="form-control endDate" name="endDate" type="date">
+                        </td>
+                        <th>종료 시간</th>
+                        <td>
+                            <input class="form-control endTime" name="endTime" type="time">
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Modal footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success scheAddbtn" data-bs-dismiss="modal">등록</button>
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">닫기</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+<!-- 일정 추가 모달 끝 -->
+
+<!-- 그룹 추가 모달 -->
+<div class="modal" id="calGroupAddModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title">일정 그룹 추가</h4>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+
+            <!-- Modal body -->
+            <div class="modal-body">
+                <table class="form-control">
+                    <!-- 이부분은 로그인 기능 구현되면 활성화시켜서 로그인된 아이디를 받아서 저장할 예정-->
+                    <tr>
+                        <th>그룹장</th>
+                        <td>
+                            <input type="hidden" class="form-control ownerId" name="ownerId" th:value="${userId}"
+                                   disabled="disabled">
+                            <input class="form-control ownerId" name="ownerName" th:value="${ownerName}"
+                                   disabled="disabled">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>그룹 이름</th>
+                        <td>
+                            <input type="text" class="form-control gName" name="name" required="required">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>그룹 색상</th>
+                        <td>
+                            <input type="color" class="form-control gColor" name="color">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>인원 추가</th>
+                        <td width="85%">
+                            <select class="groupMembers" name="groupMembers" multiple="multiple" >
+                                <option th:each="user : ${userList}"
+                                        th:value="${user.id}"
+                                        th:text="${user.name + ' (' + user.departmentName + ')'}">
+                                </option>
+                            </select>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Modal footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success scheGroupAddbtn" data-bs-dismiss="modal">등록</button>
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">닫기</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+<!-- 그룹 추가 모달 끝 -->
+
+<!-- 그룹 상세 모달 -->
+<div class="modal" id="calGroupDetailModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title">그룹 수정</h4>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+
+            <!-- Modal body -->
+            <div class="modal-body">
+                <table class="form-control">
+                    <input type="hidden" name="groupId">
+                    <!-- 이부분은 로그인 기능 구현되면 활성화시켜서 로그인된 아이디를 받아서 저장할 예정-->
+                    <tr>
+                        <th>그룹장</th>
+                        <th hidden>부서ID</th>
+                        <td>
+                            <!-- 추후에 로그인되어있는 사용자 이름을 출력시킬 예정 -->
+                            <input type="text" class="form-control ownerName" name="ownerName">
+                        </td>
+                        <td>
+                            <input class="form-control departmentId" name="departmentId" hidden>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>그룹 이름</th>
+                        <td>
+                            <input type="text" class="form-control Name" name="name" required="required">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>그룹 색상</th>
+                        <td>
+                            <input type="color" class="form-control Color" name="color">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>인원 추가</th>
+                        <td width="85%">
+                            <select class="groupMembers" name="groupMembers" multiple="multiple" >
+
+                                <option th:each="user : ${userList}"
+                                        th:value="${user.id}"
+                                        th:text="${user.name + ' (' + user.departmentName + ')'}">
+                                </option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" align="center">
+
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Modal footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger scheGroupDeletebtn" onclick="scheGroupDel()">삭제</button>
+                <button type="button" class="btn btn-success scheGroupUpdatebtn">수정</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+<!-- 그룹 상세 모달 끝 -->
+
+<div id="allList" class="fullbox">
+    <!-- 상단 타이틀 영역 -->
+    <div class="main">
+        <div id='scheTitle' class="nav">
+            <div class="navtitle">일정관리</div>
+            <div class="mainnavbar">
+                <span id="navlist2">오늘은 [[${#calendars.format(today, 'yyyy년 MM월 dd일')}]] 입니다.</span>
+            </div>
+        </div>
+        <div class="section">
+            <div class="leftarticle">
+                <a><input type="checkbox" class="allCheck" checked>&nbsp;전체</a>
+                <!-- 그룹 목록 노출시키기 -->
+                <input type="hidden" id="userId" th:value="${userId}"/>
+                <div id="scheGroupList" class="scheGroupList">
+                    <div th:each="gList : ${groupList}" class="groupCheckItem"
+                         th:style="|background-color:${gList.color};color:white;|">
+                        <!-- 기본으로 체크된 상태로 노출시키기 -->
+                        <input type="checkbox" checked th:attr="data-group-id=${gList.id}">
+                        <span class="scheGroupName"
+                              th:data-group-id="${gList.id}"
+                              th:data-owner-id="${gList.ownerId}"
+                              th:data-owner-name="${gList.ownerName}"
+                              th:data-group-name="${gList.name}"
+                              th:data-group-color="${gList.color}"
+                              th:data-department-id="${gList.departmentId}"
+                              style="cursor: pointer;">&nbsp;[[${gList.name}]]</span>
+                    </div>
+                </div>
+            </div>
+            <!-- 캘린더 출력 영역 -->
+            <div id='calendar'></div>
+            <!-- 오른쪽 상세보기 -->
+            <div class="rightarticle">
+                <div class="righttop">
+                    <span class="detailtitle">일정 상세</span>
+                </div>
+                <div class="rightmain">
+                    <div id="schedule-sidebar"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+
+<script th:inline="javascript">
+    const loginUserId = /*[[${userId}]]*/ 0;
+    const groupMemberMap = /*[[${groupMemberMap}]]*/ {};
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const allCheck = document.querySelector(".allCheck");
+        const privateCheck = document.querySelector("input.private");
+        const groupCheck = document.querySelector("input.group");
+        const companyCheck = document.querySelector("input.company");
+        const groupListChecks = document.querySelectorAll("#scheGroupList input[type='checkbox']");
+        //일정 목록 노출 : 타임리프로 목록 불러옴
+        const scheduleList = /*[[${scheduleList}]]*/ [];
+        const events = scheduleList.map(s => {
+            return {
+                id: s.id,
+                title: s.name,
+                groupId: s.groupId,
+                start: s.startTime.replace(' ', 'T'),
+                end: s.endTime.replace(' ', 'T'),
+                allDay: s.alltime,
+                content: s.content,
+                writer: s.writer,
+                color: s.color
+            };
+        });
+
+        //캘린더 출력 영역
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',//월간 달력 뷰
+            locale: 'ko',//한국어 설정
+            editable: false,//드래그해서 수정 가능한지. 길게 확장도 가능
+            dayMaxEvents: true,//+more 표시 전 최대 이벤트 갯수. true는 셀 높이에의해 결정
+            selectable: true,//사용자가 클릭하고 드래그하여 선택할 수 있도록 함
+            events: events,//목록 조회 시 필요한 항목
+
+
+            headerToolbar: {
+                left: 'today addSchedule addGroupSchedule',
+                center: 'title',
+                right: 'prev,next,listDay'
+            },
+            footerToolbar: {
+                start: "timeGridDay,dayGridMonth,dayGridWeek",
+            },
+
+            //달력에서 '일' 글자 제거하는 내용
+            dayCellContent: function (info) {
+                var number = document.createElement("a");
+                number.classList.add("dc-daygrid-day-number");
+                number.innerHTML = info.dayNumberText.replace("일", "").replace("日", "");
+                if (info.view.type == "dayGridMonth") {
+                    return {
+                        html: number.outerHTML
+                    };
+                }
+                return {
+                    domNodes: []
+                };
+            },
+            select: function (start, end) {
+                openAddScheduleModal(start, end);
+            },
+
+            //일정등록버튼 노출시키기위한 영역
+            customButtons: {
+                addSchedule: {
+                    text: "일정 등록",
+                    click: function () {
+                        //alert("일정 등록 하세요!");
+                        //하루종일 체크 시 이벤트 설정
+                        const allDay = event.allDay;
+                        document.querySelector("#calAddModal .modal-title");
+                        // 모달 표시
+                        var myModal = new bootstrap.Modal(document.getElementById('calAddModal'));
+                        myModal.show();
+                    },
+                },
+                //그룹 추가 버튼 노출
+                addGroupSchedule: {
+                    text: "그룹 추가",
+                    click: function () {
+                        //모달 표시
+                        var myModal = new bootstrap.Modal(document.getElementById('calGroupAddModal'));
+                        myModal.show();
+                    }
+                }
+
+            },
+
+            // 달력 빈 공간 클릭 시 모달 노출
+            select: function (info) {
+                //const startDate = event.startStr;
+                //console.log("Clicked event occurs: date = " + info.startStr);
+                // 선택한 날짜를 모달의 시작 날짜 필드에 설정
+                document.querySelector("input[name='startDate']").value = info.startStr;
+                //선택한 날짜를 모달의 종료날짜에도 기본으로 노출되도록 설정
+                document.querySelector("input[name='endDate']").value = info.startStr;
+                // 모달 표시
+                var myModal = new bootstrap.Modal(document.getElementById('calAddModal'));
+                myModal.show();
+            },
+
+            //목록에서 마우스 오버시 tooltip 노출하기
+            eventDidMount: function (info) {
+                let writer = info.event.extendedProps.writer || '작성자 없음';
+                let content = info.event.extendedProps.content || '내용 없음';
+
+                let tooltipHtml = `작성자 : ${writer}<br>내용 : ${content}`;
+
+                info.el.setAttribute('title', tooltipHtml);
+                info.el.setAttribute('data-bs-toggle', 'tooltip');
+                info.el.setAttribute('data-bs-html', 'true');
+                info.el.setAttribute('data-bs-placement', 'bottom');
+
+                new bootstrap.Tooltip(info.el);
+            },
+
+            //일정 클릭 시 상세 페이지 이동
+            eventClick: function (info) {
+                var event = info.event;
+                var id = event.id;
+                //상세페이지 이동
+                // window.location.href = '/schedules/scheDetail?id=' + id;
+                $.ajax({
+                    url: "/schedules/scheDetail?id="+id,
+                    data: { id },
+                    success: function (html) {
+                        $('#schedule-sidebar').html(html); // ✅ 비동기 삽입
+                        $('#schedule-sidebar').addClass('visible'); // ✅ 튀어나오기
+                    },
+                    error: function () {
+                        alert("일정 정보를 불러오지 못했습니다.");
+                    }
+                });
+            }
+
+        });
+        calendar.render();
+
+        //체크박스 이벤트 추가하자
+        function filterEventsByGroup() {
+            const checkedGroupIds = Array.from(document.querySelectorAll("#scheGroupList .groupCheckItem input[type='checkbox']:checked"))
+                .map(cb => parseInt(cb.dataset.groupId));
+
+            const filteredEvents = events.filter(event =>
+                checkedGroupIds.includes(event.groupId)
+            );
+
+            calendar.removeAllEvents();
+            calendar.addEventSource(filteredEvents);
+        }
+
+        // 체크박스 연동 기능
+        const allCheckBox = document.querySelector(".allCheck");
+        const groupCheckBoxes = document.querySelectorAll("#scheGroupList .groupCheckItem input[type='checkbox']");
+
+        allCheckBox.addEventListener("change", function () {
+            const checked = allCheckBox.checked;
+            groupCheckBoxes.forEach(cb => cb.checked = checked);
+            filterEventsByGroup();
+        });
+
+        groupCheckBoxes.forEach(cb => {
+            cb.addEventListener("change", () => {
+                const allChecked = Array.from(groupCheckBoxes).every(cb => cb.checked);
+                allCheckBox.checked = allChecked;
+                filterEventsByGroup();
+            });
+        });
+
+        //'하루종일' 체크 시 시작시간, 종료 시간 12:00으로 설정 및 비활성화
+        $("input[name='isAlltime']").on("change", function () {
+            let isChecked = $(this).is(":checked");
+            let startTimeInput = $("input[name='startTime']");
+            let endTimeInput = $("input[name='endTime']");
+
+            if (isChecked) {
+                startTimeInput.val("00:00").prop("disabled", true);
+                endTimeInput.val("12:00").prop("disabled", true);
+            } else {
+                startTimeInput.val("").prop("disabled", false);
+                endTimeInput.val("").prop("disabled", false);
+            }
+        });
+
+        //그룹상세 모달 노출 이벤트
+        document.querySelectorAll(".scheGroupName").forEach(nameEl => {
+            nameEl.addEventListener("click", function () {
+                const groupId = this.dataset.groupId;
+                const groupName = this.dataset.groupName;
+                const groupColor = this.dataset.groupColor;
+                const departmentId = this.dataset.departmentId;
+                const ownerId = this.dataset.ownerId;
+
+                const modal = document.getElementById("calGroupDetailModal");
+                const nameInput = modal.querySelector("input[name='name']");
+                const colorInput = modal.querySelector("input[name='color']");
+                const ownerNameInput = modal.querySelector("input[name='ownerName']");
+                const deptInput = modal.querySelector("input[name='departmentId']");
+                const memberSelect = $(modal).find("select[name='groupMembers']");
+                const updateBtn = modal.querySelector(".scheGroupUpdatebtn");
+                const delBtn = modal.querySelector(".scheGroupDeletebtn");
+
+                modal.querySelector("input[name='groupId']").value = groupId;
+                nameInput.value = groupName;
+                colorInput.value = groupColor;
+                ownerNameInput.value = this.dataset.ownerName;
+                deptInput.value = departmentId;
+
+                // 멤버 설정
+                const memberIds = groupMemberMap[groupId] || [];
+                memberSelect.val(memberIds).trigger("change");
+
+                // 삭제/수정 버튼 및 입력 필드 상태 제어 함수
+                const setInputsEnabled = (enabledName, enabledColor, enabledMembers) => {
+                    nameInput.disabled = !enabledName;
+                    colorInput.disabled = !enabledColor;
+                    memberSelect.prop("disabled", !enabledMembers);
+                };
+
+                // 버튼 기본 상태
+                updateBtn.style.display = 'none';
+                delBtn.style.display = 'none';
+
+                // 그룹명이 개인일정이거나 회사일정인 경우 모든 인풋박스 수정 불가능
+                if (groupName == "개인일정" || groupName == "회사일정") {
+                    setInputsEnabled(false, false, false);
+
+                    // ownerId == 로그인한 userId 색, 그룹명, 멤버 전부 수정 가능 및 수정 삭제 버튼 노출
+                } else if (parseInt(ownerId) == loginUserId) {
+                    updateBtn.style.display = 'inline-block';
+                    delBtn.style.display = 'inline-block';
+                    setInputsEnabled(true, true, true);
+
+                    // 그룹 멤버에 포함만 되어있는 경우 → 색상만 수정 가능
+                } else if (memberIds.includes(loginUserId)) {
+                    updateBtn.style.display = 'inline-block';
+                    delBtn.style.display = 'none';
+                    setInputsEnabled(false, true, false);
+
+                    // 나머지의 경우는 입력 필드 전부 비활성화로 노출되도록 설정
+                } else {
+                    setInputsEnabled(false, false, false);
+                }
+
+                new bootstrap.Modal(modal).show();
+            });
+        });
+
+        //일정등록 모달 > 등록 버튼 클릭 시 동작
+        const registerBtn = document.querySelector("#calAddModal .scheAddbtn");
+        registerBtn.addEventListener('click', function () {
+            const isAlltimeChecked = document.querySelector("input[name='isAlltime']").checked;
+            const isAlltimeValue = isAlltimeChecked ? 1 : 0;
+            const name = document.querySelector("input[name='name']").value;
+            const content = document.querySelector("textarea[name='content']").value;
+            const startDate = document.querySelector("input[name='startDate']").value;
+            const startTime = document.querySelector("input[name='startTime']").value;
+            const endDate = document.querySelector("input[name='endDate']").value;
+            const endTime = document.querySelector("input[name='endTime']").value;
+            const startDateTime = startDate + ' ' + startTime + ':00';
+            const endDateTime = endDate + ' ' + endTime + ':00';
+            const groupId = parseInt(document.querySelector("select[name='groupId']").value);
+
+            const userId =  /*[[${userId}]]*/ 0; // 현재는 임시로 고정값
+
+            // 유효성 검사
+            if (!startDate || !startTime || !endDate || !endTime) {
+                alert("시작/종료 날짜와 시간을 모두 입력해주세요!");
+                return;
+            }
+
+            $.ajax({
+                url: '/schedules/scheduleinsert',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    userId: userId,
+                    name: name,
+                    content: content,
+                    groupId: groupId,
+                    isAlltime: isAlltimeValue,
+                    startDate: startDate,
+                    endDate: endDate,
+                    startTime: startTime,
+                    endTime: endTime
+                }),
+                success: function (response) {
+                    alert('일정이 등록되었습니다!');
+                    console.log(response);
+                    //location.reload();//등록 시 페이지 새로고침
+                },
+                error: function (xhr, status, error) {
+                    console.error('에러 발생:', error);
+                    alert('일정 등록 실패!');
+                    console.log("groupId:", groupId, "type:", typeof groupId);
+                },
+            });
+        });
+
+        //그룹 추가 모달 > 등록 버튼 클릭 시 이벤트
+        let addGroupbtn = document.querySelector("#calGroupAddModal .scheGroupAddbtn");
+        addGroupbtn.addEventListener('click', function () {
+
+            let ownerId = document.querySelector(".ownerId").value;
+            let name = document.querySelector(".gName").value;
+            let color = document.querySelector(".gColor").value;
+            let departmentId = document.querySelector(".departmentId").value;
+
+            // select2 선택된 값들 (배열), 없으면 null값을 등록
+            let members = $('.groupMembers').val();
+
+            // JSON 구조 만들기
+            let requestData = {
+                ownerId: ownerId,
+                name: name,
+                color: color,
+                departmentId: departmentId,
+                members: members.map(id => ({
+                    userId: id,
+                    color: color // 그룹 컬러를 멤버에게도 적용 (원하는 방식으로 조정 가능)
+                }))
+            };
+
+            // 유효성 검사
+            if (!name) {
+                alert("생성할 그룹명을 입력해주세요.");
+                return;
+            }
+
+            $.ajax({
+                type: "post",
+                dataType: "text",
+                url: "./scheGroupInsert",
+                data: JSON.stringify(requestData),
+                contentType: "application/json",
+                success: function () {
+                    alert("그룹이 등록되었습니다.");
+                    location.reload(); // 새로고침
+                },
+                error: function () {
+                    alert("오류 발생!");
+                }
+            });
+
+        });
+
+    });
+
+    //그룹 추가, 상세 모달 > 인원추가 셀렉트박스 이벤트
+    $(document).ready(function () {
+        // 그룹 추가 모달
+        $('#calGroupAddModal .groupMembers').select2({
+            placeholder: "멤버를 선택하세요",
+            closeOnSelect: false,
+            dropdownParent: $('#calGroupAddModal')
+        });
+
+        // 그룹 수정 모달
+        $('#calGroupDetailModal .groupMembers').select2({
+            placeholder: "멤버를 선택하세요",
+            closeOnSelect: false,
+            dropdownParent: $('#calGroupDetailModal')
+        });
+    });
+
+    //그룹 상세 모달 > 수정 버튼 이벤트
+    $(".scheGroupUpdatebtn").on("click", function (e) {
+        e.preventDefault();//서브밋의 기본이벤트를 무효화(action호출)
+
+        const modal = $("#calGroupDetailModal");
+        const groupId = modal.find("input[name='groupId']").val();
+        const name = modal.find("input[name='name']").val();
+        const color = modal.find("input[name='color']").val();
+        const departmentId = modal.find("input[name='departmentId']").val();
+        const members = modal.find("select[name='groupMembers']").val();
+
+        const requestData = {
+            id: parseInt(groupId),
+            name: name,
+            color: color,
+            departmentId: parseInt(departmentId),
+            members: members.map(memberId => ({
+                userId: parseInt(memberId),
+                groupId: parseInt(groupId),
+                color: color
+            }))
+        };
+
+        $.ajax({
+            type: "post",
+            data: JSON.stringify(requestData),
+            url: "./updateScheGroup",
+            contentType: "application/json",
+            success: function (res) {
+                alert("수정 완료되었습니다.");
+                location.reload();
+            }, error: function (xhr, status, error) {
+                console.error("수정 오류:", error);
+                alert("수정 실패!");
+            }
+        });
+
+    });//.submit 이벤트
+
+    //일정 그룹 삭제 이벤트
+    function scheGroupDel() {
+        let ans = confirm("그룹을 삭제하시겠습니까?");
+        if (ans) {
+            const modal = $("#calGroupDetailModal");
+            const groupId = modal.find("input[name='groupId']").val();
+            console.log(groupId)
+            $.ajax({
+                type: "get",
+                dataType: "text",
+                data: {"id": groupId},
+                url: "./scheGroupDel",
+                success: function () {
+                    alert("삭제되었습니다.");
+                    location.href = "./schedules";
+                },
+                error: function () {
+                    console.log("실패입니다.");
+                }
+            });
+        }
+    }
+
+    // 모달이 열릴 때 '하루종일' 체크 여부에 따라 시간 초기화 + 비활성화
+    $('#schedule-sidebar').on('show.bs.modal', '#scheUpdateModal', function () {
+        const isChecked = $('#schedule-sidebar #isAlltime').is(":checked");
+        const startTime = $('#schedule-sidebar #startTime');
+        const endTime = $('#schedule-sidebar #endTime');
+
+        if (isChecked) {
+            startTime.val("00:00").prop("disabled", true);
+            endTime.val("12:00").prop("disabled", true);
+        } else {
+            startTime.prop("disabled", false);
+            endTime.prop("disabled", false);
+        }
+    });
+
+    $('#schedule-sidebar').on("submit", "#updateForm", function (e) {
+        e.preventDefault();
+
+        const form = new FormData();
+        const isAlltimeChecked = $('#schedule-sidebar #isAlltime').is(":checked");
+        const isAlltimeValue = isAlltimeChecked ? 1 : 0;
+
+        form.append("id", $('#schedule-sidebar input[name="id"]').val());
+        form.append("isAlltime", isAlltimeValue);
+        form.append("groupId", $('#schedule-sidebar select[name="groupId"]').val());
+        form.append("name", $('#schedule-sidebar input[name="name"]').val());
+        form.append("content", $('#schedule-sidebar textarea[name="content"]').val());
+        form.append("startDate", $('#schedule-sidebar input[name="startDate"]').val());
+        form.append("startTime", $('#schedule-sidebar input[name="startTime"]').val());
+        form.append("endDate", $('#schedule-sidebar input[name="endDate"]').val());
+        form.append("endTime", $('#schedule-sidebar input[name="endTime"]').val());
+
+        $.ajax({
+            type: "post",
+            dataType: "text",
+            data: form,
+            url: "/schedules/scheUpdate",
+            processData: false,
+            contentType: false,
+            success: function () {
+                alert("수정 완료되었습니다.");
+                location.reload(); // 일정 목록 새로고침
+            },
+            error: function () {
+                alert("수정 중 오류 발생!");
+            }
+        });
+    });
+
+    $('#schedule-sidebar').on("click", ".scdelete", function () {
+        const id = document.querySelector("#scheDetail").dataset.id;
+        if (!id) {
+            alert("삭제할 일정 ID가 없습니다.");
+            return;
+        }
+
+        if (confirm("보고있는 일정을 삭제하시겠습니까?")) {
+            $.ajax({
+                type: "get",
+                dataType: "text",
+                url: "/schedules/scheDelete",
+                data: { id: id },
+                success: function () {
+                    alert("삭제되었습니다.");
+                    location.href = "/schedules";
+                },
+                error: function () {
+                    console.log("삭제 실패");
+                    console.log("삭제할 ID:", id);
+                    alert("삭제 실패");
+                }
+            });
+        }
+    });
+
+</script>

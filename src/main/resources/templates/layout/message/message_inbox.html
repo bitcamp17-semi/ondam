@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" th:href="@{/style/globals.css}"/>
+    <link rel="stylesheet" th:href="@{/style/message_inbox.css}"/>
+    <link rel="stylesheet" th:href="@{/style/header.css}"/>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+</head>
+<body>
+<input type="hidden" id="userId" th:value="${userId}" />
+<input type="hidden" id="receiverId" th:value="${userId}"/>
+<div class="fullbox">
+    <div th:replace="~{layout/header :: header}"></div>
+    <div id="modal-overlay">
+        <form id="modal-form">
+            <div id="modal-content">
+                <h2>쪽지쓰기</h2>
+                <div class="selectset">
+                    <div class="dropdown" id="modaldepartment">
+                        <span>부서</span>
+                        <button class="dropdown-btn">부서를 선택하세요</button>
+                        <div class="dropdown-menu">
+                            <a href="#">옵션 2-1</a>
+                            <a href="#">옵션 2-2</a>
+                            <a href="#">옵션 2-3</a>
+                        </div>
+                    </div>
+                    <div class="dropdown" id="modalname">
+                        <span>이름</span>
+                        <button class="dropdown-btn">이름을 선택하세요</button>
+                        <div class="dropdown-menu">
+                            <a href="#">옵션 3-1</a>
+                            <a href="#">옵션 3-2</a>
+                            <a href="#">옵션 3-3</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="modalmessagetitle">
+                    <span>제목</span>
+                    <input id="modaltitle" type="text" placeholder="제목을 입력해주세요"/>
+                </div>
+                <div class="modalmessagesection">
+                    <span>내용</span>
+                    <textarea id="modalsection" placeholder="내용을 입력해주세요"></textarea>
+                </div>
+                <div id="buttonset">
+                    <button type="submit" id="submit-modal">전송하기</button>
+                    <button type="button" id="close-modal">닫기</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="main">
+        <div class="nav">
+            <div class="navtitle">
+                쪽지 보관함
+            </div>
+            <div class="mainnavbar">
+                <div id="navlist1">+ 쪽지쓰기</div>
+                <div id="navlist2">받은 쪽지함</div>
+                <div id="navlist3">보낸 쪽지함</div>
+            </div>
+        </div>
+        <div class="section">
+            <div class="leftarticle">
+                <div id="totalcount">총 0 개의 쪽지가 있습니다.</div>
+                <div class="searchbox">
+                    <input type="text" placeholder="검색어를 입력하세요" id="searchinsert"/>
+                    <button id="searchbtn">검색</button>
+                </div>
+                <div class="dropdown">
+                    <button class="dropdown-btn">정렬방식</button>
+                    <div class="dropdown-menu">
+                        <a href="#" data-filter="all" class="selected">전체보기</a>
+                        <a href="#" data-filter="important">중요 메세지</a>
+                    </div>
+                </div>
+                <div class="messages">
+                    <div class="getmessage">
+                        <div class="getmessage_first">
+                            <div id="messagetitle"></div>
+                            <div id="messagedate"></div>
+                        </div>
+                        <div id="messagename"></div>
+                        <div id="messagearticle"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="rightarticle">
+                <div class="righttop">
+                    <div class="listnumber">
+                        <i class="bi bi-arrow-left leftbtn"></i>&nbsp&nbsp
+                        <span id="pagenum">이전 / 다음</span>&nbsp&nbsp
+                        <i class="bi bi-arrow-right rightbtn"></i>
+                    </div>
+                    <i class="bi bi-trash trashbox"></i>
+                </div>
+                <div class="rightmiddle">
+                    <img src="" id="profilephoto"/>
+                    <div class="profileset">
+                        <span id="profilename">name</span>
+                        <span id="profileteam">디자인팀 | 사원</span>
+                    </div>
+                    <div id="writedate">25. 03. 29 10:30AM</div>
+                </div>
+                <div class="rightmain">
+                    <div id="rightmaintitle" data-message-id="" data-createAt="2025-04-10T14:25:36">
+                       <span class="title-text">제목입니다</span>
+                       <i class="bi bi-suit-heart heart"></i>
+                    </div>
+                    <div id="rightmaincontents">내용입니다</div>
+                </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+<script>
+    let currentMessageCreatedAt = null;
+    let page = 0; // 페이지
+    let currentPage = 0;
+    let loading = false; //로딩상태
+    let messages = []; //메세지 목록
+    let totalMessages = 0; // 총메세지 개수
+    let currentFilter = "all";
+    $(document).ready(function () {
+        const receiverId = $("#receiverId").val();
+        console.log("receiverId:", receiverId);
+        const userId = $("#userId").val();
+        console.log("userId: " + userId);
+        loadMessages("all", receiverId);
+        $("#rightmaintitle .title-text").text("");
+        $("#rightmaincontents").text("");
+        $("#profilename").text("");
+        $("#writedate").text("");
+        $("#profileteam").text("");
+        $("#profilephoto").attr("src", ""); // 프로필 사진 초기화
+        // 페이지 로드 시 기본적으로 "전체보기"를 선택된 상태로 설정
+        $(".dropdown-menu a[data-filter='all']").addClass("selected");
+        $(".dropdown-btn").text("전체보기");
+
+
+        function formatDateTime(isoString) {
+            const date = new Date(isoString);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, "0");
+            const day = String(date.getDate()).padStart(2, "0");
+            const hours = String(date.getHours()).padStart(2, "0");
+            const minutes = String(date.getMinutes()).padStart(2, "0");
+            return `${year}-${month}-${day} ${hours}:${minutes}`;
+        }
+
+        function updateNavButtonState(receiverId, currentId) {
+            $.get("/messages/bounds", { receiverId }, function (res) {
+                if (res.status === "ok") {
+                    $(".leftbtn").toggleClass("disabled", currentId == res.min);
+                    $(".rightbtn").toggleClass("disabled", currentId == res.max);
+                }
+            });
+        }
+
+        function renderMessageDetail(msg) {
+            $("#rightmaincontents").text(msg.content);
+            $("#rightmaintitle .title-text").text(msg.title);
+            $("#rightmaintitle")
+                .attr("data-message-id", msg.id)
+                .data("message-id", msg.id)
+                .attr("data-createAt", msg.createdAt)
+                .data("createAt", msg.createdAt);
+
+            const $heart = $("#rightmaintitle .heart");
+            $heart
+                .removeClass("bi-suit-heart bi-suit-heart-fill")
+                .addClass(msg.isImportant ? "bi-suit-heart-fill" : "bi-suit-heart")
+                .attr("data-id", msg.id);
+
+            const formatted = formatDateTime(msg.createdAt);
+            $("#writedate").text(formatted);
+
+            $.get("/messages/users/name", { id: msg.senderId }, function (name) {
+                $("#profilename").text(name);
+            });
+
+            const receiverId = $("#receiverId").val();
+
+            setTimeout(() => {
+                updateNavButtonState(receiverId, msg.id);
+            }, 100);
+
+            $.get(`/api/users/readUserById?userId=${msg.senderId}`, function (userRes) {
+                if (userRes.status === "ok") {
+                    const user = userRes.result;
+                    $("#profilename").text(user.name);
+                    $("#profilephoto").show().attr("src", `https://kr.object.ncloudstorage.com/bitcamp-semi/users/${user.profileImage}`);
+                    $("#profilephoto").on("error", function () {
+                        $(this).attr("src", "../../images/Rectangle53.png");
+                    });
+
+                    $.get("/api/dep/readDeps", function (depRes) {
+                        if (depRes.status === "ok") {
+                            const dept = depRes.result.find(dep => dep.id == user.departmentId);
+                            if (user.position === "admin") {
+                                $("#profileteam").text("관리자");
+                            } else if (dept) {
+                                $("#profileteam").text(`${dept.name} | ${user.position}`);
+                            } else {
+                                $("#profileteam").text(`(부서 없음) | ${user.position}`);
+                            }
+                        } else {
+                            $("#profileteam").text(user.position);
+                        }
+                    });
+                }
+            });
+        }
+
+
+        // 검색 결과 처리 후 오른쪽 패널 초기화
+        function resetMessageDetailPanel() {
+            $("#rightmaincontents").text("");
+            $("#rightmaintitle .title-text").text("");
+            $("#rightmaintitle").attr("data-message-id", "");
+            $("#rightmaintitle").attr("data-createAt", "");
+            $("#writedate").text("");
+            $("#profilename").text("");
+            $("#profileteam").text("");
+            $("#profilephoto").attr("src", "").hide();
+            $(".heart").hide();
+            $(".rightarticle").removeClass("show-detail");
+        }
+
+
+        function createSentMessageHTML(msg) {
+            const isImportant = msg.isImportant;
+            const starIcon = isImportant ? "bi-star-fill" : "bi-star";
+            const title = msg.title ?? "제목 없음";
+            const date = formatDate(msg.createdAt);
+            const receiver = msg.receiverName ?? "알 수 없음";
+            const content = msg.content.length > 30 ? msg.content.slice(0, 30) + "..." : msg.content;
+
+            return `
+                <div class="getmessage read"
+                     data-id="${msg.id}"
+                     data-sent="true"
+                     data-title="${title}"
+                     data-date="${date}"
+                     data-name="${receiver}"
+                     data-content="${msg.content}"
+                     data-important="${isImportant}">
+                    <div class="getmessage_first" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-weight: normal; font-size: 16px;">${title}</div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <i class="bi ${starIcon} important-icon" data-id="${msg.id}" style="cursor: pointer;"></i>
+                            <div style="font-size: 12px; color: gray;">${date}</div>
+                        </div>
+                    </div>
+                    <div style="font-size: 13px; color: #444;">To. ${receiver}</div>
+                    <div style="font-size: 13px; color: #666;">${content}</div>
+                </div>
+                `;
+        }
+
+
+        function resetDetailView() {
+            $("#rightmaintitle .title-text").text('');
+            $("#rightmaincontents").text('');
+            $("#profilename").text('');
+            $("#profileteam").text('');
+            $("#profilephoto").attr('src', '').hide();
+            $("#writedate").text('');
+            $(".heart").hide();
+        }
+
+
+        $("#searchbtn").on("click", function (e) {
+            e.preventDefault();
+            performSearch();
+        });
+
+        $("#searchinsert").on("keypress", function (e) {
+            if (e.which === 13) {
+                e.preventDefault();
+                performSearch();
+            }
+        });
+
+        function performSearch() {
+            let keyword = $("#searchinsert").val().trim();
+            let category = $(".dropdown-menu a.selected").data("filter") || "all";
+            const userId = $("#userId").val();
+            const isSentTab = $("#navlist3").attr("data-active") === "true";
+            console.log("🟡 검색 시작", { keyword, category, userId, isSentTab });
+
+            resetMessageDetailPanel();
+
+            if (keyword === "") {
+                if (isSentTab) {
+                    console.log("🔵 전체 보낸 쪽지 로딩");
+                    $.get("/messages/sent", { senderId: userId }, function (res) {
+                        console.log("🟢 보낸 쪽지 응답:", res);
+
+                        $(".messages").empty();
+                        if (res.status === "ok") {
+                            if (res.result.length === 0) {
+                                $(".messages").append(`<div class="no-result">보낸 쪽지가 없습니다.</div>`);
+                            } else {
+                                res.result.forEach(msg => {
+                                    console.log("📨 보낸 쪽지 메시지:", msg);
+                                    $(".messages").append(createSentMessageHTML(msg));
+                                });
+                            }
+                            $("#totalcount").text(`총 ${res.result.length}개의 보낸 쪽지가 있습니다.`);
+                        } else {
+                            alert("보낸 쪽지 로딩 실패");
+                        }
+                    });
+                } else {
+                    console.log("🔵 전체 받은 쪽지 로딩");
+                    loadMessages(category, userId);
+                }
+                return;
+            }
+
+            const url = isSentTab ? "/messages/search/sent" : "/messages/search";
+            const paramKey = isSentTab ? "senderId" : "receiverId";
+
+            console.log("🟣 검색 API 호출", { url, paramKey, keyword });
+
+            $.get(url, {
+                keyword,
+                category: category === "important" ? "IMPORTANT" : "LATEST",
+                [paramKey]: userId
+            }, function (res) {
+                console.log("🟢 검색 응답:", res);
+
+                $(".messages").empty();
+                if (res.status === "ok") {
+                    if (res.result.length === 0) {
+                        $(".messages").append(`<div class="no-result">검색 결과가 없습니다.</div>`);
+                    } else {
+                        res.result.forEach(msg => {
+                            console.log("📩 검색 메시지:", msg);
+                            const html = isSentTab
+                                ? createSentMessageHTML(msg)
+                                : createMessageHTML(msg, true);
+                            $(".messages").append(html);
+                        });
+                    }
+                    $("#totalcount").text(`총 ${res.result.length}개의 쪽지가 있습니다.`);
+                } else {
+                    alert("검색 실패: " + res.message);
+                }
+            });
+        }
+
+
+
+
+
+        // 받은 쪽지함
+        // 받은 쪽지함 클릭 시
+
+
+
+
+        function loadSentMessages(userId,category = "all") {
+            $.get("/messages/sent", { senderId: userId , category}, function (res) {
+                $(".messages").empty();
+                resetMessageDetailPanel();
+
+                if (res.status === "ok") {
+                    if (res.result.length === 0) {
+                        $(".messages").append(`<div class="no-result">보낸 쪽지가 없습니다.</div>`);
+                    } else {
+                        res.result.forEach(msg => {
+                            $(".messages").append(createSentMessageHTML(msg));
+                        });
+                    }
+                    $("#totalcount").text(`총 ${res.result.length}개의 보낸 쪽지가 있습니다.`);
+                } else {
+                    alert("보낸 쪽지 로딩 실패");
+                }
+            });
+        }
+
+        // 받은 쪽지함 클릭
+        $("#navlist2").on("click", function () {
+            $("#navlist2").css("font-weight", "bold").attr("data-active", "true");
+            $("#navlist3").css("font-weight", "normal").removeAttr("data-active");
+
+            $(".leftbtn, .rightbtn, .trashbox, #pagenum").show();
+
+            resetMessageDetailPanel();
+            const userId = $("#userId").val();
+            loadMessages("all", userId);
+        });
+
+// 보낸 쪽지함 클릭
+        $("#navlist3").on("click", function () {
+            $("#navlist3").css("font-weight", "bold").attr("data-active", "true");
+            $("#navlist2").css("font-weight", "normal").removeAttr("data-active");
+
+            $(".leftbtn, .rightbtn, .trashbox, #pagenum").hide();
+
+            const userId = $("#userId").val();
+            const category = $(".dropdown-menu a.selected").data("filter") || "all"; // ✅ 이 줄 추가
+            loadSentMessages(userId,category);
+        });
+
+
+
+
+
+        // ===== 즐겨찾기 색칠 토글 기능 =====
+        $('.heart').click(function (e) {
+            e.preventDefault();
+
+            $(this).toggleClass('bi-suit-heart bi-suit-heart-fill');
+        });
+
+        // ===== 드롭다운 기능 =====
+        $(".dropdown-btn").click(function (event) {
+            event.stopPropagation();
+            let dropdownContent = $(this).siblings(".dropdown-menu");
+            $(".dropdown-menu").not(dropdownContent).hide();
+            dropdownContent.toggle();
+        });
+        $(document).click(function (e) {
+            e.preventDefault();
+            $(".dropdown-menu").hide();
+        });
+
+        // 선택한 옵션을 버튼에 표시
+        $(".dropdown-menu a").on("click", function (e) {
+            e.preventDefault();
+
+            let selectedText = $(this).text();
+            // 선택된 항목에 'selected' 클래스 추가하고, 다른 항목에서는 제거
+            $(this).addClass("selected").siblings().removeClass("selected");
+
+            // 버튼 텍스트를 선택된 항목 텍스트로 변경
+            $(this).closest(".dropdown").find(".dropdown-btn").text(selectedText);
+
+            // 드롭다운 메뉴 숨기기
+            $(this).closest(".dropdown-menu").hide();
+        });
+
+
+        // ===== 모달 열기 =====
+        $('#navlist1').click(function (e) {
+            e.preventDefault();
+
+            $('#modal-overlay').css("display", "flex"); // 모달 표시
+        });
+
+        // ===== 모달 닫기 =====
+        $('#close-modal').click(function (e) {
+            e.preventDefault();
+
+            $('#modal-overlay').css("display", "none"); // 모달 숨김
+        });
+
+        // ===== 모달 내 form 기본 제출 막기 =====
+        $("#modal-form").on("submit", function (e) {
+            e.preventDefault(); // 페이지 리로드 방지
+        });
+
+
+        $.ajax({
+            url: "/messages/departments",
+            method: "get",
+            success: function (departments) {
+                let $deptMenu = $("#modaldepartment .dropdown-menu");
+                $deptMenu.empty();
+                departments.forEach(dep => {
+                    $deptMenu.append(`<a href="#" class="dept-option">${dep}</a>`);
+                });
+            }
+        });
+        $(document).on("click", ".dept-option", function (e) {
+            e.preventDefault();
+
+            let selectedDep = $(this).text();
+            $("#modaldepartment .dropdown-btn").text(selectedDep);
+
+            $.ajax({
+                url: "/messages/userByDepartment",
+                method: "get",
+                data: {department: selectedDep},
+                success: function (users) {
+                    let $nameMenu = $("#modalname .dropdown-menu");
+                    $nameMenu.empty();
+
+                    users.forEach(user => {
+                        $nameMenu.append(`<a href="#" class="user-option" data-userid="${user.id}">${user.name}</a>`);
+                    });
+
+                    $("#modalname .dropdown-btn").text("이름을 선택하세요");
+                    $("#receiverId").val(""); // 이전 선택 제거
+                }
+            });
+        });
+
+        // ✅ 중복 제거 후 이벤트 바인딩
+        $(document).off("click", ".user-option").on("click", ".user-option", function () {
+            let name = $(this).text();
+            let userId = $(this).data("userid");
+
+            $("#modalname .dropdown-btn").text(name);
+            $("#receiverId").val(userId);
+        });
+
+
+        $(document).on("click", ".user-option", function (e) {
+            e.preventDefault();
+
+            let name = $(this).text();
+            let userId = $(this).data("userid");
+
+            $("#modalname .dropdown-btn").text(name);
+            $("#receiverId").val(userId); // ✅ receiverId 로 바로 대입
+        });
+
+
+        $(document).on("click", "#submit-modal", function (e) {
+            e.preventDefault();
+
+            const senderId = $("#userId").val();
+            const receiverId = $("#receiverId").val();
+            const title = $("#modaltitle").val();
+            const content = $("#modalsection").val();
+
+            console.log(receiverId, title, content);
+
+            if (!receiverId || !title || !content) {
+                alert("모든 항목을 작성해주세요.");
+                return;
+            }
+
+            $.ajax({
+                url: "/messages/createMessage",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({
+                    senderId: senderId,
+                    receiverId: receiverId,
+                    title: title,
+                    content: content
+                }),
+                success: function (response) {
+                    alert("쪽지를 보냈습니다.");
+                    $("#modal-overlay").hide();
+                    $("#modaltitle").val("");
+                    $("#modalsection").val("");
+                    /*$("#receiverId").val("");*/
+                    $("#modalname .dropdown-btn").text("이름 선택");
+
+                    loadMessages("all", receiverId); // ✅ 새로고침
+                },
+                error: function () {
+                    alert("쪽지 보내기에 실패했습니다.");
+                }
+            });
+        });
+
+
+        // 카테고리 필터 선택 시
+        $(document).on("click", ".dropdown-menu a", function (e) {
+            e.preventDefault();
+
+            const filter = $(this).data("filter");
+            $(this).closest(".dropdown").find(".dropdown-btn").text($(this).text());
+            const userId = $("#userId").val();
+            loadMessages(filter, userId);
+        });
+
+        // 중요 표시 토글
+        $(document).on("click", ".important-icon", function (e) {
+            e.stopPropagation();
+            const icon = $(this);
+            const messageId = icon.data("id");
+            const isNowImportant = icon.hasClass("bi-star-fill");
+
+            $.ajax({
+                url: `/messages/important/${messageId}`,
+                method: "POST",
+                data: {isImportant: !isNowImportant},
+                success: function () {
+                    icon.toggleClass("bi-star bi-star-fill");
+                },
+                error: function () {
+                    alert("중요 표시 변경 실패");
+                },
+            });
+        });
+
+        // 메시지 클릭 시 상세 보기 표시
+        $(document).on("click", ".getmessage", function (e) {
+            e.preventDefault();
+            const $this = $(this);
+            const messageId = $this.data("id");
+            const isSent = $this.data("sent") === true || $this.data("sent") === "true";
+
+            resetMessageDetailPanel();
+
+            if (isSent) {
+                // ✅ 보낸 메시지
+                $.get(`/messages/${messageId}`, function (res) {
+                    if (res.status === "ok") {
+                        const msg = res.result;
+                        $("#rightmaintitle .title-text").text(msg.title);
+                        $("#rightmaincontents").text(msg.content);
+                        $("#rightmaintitle").attr("data-message-id", msg.id);
+                        $("#rightmaintitle").attr("data-createAt", msg.createdAt);
+
+                        const date = formatDateTime(msg.createdAt);
+                        $("#writedate").text(date);
+
+                        // 수신자 이름
+                        $.get(`/api/users/readUserById?userId=${msg.receiverId}`, function (userRes) {
+                            if(userRes.status === "ok") {
+                                const user = userRes.result;
+                                $("#profilename").text(user.name);
+                                $("#profilephoto").show().attr("src", `https://kr.object.ncloudstorage.com/bitcamp-semi/users/${user.profileImage}`);
+                                $("#profilephoto").on("error", function () {
+                                    $(this).attr("src", "../../images/Rectangle53.png");
+                                });
+                                $.get("/api/dep/readDeps", function (depRes) {
+                                    if (depRes.status === "ok") {
+                                        const dept = depRes.result.find(dep => dep.id == user.departmentId);
+                                        console.log("🔍 user.departmentId:", user.departmentId);
+                                        console.log("🧾 사용자 정보:", user);
+                                        console.log("🧾 부서 전체:", depRes.result);
+                                        console.log("🧾 매칭된 부서:", dept);
+                                        if (user.position === "admin") {
+                                            $("#profileteam").text("관리자");
+                                        } else if (dept) {
+                                            $("#profileteam").text(`${dept.name} | ${user.position}`);
+                                        } else {
+                                            $("#profileteam").text(`(부서 없음) | ${user.position}`);
+                                        }
+                                    }else{
+                                        $("#profileteam").text(user.position);
+                                    }
+                                    $("#profilename, #profilephoto, #profileteam").show();
+                                });
+                            }
+                        });
+                        $(".heart").hide();
+                        $(".rightarticle").addClass("show-detail");
+                        /*$.get("/messages/users/name", {id: msg.receiverId}, function (name) {
+                            $("#profilename").text(name);
+                        });
+
+                        $("#profileteam").text("수신자");
+                        $("#profilephoto").hide();
+                        $(".heart").hide();
+                        $(".rightarticle").addClass("show-detail");*/
+                    }
+                });
+            } else {
+                // ✅ 받은 메시지
+                const isImportant = $this.find(".important-icon").hasClass("bi-star-fill");
+
+                const $heart = $("#rightmaintitle .heart")
+                    .removeClass("bi-suit-heart bi-suit-heart-fill")
+                    .addClass(isImportant ? "bi-suit-heart-fill" : "bi-suit-heart")
+                    .attr("data-id", messageId);
+
+                $("#rightmaintitle").attr("data-message-id", messageId);
+                $("#rightmaincontents").text($this.data("content"));
+                $("#rightmaintitle .title-text").text($this.data("title"));
+                $("#writedate").text($this.data("date"));
+
+                $("#profilename,#profileteam, #profilephoto, .heart").show();
+
+                $.get(`/messages/${messageId}`, function (response) {
+                    if (response.status === "ok") {
+                        const msg = response.result;
+
+                        $.get(`/api/users/readUserById?userId=${msg.senderId}`, function (userRes) {
+                            if (userRes.status === "ok") {
+                                const userData = userRes.result;
+                                $("#profilename").text(userData.name);
+                                $("#profilephoto").show().attr("src", `https://kr.object.ncloudstorage.com/bitcamp-semi/users/${userData.profileImage}`);
+                                $("#profilephoto").on("error", function () {
+                                    $(this).attr("src", "../../images/Rectangle53.png");
+                                });
+
+                                $.get("/api/dep/readDeps", function (depRes) {
+                                    if (depRes.status === "ok") {
+                                        const department = depRes.result.find(dep => dep.id == userData.departmentId);
+                                        if (userData.position === "admin") {
+                                            $("#profileteam").text("관리자");
+                                        } else if (department) {
+                                            $("#profileteam").text(`${department.name} | ${userData.position}`);
+                                        }
+                                    }
+                                });
+                            }
+                        });
+
+                        $(".rightarticle").addClass("show-detail");
+                    }
+                });
+
+                // 읽음 처리
+                $.post(`/messages/read/${messageId}`, function () {
+                    $this.removeClass("unread").addClass("read");
+                    $this.find(".getmessage_first div:first-child").css("font-weight", "normal");
+                });
+            }
+        });
+
+
+        function formatDate(dateStr) {
+            const d = new Date(dateStr);
+            return `${d.getFullYear().toString().slice(2)}.${d.getMonth() + 1}.${d.getDate()}`;
+        }
+
+        function createMessageHTML(msg, isSearchResult = false) {
+            const isRead = msg.isRead;
+            const isImportant = msg.isImportant;
+            const starIcon = isImportant ? "bi-star-fill" : "bi-star";
+
+            const readClass = isSearchResult ? "read" : (isRead ? "read" : "unread");
+
+            const title = msg.title ?? "제목 없음";
+            const date = formatDate(msg.createdAt);
+            const sender = msg.senderName || msg.receiverName || "알 수 없음";
+            const content = msg.content.length > 30 ? msg.content.slice(0, 30) + "..." : msg.content;
+
+            return `
+                <div class="getmessage ${readClass}"
+                     data-id="${msg.id}"
+                     data-sent="false"
+                     data-title="${title}"
+                     data-date="${date}"
+                     data-name="${sender}"
+                     data-content="${msg.content}"
+                     data-important="${isImportant}">
+                    <div class="getmessage_first" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-weight: ${readClass === "unread" ? "bold" : "normal"}; font-size: 16px;">${title}</div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <i class="bi ${starIcon} important-icon" data-id="${msg.id}" style="cursor: pointer;"></i>
+                            <div style="font-size: 12px; color: gray;">${date}</div>
+                        </div>
+                    </div>
+                    <div style="font-size: 13px; color: #444;">${sender}</div>
+                    <div style="font-size: 13px; color: #666;">${content}</div>
+                </div>
+            `;
+        }
+
+
+        function loadMessages(filter, userId) {
+            currentFilter = filter;
+            page = 0;
+            $(".messages").empty();
+            loadMoreMessages(filter, userId);
+        }
+
+        // ✅ 무한 스크롤 및 필터링 처리
+        function loadMoreMessages(filter, userId) {
+            if (loading) return;
+            loading = true;
+
+            $.ajax({
+                url: "/messages/list",
+                method: "GET",
+                data: {
+                    receiverId: userId, // 🔥 여기가 핵심
+                    page: page,
+                    size: 10,
+                    filter: filter,
+                },
+                success: function (data) {
+                    const container = $(".messages");
+
+                    let filtered = filter === "important" ? data.filter(m => m.isImportant) : data;
+
+                    if (filtered.length === 0) return;
+
+                    // 쪽지 개수 업데이트
+                    $("#totalcount").text(`총 ${filtered.length} 개의 쪽지가 있습니다.`);
+
+                    filtered.forEach(msg => {
+                        container.append(createMessageHTML(msg));
+                    });
+
+                    page++;
+                    loading = false;
+                },
+                error: function (xhr) {
+                    console.error("🔥 무한스크롤 AJAX 오류 🔥", xhr.responseText);
+                    loading = false;
+                }
+            });
+        }
+
+        // ⬅ 이전 메시지
+        $(".leftbtn").on("click", function (e) {
+            e.preventDefault();
+
+            const receiverId = $("#receiverId").val();
+            const currentMessageId = $("#rightmaintitle").data("message-id");
+            console.log("⬅️ LEFT BTN CLICK - currentMessageId:", currentMessageId); // 🔍
+
+            if (!currentMessageId) return;
+
+            $.get("/messages/prevById", {
+                receiverId: receiverId,
+                currentMessageId: currentMessageId
+            }, function (res) {
+                if (res.status === "ok" && res.result) {
+                    renderMessageDetail(res.result);
+                } else {
+                    alert("이전 메시지가 없습니다.");
+                }
+            });
+        });
+
+// ➡ 다음 메시지
+        $(".rightbtn").on("click", function (e) {
+            e.preventDefault();
+
+            const receiverId = $("#receiverId").val();
+            const currentMessageId = $("#rightmaintitle").data("message-id");
+            console.log("➡️ RIGHT BTN CLICK - currentMessageId:", currentMessageId); // 🔍
+            if (!currentMessageId) return;
+
+            $.get("/messages/nextById", {
+                receiverId: receiverId,
+                currentMessageId: currentMessageId
+            }, function (res) {
+                if (res.status === "ok" && res.result) {
+                    renderMessageDetail(res.result);
+                } else {
+                    alert("다음 메시지가 없습니다.");
+                }
+            });
+        });
+
+
+
+        $(window).on("scroll", function () {
+            if ($(window).scrollTop() + $(window).height() >= $(document).height() - 100) {
+                const userId = $("#userId").val();
+                loadMoreMessages(currentFilter, userId);
+            }
+        });
+
+
+        $(document).on("click", "#rightmaintitle .heart", function (e) {
+            e.stopPropagation(); // 이벤트 전파 방지
+            e.preventDefault();   // 기본 동작 방지
+
+            const $heart = $(this);
+            const messageId = $heart.attr("data-id") || $heart.data("id");
+
+            console.log("🧪 messageId:", messageId);
+
+            if (!messageId) return alert("❌ 메시지 ID가 없습니다!");
+
+            const isNowImportant = !$(`.getmessage[data-id="${messageId}"]`).data("important");
+
+            // 중요 표시 AJAX
+            $.ajax({
+                url: `/messages/important/${messageId}`,
+                method: "POST",
+                data: {isImportant: isNowImportant},
+                success: function () {
+                    // 중요 표시 상태 반영
+                    $heart
+                        .removeClass("bi-suit-heart bi-suit-heart-fill")
+                        .addClass(isNowImportant ? "bi-suit-heart-fill" : "bi-suit-heart");
+
+                    // 리스트에서도 반영
+                    const $listHeart = $(`.important-icon[data-id="${messageId}"]`);
+                    $listHeart
+                        .removeClass("bi-star bi-star-fill")
+                        .addClass(isNowImportant ? "bi-star-fill" : "bi-star");
+
+                    // .getmessage 데이터에도 반영
+                    $(`.getmessage[data-id="${messageId}"]`).data("important", isNowImportant);
+                },
+                error: function () {
+                    alert("중요 표시 실패");
+                }
+            });
+        });
+
+        $(document).on("click", ".trashbox", function (e) {
+            e.preventDefault();
+            const messageItem = $(this).closest(".message-item");
+            const messageId = $("#rightmaintitle").data("message-id");  // rightmaintitle에서 메시지 ID 찾기
+
+            console.log("messageItem:", messageItem);  // messageItem 확인
+            console.log("삭제할 메시지 ID:", messageId);  // 메시지 ID 확인
+
+            // messageId가 undefined일 경우 경고하고 종료
+            if (messageId === undefined) {
+                console.error("메시지 ID가 없습니다. 'data-id'가 설정되어 있는지 확인하세요.");
+                alert("메시지 ID가 없어서 삭제할 수 없습니다.");
+                return;  // 삭제 요청 중단
+            }
+
+            if (confirm("정말로 이 메시지를 삭제하시겠습니까?")) {
+                console.log("삭제 확인됨");
+
+                // YES! 삭제 요청d
+                $.ajax({
+                    url: `/messages/${messageId}`,
+                    method: "DELETE",
+                    success: function (response) {
+                        console.log("삭제 성공 응답:", response);  // 2. 삭제 성공 응답 확인
+                        if (response.status === "ok") {
+                            // 삭제된 메시지 항목을 화면에서 제거
+                            messageItem.remove();
+                            console.log("메시지 항목 삭제 완료");
+
+                            // 메시지 목록을 다시 불러옴
+                            const currentFilter = $(".dropdown-btn").text().toLowerCase(); // 현재 필터 가져오기
+                            const receiverId = $("#receiverId").val(); // 받는 사람 ID 가져오기
+
+                            console.log("현재 필터:", currentFilter);
+                            console.log("받는 사람 ID:", receiverId);
+
+                            if (currentFilter && receiverId) {
+                                loadMessages(currentFilter, receiverId);  // 목록을 새로 불러오기
+                            } else {
+                                console.error("필터나 받는 사람 ID가 잘못되었습니다.");
+                            }
+
+                            // 만약 현재 보고 있는 메시지가 삭제된 메시지라면, 화면 초기화
+                            const currentMessageId = $("#rightmaintitle").data("message-id");
+                            console.log("현재 보고 있는 메시지 ID:", currentMessageId);
+
+                            if (currentMessageId == messageId) {
+                                // 메시지가 삭제되었으므로 화면 초기화
+                                console.log("현재 보고 있는 메시지가 삭제된 메시지입니다. 화면 초기화...");
+                                $("#rightmaintitle .title-text").text('');
+                                $("#rightmaincontents").text('');
+                                $("#profilename").text('');
+                                $("#profileteam").text('');
+                                $("#profilephoto").attr('src', '');
+                                $("#profilephoto").hide();
+                                $("#writedate").text('');
+                                $(".heart").hide();
+                            }
+
+                            alert(response.message);  // 삭제 완료 메시지
+                        } else {
+                            console.log("삭제 실패 메시지:", response.message);
+                            alert("삭제 실패: " + response.message);
+                        }
+                    },
+                    error: function (err) {
+                        console.log("삭제 실패 오류:", err);  // 3. 삭제 실패 오류 확인
+                        alert("삭제에 실패했습니다");
+                    }
+                });
+            }
+        });
+        $("#searchinsert").on("keypress", function (e) {
+            if (e.which === 13) { // Enter 키
+                e.preventDefault(); // 폼 제출 방지
+                $("#searchbtn").click(); // 검색 버튼 클릭 이벤트 호출
+            }
+        });
+    });
+
+
+
+</script>
+</body>
+</html>

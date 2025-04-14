@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <link rel="stylesheet" th:href="@{/style/globals.css}"/>
+    <link rel="stylesheet" th:href="@{/style/management_former_employees.css}"/>
+    <link rel="stylesheet" th:href="@{/style/header.css}"/>
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+</head>
+<body>
+<div class="fullbox">
+    <div th:replace="~{layout/header :: header}"></div>
+    <div class="main">
+        <div class="nav">
+            <div class="navtitle">
+                관리페이지
+            </div>
+            <div class="mainnavbar">
+                <div id="navlist1" class="navlistnone">인사관리</div>
+                <div id="navlist2" class="navlistnone">부서관리</div>
+                <div id="navlist3" class="navlistnone">전자결재관리</div>
+                <div id="navlist4" class="navlistnone">퇴사자관리</div>
+            </div>
+        </div>
+        <div class="section">
+            <div class="btnframe">
+                <div class="arraysettitle dropdown">
+                    <input type="text" id="searchinsert">
+                    <button class="btnwhite4" id="search">
+                        검색
+                    </button>
+                </div>
+                <button class="btnwhite3" id="delete-selected">
+                    선택 삭제
+                </button>
+            </div>
+            <div class="tableset">
+                <div class="tabletitle">
+                    <input type="checkbox" class="checkbox list-cell" id="head-check"/>
+                    <div class="list-cell">부서</div>
+                    <div class="list-cell">이름</div>
+                    <div class="list-cell">팀</div>
+                    <div class="list-cell">연락처</div>
+                    <div class="list-cell">직급</div>
+                    <div class="list-cell">이메일</div>
+                    <div class="list-cell">입사일</div>
+                    <div class="list-cell">퇴사일</div>
+                    <div class="list-cell">사진</div>
+                    <div class="list-cell">삭제</div>
+                </div>
+                <div id="userTableBody">
+                    <!-- 동적으로 데이터가 추가될 부분 -->
+                </div>
+            </div>
+            <div class="pagenumset">
+                <i class="bi bi-arrow-left leftbtn page-arrow"></i>
+                <div class="pagenum">
+                    <!--                        <div class="_1">1</div>-->
+                    <!--                        <div class="_2">2</div>-->
+                </div>
+                <i class="bi bi-arrow-right rightbtn page-arrow"></i>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+<script>
+    const pageSize = 10; // 고정된 페이지 사이즈
+    let currentPage = 1; // 현재 페이지
+    $(document).ready(function () {
+        loadUsers("", 1);
+        checkAdmin();
+        const $headCheck = $('#head-check');
+
+        // 전체 선택/해제
+        $headCheck.on('change', function () {
+            const isChecked = $(this).is(':checked');
+            $(".user-check").prop('checked', isChecked);
+        });
+        // 개별 체크박스 상태 변화 시 전체 선택 체크 여부 확인
+        $(document).on('change', '.user-check', function () {
+            const total = $(".user-check").length;
+            const checked = $('.user-check:checked').length;
+            $headCheck.prop('checked', total > 0 && total === checked);
+        });
+        $('#delete-selected').on('click', function () {
+            const selectedIds = $('.user-check:checked').map(function () {
+                return $(this).data('user-id');
+            }).get();
+            if (selectedIds.length === 0) {
+                alert('삭제할 사용자를 선택해주세요.');
+                return;
+            }
+            // 쿼리 파라미터 형식으로 만들어야 @RequestParam 매핑 가능
+            const params = new URLSearchParams();
+            selectedIds.forEach(id => params.append('userList', id));
+            if (confirm("삭제하시겠습니까?")) {
+                $.ajax({
+                    url: '/api/users/deleteUsers',
+                    type: 'POST',
+                    data: params.toString(), // x-www-form-urlencoded
+                    contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+                    success: function (res) {
+                        if (res.status === "ok") {
+                            alert('삭제가 완료되었습니다.');
+                            location.reload(); // 또는 선택된 row만 제거도 가능
+                        } else {
+                            alert('삭제 실패');
+                        }
+                    },
+                    error: function () {
+                        alert('서버 오류가 발생했습니다.');
+                    }
+                });
+            }
+        });
+        $("#searchinsert").keypress(function () {
+            let keyword = $(this).val();
+            loadUsers(keyword, 1);
+        })
+        $("#search").click(function () {
+            let keyword = $("#searchinsert").val();
+            loadUsers(keyword, 1)
+        })
+    });
+
+    // 유저 목록 불러오기
+    function loadUsers(keyword, page) {
+        $.ajax({
+            url: '/api/users/getFormers',
+            type: 'GET',
+            data: {keyword: keyword, page: page, size: pageSize},
+            success: function (response) {
+                if (response.status === "ok") {
+                    let users = response.result.list;
+                    $("#tableBody").html("");
+                    let tableBody = $('#userTableBody');
+                    tableBody.empty();
+                    if (users.length === 0) {
+                        tableBody.append(`<div class="no-users">퇴사자 명단에 직원이 없습니다.</div>`);
+                    }
+                    users.forEach(user => {
+                        let createdAt = user.createdAt.split(" ")[0];
+                        let deletedAt = user.deletedAt.split(" ")[0];
+                        let row = `
+                        <div class="table">
+                            <input type="checkbox" class="checkbox user-check list-cell" data-user-id="${user.id}">
+                    	    <div class="list-cell">${user.departmentName}</div>
+                    	    <div class="list-cell">${user.name}</div>
+                    	    <div class="list-cell">${user.team}</div>
+                    	    <div class="list-cell">${user.phone}</div>
+                    	    <div class="list-cell">${user.position}</div>
+                    	    <div class="list-cell">${user.email}</div>
+                    	    <div class="list-cell">${createdAt}</div>
+                    	    <div class="list-cell">${deletedAt}</div>
+                    	    <div class="list-cell">
+                    	        <img class="rectangle-53" src="https://kr.object.ncloudstorage.com/bitcamp-semi/users/${user.profileImage}" onerror="this.src='../../images/Rectangle53.png'"/>
+                    	    </div>
+                    	    <div class="list-cell">
+                    		<button class="btnwhite2" onclick="deleteUser(${user.id})">
+                    			삭제
+                    		</button>
+                    		</div>
+                    	</div>
+
+                        `;
+                        tableBody.append(row);
+                    });
+                    let totalCnt = response.result.totalCnt;
+                    let totalPages = Math.ceil(totalCnt / 10);
+                    renderPagination(keyword, totalPages, page);
+                } else {
+                    alert("데이터를 불러오는 데 실패했습니다.");
+                }
+            },
+            error: function () {
+                alert("서버 오류가 발생했습니다.");
+            }
+        });
+    }
+
+    // 유저 삭제 함수
+    function deleteUser(userId) {
+        if (confirm("정말 삭제하시겠습니까?")) {
+            $.ajax({
+                url: "/api/users/deleteUser",
+                type: "POST",
+                data: {userId: userId},
+                success: function (res) {
+                    if (res.status === "ok") {
+                        location.reload();
+                    } else {
+                        alert("삭제 실패");
+                    }
+                },
+                error: function () {
+                    alert("서버 오류가 발생했습니다.");
+                }
+            });
+        }
+    }
+
+    function renderPagination(keyword, totalPages, currentPage) {
+        let pageNumContainer = $(".pagenum");
+        pageNumContainer.empty();
+
+        // 페이지 번호 생성
+        for (let i = 1; i <= totalPages; i++) {
+            let pageDiv = $(`<div>${i}</div>`);
+
+            // 클래스 부여
+            if (i === currentPage) {
+                pageDiv.addClass("currentPage");
+            } else {
+                pageDiv.addClass("otherPage");
+            }
+
+            // 클릭 이벤트
+            pageDiv.on("click", function () {
+                loadUsers(keyword, i);
+            });
+
+            pageNumContainer.append(pageDiv);
+        }
+
+        // 왼쪽 화살표 (이전)
+        $(".leftbtn").off("click").on("click", function () {
+            if (currentPage > 1) {
+                loadUsers(keyword, currentPage - 1);
+            }
+        });
+
+        // 오른쪽 화살표 (다음)
+        $(".rightbtn").off("click").on("click", function () {
+            if (currentPage < totalPages) {
+                loadUsers(keyword, currentPage + 1);
+            }
+        });
+    }
+
+    function checkAdmin() {
+        $.ajax({
+            url: "/api/users/checkAdmin",
+            type: "get",
+            success: function (res) {
+                if (res.status === "ok") {
+                    console.log("admin ok")
+                }
+            },
+            error: function () {
+                alert("not admin")
+                history.back();
+            }
+        })
+    }
+
+</script>
+<script>
+    $("#navlist1").click(function () {
+        location.href = "/admin/management"
+    })
+    $("#navlist2").click(function () {
+        location.href = "/admin/managementOrg"
+    })
+    $("#navlist3").click(function () {
+        location.href = "/admin/managementApproval"
+    })
+    $("#navlist4").click(function () {
+        location.href = "/admin/managementFormer"
+    })
+</script>

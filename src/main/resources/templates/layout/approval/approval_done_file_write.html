@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>전자결재</title>
+    <link rel="stylesheet" th:href="@{/style/globals.css}"/>
+    <link rel="stylesheet" th:href="@{/style/approval_write.css}"/>
+    <link rel="stylesheet" th:href="@{/style/header.css}"/>
+
+    <!-- Quill 에디터 CSS -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <!-- Quill 에디터 JS -->
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+</head>
+<body>
+<div class="fullbox">
+    <div th:replace="~{layout/header :: header}"></div>
+    <div class="main">
+        <div class="nav">
+            <div class="navtitle">
+                전자결재
+            </div>
+            <div class="mainnavbar">
+                <div id="navlist1">+ 작성하기</div>
+                <div class="navlistnone" id="inbox">수신함</div>
+                <div class="navlistnone" id="outbox">발신함</div>
+                <div class="navlistnone" id="donebox">결재완료</div>
+            </div>
+        </div>
+        <div class="section">
+            <div class="btnset">
+                <select id="template-list">
+                    <option disabled selected>문서 선택</option>
+                </select>
+                <div class="file-upload-wrapper">
+                    <label for="attachment" class="upload-label">📎 첨부 파일</label>
+                    <input type="file" id="attachment" style="display:none;" multiple accept="image/*,.pdf">
+                    <span id="file-name">선택된 파일 없음</span>
+                </div>
+                <button class="orangebtn" id="submitBtn">상신하기</button>
+            </div>
+            <div class="approvallist">
+                <div class="approvalmain">
+                    <div class="editor-wrapper">
+                        <input type="text" id="titleInput" placeholder="제목을 입력하세요">
+                        <div id="editor-toolbar">
+                            <!-- 툴바 버튼들 -->
+                        </div>
+                        <div id="editor-container">
+                            <!-- 여기에 Quill 생성 -->
+                        </div>
+                    </div>
+                    <div class="approvalline">
+                        <!-- 결재 라인 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    const storageUrl = "https://kr.object.ncloudstorage.com/bitcamp-semi/users/";
+    const draftId = window.location.pathname.split("/").pop(); // 마지막 경로값
+    var selectedUsers = [];
+    var allUsers = [];
+    // Quill 에디터 초기화
+    var quill = new Quill('#editor-container', {
+        theme: 'snow',
+        placeholder: '내용을 입력하세요...',
+        modules: {
+            toolbar: [
+                [{header: [1, 2, false]}],
+                ['bold', 'italic', 'underline'],
+                ['image', 'code-block']
+            ]
+        }
+    });
+
+    // 템플릿 선택 시 내용 불러오기
+    $('#template-list').on('change', function () {
+        const id = $(this).val();
+        $.get('/api/draft/readTemplate', {id: id}, function (res) {
+            const template = res.result.template;
+            const approvals = res.result.approvalList;
+            $("#titleInput").val(template.title);
+            quill.root.innerHTML = template.content;
+            selectedUsers = [];
+            const mapped = mapApprovalsToSelectedUsers(approvals, allUsers);
+            selectedUsers = mapped;
+            $('.approvalline').empty();
+            showSelectedUsers(mapped);
+        });
+    });
+
+    //  페이지 로딩 시 템플릿 목록 자동 불러오기
+    $(document).ready(function () {
+        loadTemplateList();
+        getAllUsers();
+        loadDraftDetail(draftId);
+    });
+
+    // 파일 선택 시 파일 이름 표시/ 뒤에 n개 갯수 표시
+    $('#attachment').on('change', function () {
+        const files = Array.from(this.files);
+        const fileNames = files.map(f => f.name);
+
+        let displayNames = fileNames.slice(0, 4).map(name => {
+            return name.length > 20 ? name.substring(0, 17) + '...' : name;
+        });
+
+        let finalText = displayNames.join(', ');
+
+        if (files.length > 4) {
+            finalText += ` 외 ${files.length - 4}개`;
+        }
+
+        $('#file-name').text(`${finalText} (${files.length})`);
+    });
+    // 버튼 클릭 시 전송
+    $('#submitBtn').on('click', function () {
+        const title = $('#titleInput').val();
+        const content = quill.root.innerHTML; // 에디터 내용 HTML로 추출
+        const uploads = $('#attachment')[0].files;
+        const templateId = $("#template-list").val();
+        const draft = { title, content, templateId };
+        const approvals = [];
+        $('.approvalline .profileset').each((idx, el) => {
+            approvals.push({
+                userId: $(el).data('userid'),
+                order: idx + 1
+            });
+        });
+
+        if (!title || !content || approvals.length === 0) {
+            alert("제목/내용/결재자 누락");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('data', new Blob([JSON.stringify({ draft, approvals })], { type: 'application/json' }));
+        for (const file of uploads) {
+            formData.append('uploads', file);
+        }
+        $.ajax({
+            url: '/api/draft/createDraft',
+            type: 'POST',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (res) {
+                if (res.status === "ok") {
+                    alert('결재 등록 완료!');
+                    location.href = "/draft/approvalOutBoxFile/" + res.result
+                }
+            },
+            error: function (err) {
+                alert('전송 실패 😢');
+                console.error(err);
+            }
+        });
+    });
+
+    function loadDraftDetail(id) {
+        $.ajax({
+            url: "/api/draft/readDraft",
+            data: {id},
+            type: "GET",
+            success: function (res) {
+                if (res.status === "ok") {
+                    const draft = res.result.draft;
+                    const approvals = res.result.approvals;
+                    const logs = res.result.approvalsLog;
+
+                    const loginUserId = Number($("#header-profileImage").data("id"));
+                    if (loginUserId !== draft.authorId) {
+                        alert("재상신은 작성자만이 가능합니다.")
+                        history.back();
+                    }
+                    if (draft.status === "PENDING") {
+                        alert("재상신은 완료된 문서에 대해서만 가능합니다.")
+                        history.back();
+                    }
+
+                    const approvalLine = approvals.map(a => ({
+                        userId: a.userId,
+                        name: a.userName,
+                        position: a.position,
+                        imgUrl: a.profileImage ? (storageUrl + "users/" + a.profileImage) : "../../images/Rectangle53.png",
+                        status: a.status // 예: "PENDING", "APPROVED", "REJECTED"
+                    }));
+                    // 문서 내용
+                    $("#titleInput").val(draft.title);
+                    quill.root.innerHTML = draft.content;
+
+                    loadTemplateList().then(() => {
+                        $("#template-list").val(draft.templateId); // ✅ select만 지정
+                        const mapped = mapApprovalsToSelectedUsers(approvals, allUsers);
+                        selectedUsers = mapped;
+                        $('.approvalline').empty();
+                        showSelectedUsers(mapped);
+                    });
+
+                    renderApprovalLine(approvalLine, logs);
+                }
+            },
+            error: function () {
+                alert("기안문 정보 로딩 실패");
+            }
+        });
+    }
+
+    function mapApprovalsToSelectedUsers(approvalList, allUsers) {
+        return approvalList.map(approval => {
+            const user = allUsers.find(u => u.id === approval.userId);
+            return {
+                id: approval.userId,
+                name: user?.name || "이름없음",
+                position: user?.position || "-",
+                profileImage: user?.profileImage || "../../images/Rectangle53.png",
+                status: approval.status
+            };
+        });
+    }
+
+    function showSelectedUsers(users) {
+        users.forEach(user => {
+            $('.approvalline').append(`
+            <div class="profileset" data-userid="${user.id}">
+                <div class="lineprofile">
+                    <img src="${storageUrl}${user.profileImage}" onerror="this.src='../../images/Rectangle53.png'">
+                    <span>${user.name} ${user.position}</span>
+                </div>
+                <div class="linebtn" value="${user.status}">미승인</div>
+            </div>
+        `);
+        })
+    }
+
+    function getAllUsers() {
+        $.get("/api/users/readAllUsers", function (res) {
+            if (res.status === "ok") {
+                allUsers = res.result;
+            }
+        });
+    }
+
+    // 템플릿 목록 불러오기
+    function loadTemplateList() {
+        return new Promise((resolve, reject) => {
+            $.get('/api/draft/readAllTemplate', function (res) {
+                if (res.status === "ok") {
+                    $('#template-list').empty().append('<option disabled selected>템플릿 선택</option>');
+                    res.result.forEach(item => {
+                        $('#template-list').append(`<option value="${item.id}">${item.title}</option>`);
+                    });
+                    resolve(); // ✅
+                } else {
+                    reject("템플릿 불러오기 실패");
+                }
+            });
+        });
+    }
+
+</script>
+</body>
+</html>
+<script>
+    $("#navlist1").click(function () {
+        location.href = "/draft/approvalWrite";
+    })
+    $("#inbox").click(function () {
+        location.href = "/draft/approvalInbox";
+    })
+    $("#outbox").click(function () {
+        location.href = "/draft/approvalOutBox";
+    })
+    $("#donebox").click(function () {
+        location.href = "/draft/approvalDone";
+    })
+</script>

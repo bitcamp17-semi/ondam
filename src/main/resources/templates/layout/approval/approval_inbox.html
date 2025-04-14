@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>전자결재</title>
+    <link rel="stylesheet" th:href="@{/style/globals.css}"/>
+    <link rel="stylesheet" th:href="@{/style/approval_inbox.css}"/>
+    <link rel="stylesheet" th:href="@{/style/header.css}"/>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+</head>
+<body>
+<div class="fullbox">
+    <div th:replace="~{layout/header :: header}"></div>
+    <div class="main">
+        <div class="nav">
+            <div class="navtitle">
+                전자결재
+            </div>
+            <div class="mainnavbar">
+                <div id="navlist1">+ 작성하기</div>
+                <div id="navlist2">수신함</div>
+                <div class="navlistnone" id="outbox">발신함</div>
+                <div class="navlistnone" id="donebox">결재완료</div>
+            </div>
+        </div>
+        <div class="section">
+            <div class="btnset">
+                <button class="orangebtn" id="sel-app">선택 결재</button>
+                <button class="whitebtn" id="sel-rej">선택 반려</button>
+            </div>
+            <div class="approvallist">
+                <div class="listtop">
+                    <input type="checkbox" class="selectAll list-cell">
+                    <div class="list-cell">번호</div>
+                    <div class="list-cell listtitle">제목</div>
+                    <div class="list-cell">문서분류</div>
+                    <div class="list-cell">작성자</div>
+                    <div class="list-cell">작성일</div>
+                    <div class="list-cell">결재상태</div>
+                </div>
+                <div class="listmain">
+                    <!-- 기안문 목록 영역 -->
+                </div>
+            </div>
+            <div class="pagenumset">
+                <i class="bi bi-arrow-left leftbtn page-arrow"></i>
+                <div class="pagenum">
+                    <!-- page 부분 -->
+                </div>
+                <i class="bi bi-arrow-right rightbtn page-arrow"></i>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        loadDrafts(1);
+        // 상위 체크박스 클릭 시
+        $('.selectAll').on('change', function () {
+            $('.childCheckbox').prop('checked', $(this).prop('checked'));
+        });
+
+        // 하위 체크박스 클릭 시
+        $('.childCheckbox').on('change', function () {
+            const total = $('.childCheckbox').length;
+            const checked = $('.childCheckbox:checked').length;
+
+            $('.selectAll').prop('checked', total === checked);
+        });
+
+        // 선택 승인
+        $("#sel-app").on("click", function () {
+            const checkedIds = $(".childCheckbox:checked").closest(".listcontent").map(function () {
+                return $(this).data("id");
+            }).get();
+
+            if (checkedIds.length === 0) {
+                alert("선택된 문서가 없습니다.");
+                return;
+            }
+
+            if (!confirm("선택된 문서를 모두 승인하시겠습니까?")) return;
+
+            checkedIds.forEach(id => {
+                $.ajax({
+                    url: `/api/draft/${id}/actions`,
+                    type: "GET",
+                    data: { action: "APPROVED" },
+                    success: function (res) {
+                        if (res.status === "ok") {
+                            console.log(`Draft ${id} 승인 완료`);
+                        }
+                    }
+                });
+            });
+
+            alert("승인 요청이 완료되었습니다.");
+            setTimeout(() => location.reload(), 300); // 새로고침
+        });
+
+        // 선택 반려
+        $("#sel-rej").on("click", function () {
+            const checkedIds = $(".childCheckbox:checked").closest(".listcontent").map(function () {
+                return $(this).data("id");
+            }).get();
+
+            if (checkedIds.length === 0) {
+                alert("선택된 문서가 없습니다.");
+                return;
+            }
+
+            const reason = prompt("반려 사유를 입력해주세요.");
+            if (!reason || reason.trim() === "") {
+                alert("반려 사유가 필요합니다.");
+                return;
+            }
+
+            if (!confirm("선택된 문서를 모두 반려하시겠습니까?")) return;
+
+            checkedIds.forEach(id => {
+                $.ajax({
+                    url: `/api/draft/${id}/actions`,
+                    type: "GET",
+                    data: {
+                        action: "REJECTED",
+                        reason: reason
+                    },
+                    success: function (res) {
+                        if (res.status === "ok") {
+                            console.log(`Draft ${id} 반려 완료`);
+                        }
+                    }
+                });
+            });
+
+            alert("반려 요청이 완료되었습니다.");
+            setTimeout(() => location.reload(), 300);
+        });
+    });
+
+    // 본인 차례의 수신 목록 호출
+    function loadDrafts(page) {
+        $.ajax({
+            url: "/api/draft/actionRequired",
+            data: {page: page},
+            type: "GET",
+            success: function (res) {
+                if (res.status === "ok") {
+                    const drafts = res.result.list;
+                    const $listMain = $(".listmain");
+                    $listMain.empty();
+
+                    drafts.forEach((draft, idx) => {
+                        $listMain.append(`
+                        <div class="listcontent" data-id="${draft.id}">
+                            <input type="checkbox" class="childCheckbox list-cell">
+                            <div class="list-cell">${draft.id}</div>
+                            <div class="list-cell listtitle clickable" data-id="${draft.id}">${draft.title}</div>
+                            <div class="list-cell">${draft.templateTitle}</div>
+                            <div class="list-cell">${draft.authorName || "-"}</div>
+                            <div class="list-cell">${draft.createdAt?.split(" ")[0]}</div>
+                            <div class="list-cell">${draft.status === "PENDING" ? "대기중" : draft.status}</div>
+                        </div>
+                    `);
+                    });
+                    let totalCnt = res.result.totalCnt;
+                    let totalPages = Math.ceil(totalCnt / 10);
+                    renderPagination(totalPages, page);
+                }
+            },
+            error: function () {
+                alert("문서 불러오기 실패");
+            }
+        });
+    }
+
+    function renderPagination(totalPages, currentPage) {
+        let pageNumContainer = $(".pagenum");
+        pageNumContainer.empty();
+
+        // 페이지 번호 생성
+        for (let i = 1; i <= totalPages; i++) {
+            let pageDiv = $(`<div>${i}</div>`);
+
+            // 클래스 부여
+            if (i === currentPage) {
+                pageDiv.addClass("currentPage");
+            } else {
+                pageDiv.addClass("otherPage");
+            }
+
+            // 클릭 이벤트
+            pageDiv.on("click", function () {
+                loadDrafts(i);
+            });
+
+            pageNumContainer.append(pageDiv);
+        }
+
+        // 왼쪽 화살표 (이전)
+        $(".leftbtn").off("click").on("click", function () {
+            if (currentPage > 1) {
+                loadDrafts(currentPage - 1);
+            }
+        });
+
+        // 오른쪽 화살표 (다음)
+        $(".rightbtn").off("click").on("click", function () {
+            if (currentPage < totalPages) {
+                loadDrafts(currentPage + 1);
+            }
+        });
+    }
+
+    // 제목 클릭 시 상세보기로 이동
+    $(document).on("click", ".listtitle.clickable", function () {
+        const draftId = $(this).data("id");
+        location.href = `/draft/approvalInboxFile/${draftId}`;
+    });
+</script>
+</body>
+</html>
+<script>
+    $("#navlist1").click(function () {
+        location.href = "/draft/approvalWrite";
+    })
+    $("#navlist2").click(function () {
+        location.href = "/draft/approvalInbox";
+    })
+    $("#outbox").click(function () {
+        location.href = "/draft/approvalOutBox";
+    })
+    $("#donebox").click(function () {
+        location.href = "/draft/approvalDone";
+    })
+</script>

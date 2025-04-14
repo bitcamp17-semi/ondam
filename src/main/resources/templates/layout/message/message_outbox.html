@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" th:href="@{/style/globals.css}"/>
+    <link rel="stylesheet" th:href="@{/style/message_outbox.css}"/>
+    <link rel="stylesheet" th:href="@{/style/header.css}" />
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+</head>
+<body>
+<div class="fullbox">
+    <div th:replace="~{layout/header :: header}"></div>
+    <div id="modal-overlay">
+        <form id="modal-form">
+            <div id="modal-content">
+                <h2>쪽지쓰기</h2>
+                <div class="selectset">
+                    <div class="dropdown" id="modaldepartment">
+                        <span>부서</span>
+                        <button class="dropdown-btn">부서를 선택하세요</button>
+                        <div class="dropdown-menu">
+                            <a href="#">옵션 2-1</a>
+                            <a href="#">옵션 2-2</a>
+                            <a href="#">옵션 2-3</a>
+                        </div>
+                    </div>
+                    <div class="dropdown" id="modalname">
+                        <span>이름</span>
+                        <button class="dropdown-btn">이름을 선택하세요</button>
+                        <div class="dropdown-menu">
+                            <a href="#">옵션 3-1</a>
+                            <a href="#">옵션 3-2</a>
+                            <a href="#">옵션 3-3</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="modalmessagetitle">
+                    <span>제목</span>
+                    <input id="modaltitle" type="text" placeholder="제목을 입력해주세요"/>
+                </div>
+                <div class="modalmessagesection">
+                    <span>내용</span>
+                    <textarea id="modalsection" placeholder="내용을 입력해주세요"></textarea>
+                </div>
+                <div id="buttonset">
+                <button type="submit" id="submit-modal">전송하기</button>
+                <button type="button" id="close-modal">닫기</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="main">
+        <div class="nav">
+            <div class="navtitle">
+                쪽지 보관함
+            </div>
+            <div class="mainnavbar">
+                <div id="navlist1">+ 쪽지쓰기</div>
+                <div id="navlist2">받은 쪽지함</div>
+                <div id="navlist3">보낸 쪽지함</div>
+            </div>
+        </div>
+        <div class="section">
+            <div class="leftarticle">
+                <div id="totalcount">총 n 개의 쪽지가 있습니다.</div>
+                <div class="searchbox">
+                    <input type="text" placeholder="검색어를 입력하세요" id="searchinsert"></input>
+                    <button id="searchbtn">검색</button>
+                </div>
+                <div class="dropdown">
+                    <button class="dropdown-btn">정렬방식</button>
+                    <div class="dropdown-menu">
+                        <a href="#">옵션 1-1</a>
+                        <a href="#">옵션 1-2</a>
+                        <a href="#">옵션 1-3</a>
+                    </div>
+                </div>
+                <div class="messages">
+                    <div class="getmessage">
+                        <div class="getmessage_first">
+                            <div id="messagetitle">제목입니다</div>
+                            <div id="messagedate">12.11.11</div>
+                        </div>
+                        <div id="messagename">받은사람</div>
+                        <div id="messagearticle">내용입니다</div>
+                    </div>
+                </div>
+            </div>
+            <div class="rightarticle">
+                <div class="righttop">
+                    <div class="listnumber">
+                        <i class="bi bi-arrow-left leftbtn"></i>&nbsp&nbsp
+                        <span id="pagenum">nowpage / totalpage</span>&nbsp&nbsp
+                        <i class="bi bi-arrow-right rightbtn"></i>
+                    </div>
+                    <i class="bi bi-trash trashbox"></i>
+                </div>
+                <div class="rightmiddle">
+                    <img src="" id="profilephoto"/>
+                    <div class="profileset">
+                        <span id="profilename">name</span>
+                        <span id="profileteam">디자인팀 | 사원</span>
+                    </div>
+                    <div class="outdate">
+                    <div id="writedate">25. 03. 29 10:30AM</div>
+                        <div id="check">읽지않음</div>
+                    </div>
+                </div>
+                <div class="rightmain">
+                    <div id="rightmaintitle">
+                        <i class="bi bi-suit-heart heart"></i>
+                        제목입니다
+                    </div>
+                    <div id="rightmaincontents">내용입니다</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        // ===== 즐겨찾기 색칠 토글 기능 =====
+        $('.heart').click(function () {
+            $(this).toggleClass('bi-suit-heart bi-suit-heart-fill');
+        });
+
+        // ===== 드롭다운 기능 =====
+        $(".dropdown-btn").click(function (event) {
+            event.stopPropagation();
+            let dropdownContent = $(this).siblings(".dropdown-menu");
+            $(".dropdown-menu").not(dropdownContent).hide();
+            dropdownContent.toggle();
+        });
+
+        $(document).click(function () {
+            $(".dropdown-menu").hide();
+        });
+
+        // 선택한 옵션을 버튼에 표시
+        $(".dropdown-menu a").click(function () {
+            let selectedText = $(this).text();
+            $(this).closest(".dropdown").find(".dropdown-btn").text(selectedText);
+            $(this).closest(".dropdown-menu").hide(); // 선택 후 닫기
+        });
+
+        // ===== 모달 열기 =====
+        $('#navlist1').click(function () {
+            $('#modal-overlay').css("display", "flex"); // 모달 표시
+        });
+
+        // ===== 모달 닫기 =====
+        $('#close-modal').click(function () {
+            $('#modal-overlay').css("display", "none"); // 모달 숨김
+        });
+
+        // ===== 모달 내 form 기본 제출 막기 =====
+        $("#modal-form").on("submit", function(e) {
+            e.preventDefault(); // 페이지 리로드 방지
+        });
+    });
+</script>
+</body>
+</html>

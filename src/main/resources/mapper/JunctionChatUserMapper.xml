@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="data.mapper.JunctionChatUsersGroupsMapper">
+    <insert id="createGroupUser">
+        insert into junction_chat_users_groups (userid, groupid)
+        values (#{userId}, #{groupId})
+    </insert>
+    <select id="readGroupUserIds" resultType="long">
+        select user_id from junction_chat_users_groups
+        where groupid = #{groupId}
+    </select>
+    <select id="readJoinedGroupIds" resultType="long">
+        select group_id from junction_chat_users_groups
+        where userid = #{userId}
+    </select>
+</mapper>

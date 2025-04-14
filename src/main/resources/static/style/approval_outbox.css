@@ -1,0 +1,233 @@
+/*all*/
+
+.fullbox{
+    display: flex;
+    flex-direction: row;
+    width: 96vw;
+    height: 100dvh;
+    font-family: "Noto Sans-Bold", Helvetica, "Noto Sans-Regular";
+    color: #686868;
+    position: relative;
+}
+.header {
+    width: 80px;
+    height: 100%;
+    display: flex;
+    position: absolute;
+    left: 0;
+    top: 0;
+    overflow: hidden;
+    z-index: 10000;
+}
+
+.main {
+    display: flex;
+    flex-direction: column;
+    width: 95%;
+    margin-left: 80px;
+    align-items: flex-start;
+    position: relative;
+    background-color: #fff;
+    height: 100%;
+}
+.nav {
+    display: flex;
+    flex-direction: column;
+    height: 200px;
+    width: 100%;
+    align-items: flex-start;
+    justify-content: flex-end;
+    margin-left: 70px;
+    gap: 25px;
+}
+.navtitle{
+    font-size: 30px;
+    font-weight: bold;
+    color: #3f3f3f;
+}
+.mainnavbar {
+    display: flex;
+    align-items: flex-start;
+    gap: 30px;
+    position: relative;
+    align-self: stretch;
+    width: 100%;
+    font-size: 16px;
+}
+#navlist1{
+    color: #fa7000;
+    font-weight: bold;
+    cursor: pointer;
+}
+#navlist2{
+    font-weight: bold;
+    color: #3f3f3f;
+    border-left: rgba(0, 0, 0, 0.15) 1px solid;
+    padding-left: 30px;
+    cursor: pointer;
+}
+.navlistnone{
+    border-left: rgba(0, 0, 0, 0.15) 1px solid;
+    padding-left: 30px;
+    cursor: pointer;
+}
+.section{
+    display: flex;
+    padding: 20px;
+    border: rgba(0, 0, 0, 0.05) 1px solid;
+    border-radius: 15px;
+    width: 96%;
+    height: 100%;
+    margin: 50px 50px 50px 70px;
+    flex-direction: column;
+    gap: 15px;
+}
+.btnset{
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    gap: 10px;
+    height: 35px;
+}
+
+.whitebtn{
+    border: rgba(0, 0, 0, 0.15) 1px solid;
+    border-radius: 5px;
+    height: 35px;
+    padding: 0 10px 0 10px;
+    background-color: white;
+    color: #686868;
+    cursor: pointer;
+}
+.approvallist{
+    display: flex;
+    width: 100%;
+    height: 100%;
+    flex-direction: column;
+}
+.listtop{
+    width: 100%;
+    height: 45px;
+    background-color: rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: rgba(0, 0, 0, 0.05) 1px solid;
+}
+.list-cell{
+    border-left: rgba(0, 0, 0, 0.05) 1px solid;
+    text-align: center;
+}
+
+.list-cell:nth-child(1){ width: 5%; }
+.list-cell:nth-child(2){ width: 57%; }
+.list-cell:nth-child(3){ width: 13%; }
+.list-cell:nth-child(4){ width: 15%; }
+.list-cell:nth-child(5){ width: 10%; }
+
+.listtitle {
+    text-align: start;!important;
+    padding: 0 20px;
+}
+.listcontent {
+    width: 100%;
+    height: 45px;
+    background-color: white;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: rgba(0, 0, 0, 0.05) 1px solid;
+}
+.listcontent:hover {
+    cursor: pointer;
+    background-color: #eeeeee;
+}
+#listtitlebtn{
+    cursor: pointer;
+}
+.pagenumber{
+    display: flex;
+    align-self: center;
+}
+.pagenumset {
+    display: flex;
+    flex-direction: row;
+    /*gap: 45px;*/
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    position: relative;
+}
+.pagenumset > * {
+    cursor: pointer;
+}
+.page-arrow {
+    padding: 6px 12px;
+    border-radius: 6px;
+    transition: background-color 0.2s;
+}
+.page-arrow:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+.pagenum > * {
+    padding: 6px 12px;
+    border-radius: 6px;
+    transition: background-color 0.2s;
+}
+.pagenum > *:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+.before {
+    flex-shrink: 0;
+    width: 8px;
+    height: 4px;
+    position: relative;
+    overflow: visible;
+    aspect-ratio: 2/1;
+}
+.pagenum {
+    display: flex;
+    flex-direction: row;
+    /*gap: 20px;*/
+    align-items: center;
+    justify-content: flex-start;
+    flex-shrink: 0;
+    position: relative;
+}
+.currentPage {
+    /*color: #3f3f3f;*/
+    text-align: left;
+    font-family: "NotoSans-Bold", sans-serif;
+    font-size: 16px;
+    line-height: 22px;
+    font-weight: 700;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    background-color: #fa7000;
+    color: white;
+    border-radius: 4px;
+}
+.otherPage {
+    color: #686868;
+    text-align: left;
+    font-family: "NotoSans-Regular", sans-serif;
+    font-size: 16px;
+    line-height: 22px;
+    font-weight: 400;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+.next {
+    flex-shrink: 0;
+    width: 8px;
+    height: 4px;
+    position: relative;
+    overflow: visible;
+    aspect-ratio: 2/1;
+}
