@@ -96,6 +96,35 @@ public class DataroomController {
         return dataroomService.getFilesByRoomId(roomId);
     }
 
+    @ResponseBody
+    @PostMapping("/upload")
+    public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file,
+                                        @RequestParam("roomId") Integer roomId,
+                                        @RequestParam("title") String title,
+                                        @RequestParam("comment") String comment,
+                                        HttpSession session) {
+        try {
+            UsersDto user = (UsersDto) session.getAttribute("login");
+            if (user == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 필요");
+            }
+
+            String directoryPath = "dataroom/" + roomId;
+            dataroomService.uploadFileAndSaveToDB(
+                    objectStorageService.getBucketName(),
+                    directoryPath,
+                    file,
+                    title,
+                    comment,
+                    roomId
+            );
+
+            return ResponseEntity.ok("업로드 성공");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("업로드 실패: " + e.getMessage());
+        }
+    }
+
 
 
 }

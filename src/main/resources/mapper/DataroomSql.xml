@@ -87,6 +87,10 @@
         WHERE roomId = #{roomId}
         ORDER BY createdAt DESC
     </select>
+    <insert id="insertFile" parameterType="FilesDto">
+        INSERT INTO files (name, path, type, room_id, comment, title, category, author_id, created_at, updated_at)
+        VALUES (#{name}, #{path}, #{type}, #{roomId}, #{comment}, #{title}, #{category}, #{authorId}, NOW(), NOW())
+    </insert>
 
 
 </mapper>

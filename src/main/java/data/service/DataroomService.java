@@ -59,30 +59,33 @@ public class DataroomService {
     public void uploadFileAndSaveToDB(String bucketName, String directoryPath, MultipartFile file,
                                       String title, String description, Integer roomId) {
         try {
-            // 1. 파일을 ncloud에 업로드
+            String filename = file.getOriginalFilename();
+            String ext = filename.substring(filename.lastIndexOf('.') + 1).toLowerCase();
+            if (!List.of("pdf", "docx", "xlsx", "png", "jpg").contains(ext)) {
+                throw new IllegalArgumentException("허용되지 않은 확장자입니다.");
+            }
+
             String uploadedFilename = objectStorageService.uploadFile(bucketName, directoryPath, file);
             if (uploadedFilename == null) {
                 throw new RuntimeException("네이버 클라우드에 파일 업로드 실패");
             }
 
-            // 2. 업로드된 파일 정보를 DB에 저장
             FilesDto fileRecord = new FilesDto();
-            fileRecord.setTitle(title);                          // 제목
-            fileRecord.setComment(description);                  // 설명
-            fileRecord.setRoomId(roomId);                        // 카테고리 ID
-            fileRecord.setName(file.getOriginalFilename());      // 업로드된 파일명
-            fileRecord.setPath(uploadedFilename);                // Ncloud에 랜덤으로 저장된 값
-            fileRecord.setAuthorId(1);                           // 작성자 ID (로그인 구현 시 변경 필요)
-            fileRecord.setType(file.getContentType());           // MIME 타입
+            fileRecord.setTitle(title);
+            fileRecord.setComment(description);
+            fileRecord.setRoomId(roomId);
+            fileRecord.setName(file.getOriginalFilename());
+            fileRecord.setPath(uploadedFilename);
+            fileRecord.setAuthorId(1); // TODO: 로그인 사용자로 변경 필요
+            fileRecord.setType(file.getContentType());
 
-            // DB 저장
-            /*dataroomMapper.insertFolder(fileRecord); // 여기를 수정한 것!*/
+            dataroomMapper.insertFile(fileRecord); // ✅ 핵심 저장 코드 추가
 
             System.out.println("파일 업로드 및 DB 저장 성공: " + uploadedFilename);
-
         } catch (Exception e) {
             System.err.println("에러 발생: " + e.getMessage());
-            e.printStackTrace(); // 전체 예외 출력
+            e.printStackTrace();
+            throw new RuntimeException("업로드 실패", e);
         }
     }
 }

@@ -29,6 +29,8 @@ import java.util.List;
 
     List<FilesDto> readFilesByRoomId(@Param("roomId") int roomId);
 
+    void insertFile(FilesDto file);
+
 
 
 }
