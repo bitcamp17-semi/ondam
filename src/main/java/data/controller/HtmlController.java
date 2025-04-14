@@ -71,13 +71,13 @@ public class HtmlController {
     @GetMapping("/admin/managementFormer")
     public String managementFormer() { return "layout/management/management_former_employees"; }
 
-    @GetMapping("/draft/messageInBox")
+    @GetMapping("/message/messageInBox")
     public String messageInBox() { return "layout/message/message_inbox"; }
 
-    @GetMapping("/draft/messageOutBox")
+    @GetMapping("/message/messageOutBox")
     public String messageOutBox() { return "layout/message/message_outbox"; }
 
-    @GetMapping("/draft/storage")
+    @GetMapping("/message/storage")
     public String storage() { return "layout/storage/storage"; }
 
     @GetMapping("/organization")
