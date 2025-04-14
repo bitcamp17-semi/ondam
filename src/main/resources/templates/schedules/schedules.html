@@ -269,7 +269,7 @@
 
                 </div>
                 <div class="rightmain">
-
+                    <div id="schedule-sidebar"></div>
                 </div>
             </div>
         </div>
@@ -401,7 +401,18 @@
                 var event = info.event;
                 var id = event.id;
                 //상세페이지 이동
-                window.location.href = '/schedules/scheDetail?id=' + id;
+                // window.location.href = '/schedules/scheDetail?id=' + id;
+                $.ajax({
+                    url: "/schedules/scheDetail?id="+id,
+                    data: { id },
+                    success: function (html) {
+                        $('#schedule-sidebar').html(html); // ✅ 비동기 삽입
+                        $('#schedule-sidebar').addClass('visible'); // ✅ 튀어나오기
+                    },
+                    error: function () {
+                        alert("일정 정보를 불러오지 못했습니다.");
+                    }
+                });
             }
 
         });

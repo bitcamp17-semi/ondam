@@ -16,7 +16,7 @@
 </head>
 <body>
 <div th:replace="~{layout/header :: header}"></div>
-
+<div id="scheduleDetailContent" th:fragment="scheduleDetailContent">
 <!-- 일정 수정 모달 -->
 <div class="modal" id="scheUpdateModal">
   <div class="modal-dialog">
@@ -260,6 +260,6 @@ $("#updateForm").submit(function(e){
 </script>
 
 </div>
-
+</div>
 </body>
 </html>
