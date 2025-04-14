@@ -1,21 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="data.mapper.JunctionChatUsersGroupsMapper">
-   <!-- 사용자-그룹 관계 생성 (Create) -->
-    <insert id="createJunction" parameterType="JuncChatUsersGroupsDto">
-        insert into junction_chat_users_groups (userid, groupid) values (#{userId}, #{groupId})
+    <insert id="createGroupUser">
+        insert into junction_chat_users_groups (userid, groupid)
+        values (#{userId}, #{groupId})
     </insert>
-    <!-- 사용자-그룹 관계 조회 (Read) -->
-    <select id="readJunctionByUserId" parameterType="int" resultType="JuncChatUsersGroupsDto">
-        select userid, groupid from junction_chat_users_groups where userid = #{userId}
+    <select id="readGroupUserIds" resultType="long">
+        select user_id from junction_chat_users_groups
+        where groupid = #{groupId}
     </select>
-    <!-- 그룹에 속한 사용자 조회 (Read) -->
-    <select id="readUsersByGroupId" parameterType="int" resultType="JuncChatUsersGroupsDto">
-        select userid, groupid from junction_chat_users_groups where groupid = #{groupId}
+    <select id="readJoinedGroupIds" resultType="long">
+        select group_id from junction_chat_users_groups
+        where userid = #{userId}
     </select>
-
-    <!-- 사용자-그룹 관계 삭제 (Delete) -->
-    <delete id="deleteJunction" parameterType="JuncChatUsersGroupsDto">
-        delete from junction_chat_users_groups where userid = #{userId} and groupid = #{groupId}
-    </delete>
 </mapper>

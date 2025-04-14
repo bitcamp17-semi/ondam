@@ -1,68 +1,185 @@
+<!-- group_chat.html -->
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title th:text="${group.name} + ' 채팅'"></title>
+    <title>Group Chat</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #2f3136;
+            color: #fff;
+        }
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+        .sidebar {
+            width: 300px;
+            background-color: #202225;
+            border-right: 1px solid #1e1e1e;
+            overflow-y: auto;
+        }
+        .chat-list-item {
+            padding: 15px;
+            border-bottom: 1px solid #1e1e1e;
+            cursor: pointer;
+        }
+        .chat-list-item:hover {
+            background-color: #36393f;
+        }
+        .chat-title {
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .last-message {
+            font-size: 12px;
+            color: #aaa;
+            margin-top: 5px;
+        }
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-header {
+            padding: 15px;
+            background-color: #36393f;
+            font-size: 18px;
+            font-weight: bold;
+            border-bottom: 1px solid #1e1e1e;
+        }
+        .chat-content {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+        }
+        .message {
+            margin-bottom: 10px;
+        }
+        .message-sender {
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+        .message-text {
+            padding: 10px;
+            background-color: #40444b;
+            border-radius: 8px;
+            display: inline-block;
+            max-width: 70%;
+        }
+        .chat-input {
+            display: flex;
+            border-top: 1px solid #1e1e1e;
+            background-color: #40444b;
+            padding: 10px;
+        }
+        .chat-input input {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            margin-right: 10px;
+            background-color: #2f3136;
+            color: #fff;
+        }
+        .chat-input button {
+            padding: 10px 15px;
+            border: none;
+            background-color: #7289da;
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+    </style>
+    <script th:inline="javascript">
+        const username = [[${session.userName}]];
+        const groupId = [[${groupId}]];
+    </script>
 </head>
 <body>
-    <div th:replace="~{chat/chatmain :: content}">
-        <div class="main-content">
-            <div class="chat-area" id="chatArea">
-                <h2 th:text="${group.name}"></h2>
-                <div th:each="log : ${chatLogs}" class="message">
-                    <span class="sender" th:text="${log.senderId}"></span>: 
-                    <span th:text="${log.message}"></span>
-                    <small th:text="${log.createdAt}"></small>
+<div class="container">
+    <!-- 좌측: 채팅방 목록 -->
+    <div class="sidebar">
+        <div th:each="group : ${groupList}">
+            <a th:href="@{'/chat/group/' + ${group.id}}">
+                <div class="chat-list-item">
+                    <div class="chat-title" th:text="${group.name}">Group Name</div>
+                    <div class="last-message" th:text="${group.lastMessage}">Last message preview...</div>
                 </div>
-            </div>
-            <div class="input-area">
-                <input type="text" id="messageInput" placeholder="메시지를 입력하세요..." onkeypress="if(event.keyCode==13) sendMessage();">
-            </div>
+            </a>
+        </div>
+
+        <div th:each="privateChat : ${privateChatList}">
+            <a th:href="@{'/chat/private/' + ${privateChat.receiverId}}">
+                <div class="chat-list-item">
+                    <div class="chat-title" th:text="${privateChat.receiverName}">User Name</div>
+                    <div class="last-message" th:text="${privateChat.lastMessage}">Last private message...</div>
+                </div>
+            </a>
         </div>
     </div>
 
-    <script th:inline="javascript">
-        // WebSocket 연결 설정
-        var sock = new SockJS('/chat-websocket');
-        var stompClient = Stomp.over(sock);
+    <!-- 우측: 채팅방 -->
+    <div class="chat-area">
+        <div class="chat-header" th:text="'그룹: ' + ${groupName}">그룹 채팅</div>
+        <div class="chat-content" id="chat-content">
+            <div th:each="msg : ${chatMessages}" class="message">
+                <div class="message-sender" th:text="${msg.senderName}">Sender</div>
+                <div class="message-text" th:text="${msg.content}">Message Content</div>
+            </div>
+        </div>
+        <div class="chat-input">
+            <input type="text" id="message-input" placeholder="메시지를 입력하세요..." />
+            <button onclick="sendMessage()">전송</button>
+        </div>
+    </div>
+</div>
 
-        // STOMP 클라이언트 연결
-        stompClient.connect({}, function(frame) {
-            console.log('Connected: ' + frame);
-            // 현재 그룹의 메시지를 구독
-            stompClient.subscribe('/topic/group/' + /*[[${group?.id}]]*/ null, function(message) {
-                var chatLog = JSON.parse(message.body);
-                showMessage(chatLog);
-            });
+<script>
+    const socket = new SockJS('/ws');
+    const stompClient = Stomp.over(socket);
+
+    stompClient.connect({}, function () {
+        stompClient.subscribe('/topic/group/' + groupId, function (message) {
+            const msg = JSON.parse(message.body);
+            const chatContent = document.getElementById("chat-content");
+
+            const msgDiv = document.createElement("div");
+            msgDiv.className = "message";
+
+            const senderDiv = document.createElement("div");
+            senderDiv.className = "message-sender";
+            senderDiv.innerText = msg.senderName;
+
+            const textDiv = document.createElement("div");
+            textDiv.className = "message-text";
+            textDiv.innerText = msg.content;
+
+            msgDiv.appendChild(senderDiv);
+            msgDiv.appendChild(textDiv);
+            chatContent.appendChild(msgDiv);
+
+            chatContent.scrollTop = chatContent.scrollHeight;
         });
+    });
 
-        // 메시지 표시 함수
-        function showMessage(chatLog) {
-            var chatArea = document.getElementById('chatArea');
-            var messageDiv = document.createElement('div');
-            messageDiv.className = 'message';
-            messageDiv.innerHTML = '<span class="sender">' + chatLog.senderId + '</span>: ' + chatLog.message + ' <small>' + new Date().toLocaleString() + '</small>';
-            chatArea.appendChild(messageDiv);
-            chatArea.scrollTop = chatArea.scrollHeight; // 스크롤을 맨 아래로 이동
+    function sendMessage() {
+        const input = document.getElementById("message-input");
+        const message = input.value.trim();
+        if (message !== "") {
+            stompClient.send("/app/group/" + groupId, {}, JSON.stringify({
+                senderName: username,
+                content: message
+            }));
+            input.value = "";
         }
-
-        // 메시지 전송 함수
-        function sendMessage() {
-            var messageInput = document.getElementById('messageInput');
-            var message = messageInput.value;
-            if (message.trim() === '') return;
-
-            // ChatLogDTO 객체 생성
-            var chatLog = {
-                senderId: /*[[${user?.id}]]*/ null,  // null-safe 연산자 사용
-                groupId: /*[[${group?.id}]]*/ null,
-                message: message
-            };
-
-            // 서버로 메시지 전송
-            stompClient.send('/app/sendMessage', {}, JSON.stringify(chatLog));
-            messageInput.value = ''; // 입력창 초기화
-        }
-    </script>
+    }
+</script>
 </body>
 </html>

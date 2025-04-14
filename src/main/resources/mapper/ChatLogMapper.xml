@@ -1,25 +1,77 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="data.mapper.ChatLogMapper">
-    <!-- 메시지 생성 (Create) -->
-    <insert id="createChatLog" parameterType="ChatLogDto">
-        insert into chat_log (senderid, receiverid, isread, message, groupid, createdat, file)
-        values (#{senderId}, #{receiverId}, #{isRead}, #{message}, #{groupId}, #{createdAt}, #{file})
-    </insert>
+	<!-- 💾 채팅 로그 저장 -->
+	<insert id="createChatLog" parameterType="ChatLogDto">
+		insert into chat_log
+		(senderid, receiverid, groupid, message, createdat, file, fileType)
+		values
+		(#{senderId}, #{receiverId}, #{groupId}, #{message},
+		#{createdAt}, #{file}, #{fileType})
+	</insert>
 
-    <!-- 그룹 내 메시지 조회 (Read) -->
-    <select id="readChatLogsByGroupId" parameterType="int" resultType="ChatLogDto">
-        select id, senderid, receiverid, isread, message, groupid, createdat, file
-        from chat_log where groupid = #{groupId} order by createdat asc
-    </select>
+	<!-- 📜 그룹 채팅 전체 메시지 조회 -->
+	<select id="readAllLogsByGroupId" parameterType="long"
+		resultType="ChatLogDto">
+		SELECT id, senderid, message, file, filetype,
+		createdat
+		FROM chat_log
+		WHERE groupid = #{groupId}
+		ORDER BY createdat ASC
+	</select>
 
-    <!-- 메시지 수정 (Update) -->
-    <update id="updateChatLog" parameterType="ChatLogDto">
-        update chat_log set isread = #{isRead}, message = #{message}, file = #{file} where id = #{id}
-    </update>
+	<!-- 📩 그룹 채팅 마지막 메시지 조회 -->
+	<select id="readLastGroupMessage" parameterType="long"
+		resultType="ChatLogDto">
+		select * from chat_log
+		where groupid = #{groupId}
+		order by
+		createdat desc
+		limit 1
+	</select>
 
-    <!-- 메시지 삭제 (Delete) -->
-    <delete id="deleteChatLog" parameterType="long">
-        delete from chat_log where id = #{id}
-    </delete>
+	<!-- 👥 1:1 채팅 마지막 메시지 조회 -->
+	<select id="readLastPrivateMessage" resultType="ChatLogDto">
+		select * from
+		chat_log
+		where (senderid = #{userId1} and receiverid = #{userId2})
+		or
+		(senderid = #{userId2} and receiverid = #{userId1})
+		order by createdat
+		desc
+		limit 1
+	</select>
+
+	<!-- 🗂 나와 채팅한 모든 유저와의 마지막 메시지 리스트 -->
+	<select id="readAllPrivateChatsWithLastMessages"
+		parameterType="long" resultType="ChatLogDto">
+		select cl.*
+		from (
+		select *,
+		case
+		when
+		senderid = #{userId} then receiverid
+		else senderid
+		end as targetUserId
+		from chat_log
+		where receiverid is not null
+		and senderid != receiverid
+		and (senderid = #{userId} or receiverid = #{userId})
+		order by createdat
+		desc
+		) cl
+		group by cl.targetUserId
+	</select>
+	<!-- 🧾 1:1 채팅 전체 메시지 조회 -->
+	<select id="readAllPrivateLogs" resultType="ChatLogDto">
+		SELECT * FROM
+		chat_log
+		WHERE (senderid = #{userId} AND receiverid = #{chatId})
+		OR
+		(senderid = #{chatId} AND receiverid = #{userId})
+		ORDER BY createdat
+		ASC
+	</select>
 </mapper>

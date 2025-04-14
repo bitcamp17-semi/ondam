@@ -35,7 +35,7 @@
     color: #3f3f3f;
 }
 
-.navbar {
+.mainnavbar {
     display: flex;
     gap: 30px;
     font-size: 16px;
@@ -295,4 +295,10 @@
     color: #686868;
     font-size: 14px;
     cursor: pointer;
+}
+
+#calendar{
+    display: flex;
+    flex: 1;
+    padding: 20px;
 }

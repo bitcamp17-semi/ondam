@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -199,5 +200,32 @@ public class DepartmentTeamController {
             response.put("result", e.getMessage());
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @GetMapping("/hierarchy")
+    public List<Map<String, Object>> getFolderTree() {
+        List<DepartmentDto> departments = departmentService.readAllDeps();
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        for (DepartmentDto dept : departments) {
+            Map<String, Object> node = new LinkedHashMap<>();
+            node.put("id", dept.getId());
+            node.put("name", dept.getName());
+            node.put("type", "department");
+
+            List<Map<String, Object>> children = new ArrayList<>();
+            List<TeamDto> teams = departmentService.getTeamsByDepartmentId(dept.getId());
+            for (TeamDto team : teams) {
+                Map<String, Object> child = new LinkedHashMap<>();
+                child.put("id", team.getId());
+                child.put("name", team.getName());
+                child.put("type", "team");
+                children.add(child);
+            }
+            node.put("children", children);
+            node.put("hasChild", !children.isEmpty());
+            result.add(node);
+        }
+        return result;
     }
 }

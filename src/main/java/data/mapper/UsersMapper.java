@@ -36,4 +36,8 @@ public interface UsersMapper {
     public void deleteUser(int id);
 
     public List<UsersDto> readUsersByName(String name);
+
+    public List<UsersDto> readAllDeactivateUsersByKeyword(String keyword, int offset, int size);
+
+    public Integer readCountDeactivateUsersByKeyword(String keyword);
 }

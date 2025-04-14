@@ -17,4 +17,9 @@ public class NaverConfig {
     private String endPoint;
     private String bucketName;
     private String optimizerEndPoint;
+
+    // S3 버킷의 전체 URL을 생성하는 메서드 추가
+    public String getBucketUrl() {
+        return "https://" + this.endPoint + "/" + this.bucketName;
+    }
 }

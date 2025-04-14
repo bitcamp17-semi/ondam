@@ -169,8 +169,8 @@ public class UsersController {
 
     @GetMapping("/readUsersByDep")
     public ResponseEntity<Object> readUsersByDep(@RequestParam(value = "departmentId") int departmentId,
-                                                 @RequestParam(defaultValue = "1") int page,
-                                                 @RequestParam(defaultValue = "10") int size) {
+                                                 @RequestParam(value = "page", defaultValue = "1") int page,
+                                                 @RequestParam(value = "size", defaultValue = "10") int size) {
         Map<String, Object> response = new LinkedHashMap<>();
         try {
             Map<String, Object> result = new HashMap<>();
@@ -245,6 +245,10 @@ public class UsersController {
     public ResponseEntity<Object> deleteUser(@RequestParam(value = "userId") int userId) {
         Map<String, Object> response = new LinkedHashMap<>();
         try {
+            UsersDto dto = usersService.readUserById(userId);
+            if (dto.getProfileImage() != null) {
+                storageService.deleteFile(storageService.getBucketName(),"users",dto.getProfileImage());
+            }
             usersService.deleteUser(userId);
             response.put("status", "ok");
             response.put("result", "delete user");
@@ -280,7 +284,7 @@ public class UsersController {
             for (Integer userId : userList) {
                 UsersDto dto = usersService.readUserById(userId);
                 String img = dto.getProfileImage();
-                if (!img.isEmpty()) {
+                if (img != null) {
                     storageService.deleteFile(storageService.getBucketName(), "users", img);
                 }
             }
@@ -359,6 +363,37 @@ public class UsersController {
             if (usersService.isAdmin(userId)) {
                 response.put("status", "ok");
                 response.put("result", "isAdmin");
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            } else {
+                response.put("status", "fail");
+                response.put("result", "is not admin");
+                return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+            }
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/getFormers")
+    public ResponseEntity<Object> getFormers(
+            @RequestParam(value = "keyword") String keyword,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size,
+            HttpSession session) {
+        Map<String, Object> response = new LinkedHashMap<>();
+        int userId = (Integer) session.getAttribute("userId");
+        try {
+            if (usersService.isAdmin(userId)) {
+                Map<String, Object> result = new HashMap<>();
+                int offset = (page - 1) * size;
+                List<UsersDto> list = usersService.readAllDeactivateUsersByKeyword(keyword, offset, size);
+                int totalCnt = usersService.readCountDeactivateUsersByKeyword(keyword);
+                result.put("list", list);
+                result.put("totalCnt", totalCnt);
+                response.put("status", "ok");
+                response.put("result", result);
                 return new ResponseEntity<>(response, HttpStatus.OK);
             } else {
                 response.put("status", "fail");

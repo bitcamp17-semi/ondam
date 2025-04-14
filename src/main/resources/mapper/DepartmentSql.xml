@@ -28,4 +28,7 @@
         from department
         where id = #{id}
     </delete>
+    <select id="readTeamsByDepartmentId" parameterType="int" resultType="TeamDto">
+        SELECT * FROM team WHERE departmentId = #{deptId}
+    </select>
 </mapper>
