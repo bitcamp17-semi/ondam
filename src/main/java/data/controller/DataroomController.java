@@ -106,7 +106,7 @@ public class DataroomController {
 
     @ResponseBody
     @PostMapping("/upload")
-    public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file,
+    public ResponseEntity<?> uploadFile(@RequestParam("upload") MultipartFile upload,
                                         @RequestParam(value = "teamId", required = false) Integer teamId,
                                         @RequestParam("title") String title,
                                         @RequestParam(value = "departmentId", required = false) Integer departmentId,
@@ -116,12 +116,11 @@ public class DataroomController {
             if (userId == null) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 필요");
             }
-
-            String directoryPath = "dataroom/" + teamId;
+            String directoryPath = "dataroom";
             dataroomService.uploadFileAndSaveToDB(
                     objectStorageService.getBucketName(),
                     directoryPath,
-                    file,
+                    upload,
                     title,
                     departmentId,
                     teamId,
