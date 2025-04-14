@@ -43,4 +43,7 @@ public interface DraftMapper {
     public List<DraftsDto> readReceivedDoneById(int userId, int size, int offset);
 
     public Integer readCountReceivedDoneById(int userId);
+    
+    //기안자의 userId 조회
+    public int readDrafterIdByDraftId(int id);
 }

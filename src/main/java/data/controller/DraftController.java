@@ -43,6 +43,8 @@ public class DraftController {
     DraftFilesService draftFilesService;
     @Autowired
     ObjectStorageService storageService;
+    @Autowired 
+    AlarmService alarmService;
 
     @PostMapping("/createTemplate")
     public ResponseEntity<Object> createTemplate(@RequestBody TemplateCreateReqDto request,
@@ -278,11 +280,23 @@ public class DraftController {
                 draftService.stringToApprovalLogEnumAndCreateLog(draftId, userId, action, reason); // 승인 / 반려에 대해서만 로그 생성
             }
             int nextApprovalId = approvalsService.readNextApprovalId(draftId, userId);
+            int drafterId = draftService.readDrafterIdByDraftId(draftId); // 기안자 userId 조회
+     
             if (nextApprovalId == 0) { // 다음 결재자가 없을 경우
                 draftService.updateDraftStatus(draftId, action); // 기안문 최종 상태 변경
                 // todo : 기안자에게 알림 생성 로직
+     
+                //알람받는 사람은 기안자, 알람 보낸 사람은 최종 승인자
+                if (actionUpperCase.equals("REJECTED")) {
+                    alarmService.rejectedApprovalAlarm(drafterId, userId); // 반려 알림 (받는 사람: 기안자, 보낸 사람: 마지막 결재자)
+                } else if (actionUpperCase.equals("APPROVED")) {
+                    alarmService.confirmedApprovalAlarm(drafterId, userId); // 승인 완료 알림
+                }
+                
             } else {
-                // todo : nextApproval에게 알림 생성 로직
+                // todo : nextApproval에게 알림 생성 로직 
+            	//알람을 보낸 사람 : 기안자, 알람 받는 사람은 다음 결제자
+            	alarmService.approvalTurnAlarm(nextApprovalId, drafterId);
             }
             response.put("status", "ok");
             response.put("result", "status change to '" + action + "' successfully");

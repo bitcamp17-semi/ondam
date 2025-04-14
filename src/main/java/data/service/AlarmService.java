@@ -126,9 +126,9 @@ public class AlarmService {
   	}
   	
   	//쪽지 받으면 받는 사람한테만 알람 발생하도록하기
-  	public void receivedMessageAlarm(int userId, int causedBy, String content)
+  	public void receivedMessageAlarm(int userId, int causedBy)
   	{
-  			content = "쪽지가 도착했습니다.";//알람 문구 지정 > 수정해도 됨		
+  			String content = "쪽지가 도착했습니다.";//알람 문구 지정 > 수정해도 됨		
   			
   			//알람 dto 생성
   			AlarmDto dto =new AlarmDto();
@@ -166,9 +166,9 @@ public class AlarmService {
   	}
   	
   	//내가 작성한 게시글에 댓글이 달린경우 알람 발생
-  	public void addRepleMyBoard(int userId, int causedBy, String content)
+  	public void addRepleMyBoard(int userId, int causedBy)
   	{
-  			content = "댓글이 달렸습니다.";//알람 문구 지정 > 수정해도 됨		
+  			String content = "댓글이 달렸습니다.";//알람 문구 지정 > 수정해도 됨		
   			
   			//알람 dto 생성
   			AlarmDto dto =new AlarmDto();
@@ -206,9 +206,9 @@ public class AlarmService {
   	}
   	
   	//내가 해야할 결제가 생긴(내 차례가 된) 경우 알람 발생
-  	public void approvalTurnAlarm(int userId, int causedBy, String content)
+  	public void approvalTurnAlarm(int userId, int causedBy)
   	{
-  			content = "확인 할 결제가 생겼습니다.";//알람 문구 지정 > 수정해도 됨		
+  			String content = "확인 할 결제가 생겼습니다.";//알람 문구 지정 > 수정해도 됨		
   			
   			//알람 dto 생성
   			AlarmDto dto =new AlarmDto();
@@ -246,9 +246,9 @@ public class AlarmService {
   	}
   	
   	//결제가 최종 승인된 경우 알람 발생
-  	public void confirmedApprovalAlarm(int userId, int causedBy, String content)
+  	public void confirmedApprovalAlarm(int userId, int causedBy)
   	{
-  			content = "결제가 최종 승인되었습니다.";//알람 문구 지정 > 수정해도 됨		
+  			String content = "결제가 최종 승인되었습니다.";//알람 문구 지정 > 수정해도 됨		
   			
   			//알람 dto 생성
   			AlarmDto dto =new AlarmDto();
@@ -286,9 +286,9 @@ public class AlarmService {
   	}
   	
   	//결제가 반려된 경우 알람 발생
-  	public void rejectedApprovalAlarm(int userId, int causedBy, String content)
+  	public void rejectedApprovalAlarm(int userId, int causedBy)
   	{
-  			content = "올린 결제가 반려되었습니다.";//알람 문구 지정 > 수정해도 됨		
+  			String content = "결제가 반려되었습니다.";//알람 문구 지정 > 수정해도 됨		
   			
   			//알람 dto 생성
   			AlarmDto dto =new AlarmDto();
