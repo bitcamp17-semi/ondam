@@ -47,7 +47,7 @@
     font-weight: bold;
     color: #3f3f3f;
 }
-.navbar {
+.mainnavbar {
     display: flex;
     align-items: flex-start;
     justify-content: flex-start;
