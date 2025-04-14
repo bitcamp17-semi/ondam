@@ -1,23 +1,27 @@
 package data.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Data;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+
 import org.apache.ibatis.type.Alias;
 
-import java.sql.Timestamp;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
-@Data
+import lombok.Data;
+
 @Alias("BoardDto")
+@Data
 public class BoardDto {
-    private int id;
-    private String title;
-    private String content;
-    private int authorId;
-    private String category;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/Seoul")
-    private Timestamp createdAt;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/Seoul")
-    private Timestamp updatedAt;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/Seoul")
-    private Timestamp deletedAt;
+	private int id;
+	private String category;
+	private String title;
+	private String content;
+	private String authorId;
+	private boolean hidden;
+	private boolean important;
+	private int replyCount;
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/Seoul")
+	private Timestamp createdAt;
+	private Timestamp updatedAt;
+	private Timestamp deletedAt;
 }
