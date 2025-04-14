@@ -12,6 +12,7 @@ public class FilesDto {
     private int id;
     private String name;
     private String path;
+    private String category;
     private String type;
     private int roomId;
     private String comment;

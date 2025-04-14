@@ -136,12 +136,10 @@ public class ObjectStorageService {
             throw new IllegalArgumentException("유효하지 않은 버킷 이름 또는 파일 경로입니다.");
         }
 
-        // 파일 경로
-        String fullPath = "dataroom/" + filePath;
 
         // Ncloud EndPoint
         String endpoint = "https://kr.object.ncloudstorage.com";
-
+        String fullPath = "dataroom/" + filePath;
         // Content-Disposition 헤더 설정
         String contentDisposition;
         try {

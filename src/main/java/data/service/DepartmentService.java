@@ -1,6 +1,7 @@
 package data.service;
 
 import data.dto.DepartmentDto;
+import data.dto.TeamDto;
 import data.mapper.DepartmentMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,5 +31,9 @@ public class DepartmentService {
 
     public DepartmentDto readDepById(int id) {
         return departmentMapper.readDepById(id);
+    }
+
+    public List<TeamDto> getTeamsByDepartmentId(int deptId) {
+        return departmentMapper.readTeamsByDepartmentId(deptId);
     }
 }

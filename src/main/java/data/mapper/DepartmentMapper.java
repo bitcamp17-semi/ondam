@@ -1,7 +1,9 @@
 package data.mapper;
 
 import data.dto.DepartmentDto;
+import data.dto.TeamDto;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -16,4 +18,6 @@ public interface DepartmentMapper {
     public void deleteDep(int id);
 
     public DepartmentDto readDepById(int id);
+
+    List<TeamDto> readTeamsByDepartmentId(@Param("deptId") int deptId);
 }
