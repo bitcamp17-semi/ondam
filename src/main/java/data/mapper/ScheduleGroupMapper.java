@@ -24,6 +24,9 @@ public interface ScheduleGroupMapper {
 	//그룹명이 '회사일정'인 groupId 조회
 	public Integer readCompanyGroupId();
 	
+	// groupId로 그룹 정보 가져오기
+	public ScheduleGroupDto getGroupById(int groupId);
+	
 	//그룹 수정
 	public void updateSchGroup(ScheduleGroupDto dto);
 	

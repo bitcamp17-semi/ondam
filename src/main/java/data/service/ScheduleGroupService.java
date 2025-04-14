@@ -43,6 +43,12 @@ public class ScheduleGroupService {
 		return scheduleGroupMapper.readCompanyGroupId();
 	}
 	
+	// groupId로 그룹 정보 가져오기
+	public ScheduleGroupDto getGroupById(int groupId)
+	{
+		return scheduleGroupMapper.getGroupById(groupId);
+	}
+	
 	//그룹 수정
 	public void updateSchGroup(ScheduleGroupDto dto) 
 	{
