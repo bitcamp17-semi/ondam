@@ -277,7 +277,6 @@ public class DraftController {
         //String actionUpperCase = action.toUpperCase();
         try {
         	Object userObj = session.getAttribute("userId");
-            System.out.println("✅ session.getAttribute(\"userId\") = " + userObj);
         	
             if (userObj == null) {
                 response.put("status", "error");
@@ -286,7 +285,6 @@ public class DraftController {
             }
             
             userId = (Integer) userObj;
-            System.out.println("✅ 유저 ID 파싱 완료: " + userId);
             String actionUpperCase = action.toUpperCase();
             
         	if (actionUpperCase.equals("APPROVED") || actionUpperCase.equals("REJECTED")) {
@@ -295,11 +293,9 @@ public class DraftController {
             }
             int nextApprovalId = approvalsService.readNextApprovalId(draftId, userId);
             int drafterId = draftService.readDrafterIdByDraftId(draftId); // 기안자 userId 조회
-            System.out.println("📌 nextApprovalId = " + nextApprovalId + ", drafterId = " + drafterId);
-
             
             if (nextApprovalId == 0) { // 다음 결재자가 없을 경우
-            	System.out.println("✔️ 최종 승인자입니다.");
+            	//System.out.println("✔️ 최종 승인자입니다.");
             	draftService.updateDraftStatus(draftId, action); // 기안문 최종 상태 변경
                 // todo : 기안자에게 알림 생성 로직
      
@@ -311,7 +307,7 @@ public class DraftController {
                 }
                 
             } else {
-            	System.out.println("➡️ 다음 결재자 있음 → 알람 보낼 차례");
+            	//System.out.println("➡️ 다음 결재자 있음 → 알람 보낼 차례");
             	// todo : nextApproval에게 알림 생성 로직 
             	//알람을 보낸 사람 : 기안자, 알람 받는 사람은 다음 결제자
             	alarmService.approvalTurnAlarm(nextApprovalId, drafterId);
