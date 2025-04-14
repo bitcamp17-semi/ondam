@@ -2,6 +2,7 @@ package data.controller;
 
 import data.dto.MessagesDto;
 import data.dto.UsersDto;
+import data.service.AlarmService;
 import data.service.MessageService;
 import data.service.UsersService;
 import jakarta.servlet.http.HttpSession;
@@ -23,7 +24,9 @@ public class MessageController {
 
     @Autowired
     UsersService usersService;
-
+    @Autowired 
+    AlarmService alarmService;
+    
     private final MessageService messageService;
 
     public MessageController(MessageService messageService) {
@@ -134,6 +137,16 @@ public class MessageController {
             }
             messageDto.setSenderId(senderId);
             messageService.createMessage(messageDto);
+            
+            // 방금 저장한 메시지 다시 조회
+            MessagesDto savedMessage = messageService.getMessageById(messageDto.getId());
+
+            //알람 발생 (받는 사람에게)
+            int receiverId = savedMessage.getReceiverId();
+            int causedBy = savedMessage.getSenderId(); // 보낸 사람
+
+            alarmService.receivedMessageAlarm(receiverId, causedBy);
+            
             response.put("status", "ok");
             response.put("message", "Message has been created.");
             return new ResponseEntity<>(response, HttpStatus.OK);
