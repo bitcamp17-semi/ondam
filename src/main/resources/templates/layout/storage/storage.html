@@ -34,7 +34,33 @@
                     <button id="downloadSelected" class="whitebtn">선택 다운로드</button>
                     <button id="deleteSelected" class="whitebtn">선택 삭제</button>
                 </div>
-                <div class="rightmain"></div>
+                <!--<form id="upload-form" enctype="multipart/form-data" style="margin: 10px 0;">
+                    <input type="file" name="file" required>
+                    <input type="text" name="title" placeholder="제목" required>
+                    <input type="text" name="comment" placeholder="설명">
+                    <input type="hidden" name="roomId" id="upload-folder-id">
+                    <button type="submit" class="whitebtn">업로드</button>
+                </form>-->
+                <div class="rightmain">
+                    <!-- 파일 목록이 렌더링되는 영역 -->
+
+                    <!-- 업로드 버튼 -->
+                    <button id="toggle-upload-form" class="whitebtn" style="margin-top: 20px;">파일 업로드</button>
+
+                    <!-- 업로드 폼 (초기에는 감춰진 상태) -->
+                    <div id="upload-form-container" style="display: none; margin-top: 10px;">
+                        <input type="text" id="file-name-display" placeholder="파일을 선택하세요" readonly>
+                        <select id="file-category" required>
+                            <option value="" disabled selected>파일 분류 선택</option>
+                            <option value="영업">영업</option>
+                            <option value="인사">인사</option>
+                            <option value="재무">재무</option>
+                        </select>
+                        <button id="file-select-btn" class="whitebtn">파일 선택</button>
+                        <button id="upload-btn" class="whitebtn">업로드</button>
+                        <input type="file" id="file-input" style="display: none;">
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -62,7 +88,7 @@
 </div>
 
 <script>
-    const storageManager = {
+    /*const storageManager = {
         folderIdCounter: 10,
         folders: {
             1: { name: "부서1", children: [2, 5] },
@@ -96,7 +122,35 @@
                 this.folders[pid].children = this.folders[pid].children.filter(child => child !== id);
             }
         }
-    };
+    };*/
+
+    // 폴더 노드 렌더링 함수
+    function renderFolderNode(folder, isOpen = false) {
+        const $li = $("<li>");
+        const $span = $("<span>").addClass("folder").attr("data-id", folder.id).text(`📁 ${folder.name}`);
+
+        // 자식 폴더가 있다면 화살표 추가
+        if (folder.hasChild) {
+            $span.prepend('<i class="bi bi-chevron-right toggle-icon"></i> ');
+        }
+
+        // 폴더 삭제 버튼 추가
+        const $deleteBtn = $('<i>').addClass('bi bi-x delete-folder').attr('data-id', folder.id);
+        $span.append($deleteBtn);
+
+        $li.append($span);
+
+        // 폴더가 열려 있다면 자식 폴더 추가
+        if (isOpen && folder.children?.length > 0) {
+            const $ul = $("<ul>");
+            folder.children.forEach(child => $ul.append(renderFolderNode(child)));
+            $li.append($ul).addClass("open");
+            $span.find(".toggle-icon").removeClass("bi-chevron-right").addClass("bi-chevron-down");
+        }
+
+        return $li;
+    }
+
 
     function createFolderTree(id, activeId = null) {
         const folder = storageManager.folders[id];
@@ -124,53 +178,70 @@
         return $li;
     }
 
-    function renderFolderTree(activeId = null) {
-        $("#tree-root").empty().append(createFolderTree(1, activeId));
+    // 폴더 트리 렌더링 함수
+    function renderFolderTree(data) {
+        const $treeRoot = $("#tree-root").empty();
+        data.forEach(dept => {
+            const $deptLi = $("<li>");
+            const $span = $(`<span class='folder dept' data-id='${dept.id}'>📁 ${dept.name}</span>`);
+
+            // 자식 폴더가 있으면 화살표 추가
+            if (dept.hasChild) {
+                $span.prepend('<i class="bi bi-chevron-right toggle-icon"></i> ');
+            }
+            $deptLi.append($span);
+
+            // 자식 폴더 렌더링
+            if (dept.children && dept.children.length > 0) {
+                const $ul = $("<ul>").hide();
+                dept.children.forEach(team => {
+                    $ul.append(`<li><span class='folder team' data-id='${team.id}'>📁 ${team.name}</span></li>`);
+                });
+                $deptLi.append($ul);
+            }
+            $treeRoot.append($deptLi);
+        });
     }
 
-    function renderFileList(folderId, query = "") {
-        const files = (storageManager.files[folderId] || []).filter(f => f.title.toLowerCase().includes(query.toLowerCase()));
 
-        if (!folderId) {
-            $(".rightmain").html(`<div class='list-empty'>폴더를 선택해주세요</div>`);
-            return;
-        }
 
-        let htmlParts = [];
-        htmlParts.push(`
-        <div class="listtop">
-            <input type="checkbox" class="selectAll list-cell">
-            <div class="list-cell">번호</div>
-            <div class="list-cell listtitle">제목</div>
-            <div class="list-cell">파일분류</div>
-            <div class="list-cell">작성자</div>
-            <div class="list-cell">작성일</div>
-            <div class="list-cell">삭제</div>
-        </div>
-        <div class="listmain">
-    `);
+    // 파일 리스트 렌더링 함수
+    function renderFileList(files) {
+        const $container = $(".rightmain").empty();
 
-        if (files.length === 0) {
-            htmlParts.push(`<div class='list-empty' style='width: 100%; text-align: center; padding: 20px;'>파일이 없습니다</div>`);
+        // 항상 헤더를 먼저 추가
+        let html = `<div class="listtop">
+        <input type="checkbox" class="selectAll list-cell">
+        <div class="list-cell">번호</div>
+        <div class="list-cell listtitle">제목</div>
+        <div class="list-cell">파일분류</div>
+        <div class="list-cell">작성자</div>
+        <div class="list-cell">작성일</div>
+        <div class="list-cell">삭제</div>
+    </div><div class="listmain">`;
+
+        // 파일이 없을 경우 메시지 추가
+        if (!files.length) {
+            html += `<div class='list-empty' style='width: 100%; text-align: center; padding: 20px;'>파일이 없습니다</div>`;
         } else {
-            files.forEach((f, i) => {
-                htmlParts.push(`
-                <div class="listcontent" data-index="${i}">
-                    <input type="checkbox" class="childCheckbox list-cell">
-                    <div class="list-cell">${i + 1}</div>
-                    <div class="list-cell listtitle">${f.title}</div>
-                    <div class="list-cell">${f.category}</div>
-                    <div class="list-cell">${f.writer}</div>
-                    <div class="list-cell">${f.date}</div>
-                    <div class="list-cell"><i class="bi bi-trash3 filedelete"></i></div>
-                </div>
-            `);
+            // 파일 리스트 추가
+            files.forEach((file, index) => {
+                html += `<div class="listcontent">
+                <input type="checkbox" class="childCheckbox list-cell">
+                <div class="list-cell">${index + 1}</div>
+                <div class="list-cell listtitle">${file.name}</div>
+                <div class="list-cell">${file.category || "-"}</div>
+                <div class="list-cell">${file.authorId}</div>
+                <div class="list-cell">${file.createdAt || "-"}</div>
+                <div class="list-cell"><i class="bi bi-trash3 filedelete"></i></div>
+            </div>`;
             });
         }
 
-        htmlParts.push("</div>");
-        $(".rightmain").html(htmlParts.join(""));
+        html += `</div>`;
+        $container.html(html);
     }
+
 
     function saveOpenFolders() {
         const openFolders = [];
@@ -180,41 +251,118 @@
         localStorage.setItem("openFolders", JSON.stringify(openFolders));
     }
 
+    function loadFolderTree() {
+        $.get("/api/dep/hierarchy", function (data) {
+            renderFolderTree(data); // 데이터 렌더링
+        });
+    }
+
     $(document).ready(function () {
-        renderFolderTree(); // 초기 렌더링 시 모든 폴더 접힘
+        loadFolderTree();
+        const $uploadFormContainer = $("#upload-form-container");
+        const $toggleUploadForm = $("#toggle-upload-form");
+        const $fileInput = $("#file-input");
+        const $fileNameDisplay = $("#file-name-display");
+        const $fileCategory = $("#file-category");
+        const $uploadBtn = $("#upload-btn");
+        const $fileSelectBtn = $("#file-select-btn");
 
         let clickLocked = false;
 
-        $(document).on("click", ".folder", function (e) {
-            if (clickLocked) return;
-            clickLocked = true;
-            setTimeout(() => clickLocked = false, 300);
 
-            e.stopPropagation();
-            $(".folder").removeClass("selected");
-            $(this).addClass("selected");
-
+        $(document).on("click", ".folder.dept", function () {
             const $li = $(this).closest("li");
-            const $childUl = $li.children("ul");
+            const $ul = $li.children("ul");
             const $icon = $(this).find(".toggle-icon");
 
-            if ($childUl.length > 0) {
-                const isOpen = $li.hasClass("open");
-                if (isOpen) {
-                    $li.removeClass("open");
-                    $childUl.slideUp(200, () => {
-                        $icon.removeClass("bi-chevron-down").addClass("bi-chevron-right");
+            if ($ul.length > 0) {
+                if ($ul.is(":visible")) {
+                    $ul.slideUp();
+                    $icon.removeClass("bi-chevron-down").addClass("bi-chevron-right");
+                } else {
+                    $ul.slideDown();
+                    $icon.removeClass("bi-chevron-right").addClass("bi-chevron-down");
+                }
+            }
+        });
+
+
+        /*function loadFolders() {
+            $.get("/api/dataroom/folders", function (folders) {
+                storageManager.folders = {};
+                folders.forEach(f => {
+                    storageManager.folders[f.id] = { name: f.name, children: [] };
+                });
+                folders.forEach(f => {
+                    if (f.parentId && storageManager.folders[f.parentId]) {
+                        storageManager.folders[f.parentId].children.push(f.id);
+                    }
+                });
+                renderFolderTree();
+            });
+        }*/
+        $(document).on("click", ".folder.team", function () {
+            const teamId = $(this).data("id");
+            $(".folder").removeClass("selected");
+            $(this).addClass("selected");
+            $("#upload-folder-id").val(teamId);
+
+            $.get(`/api/dataroom/files?roomId=${teamId}`, function (files) {
+                renderFileListWithServerData(files);
+            });
+        });
+
+        $(document).on("click", ".folder", function (e) {
+            e.stopPropagation();
+            const $span = $(this);
+            const $li = $span.closest("li");
+            const folderId = $span.data("id");
+            const $icon = $span.find(".toggle-icon");
+
+            const isOpen = $li.hasClass("open");
+
+            if (isOpen) {
+                // 폴더 닫기
+                $li.removeClass("open");
+                $li.children("ul").slideUp(200, () => {
+                    $li.children("ul").remove();
+                    $icon.removeClass("bi-chevron-down").addClass("bi-chevron-right");
+                });
+            } else {
+                // 폴더 열기
+                const $existingUl = $li.children("ul");
+                if ($existingUl.length > 0) {
+                    $li.addClass("open");
+                    $existingUl.slideDown(200, () => {
+                        $icon.removeClass("bi-chevron-right").addClass("bi-chevron-down");
                     });
                 } else {
-                    $li.addClass("open");
-                    $childUl.slideDown(200, () => {
+                    // Ajax로 자식 폴더 로딩
+                    $.get(`/api/dataroom/subfolders/json/${folderId}`, function (subfolders) {
+                        const $ul = $("<ul>");
+                        subfolders.forEach(f => {
+                            const $childLi = $("<li>");
+                            const $childSpan = $("<span>")
+                                .addClass("folder")
+                                .attr("data-id", f.id)
+                                .text(`📁 ${f.name}`)
+                                .append('<span class="sub-folder-icon">ㄴ</span>'); // 자녀 폴더 표시 추가
+                            if (f.hasChild) {
+                                $childSpan.prepend('<i class="bi bi-chevron-right toggle-icon"></i> ');
+                            }
+                            $childLi.append($childSpan);
+                            $ul.append($childLi);
+                        });
+                        $li.append($ul).addClass("open");
                         $icon.removeClass("bi-chevron-right").addClass("bi-chevron-down");
                     });
                 }
             }
-            renderFileList($(this).data("id"));
+
+            renderFileList(folderId);
             saveOpenFolders();
         });
+
 
         $(document).on("dblclick", ".folder", function (e) {
             e.stopPropagation();
@@ -297,6 +445,25 @@
             renderFileList(folderId);
         });
 
+        $("#upload-form").on("submit", function (e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            $.ajax({
+                url: "/api/dataroom/upload",
+                method: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function () {
+                    alert("업로드 성공");
+                },
+                error: function () {
+                    alert("업로드 실패");
+                }
+            });
+        });
+
+
         $("#downloadSelected").on("click", function () {
             const folderId = $(".folder.selected").data("id");
             const selectedFiles = $(".childCheckbox:checked").map((_, el) => storageManager.files[folderId][parseInt($(el).closest(".listcontent").attr("data-index"))].title).get();
@@ -316,6 +483,85 @@
         $(document).on("change", ".selectAll", function () {
             $(".childCheckbox").prop("checked", $(this).is(":checked"));
         });
+
+        $("#teammodal-form").on("submit", function (e) {
+            e.preventDefault();
+            const name = $("#teammodal-title").val().trim();
+            const parentId = parseInt($("#parent-folder-select").val());
+            if (!name || isNaN(parentId)) return;
+
+            $.ajax({
+                url: "/api/dataroom/addFolderAjax",
+                method: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({ name: name, parentId: parentId }),
+                success: function () {
+                    alert("폴더가 성공적으로 추가되었습니다");
+                    $("#teammodal").hide();
+                    loadFolders(); // 새로 불러오기
+                },
+                error: function () {
+                    alert("폴더 추가 실패");
+                }
+            });
+        });
+
+        // "파일 업로드" 버튼 클릭 시 업로드 폼 토글
+        $toggleUploadForm.on("click", function () {
+            $uploadFormContainer.toggle();
+        });
+
+        // 파일 선택 버튼 클릭 시 파일 선택 창 열기
+        $fileSelectBtn.on("click", function () {
+            $fileInput.click();
+        });
+
+        // 파일 선택 시 파일 이름 표시
+        $fileInput.on("change", function () {
+            const fileName = $fileInput[0].files[0]?.name || "파일을 선택하세요";
+            $fileNameDisplay.val(fileName);
+        });
+
+        // 업로드 버튼 클릭 시 파일 업로드
+        $uploadBtn.on("click", function () {
+            const file = $fileInput[0].files[0];
+            const category = $fileCategory.val();
+            const folderId = $(".folder.selected").data("id"); // 선택된 폴더 ID
+
+            if (!file) {
+                alert("파일을 선택해주세요.");
+                return;
+            }
+
+            if (!category) {
+                alert("파일 분류를 선택해주세요.");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("file", file);
+            formData.append("category", category);
+            formData.append("roomId", folderId);
+
+            $.ajax({
+                url: "/api/dataroom/upload",
+                method: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function () {
+                    alert("파일 업로드 성공!");
+                    // 업로드 후 파일 목록 갱신
+                    $.get(`/api/dataroom/files?roomId=${folderId}`, function (files) {
+                        renderFileListWithServerData(files);
+                    });
+                },
+                error: function () {
+                    alert("파일 업로드 실패!");
+                }
+            });
+        });
+
     });
 </script>
 

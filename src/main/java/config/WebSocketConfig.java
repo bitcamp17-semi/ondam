@@ -8,28 +8,25 @@ import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
 @Configuration
-@EnableWebSocketMessageBroker // WebSocket 메시지 브로커 활성화
+@EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        // 클라이언트가 구독할 수 있는 경로 설정
-        config.enableSimpleBroker("/sub"); // /topic으로 시작하는 경로로 메시지 브로드캐스트
-        // 클라이언트가 서버로 메시지를 보낼 때 사용할 경로 접두사
-        config.setApplicationDestinationPrefixes("/pub");
+        config.enableSimpleBroker("/topic", "/queue");
+        config.setApplicationDestinationPrefixes("/app");
+        config.setUserDestinationPrefix("/user");
     }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        // WebSocket 엔드포인트 설정
-    	registry.addEndpoint("/chat-websocket")
-        .setAllowedOrigins("http://localhost:8080"); // 특정 출처만 허용
-        
+        registry.addEndpoint("/ws")
+                .setAllowedOrigins("http://localhost:8080") // 구체적인 도메인 설정
+                .withSockJS();
     }
 
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
-        // WebSocketInterceptor 등록
-        registration.interceptors(new WebSocketInterceptor());
+        registration.interceptors(new UserInterceptor());
     }
 }

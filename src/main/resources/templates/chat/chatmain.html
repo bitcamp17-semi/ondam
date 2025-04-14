@@ -1,369 +1,924 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Discord 스타일 채팅</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        :root {
-            --primary-color: #5865F2;
-            --dark-bg: #36393f;
-            --darker-bg: #2f3136;
-            --light-bg: #40444b;
-            --text-color: #dcddde;
-            --text-muted: #72767d;
-        }
-        
-        body {
-            background-color: var(--dark-bg);
-            color: var(--text-color);
-            font-family: 'Whitney', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            height: 100vh;
-            margin: 0;
-            overflow: hidden;
-        }
-        
-        .chat-container {
-            display: flex;
-            height: 100vh;
-        }
-        
-        /* 서버 리스트 사이드바 */
-        .server-sidebar {
-            width: 72px;
-            background-color: var(--darker-bg);
-            padding-top: 12px;
-            overflow-y: auto;
-        }
-        
-        .server-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            background-color: var(--light-bg);
-            margin: 8px auto;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: border-radius 0.2s ease;
-        }
-        
-        .server-icon:hover {
-            border-radius: 16px;
-            background-color: var(--primary-color);
-        }
-        
-        /* 채널 리스트 사이드바 */
-        .channel-sidebar {
-            width: 240px;
-            background-color: var(--darker-bg);
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .server-header {
-            padding: 16px;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.2);
-            font-weight: bold;
-            box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
-        }
-        
-        .channel-category {
-            color: var(--text-muted);
-            padding: 12px 16px 4px;
-            font-size: 12px;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-        
-        .channel-item {
-            padding: 8px 16px;
-            border-radius: 4px;
-            margin: 2px 8px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-        }
-        
-        .channel-item:hover {
-            background-color: rgba(79, 84, 92, 0.4);
-        }
-        
-        .channel-item.active {
-            background-color: rgba(79, 84, 92, 0.6);
-        }
-        
-        .channel-item i {
-            margin-right: 8px;
-            font-size: 14px;
-        }
-        
-        /* 메인 채팅 영역 */
-        .chat-main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background-color: var(--dark-bg);
-        }
-        
-        .chat-header {
-            padding: 16px;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.2);
-            box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
-            display: flex;
-            align-items: center;
-        }
-        
-        .chat-header i {
-            margin-right: 8px;
-            color: var(--text-muted);
-        }
-        
-        .chat-messages {
-            flex: 1;
-            padding: 16px;
-            overflow-y: auto;
-        }
-        
-        .message {
-            display: flex;
-            margin-bottom: 16px;
-        }
-        
-        .message-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: #7289da;
-            margin-right: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-        }
-        
-        .message-content {
-            flex: 1;
-        }
-        
-        .message-header {
-            display: flex;
-            align-items: baseline;
-            margin-bottom: 4px;
-        }
-        
-        .message-username {
-            font-weight: bold;
-            margin-right: 8px;
-        }
-        
-        .message-time {
-            color: var(--text-muted);
-            font-size: 12px;
-        }
-        
-        .message-text {
-            line-height: 1.4;
-        }
-        
-        .chat-input {
-            padding: 16px;
-            background-color: var(--light-bg);
-        }
-        
-        .message-input {
-            width: 100%;
-            background-color: var(--darker-bg);
-            border: none;
-            border-radius: 8px;
-            padding: 12px;
-            color: var(--text-color);
-            resize: none;
-            outline: none;
-        }
-        
-        /* 사용자 리스트 사이드바 */
-        .user-sidebar {
-            width: 240px;
-            background-color: var(--darker-bg);
-            padding: 16px;
-            overflow-y: auto;
-        }
-        
-        .user-list-title {
-            color: var(--text-muted);
-            margin-bottom: 16px;
-            font-size: 12px;
-            text-transform: uppercase;
-            font-weight: bold;
-        }
-        
-        .user-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 8px;
-            padding: 4px;
-            border-radius: 4px;
-        }
-        
-        .user-item:hover {
-            background-color: rgba(79, 84, 92, 0.4);
-        }
-        
-        .user-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background-color: #7289da;
-            margin-right: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 12px;
-        }
-        
-        .user-name {
-            font-size: 14px;
-        }
-        
-        /* 스크롤바 스타일 */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: #202225;
-            border-radius: 4px;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-            background: #555;
-        }
-    </style>
+<meta charset="UTF-8">
+<title>My Messenger</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+	rel="stylesheet">
+<style>
+/* 기존 스타일 유지 */
+body {
+	font-family: 'Apple SD Gothic Neo', sans-serif;
+	margin: 0;
+	padding: 0;
+	background-color: #f5f5f5;
+	height: 100vh;
+	overflow: hidden;
+}
+
+.chat-container {
+	display: flex;
+	height: 100vh;
+	overflow: hidden;
+}
+
+.sidebar {
+	width: 350px;
+	background-color: #fff;
+	border-right: 1px solid #e0e0e0;
+	display: flex;
+	flex-direction: column;
+}
+
+.sidebar-header {
+	padding: 15px;
+	background-color: #f8f9fa;
+	border-bottom: 1px solid #e0e0e0;
+	font-weight: bold;
+}
+
+.tab-buttons {
+	display: flex;
+	border-bottom: 1px solid #e0e0e0;
+}
+
+.tab-button {
+	flex: 1;
+	padding: 12px;
+	text-align: center;
+	background: none;
+	border: none;
+	cursor: pointer;
+	font-size: 14px;
+}
+
+.tab-button.active {
+	font-weight: bold;
+	border-bottom: -2px solid #3c7eff;
+	color: #3c7eff;
+}
+
+.chat-list, .contact-list {
+	flex: 1;
+	overflow-y: auto;
+}
+
+.chat-item {
+	padding: 12px 15px;
+	border-bottom: 1px solid #f0f0f0;
+	display: flex;
+	align-items: center;
+	cursor: pointer;
+}
+
+.contact-item {
+	padding: 12px 15px;
+	border-bottom: 1px solid #f0f0f0;
+	display: flex;
+	align-items: center;
+	cursor: pointer;
+}
+
+.chat-avatar, .contact-avatar {
+	width: 40px;
+	height: 40px;
+	background-color: #e0e0e0;
+	border-radius: 50%;
+	margin-right: 10px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: bold;
+	color: #fff;
+}
+
+.chat-info {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+}
+
+.chat-name {
+	font-weight: 500;
+	margin-bottom: 3px;
+}
+
+.chat-preview {
+	font-size: 13px;
+	color: #777;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.chat-time {
+	font-size: 11px;
+	color: #999;
+}
+
+.chat-area {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+
+.chat-tabs {
+	display: flex;
+	background-color: #f8f9fa;
+	border-bottom: 1px solid #e0e0e0;
+}
+
+.chat-tab {
+	padding: 12px 20px;
+	cursor: pointer;
+	border-right: 1px solid #e0e0e0;
+	font-size: 14px;
+	max-width: 200px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.chat-tab.active {
+	background-color: #fff;
+	font-weight: bold;
+}
+
+.chat-tab-close {
+	margin-left: 8px;
+	color: #999;
+	border: none;
+	background: transparent;
+}
+
+.chat-tab-close:hover {
+	color: #333;
+}
+
+.chat-content {
+	flex: 1;
+	background-color: #fff;
+	display: flex;
+	flex-direction: column;
+	position: relative;
+	height: 100%;
+}
+
+.chat-messages {
+	flex: 1 1 auto;
+	padding: 20px;
+	overflow-y: auto;
+	max-height: calc(100% - 70px - 44px);
+	height: calc(100% - 70px - 44px);
+}
+
+.message {
+	display: flex;
+	margin-bottom: 15px;
+}
+
+.message.my-message {
+	justify-content: flex-end;
+}
+
+.message-content {
+	max-width: 70%;
+}
+
+.message-sender {
+	font-weight: 500;
+	font-size: 13px;
+	margin-bottom: 3px;
+}
+
+.message-text {
+	background-color: #f0f0f0;
+	padding: 10px 12px;
+	border-radius: 18px;
+	font-size: 14px;
+	display: inline-block;
+}
+
+.message-time {
+	font-size: 11px;
+	color: #999;
+	margin-top: 5px;
+	margin-left: 10px;
+}
+
+.my-message .message-text {
+	background-color: #3c7eff;
+	color: #fff;
+}
+
+.chat-input-area {
+	padding: 15px;
+	border-top: 1px solid #e0e0e0;
+	background-color: #fff;
+	flex: 0 0 auto;
+	position: sticky;
+	bottom: 0;
+	width: 100%;
+}
+
+.no-chat-selected {
+	flex: 1;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	color: #999;
+	font-size: 16px;
+}
+
+#connection-status {
+	position: fixed;
+	bottom: 10px;
+	right: 10px;
+	padding: 5px 10px;
+	border-radius: 4px;
+	background-color: #fff;
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.invite-button {
+	font-size: 12px;
+	padding: 5px 10px;
+	background-color: #3c7eff;
+	color: #fff;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+}
+
+.invite-button:hover {
+	background-color: #2a5cd6;
+}
+
+.invite-form {
+	display: none;
+	padding: 10px;
+	background-color: #f8f9fa;
+	border-bottom: 1px solid #e0e0e0;
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	z-index: 1000;
+	width: 300px;
+	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.invite-form.active {
+	display: block;
+}
+
+.chat-item-content {
+	display: flex;
+	align-items: center;
+	flex: 1;
+}
+
+.overlay {
+	display: none;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: rgba(0, 0, 0, 0.5);
+	z-index: 999;
+}
+
+.overlay.active {
+	display: block;
+}
+
+.groupbtn {
+	margin-left: 80px;
+}
+
+.onechat {
+	margin-left: 180px;
+}
+
+/* 모달 스타일 추가 */
+#imageModal .modal-dialog {
+	max-width: 800px;
+}
+
+#imageModal .modal-body img {
+	width: 100%;
+	height: auto;
+	border-radius: 8px;
+}
+
+#imageModal .modal-footer {
+	justify-content: space-between;
+}
+</style>
 </head>
 <body>
-    <div class="chat-container">
-        <!-- 서버 리스트 사이드바 -->
-        <div class="server-sidebar">
-            <div class="server-icon" style="background-color: var(--primary-color);">
-                <i class="fas fa-home"></i>
-            </div>
-            <div class="server-icon">
-                <i class="fas fa-gamepad"></i>
-            </div>
-            <div class="server-icon">
-                <i class="fas fa-code"></i>
-            </div>
-            <div class="server-icon">
-                <i class="fas fa-plus"></i>
-            </div>
-        </div>
-        
-        <!-- 채널 리스트 사이드바 -->
-        <div class="channel-sidebar">
-            <div class="server-header">
-                <span th:text="${user.name} + '의 서버'">사용자 서버</span>
-            </div>
-            
-            <div class="channel-category">채팅 그룹</div>
-            <div th:each="group : ${groups}" class="channel-item" th:classappend="${group.id == currentGroupId} ? 'active'" th:onclick="'location.href=\'/chat/groups/' + ${group.id} + '\''">
-                <i class="fas fa-hashtag"></i>
-                <span th:text="${group.name}">그룹 이름</span>
-            </div>
-            
-            <div class="mt-auto p-3">
-                <div class="d-flex align-items-center">
-                    <div class="user-avatar" th:text="${user.name.substring(0, 1)}">U</div>
-                    <div class="ms-2">
-                        <div th:text="${user.name}" class="fw-bold">사용자명</div>
-                        <small class="text-muted">#1234</small>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- 메인 채팅 영역 -->
-        <div class="chat-main">
-            <div class="chat-header">
-                <i class="fas fa-hashtag"></i>
-                <span th:text="${group != null} ? ${group.name} : '채팅 그룹 선택'">채팅 그룹 이름</span>
-            </div>
-            
-            <div class="chat-messages" id="chat-messages">
-                <!-- 채팅 메시지가 여기에 표시됩니다 -->
-                <div th:if="${group == null}" class="text-center mt-5">
-                    <h4>왼쪽에서 채팅 그룹을 선택하세요</h4>
-                    <p class="text-muted">또는 새로운 그룹을 생성할 수 있습니다</p>
-                    <a href="/chat/groups/new" class="btn btn-primary mt-3">새 그룹 생성</a>
-                </div>
-                
-                <div th:if="${group != null}">
-                    <div th:each="chatLog : ${chatLogs}" class="message">
-                        <div class="message-avatar" th:text="${chatLog.senderName.substring(0, 1)}">U</div>
-                        <div class="message-content">
-                            <div class="message-header">
-                                <span class="message-username" th:text="${chatLog.senderName}">사용자명</span>
-                                <span class="message-time" th:text="${#temporals.format(chatLog.createdAt, 'yyyy-MM-dd HH:mm')}">시간</span>
-                            </div>
-                            <div class="message-text" th:text="${chatLog.message}">메시지 내용</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="chat-input" th:if="${group != null}">
-                <form th:action="@{'/chat/groups/' + ${group.id}}" method="post">
-                    <textarea class="message-input" name="message" placeholder="메시지를 입력하세요..." rows="1"></textarea>
-                    <input type="hidden" name="senderId" th:value="${user.id}">
-                    <input type="hidden" name="groupId" th:value="${group.id}">
-                </form>
-            </div>
-        </div>
-        
-        <!-- 사용자 리스트 사이드바 -->
-        <div class="user-sidebar" th:if="${group != null}">
-            <div class="user-list-title">온라인 — 1</div>
-            <div class="user-item">
-                <div class="user-avatar" th:text="${user.name.substring(0, 1)}">U</div>
-                <div class="user-name" th:text="${user.name}">사용자명</div>
-            </div>
-        </div>
-    </div>
+	<div class="chat-container">
+		<!-- Sidebar -->
+		<div class="sidebar">
+			<div class="sidebar-header">
+				My Messenger
+				<button class="btn btn-primary groupbtn">그룹 채팅 생성</button>
+			</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // 메시지 입력창 자동 높이 조절
-        const textarea = document.querySelector('.message-input');
-        if (textarea) {
-            textarea.addEventListener('input', function() {
-                this.style.height = 'auto';
-                this.style.height = (this.scrollHeight) + 'px';
-            });
-            
-            // 엔터 키로 메시지 전송 (Shift+Enter는 줄바꿈)
-            textarea.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    this.form.submit();
+			<div class="tab-buttons">
+				<button class="tab-button" onclick="switchTab('chats')"
+					th:classappend="${activeTab == 'chats'} ? ' active'">채팅</button>
+				<button class="tab-button" onclick="switchTab('contacts')"
+					th:classappend="${activeTab == 'contacts'} ? ' active'">멤버</button>
+			</div>
+
+			<div class="chat-list" th:if="${activeTab == 'chats'}">
+				<div class="chat-item" th:each="group : ${chatGroupsList}">
+					<div class="chat-item-content"
+						th:onclick="|openChat('${group.id}')|">
+						<div
+							th:text="${group.name != null and #strings.length(group.name) > 0} ? ${#strings.substring(group.name, 0, 1)} : 'G'"></div>
+						<div class="chat-info">
+							<div class="chat-name" th:text="${group.name}"></div>
+							<div class="chat-preview" th:text="${group.lastMessage}"></div>
+						</div>
+					</div>
+					<button class="invite-button"
+						th:attr="data-group-id=${group.id},data-group-name=${group.name}"
+						onclick="showInviteForm(event)">초대</button>
+				</div>
+			</div>
+
+			<div class="contact-list" th:if="${activeTab == 'contacts'}">
+				<div class="contact-item" th:each="contact : ${contacts}">
+					<div class="contact-info" th:onclick="|openChat('${contact.id}')|">
+						<div class="contact-avatar"
+							th:text="${#strings.substring(contact.name, 0, 1)}"></div>
+						<div class="contact-name" th:text="${contact.name}"></div>
+					</div>
+					<form th:action="@{/chat/createPrivateChat}" method="post"
+						style="display: inline;">
+						<input type="hidden" name="targetUserId" th:value="${contact.id}" />
+						<input type="hidden" name="activeTab" th:value="${activeTab}" />
+						<button type="submit"
+							class="btn btn-sm btn-outline-primary private-chat-btn onechat"
+							title="개인 채팅">1 대1 채팅</button>
+					</form>
+				</div>
+			</div>
+		</div>
+		<!-- Chat Area -->
+		<div class="chat-area">
+			<div class="chat-tabs"
+				th:if="${openChats != null and !openChats.isEmpty()}">
+				<div class="chat-tab" th:each="chatId : ${openChats}"
+					th:classappend="${firstChatData != null and chatId == firstChatData.roomId} ? ' active'">
+					<span
+						th:text="${firstChatData != null and chatId == firstChatData.roomId} ?
+                                ${firstChatData.roomName} : '채팅방 ' + ${chatId}"></span>
+					<form th:action="@{/chat/closeChat}" method="post"
+						style="display: inline;">
+						<input type="hidden" name="chatId" th:value="${chatId}" />
+						<button type="submit" class="chat-tab-close">×</button>
+					</form>
+				</div>
+			</div>
+
+			<div class="chat-content">
+				<div class="chat-messages" th:if="${firstChatData != null}">
+					<div class="message" th:each="msg : ${firstChatData.messages}"
+						th:classappend="${msg.isMyMessage} ? ' my-message'">
+						<div class="message-avatar"
+							th:text="${#strings.substring(msg.senderName, 0, 1)}"></div>
+						<div class="message-content">
+							<div class="message-sender" th:text="${msg.senderName}"></div>
+							<div class="message-text">
+								<span th:if="${msg.file == null}" th:text="${msg.message}"></span>
+								<span th:if="${msg.file != null}"
+									th:attr="data-file-url=${msg.file},data-file-type=${msg.fileType}">
+									<!-- 디버깅 로그 추가 --> <script th:inline="javascript">
+							        console.log('Message file URL: [[${msg.file}]]');
+							        console.log('Message file type: [[${msg.fileType}]]');
+							        </script> <!-- 이미지 파일인 경우 --> <a
+									th:if="${msg.fileType != null and msg.fileType.startsWith('image/')}"
+									href="javascript:void(0)"
+									th:attr="data-file-url=${msg.file},data-file-name=${msg.message}"
+									onclick="showImageModal(this)"> <img th:src="${msg.file}"
+										style="max-width: 200px; border-radius: 8px;"
+										th:alt="${msg.message}"
+										onerror="this.onerror=null; this.src='/images/fallback-image.png';" />
+								</a> <!-- 이미지 파일이 아닌 경우 다운로드 링크 --> <a
+									th:if="${msg.fileType == null or !msg.fileType.startsWith('image/')}"
+									th:href="${msg.file}" th:download="${msg.message}"> <span
+										th:text="${msg.message}"></span>
+								</a>
+								</span>
+							</div>
+							<div class="message-time" th:text="${msg.formattedCreatedAt}"></div>
+						</div>
+					</div>
+				</div>
+
+				<div class="no-chat-selected" th:unless="${firstChatData != null}">
+					사용 중인 메신저룸이 없습니다.</div>
+
+				<div th:if="${firstChatData != null}" class="chat-input-area">
+					<div class="input-group">
+						<input type="text" id="messageInput" class="form-control"
+							placeholder="메시지를 입력하세요" required />
+						<button id="sendButton" class="btn btn-primary">전송</button>
+						<button id="fileButton" class="btn btn-primary"
+							style="background-color: blue;">파일</button>
+						<input type="file" id="fileInput" style="display: none;" />
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- 초대 폼 -->
+	<div class="overlay" id="overlay"></div>
+	<div class="invite-form" id="inviteForm">
+		<form th:action="@{/chat/invite}" method="post">
+			<input type="hidden" name="groupId" id="inviteGroupId" /> <input
+				type="hidden" name="activeTab" th:value="${activeTab}" />
+			<div class="input-group mb-2">
+				<select name="userId" id="inviteUserId" class="form-control"
+					required>
+					<option value="" disabled selected>초대할 사용자 선택</option>
+					<option th:each="contact : ${contacts}" th:value="${contact.id}"
+						th:text="${contact.name}"></option>
+				</select>
+				<button type="submit" class="btn btn-primary">초대하기</button>
+			</div>
+			<div>
+				<span>초대할 그룹: </span> <span id="inviteGroupName"></span>
+			</div>
+		</form>
+	</div>
+
+	<!-- 그룹 채팅 생성 모달 -->
+	<div class="modal fade" id="createGroupModal" tabindex="-1"
+		aria-labelledby="createGroupModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="createGroupModalLabel">그룹 채팅 생성</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"
+						aria-label="Close"></button>
+				</div>
+				<form th:action="@{/chat/createGroup}" method="post">
+					<div class="modal-body">
+						<div class="mb-3">
+							<label for="groupName" class="form-label">그룹 이름</label> <input
+								type="text" class="form-control" id="groupName" name="groupName"
+								required>
+						</div>
+						<div class="mb-3">
+							<label class="form-label">초대할 멤버</label>
+							<div class="contact-list"
+								style="max-height: 200px; overflow-y: auto;">
+								<div class="contact-item" th:each="contact : ${contacts}">
+									<input type="checkbox" th:name="invitedUserIds"
+										th:value="${contact.id}"> <span
+										th:text="${contact.name}"></span>
+								</div>
+							</div>
+						</div>
+						<input type="hidden" name="activeTab" th:value="${activeTab}" />
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary"
+							data-bs-dismiss="modal">취소</button>
+						<button type="submit" class="btn btn-primary">생성</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+	<!-- 이미지 모달 추가 -->
+	<div class="modal fade" id="imageModal" tabindex="-1"
+		aria-labelledby="imageModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="imageModalLabel">이미지 보기</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"
+						aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<img id="modalImage" src="" alt="Image Preview">
+				</div>
+				<div class="modal-footer">
+					<button id="downloadButton" class="btn btn-primary">다운로드</button>
+					<button type="button" class="btn btn-secondary"
+						data-bs-dismiss="modal">닫기</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<form id="openChatForm" th:action="@{/chat/openChat}" method="post"
+		style="display: none;">
+		<input type="hidden" name="chatId" id="chatIdInput" />
+	</form>
+
+	<script
+		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+	<script
+		src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+	<script
+		src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+	<script th:inline="javascript">
+        class ChatClient {
+            static DESTINATIONS = {
+                GROUP: '/app/chat.send.group',
+                PRIVATE: '/app/chat.send.private'
+            };
+
+            static SUBSCRIPTIONS = {
+                GROUP: (roomId) => `/topic/group/${roomId}`,
+                PRIVATE: '/user/queue/private'
+            };
+
+            constructor(config = {}) {
+                this.stompClient = null;
+                this.userId = config.userId ?? null;
+                this.roomId = config.roomId ?? null;
+                this.roomType = config.roomType ?? null;
+                this.targetUserId = config.targetUserId ?? null;
+                this.senderName = config.senderName ?? 'User';
+                this.connected = false;
+
+                this.init();
+            }
+
+            init() {
+                if (this.roomId) {
+                    this.connect();
+                    this.setupEventListeners();
                 }
+            }
+
+            connect() {
+                const socket = new SockJS('/ws');
+                this.stompClient = Stomp.over(socket);
+
+                this.stompClient.debug = (str) => {
+                    console.log('STOMP Debug: ' + str);
+                };
+
+                this.stompClient.connect(
+                    { 'userId': this.userId },
+                    (frame) => {
+                        this.connected = true;
+                        this.subscribe();
+                    },
+                    (error) => {
+                        this.connected = false;
+                        console.error('WebSocket Connection Error:', error);
+                        setTimeout(() => this.connect(), 5000);
+                    }
+                );
+            }
+
+            subscribe() {
+                const subscriptionPath = this.roomType === 'GROUP'
+                    ? ChatClient.SUBSCRIPTIONS.GROUP(this.roomId)
+                    : ChatClient.SUBSCRIPTIONS.PRIVATE;
+
+                this.stompClient.subscribe(subscriptionPath, (message) => {
+                    this.handleMessage(JSON.parse(message.body));
+                });
+            }
+
+            handleMessage(message) {
+                const messagesContainer = document.querySelector('.chat-messages');
+                if (!messagesContainer) return;
+
+                const isMyMessage = message.isMyMessage !== undefined ?
+                    message.isMyMessage :
+                    message.senderId == this.userId;
+
+                const messageElement = this.createMessageElement(message, isMyMessage);
+                messagesContainer.appendChild(messageElement);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+
+            createMessageElement(message, isMyMessage) {
+                const element = document.createElement('div');
+                element.className = `message ${isMyMessage ? 'my-message' : ''}`;
+
+                const time = new Date(message.createdAt || message.time).toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                // 파일 메시지인 경우
+                let content = '';
+                if (message.file) {
+                    // 이미지 파일인지 확인 (확장자로 간단히 판단)
+                    const isImage = /\.(jpg|jpeg|png|gif)$/i.test(message.message);
+                    if (isImage) {
+                        content = `<a href="javascript:void(0)" data-file-url="${message.file}" data-file-name="${message.message}" onclick="showImageModal(this)">
+                            <img src="${message.file}" style="max-width: 200px; border-radius: 8px;" alt="${message.message}" />
+                        </a>`;
+                    } else {
+                        content = `<a href="${message.file}" download="${message.message}">파일: ${message.message}</a>`;
+                    }
+                } else {
+                    content = message.message || message.content;
+                }
+
+                element.innerHTML = `
+                    <div class="message-avatar">${message.senderName?.charAt(0) || 'U'}</div>
+                    <div class="message-content">
+                        <div class="message-sender">${message.senderName || 'Unknown'}</div>
+                        <div class="message-text">${content}</div>
+                        <div class="message-time">${time}</div>
+                    </div>
+                `;
+
+                return element;
+            }
+
+            sendMessage(content) {
+                if (!this.isReadyToSend(content)) {
+                    return;
+                }
+                const message = this.createMessageObject(content);
+                this.sendMessageToServer(message);
+            }
+
+            isReadyToSend(content) {
+                if (!this.connected) {
+                    console.warn("Cannot send message: Not connected to WebSocket");
+                    return false;
+                }
+
+                if (!content || !content.trim()) {
+                    console.warn("Cannot send message: Content is empty or whitespace");
+                    return false;
+                }
+
+                if (!this.userId) {
+                    console.error("Cannot send message: userId is not defined");
+                    return false;
+                }
+
+                if (!this.roomId) {
+                    console.error("Cannot send message: roomId is not defined");
+                    return false;
+                }
+
+                if (!this.stompClient) {
+                    console.error("Cannot send message: STOMP client is not initialized");
+                    return false;
+                }
+
+                return true;
+            }
+
+            createMessageObject(content) {
+                if (!content || !content.trim()) {
+                    console.error("Message content is empty");
+                    throw new Error("Message content cannot be empty");
+                }
+
+                return {
+                    senderId: this.userId,
+                    senderName: this.senderName,
+                    message: content,
+                    time: new Date().toISOString(),
+                    createdAt: new Date().toISOString(),
+                    groupId: this.roomType === 'GROUP' ? Number(this.roomId) : null,
+                    roomId: Number(this.roomId),
+                    roomType: this.roomType,
+                    targetUserId: this.targetUserId ? Number(this.targetUserId) : null,
+                    isMyMessage: true
+                };
+            }
+
+            sendMessageToServer(message) {
+                const destination = this.getDestination();
+                console.log("Sending message:", message);
+
+                if (!message) {
+                    console.error("Message object is null!");
+                    return;
+                }
+
+                try {
+                    const messageJson = JSON.stringify(message);
+                    console.log("Serialized message:", messageJson);
+                    this.stompClient.send(destination,
+                        { 'content-type': 'application/json' },
+                        messageJson);
+                } catch (error) {
+                    console.error("Failed to send message:", error);
+                }
+            }
+
+            getDestination() {
+                const dest = this.roomType === 'GROUP'
+                    ? `${ChatClient.DESTINATIONS.GROUP}/${this.roomId}`
+                    : ChatClient.DESTINATIONS.PRIVATE;
+                console.log("Sending to:", dest);
+                return dest;
+            }
+
+            async uploadFile(file) {
+                if (!file) {
+                    console.warn("No file selected");
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append("file", file);
+                formData.append("roomId", this.roomId);
+                formData.append("roomType", this.roomType);
+                formData.append("senderId", this.userId);
+                formData.append("senderName", this.senderName);
+
+                try {
+                    const response = await fetch('/chat/uploadFile', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const result = await response.json();
+                    console.log("File upload successful:", result);
+                } catch (error) {
+                    console.error("File upload failed:", error);
+                    alert("파일 업로드에 실패했습니다.");
+                }
+            }
+
+            setupEventListeners() {
+                const input = document.getElementById('messageInput');
+                const sendButton = document.getElementById('sendButton');
+                const fileButton = document.getElementById('fileButton');
+                const fileInput = document.getElementById('fileInput');
+
+                if (input && sendButton) {
+                    sendButton.addEventListener('click', () => {
+                        this.sendMessage(input.value);
+                        input.value = '';
+                    });
+
+                    input.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') {
+                            this.sendMessage(input.value);
+                            input.value = '';
+                        }
+                    });
+                }
+
+                if (fileButton && fileInput) {
+                    fileButton.addEventListener('click', () => {
+                        fileInput.click();
+                    });
+
+                    fileInput.addEventListener('change', () => {
+                        const file = fileInput.files[0];
+                        if (file) {
+                            this.uploadFile(file);
+                            fileInput.value = '';
+                        }
+                    });
+                }
+            }
+        }
+
+        function showInviteForm(event) {
+            event.stopPropagation();
+            const groupId = event.target.getAttribute('data-group-id');
+            const groupName = event.target.getAttribute('data-group-name');
+            console.log('showInviteForm called with groupId:', groupId, 'groupName:', groupName);
+
+            const inviteForm = document.getElementById('inviteForm');
+            const groupIdInput = document.getElementById('inviteGroupId');
+            const groupNameSpan = document.getElementById('inviteGroupName');
+            const overlay = document.getElementById('overlay');
+
+            if (!inviteForm || !groupIdInput || !groupNameSpan || !overlay) {
+                console.error('Invite form elements not found:', {
+                    inviteForm: !!inviteForm,
+                    groupIdInput: !!groupIdInput,
+                    groupNameSpan: !!groupNameSpan,
+                    overlay: !!overlay
+                });
+                return;
+            }
+
+            document.querySelectorAll('.invite-form.active').forEach(form => {
+                form.classList.remove('active');
+            });
+            document.querySelectorAll('.overlay.active').forEach(ov => {
+                ov.classList.remove('active');
+            });
+
+            inviteForm.classList.add('active');
+            overlay.classList.add('active');
+            groupIdInput.value = groupId;
+            groupNameSpan.textContent = groupName;
+            console.log('Invite form displayed for group:', groupName);
+
+            overlay.addEventListener('click', () => {
+                inviteForm.classList.remove('active');
+                overlay.classList.remove('active');
             });
         }
-        
-        // 채팅 메시지 영역을 항상 아래로 스크롤
-        const chatMessages = document.getElementById('chat-messages');
-        if (chatMessages) {
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        function openChat(chatId) {
+            console.log('openChat called with chatId:', chatId);
+            document.getElementById('chatIdInput').value = chatId;
+            document.getElementById('openChatForm').submit();
         }
+
+        function switchTab(tabName) {
+            console.log('switchTab called with tabName:', tabName);
+            window.location.href = `/chat/main?activeTab=${tabName}`;
+        }
+
+        // 이미지 모달 표시 함수
+        function showImageModal(element) {
+		    const fileUrl = element.getAttribute('data-file-url');
+		    console.log('Attempting to load image from:', fileUrl); // 로그 추가
+		    
+		    const img = new Image();
+		    img.onload = function() {
+		        document.getElementById('modalImage').src = fileUrl;
+		        new bootstrap.Modal(document.getElementById('imageModal')).show();
+		    };
+		    img.onerror = function() {
+		        console.error('Failed to load image:', fileUrl);
+		        alert('이미지를 불러올 수 없습니다.');
+		    };
+		    img.src = fileUrl;
+
+            // 기존 이벤트 리스너 제거 (중복 방지)
+            const newDownloadButton = downloadButton.cloneNode(true);
+            downloadButton.parentNode.replaceChild(newDownloadButton, downloadButton);
+
+            // 다운로드 버튼에 이벤트 리스너 추가
+            newDownloadButton.addEventListener('click', () => {
+                downloadFile(fileUrl, fileName);
+            });
+
+            const modal = new bootstrap.Modal(document.getElementById('imageModal'));
+            modal.show();
+        }
+
+        // 파일 다운로드 함수
+        async function downloadFile(fileUrl, fileName) {
+            try {
+                const response = await fetch(fileUrl);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+            } catch (error) {
+                console.error('Download failed:', error);
+                alert('파일 다운로드에 실패했습니다.');
+            }
+        }
+
+        document.querySelector('.groupbtn').addEventListener('click', () => {
+            const modal = new bootstrap.Modal(document.getElementById('createGroupModal'));
+            modal.show();
+        });
+
+        const chatClientConfig = {
+            userId: Number(/*[[${userId}]]*/ null),
+            roomId: Number(/*[[${firstChatData?.roomId}]]*/ null),
+            roomType: /*[[${firstChatData?.roomType}]]*/ null,
+            targetUserId: Number(/*[[${firstChatData?.targetUserId}]]*/ null),
+            senderName: /*[[${session.user?.name}]]*/ 'User'
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM fully loaded, ChatClient Config:', chatClientConfig);
+            new ChatClient(chatClientConfig);
+        });
     </script>
 </body>
 </html>

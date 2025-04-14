@@ -10,20 +10,27 @@ import java.util.List;
 @Mapper
     public interface DataroomMapper {
     //특정 자료실(roomId)의 모든 파일 목록 조회
-    List<FilesDto> readDataroomFilesByIdAndKeyword(@Param("roomId") int roomId,
-                                     @Param("keyword") String keyword,
-                                     @Param("offset") int offset,
-                                     @Param("limit") int limit);
+    // 폴더 목록 조회 (상위 폴더)
+    List<DataRoomDto> readAllFolders();
 
-    // 모든 자료실 카테고리 조회 (Read)
-    List<DataRoomDto> readDataroomCategories();
+    // 자식 폴더 조회
+    List<DataRoomDto> readSubFolders(@Param("parentId") int parentId);
 
-    // 특정 ID로 파일 한 개 조회 (Read)
-    FilesDto readDataroomById(@Param("id") int id);
+    // 폴더 이름 중복 체크
+    boolean readFolderExists(@Param("folderName") String folderName, @Param("parentId") int parentId);
 
-    // 파일 신규 생성
-    void createDataroomFile(FilesDto file);
+    // 폴더 추가
+    void insertFolder(DataRoomDto folder);
 
-    // 특정 ID 파일 삭제 (Delete)
-    void deleteDataroomById(@Param("id") int id);
+    // 폴더 삭제
+    void deleteFolder(@Param("folderId") int folderId);
+
+    boolean readHasChild(@Param("folderId") int folderId);
+
+    List<FilesDto> readFilesByRoomId(@Param("roomId") int roomId);
+
+    void insertFile(FilesDto file);
+
+
+
 }

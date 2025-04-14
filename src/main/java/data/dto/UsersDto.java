@@ -20,7 +20,7 @@ public class UsersDto {
     private String addr;
     private String profileImage;
     private Integer departmentId;
-    private String departmentName;//부서명 : 일정관리페이지에서 불러오기위해 추가
+    private String departmentName;
     private String team;
     private String position;
     private String gender;

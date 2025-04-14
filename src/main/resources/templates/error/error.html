@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>404 - 페이지를 찾을 수 없습니다</title>
+    <title>Ondam Error</title>
     <style>
         body {
             background: #f6f8fa;
@@ -49,7 +49,8 @@
 </head>
 <body>
 <div class="emoji">🧭</div>
-<h1>404 - 길을 잃었어요</h1>
+<h1 th:text="${code} + ' - 오류가 발생했어요'">오류</h1>
+<p th:text="${message}">죄송합니다. 문제가 발생했어요.</p>
 <p>이 페이지는 존재하지 않거나, 이사 갔을 수 있어요.</p>
 <a href="/">홈으로 가기</a>
 </body>
