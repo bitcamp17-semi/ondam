@@ -82,7 +82,8 @@ public class HtmlController {
 
     @GetMapping("/organization")
     public String organization() {
-        return "layout/management/organization";
+//        return "layout/management/organization";
+        return "error/ondaming";
     }
 
     @GetMapping("/alarm")
