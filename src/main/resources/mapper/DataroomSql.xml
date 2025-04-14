@@ -43,9 +43,9 @@
         SELECT
             id,
             name,
-            parent_id AS parentId
+            parentId AS parentId
         FROM data_room
-        WHERE parent_id IS NULL
+        WHERE parentId IS NULL
         ORDER BY id;
     </select>
 
@@ -53,26 +53,26 @@
         SELECT
             id,
             name,
-            parent_id AS parentId
+            parentId AS parentId
         FROM data_room
-        WHERE parent_id = #{parentId}
+        WHERE parentId = #{parentId}
         ORDER BY id;
     </select>
 
     <select id="readHasChild" resultType="boolean">
         SELECT COUNT(*) > 0
         FROM data_room
-        WHERE parent_id = #{folderId}
+        WHERE parentId = #{folderId}
     </select>
 
     <select id="readFolderExists" resultType="boolean">
         SELECT COUNT(*) > 0
         FROM data_room
-        WHERE name = #{folderName} AND parent_id = #{parentId}
+        WHERE name = #{folderName} AND parentid = #{parentId}
     </select>
 
     <insert id="insertFolder">
-        INSERT INTO data_room (name, parent_id, created_date)
+        INSERT INTO data_room (name, parentid, createdAt)
         VALUES (#{name}, #{parentId}, NOW());
     </insert>
 
@@ -88,7 +88,7 @@
         ORDER BY createdAt DESC
     </select>
     <insert id="insertFile" parameterType="FilesDto">
-        INSERT INTO files (name, path, type, room_id, comment, title, category, author_id, created_at, updated_at)
+        INSERT INTO files (name, path, type, roomId, comment, title, category, authorId, createdAt, updatedAt)
         VALUES (#{name}, #{path}, #{type}, #{roomId}, #{comment}, #{title}, #{category}, #{authorId}, NOW(), NOW())
     </insert>
 

@@ -42,28 +42,36 @@
                     <button type="submit" class="whitebtn">업로드</button>
                 </form>-->
                 <div class="rightmain">
-                    <!-- 파일 목록이 렌더링되는 영역 -->
+                    <!-- 업로드 버튼 (초기에는 숨김) -->
+                    <button id="open-upload-modal" class="btn btn-primary" style="display: none; margin-top: 20px;">파일
+                        업로드
+                    </button>
 
-                    <!-- 업로드 버튼 -->
-                    <button id="toggle-upload-form" class="whitebtn" style="margin-top: 20px;">파일 업로드</button>
+                    <!-- 업로드 모달 -->
+                    <div id="upload-modal" class="modal" style="display: none;">
+                        <div class="modal-content">
+                            <button id="close-upload-modal" class="modal-close">&times;</button>
+                            <h2 class="modal-title">파일 업로드</h2>
 
-                    <!-- 업로드 폼 (초기에는 감춰진 상태) -->
-                    <div id="upload-form-container" style="display: none; margin-top: 10px;">
-                        <input type="text" id="file-name-display" placeholder="파일을 선택하세요" readonly>
-                        <select id="file-category" required>
-                            <option value="" disabled selected>파일 분류 선택</option>
-                            <option value="영업">영업</option>
-                            <option value="인사">인사</option>
-                            <option value="재무">재무</option>
-                        </select>
-                        <button id="file-select-btn" class="whitebtn">파일 선택</button>
-                        <button id="upload-btn" class="whitebtn">업로드</button>
-                        <input type="file" id="file-input" style="display: none;">
+                            <!-- 업로드 폼 -->
+                            <form id="upload-form" class="upload-form">
+                                <input type="text" id="file-name-display" class="form-input" placeholder="파일을 선택하세요"
+                                       readonly>
+                                <select id="file-category" class="form-select" required>
+                                    <option value="" disabled selected>파일 분류 선택</option>
+                                    <option value="sales">영업</option>
+                                    <option value="hr">인사</option>
+                                    <option value="finance">재무</option>
+                                </select>
+                                <button id="file-select-btn" class="btn btn-secondary">파일 선택</button>
+                                <button id="upload-btn" class="btn btn-primary">업로드</button>
+                                <input type="file" id="file-input" class="file-input" style="display: none;">
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
     <!-- 폴더 추가 모달 -->
     <div class="modal-overlay" id="teammodal">
@@ -178,7 +186,7 @@
         return $li;
     }
 
-    // 폴더 트리 렌더링 함수
+    // 폴더 트리 렌더링 함수 수정
     function renderFolderTree(data) {
         const $treeRoot = $("#tree-root").empty();
         data.forEach(dept => {
@@ -195,7 +203,10 @@
             if (dept.children && dept.children.length > 0) {
                 const $ul = $("<ul>").hide();
                 dept.children.forEach(team => {
-                    $ul.append(`<li><span class='folder team' data-id='${team.id}'>📁 ${team.name}</span></li>`);
+                    // 자식 폴더 왼쪽에 `ㄴ` 모양 추가
+                    const $childLi = $(`<li class="asddas"><span class='folder team' data-id='${team.id}'>📁 ${team.name}</span></li>`);
+                    $childLi.prepend('<span class="sub-folder-icon">ㄴ</span>'); // `ㄴ` 기호 추가
+                    $ul.append($childLi);
                 });
                 $deptLi.append($ul);
             }
@@ -204,27 +215,26 @@
     }
 
 
-
     // 파일 리스트 렌더링 함수
     function renderFileList(files) {
-        const $container = $(".rightmain").empty();
+        const $fileListContainer = $(".rightmain .list-container"); // 파일 리스트 전용 영역
+        $fileListContainer.empty(); // 기존 파일 리스트만 지움
 
-        // 항상 헤더를 먼저 추가
-        let html = `<div class="listtop">
-        <input type="checkbox" class="selectAll list-cell">
-        <div class="list-cell">번호</div>
-        <div class="list-cell listtitle">제목</div>
-        <div class="list-cell">파일분류</div>
-        <div class="list-cell">작성자</div>
-        <div class="list-cell">작성일</div>
-        <div class="list-cell">삭제</div>
-    </div><div class="listmain">`;
+        let html = `
+        <div class="listtop">
+            <input type="checkbox" class="selectAll list-cell">
+            <div class="list-cell">번호</div>
+            <div class="list-cell listtitle">제목</div>
+            <div class="list-cell">파일분류</div>
+            <div class="list-cell">작성자</div>
+            <div class="list-cell">작성일</div>
+            <div class="list-cell">삭제</div>
+        </div>
+    `;
 
-        // 파일이 없을 경우 메시지 추가
         if (!files.length) {
             html += `<div class='list-empty' style='width: 100%; text-align: center; padding: 20px;'>파일이 없습니다</div>`;
         } else {
-            // 파일 리스트 추가
             files.forEach((file, index) => {
                 html += `<div class="listcontent">
                 <input type="checkbox" class="childCheckbox list-cell">
@@ -238,8 +248,7 @@
             });
         }
 
-        html += `</div>`;
-        $container.html(html);
+        $fileListContainer.html(html); // 파일 리스트만 삽입
     }
 
 
@@ -258,22 +267,54 @@
     }
 
     $(document).ready(function () {
-        loadFolderTree();
-        const $uploadFormContainer = $("#upload-form-container");
-        const $toggleUploadForm = $("#toggle-upload-form");
+        const $listContainer = $(".list-container");
+        const $modal = $("#upload-modal");
+        const $openButton = $("#open-upload-modal");
+        const $closeButton = $("#close-upload-modal");
         const $fileInput = $("#file-input");
         const $fileNameDisplay = $("#file-name-display");
         const $fileCategory = $("#file-category");
         const $uploadBtn = $("#upload-btn");
-        const $fileSelectBtn = $("#file-select-btn");
+        if ($listContainer.length) {
+            let html = `
+            <div class="listtop">
+                <input type="checkbox" class="selectAll list-cell">
+                <div class="list-cell">번호</div>
+                <div class="list-cell listtitle">제목</div>
+                <div class="list-cell">파일분류</div>
+                <div class="list-cell">작성자</div>
+                <div class="list-cell">작성일</div>
+                <div class="list-cell">삭제</div>
+            </div>
+            <div class="listmain">
+                <div class="list-empty" style="text-align: center; padding: 20px;">파일이 없습니다.</div>
+            </div>
+        `;
+            $listContainer.html(html); // 파일 리스트만 삽입
+        }
+
+        loadFolderTree();
+        const $uploadFormContainer = $("#upload-form-container");
+
 
         let clickLocked = false;
+
+        $(".folder").on("click", function () {
+            const folderId = $(this).data("id");
+            console.log(`폴더 ${folderId} 클릭됨`);
+            $openButton.show(); // 업로드 버튼 표시
+        });
 
 
         $(document).on("click", ".folder.dept", function () {
             const $li = $(this).closest("li");
             const $ul = $li.children("ul");
             const $icon = $(this).find(".toggle-icon");
+
+            const folderId = $(this).data("id");
+            console.log(`폴더 ${folderId} 클릭됨`); // 디버깅용 로그
+            $openButton.show(); // 업로드 버튼 표시
+
 
             if ($ul.length > 0) {
                 if ($ul.is(":visible")) {
@@ -306,12 +347,17 @@
             $(".folder").removeClass("selected");
             $(this).addClass("selected");
             $("#upload-folder-id").val(teamId);
+            const folderId = $(this).data("id");
+            console.log(`폴더 ${folderId} 클릭됨`); // 디버깅용 로그
+            $openButton.show(); // 업로드 버튼 표시
 
+            // API 호출을 통해 파일 목록 가져오기
             $.get(`/api/dataroom/files?roomId=${teamId}`, function (files) {
-                renderFileListWithServerData(files);
+                renderFileList(files); // 파일 목록 렌더링
             });
         });
 
+        // 폴더 클릭 이벤트 수정
         $(document).on("click", ".folder", function (e) {
             e.stopPropagation();
             const $span = $(this);
@@ -319,48 +365,70 @@
             const folderId = $span.data("id");
             const $icon = $span.find(".toggle-icon");
 
+            console.log("폴더 클릭됨:", {folderId, isOpen: $li.hasClass("open")}); // 클릭된 폴더의 상태 확인
+
+            // 상태 확인 (열림/닫힘)
             const isOpen = $li.hasClass("open");
 
             if (isOpen) {
                 // 폴더 닫기
+                console.log("폴더 닫기 실행"); // 폴더 닫기 상태 확인
                 $li.removeClass("open");
                 $li.children("ul").slideUp(200, () => {
-                    $li.children("ul").remove();
+                    // 자식 폴더 DOM 유지, 단순히 숨김 처리
+                    console.log("자식 폴더 숨김 처리 완료");
                     $icon.removeClass("bi-chevron-down").addClass("bi-chevron-right");
                 });
             } else {
                 // 폴더 열기
+                console.log("폴더 열기 실행"); // 폴더 열기 상태 확인
                 const $existingUl = $li.children("ul");
                 if ($existingUl.length > 0) {
+                    // 자식 폴더가 이미 로드된 경우
+                    console.log("자식 폴더가 이미 로드됨");
                     $li.addClass("open");
                     $existingUl.slideDown(200, () => {
                         $icon.removeClass("bi-chevron-right").addClass("bi-chevron-down");
                     });
                 } else {
-                    // Ajax로 자식 폴더 로딩
-                    $.get(`/api/dataroom/subfolders/json/${folderId}`, function (subfolders) {
-                        const $ul = $("<ul>");
-                        subfolders.forEach(f => {
-                            const $childLi = $("<li>");
-                            const $childSpan = $("<span>")
-                                .addClass("folder")
-                                .attr("data-id", f.id)
-                                .text(`📁 ${f.name}`)
-                                .append('<span class="sub-folder-icon">ㄴ</span>'); // 자녀 폴더 표시 추가
-                            if (f.hasChild) {
-                                $childSpan.prepend('<i class="bi bi-chevron-right toggle-icon"></i> ');
+                    // AJAX로 자식 폴더 로드
+                    console.log("AJAX로 자식 폴더 데이터 요청 시작:", folderId); // AJAX 요청 시작
+                    console.log("AJAX 요청 URL:", `/api/dataroom/subfolders/json/${folderId}`); // 요청 URL 확인
+                    $.get(`/api/dataroom/subfolders/json/${folderId}`)
+                        .done(function (subfolders) {
+                            console.log("AJAX 응답 데이터:", subfolders); // 응답 데이터 확인
+                            if (subfolders.length === 0) {
+                                console.warn(`폴더 ID ${folderId}에 자식 폴더가 없습니다.`); // 경고 메시지
                             }
-                            $childLi.append($childSpan);
-                            $ul.append($childLi);
+                            const $ul = $("<ul>");
+                            subfolders.forEach(f => {
+                                const $childLi = $("<li>");
+                                const $childSpan = $("<span>")
+                                    .addClass("folder team")
+                                    .attr("data-id", f.id)
+                                    .html(`└📁 ${f.name}`); // 줄바꿈 없이 텍스트 추가
+                                $childLi.append($childSpan);
+                                $ul.append($childLi);
+                            });
+                            if ($ul.children().length === 0) {
+                                console.warn("생성된 <ul>이 비어 있습니다."); // 경고 메시지
+                            } else {
+                                console.log("생성된 자식 폴더:", $ul.prop("outerHTML")); // 확인용
+                            }
+                            $li.append($ul).addClass("open");
+                            $icon.removeClass("bi-chevron-right").addClass("bi-chevron-down");
+                        })
+                        .fail(function (error) {
+                            console.error("AJAX 요청 실패:", error); // 요청 실패 시 출력
                         });
-                        $li.append($ul).addClass("open");
-                        $icon.removeClass("bi-chevron-right").addClass("bi-chevron-down");
-                    });
                 }
             }
+        });
 
-            renderFileList(folderId);
-            saveOpenFolders();
+// 폴더 클릭 이벤트 처리
+        $(document).on("click", ".folder", function () {
+            $(".folder").removeClass("active"); // 기존 선택 제거
+            $(this).addClass("active"); // 현재 선택된 폴더 강조
         });
 
 
@@ -369,7 +437,7 @@
             const folderId = $(this).data("id");
             const currentName = storageManager.folders[folderId].name;
             const $span = $(this);
-            const $input = $("<input>").val(currentName).css({ width: "100px" }).on("blur keypress", function (e) {
+            const $input = $("<input>").val(currentName).css({width: "100px"}).on("blur keypress", function (e) {
                 if (e.type === "blur" || e.key === "Enter") {
                     const newName = $(this).val().trim();
                     if (newName && newName !== currentName) {
@@ -386,11 +454,13 @@
 
         $("#addteambtn").on("click", function () {
             const $select = $("#parent-folder-select").empty();
+
             function addOptions(id, prefix = "") {
                 const folder = storageManager.folders[id];
                 $select.append(`<option value="${id}">${prefix}${folder.name}</option>`);
                 folder.children.forEach(childId => addOptions(childId, prefix + "└ "));
             }
+
             addOptions(1);
             $("#teammodal").css("display", "flex");
         });
@@ -445,74 +515,26 @@
             renderFileList(folderId);
         });
 
-        $("#upload-form").on("submit", function (e) {
-            e.preventDefault();
-            const formData = new FormData(this);
-            $.ajax({
-                url: "/api/dataroom/upload",
-                method: "POST",
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function () {
-                    alert("업로드 성공");
-                },
-                error: function () {
-                    alert("업로드 실패");
-                }
-            });
+        // 모달 열기
+        $openButton.on("click", function () {
+            $modal.css("display", "flex"); // 모달을 flex로 표시
         });
 
+        // 모달 닫기
+        $closeButton.on("click", function () {
+            $modal.hide(); // 모달 숨김
+        });
 
-        $("#downloadSelected").on("click", function () {
-            const folderId = $(".folder.selected").data("id");
-            const selectedFiles = $(".childCheckbox:checked").map((_, el) => storageManager.files[folderId][parseInt($(el).closest(".listcontent").attr("data-index"))].title).get();
-            if (!selectedFiles.length) {
-                alert("다운로드할 파일을 선택해주세요.");
-                return;
+        // 모달 외부 클릭 시 닫기
+
+        $(window).on("click", function (e) {
+            if ($(e.target).is($modal)) {
+                $modal.hide();
             }
-            console.log("다운로드 요청:", selectedFiles);
-            alert(`${selectedFiles.length}개 파일 다운로드 준비: ${selectedFiles.join(", ")}`);
         });
 
-        $("#fileSearch").on("input", function () {
-            const folderId = $(".folder.selected").data("id");
-            renderFileList(folderId, $(this).val());
-        });
-
-        $(document).on("change", ".selectAll", function () {
-            $(".childCheckbox").prop("checked", $(this).is(":checked"));
-        });
-
-        $("#teammodal-form").on("submit", function (e) {
-            e.preventDefault();
-            const name = $("#teammodal-title").val().trim();
-            const parentId = parseInt($("#parent-folder-select").val());
-            if (!name || isNaN(parentId)) return;
-
-            $.ajax({
-                url: "/api/dataroom/addFolderAjax",
-                method: "POST",
-                contentType: "application/json",
-                data: JSON.stringify({ name: name, parentId: parentId }),
-                success: function () {
-                    alert("폴더가 성공적으로 추가되었습니다");
-                    $("#teammodal").hide();
-                    loadFolders(); // 새로 불러오기
-                },
-                error: function () {
-                    alert("폴더 추가 실패");
-                }
-            });
-        });
-
-        // "파일 업로드" 버튼 클릭 시 업로드 폼 토글
-        $toggleUploadForm.on("click", function () {
-            $uploadFormContainer.toggle();
-        });
-
-        // 파일 선택 버튼 클릭 시 파일 선택 창 열기
-        $fileSelectBtn.on("click", function () {
+        // 파일 선택 버튼 클릭
+        $("#file-select-btn").on("click", function () {
             $fileInput.click();
         });
 
@@ -522,11 +544,10 @@
             $fileNameDisplay.val(fileName);
         });
 
-        // 업로드 버튼 클릭 시 파일 업로드
+        // 업로드 버튼 클릭
         $uploadBtn.on("click", function () {
             const file = $fileInput[0].files[0];
             const category = $fileCategory.val();
-            const folderId = $(".folder.selected").data("id"); // 선택된 폴더 ID
 
             if (!file) {
                 alert("파일을 선택해주세요.");
@@ -541,8 +562,8 @@
             const formData = new FormData();
             formData.append("file", file);
             formData.append("category", category);
-            formData.append("roomId", folderId);
 
+            // 업로드 AJAX 요청
             $.ajax({
                 url: "/api/dataroom/upload",
                 method: "POST",
@@ -551,17 +572,152 @@
                 contentType: false,
                 success: function () {
                     alert("파일 업로드 성공!");
-                    // 업로드 후 파일 목록 갱신
-                    $.get(`/api/dataroom/files?roomId=${folderId}`, function (files) {
-                        renderFileListWithServerData(files);
-                    });
+                    $modal.hide(); // 모달 닫기
                 },
                 error: function () {
                     alert("파일 업로드 실패!");
                 }
             });
         });
+    });
 
+
+    // 업로드 버튼 클릭
+    $("#upload-btn ").on("click", function () {
+        const file = $("#file-input")[0].files[0];
+        const category = $("#file-category").val();
+        const folderId = $(".folder.selected").data("id"); // 선택된 폴더 ID
+
+        if (!file) {
+            alert("파일을 선택해주세요.");
+            return;
+        }
+
+        if (!category) {
+            alert("파일 분류를 선택해주세요.");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("category", category);
+        formData.append("roomId", folderId);
+
+        $.ajax({
+            url: "/api/dataroom/upload",
+            method: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function () {
+                alert("파일 업로드 성공!");
+                $.get(`/api/dataroom/files?roomId=${folderId}`, function (files) {
+                    renderFileList(files);
+                });
+            },
+            error: function () {
+                alert("파일 업로드 실패!");
+            }
+        });
+    });
+
+
+    $("#downloadSelected").on("click", function () {
+        const folderId = $(".folder.selected").data("id");
+        const selectedFiles = $(".childCheckbox:checked").map((_, el) => storageManager.files[folderId][parseInt($(el).closest(".listcontent").attr("data-index"))].title).get();
+        if (!selectedFiles.length) {
+            alert("다운로드할 파일을 선택해주세요.");
+            return;
+        }
+        console.log("다운로드 요청:", selectedFiles);
+        alert(`${selectedFiles.length}개 파일 다운로드 준비: ${selectedFiles.join(", ")}`);
+    });
+
+    $("#fileSearch").on("input", function () {
+        const folderId = $(".folder.selected").data("id");
+        renderFileList(folderId, $(this).val());
+    });
+
+    $(document).on("change", ".selectAll", function () {
+        $(".childCheckbox").prop("checked", $(this).is(":checked"));
+    });
+
+    $("#teammodal-form").on("submit", function (e) {
+        e.preventDefault();
+        const name = $("#teammodal-title").val().trim();
+        const parentId = parseInt($("#parent-folder-select").val());
+        if (!name || isNaN(parentId)) return;
+
+        $.ajax({
+            url: "/api/dataroom/addFolderAjax",
+            method: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({name: name, parentId: parentId}),
+            success: function () {
+                alert("폴더가 성공적으로 추가되었습니다");
+                $("#teammodal").hide();
+                loadFolders(); // 새로 불러오기
+            },
+            error: function () {
+                alert("폴더 추가 실패");
+            }
+        });
+    });
+
+    // "파일 업로드" 버튼 클릭 시 업로드 폼 토글
+    $("#toggleUploadForm").on("click", function () {
+        $uploadFormContainer.toggle();
+    });
+
+    // 파일 선택 버튼 클릭 시 파일 선택 창 열기
+    $("#fileSelectBtn").on("click", function () {
+        $fileInput.click();
+    });
+
+    // 파일 선택 시 파일 이름 표시
+    $("#fileInput").on("change", function () {
+        const fileName = $fileInput[0].files[0]?.name || "파일을 선택하세요";
+        $fileNameDisplay.val(fileName);
+    });
+
+    // 업로드 버튼 클릭 시 파일 업로드
+    $("#uploadBtn").on("click", function () {
+        const file = $fileInput[0].files[0];
+        const category = $fileCategory.val();
+        const folderId = $(".folder.selected").data("id"); // 선택된 폴더 ID
+
+        if (!file) {
+            alert("파일을 선택해주세요.");
+            return;
+        }
+
+        if (!category) {
+            alert("파일 분류를 선택해주세요.");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("category", category);
+        formData.append("roomId", folderId);
+
+        $.ajax({
+            url: "/api/dataroom/upload",
+            method: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function () {
+                alert("파일 업로드 성공!");
+                // 업로드 후 파일 목록 갱신
+                $.get(`/api/dataroom/files?roomId=${folderId}`, function (files) {
+                    renderFileList(files);
+                });
+            },
+            error: function () {
+                alert("파일 업로드 실패!");
+            }
+        });
     });
 </script>
 
