@@ -15,7 +15,7 @@ java {
 
 // -parameters 컴파일 옵션 추가 (여기에 추가!)
 tasks.withType(JavaCompile) {
-    options.compilerArgs << "-parameters"
+    options.compilerArgs += '-parameters'
 }
 
 configurations {
