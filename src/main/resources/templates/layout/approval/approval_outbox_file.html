@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>전자결재</title>
     <link rel="stylesheet" th:href="@{/style/globals.css}"/>
     <link rel="stylesheet" th:href="@{/style/approval_inbox_file.css}"/>
     <link rel="stylesheet" th:href="@{/style/header.css}"/>
@@ -29,12 +29,13 @@
             <div class="btnset">
                 <button class="whitebtn">< 목록보기</button>
                 <button class="whitebtn" id="download-btn">첨부파일 다운로드</button>
+                <span class="file-name">첨부파일 없음</span>
             </div>
             <div class="approvallist">
                 <div class="listtop">
-                    <div class="list-cell">제목</div>
-                    <div class="list-cell">결재상태</div>
-                    <div class="list-cell">작성일</div>
+                    <div class="list-cell" id="title">제목</div>
+                    <div class="list-cell">진행중</div>
+                    <div class="list-cell" id="date">작성일</div>
                 </div>
                 <div id="readonly-content">
                     <!-- 여기에 결재문서 출력 -->
@@ -51,60 +52,150 @@
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        // 예시 문서 출력
-        const savedHtml = `<h1>출장 신청서</h1>
-            <p>일자: 4월 10일 ~ 4월 12일</p><p>장소: 부산</p>`;
-        $('#readonly-content').html(savedHtml);
+    const storageUrl = "https://kr.object.ncloudstorage.com/bitcamp-semi/";
+    const draftId = window.location.pathname.split("/").pop(); // 마지막 경로값
+    $(document).ready(function () {
+        loadDraftDetail(draftId);
 
-        // 테스트용 결재라인
-        const approvalLine = [
-            { name: "김대리", rank: "대리", imgUrl: "/img/profile1.png", status: "승인" },
-            { name: "이과장", rank: "과장", imgUrl: "/img/profile2.png", status: "반려", rejectReason: "출장 사유 불명확" },
-        ];
-        renderApprovalLine(approvalLine);
+        // 목록보기 버튼
+        $("#list-btn").on("click", function () {
+            toList();
+        })
 
         // 첨부파일 다운로드
         $('#download-btn').on('click', () => {
-            alert('첨부파일 다운로드 처리');
-            // window.location.href = '/api/approval/download?approvalId=123';
+            $.ajax({
+                url: `/api/draft/readDraft`,
+                data: { id: draftId },
+                type: "GET",
+                success: function (res) {
+                    const files = res.result.files;
+                    if (!files || files.length === 0) {
+                        alert("첨부파일이 없습니다.");
+                        return;
+                    }
+
+                    if (files.length >= 4) {
+                        window.location.href = `/api/draft/downloadAll/${draftId}`;
+                    } else {
+                        files.forEach(file => {
+                            const a = document.createElement('a');
+                            a.href = `/api/draft/downloadFile/${file.id}`;
+                            a.download = file.name;
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+                        });
+                    }
+                },
+                error: function () {
+                    alert("파일 정보를 불러오는 데 실패했습니다.");
+                }
+            });
         });
 
-        // 결재라인 렌더링
-        function renderApprovalLine(data) {
-            const container = $('.approvalline');
-            container.empty();
 
-            data.forEach(user => {
-                const isRejected = user.status === '반려';
-                const tooltipText = isRejected ? (user.rejectReason || '사유 없음') : '';
 
-                const profile = `
-                    <div class="profileset">
-                        <div class="lineprofile">
-                            <img src="${user.imgUrl}">
-                            <span>${user.name}${user.rank}</span>
-                        </div>
-                        <div class="linebtn ${user.status === '승인' ? 'approved' : isRejected ? 'rejected' : ''}">
-                            ${user.status}
-                        </div>
-                    </div>
-                    ${isRejected ? `
-                        <div class="reject-reason-box" style="display:none;">
-                            반려 사유: ${tooltipText}
-                        </div>
-                    ` : ''}
-                `;
-                container.append(profile);
-            });
-
-            // 반려 상태일 때 사유 토글
-            $('.linebtn.rejected').off('click').on('click', function () {
-                const reasonBox = $(this).closest('.profileset').next('.reject-reason-box');
-                reasonBox.slideToggle(200);
-            });
-        }
     });
+
+    function loadDraftDetail(id) {
+        $.ajax({
+            url: "/api/draft/readDraft",
+            data: {id},
+            type: "GET",
+            success: function (res) {
+                if (res.status === "ok") {
+                    const draft = res.result.draft;
+                    if (draft.status !== "PENDING") {
+                        location.href = "/draft/approvalDoneFile/" + draftId;
+                    }
+                    const approvals = res.result.approvals;
+                    const logs = res.result.approvalsLog;
+                    const files = Array.isArray(res.result.files)
+                        ? res.result.files
+                        : [res.result.files];
+                    window.attachedFiles = files;
+                    const names = files.map(f => f.name); // 파일 이름 배열
+                    let finalText = '';
+                    if (files.length <= 4) {
+                        finalText = names.join(', ');
+                    } else {
+                        finalText = names.slice(0, 4).join(', ') + ` 외 ${files.length - 4}개`;
+                    }
+                    const approvalLine = approvals.map(a => ({
+                        userId: a.userId,
+                        name: a.userName,
+                        position: a.position,
+                        imgUrl: a.profileImage ? (storageUrl + "users/" + a.profileImage) : "../../images/Rectangle53.png",
+                        status: a.status // 예: "PENDING", "APPROVED", "REJECTED"
+                    }));
+                    // 문서 내용
+                    $("#title").text(draft.title);
+                    $("#date").text(draft.createdAt.split(" ")[0]);
+                    $("#readonly-content").html(draft.content);
+                    $('.file-name').text(`${finalText} (${files.length})`);
+
+                    renderApprovalLine(approvalLine, logs);
+                }
+            },
+            error: function () {
+                alert("기안문 정보 로딩 실패");
+            }
+        });
+    }
+
+    // 결재라인 렌더링 함수
+    function renderApprovalLine(data, logs) {
+        const container = $('.approvalline');
+        container.empty();
+
+        data.forEach(user => {
+            const isRejected = user.status === 'REJECTED';
+            const userLog = logs.find(l => l.approvalId === user.userId && l.action === 'REJECTED');
+            const tooltipText = isRejected && userLog ? (userLog.reason || '사유 없음') : '';
+
+            const profile = `
+            <div class="profileset">
+                <div class="lineprofile">
+                    <img src="${user.imgUrl}">
+                    <span>${user.name} ${user.position}</span>
+                </div>
+                <div class="linebtn ${user.status === 'APPROVED' ? 'approved' : isRejected ? 'rejected' : ''}">
+                    ${convertStatusText(user.status)}
+                </div>
+            </div>
+            ${isRejected ? `
+                <div class="reject-reason-box" style="display:none;">
+                    반려 사유: ${tooltipText}
+                </div>
+            ` : ''}
+        `;
+
+            container.append(profile);
+        });
+
+        $('.linebtn.rejected').off('click').on('click', function () {
+            const reasonBox = $(this).closest('.profileset').next('.reject-reason-box');
+            reasonBox.slideToggle(200);
+        });
+    }
+
+    function convertStatusText(status) {
+        switch (status) {
+            case 'PENDING':
+                return '대기중';
+            case 'APPROVED':
+                return '승인';
+            case 'REJECTED':
+                return '반려';
+            default:
+                return '알 수 없음';
+        }
+    }
+
+    function toList() {
+        location.href = "/draft/approvalOutBox";
+    }
 </script>
 </body>
 </html>

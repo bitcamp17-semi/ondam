@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>전자결재</title>
     <link rel="stylesheet" th:href="@{/style/globals.css}"/>
     <link rel="stylesheet" th:href="@{/style/approval_write.css}"/>
     <link rel="stylesheet" th:href="@{/style/header.css}"/>
@@ -40,7 +40,7 @@
                 </select>
                 <div class="file-upload-wrapper">
                     <label for="attachment" class="upload-label">📎 첨부 파일</label>
-                    <input type="file" id="attachment" style="display:none;">
+                    <input type="file" id="attachment" style="display:none;" multiple accept="image/*,.pdf">
                     <span id="file-name">선택된 파일 없음</span>
                 </div>
                 <button class="orangebtn" id="submitBtn">상신하기</button>
@@ -57,13 +57,7 @@
                         </div>
                     </div>
                     <div class="approvalline">
-                        <div class="profileset">
-                            <div class="lineprofile">
-                                <img src="">
-                                <span>ddd과장</span>
-                            </div>
-                            <div class="linebtn">미승인</div>
-                        </div>
+                        <!-- 결재 라인 -->
                     </div>
                 </div>
             </div>
@@ -71,84 +65,97 @@
     </div>
 </div>
 <script>
-
+    const storageUrl = "https://kr.object.ncloudstorage.com/bitcamp-semi/users/";
+    var selectedUsers = [];
+    var allUsers = [];
     // Quill 에디터 초기화
     var quill = new Quill('#editor-container', {
         theme: 'snow',
         placeholder: '내용을 입력하세요...',
         modules: {
             toolbar: [
-                [{ header: [1, 2, false] }],
+                [{header: [1, 2, false]}],
                 ['bold', 'italic', 'underline'],
                 ['image', 'code-block']
             ]
         }
     });
-    // 템플릿 목록 불러오기
-    function loadTemplateList() {
-        $.ajax({
-            url: '/template/list',
-            method: 'GET',
-            success: function (templates) {
-                $('#template-list').empty().append('<option disabled selected>템플릿 선택</option>');
-                templates.forEach(function (template) {
-                    $('#template-list').append(
-                        $('<option>', { value: template.id, text: template.title })
-                    );
-                });
-            }
-        });
-    }
 
     // 템플릿 선택 시 내용 불러오기
     $('#template-list').on('change', function () {
         const id = $(this).val();
-
-        $.ajax({
-            url: '/template/load/' + id,
-            method: 'GET',
-            success: function (data) {
-                quill.root.innerHTML = data.content;
-            },
-            error: function () {
-                alert('템플릿 불러오기 실패');
-            }
+        $.get('/api/draft/readTemplate', {id: id}, function (res) {
+            const template = res.result.template;
+            const approvals = res.result.approvalList;
+            $("#titleInput").val(template.title);
+            quill.root.innerHTML = template.content;
+            selectedUsers = [];
+            const mapped = mapApprovalsToSelectedUsers(approvals, allUsers);
+            selectedUsers = mapped;
+            $('.approvalline').empty();
+            showSelectedUsers(mapped);
         });
     });
 
     //  페이지 로딩 시 템플릿 목록 자동 불러오기
     $(document).ready(function () {
         loadTemplateList();
+        getAllUsers();
     });
 
-    // 파일 선택 시 파일 이름 표시
+    // 파일 선택 시 파일 이름 표시/ 뒤에 n개 갯수 표시
     $('#attachment').on('change', function () {
-        const fileName = this.files.length > 0 ? this.files[0].name : '선택된 파일 없음';
-        $('#file-name').text(fileName);
-    });
+        const files = Array.from(this.files);
+        const fileNames = files.map(f => f.name);
 
+        let displayNames = fileNames.slice(0, 4).map(name => {
+            return name.length > 20 ? name.substring(0, 17) + '...' : name;
+        });
+
+        let finalText = displayNames.join(', ');
+
+        if (files.length > 4) {
+            finalText += ` 외 ${files.length - 4}개`;
+        }
+
+        $('#file-name').text(`${finalText} (${files.length})`);
+    });
     // 버튼 클릭 시 전송
     $('#submitBtn').on('click', function () {
         const title = $('#titleInput').val();
         const content = quill.root.innerHTML; // 에디터 내용 HTML로 추출
-        const file = $('#attachment')[0].files[0];
+        const uploads = $('#attachment')[0].files;
+        const templateId = $("#template-list").val();
+        const draft = { title, content, templateId };
+        const approvals = [];
+        $('.approvalline .profileset').each((idx, el) => {
+            approvals.push({
+                userId: $(el).data('userid'),
+                order: idx + 1
+            });
+        });
 
-        const formData = new FormData();
-        formData.append('title', title);
-        formData.append('content', content);
-        if (file) {
-            formData.append('file', file);
+        if (!title || !content || approvals.length === 0) {
+            alert("제목/내용/결재자 누락");
+            return;
         }
 
+        const formData = new FormData();
+        formData.append('data', new Blob([JSON.stringify({ draft, approvals })], { type: 'application/json' }));
+        for (const file of uploads) {
+            formData.append('uploads', file);
+        }
         $.ajax({
-            url: '/approval/submit',  // 백엔드 컨트롤러 주소
+            url: '/api/draft/createDraft',
             type: 'POST',
             data: formData,
             contentType: false,
             processData: false,
             success: function (res) {
-                alert('결재 등록 완료!');
-                // 필요하면 페이지 이동 등 추가 처리
+                if (res.status === "ok") {
+                    alert('결재 등록 완료!');
+                    location.href = "/draft/approvalOutBoxFile/" + res.result
+                }
             },
             error: function (err) {
                 alert('전송 실패 😢');
@@ -156,6 +163,53 @@
             }
         });
     });
+
+    function mapApprovalsToSelectedUsers(approvalList, allUsers) {
+        return approvalList.map(approval => {
+            const user = allUsers.find(u => u.id === approval.userId);
+            return {
+                id: approval.userId,
+                name: user?.name || "이름없음",
+                position: user?.position || "-",
+                profileImage: user?.profileImage || "../../images/Rectangle53.png",
+                status: approval.status
+            };
+        });
+    }
+
+    function showSelectedUsers(users) {
+        users.forEach(user => {
+            $('.approvalline').append(`
+            <div class="profileset" data-userid="${user.id}">
+                <div class="lineprofile">
+                    <img src="${storageUrl}${user.profileImage}" onerror="this.src='../../images/Rectangle53.png'">
+                    <span>${user.name} ${user.position}</span>
+                </div>
+                <div class="linebtn" value="${user.status}">미승인</div>
+            </div>
+        `);
+        })
+    }
+
+    function getAllUsers() {
+        $.get("/api/users/readAllUsers", function (res) {
+            if (res.status === "ok") {
+                allUsers = res.result;
+            }
+        });
+    }
+
+    // 템플릿 목록 불러오기
+    function loadTemplateList() {
+        $.get('/api/draft/readAllTemplate', function (res) {
+            if (res.status === "ok") {
+                $('#template-list').empty().append('<option disabled selected>템플릿 선택</option>');
+                res.result.forEach(item => {
+                    $('#template-list').append(`<option value="${item.id}">${item.title}</option>`);
+                });
+            }
+        });
+    }
 </script>
 </body>
 </html>

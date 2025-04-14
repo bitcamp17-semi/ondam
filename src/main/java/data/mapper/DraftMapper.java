@@ -25,4 +25,22 @@ public interface DraftMapper {
     public List<DraftsDto> readAllDrafts();
 
     public void updateDraftStatus(int id, String status);
+
+    public List<DraftsDto> readPendingDraftsForUser(int userId, int size, int offset);
+
+    public Integer readCountDraftsForActions(int userId);
+
+    public Integer readCheckIsOrder(int userId, int draftId);
+
+    public List<DraftsDto> readPendingDraftsById(int userId, int size, int offset);
+
+    public Integer readCountPendingdraftsById(int userId);
+
+    public List<DraftsDto> readSentDoneById(int userId, int size, int offset);
+
+    public Integer readCountSentDoneById(int userId);
+
+    public List<DraftsDto> readReceivedDoneById(int userId, int size, int offset);
+
+    public Integer readCountReceivedDoneById(int userId);
 }

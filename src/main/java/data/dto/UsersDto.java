@@ -19,7 +19,8 @@ public class UsersDto {
     private String phone;
     private String addr;
     private String profileImage;
-    private String departmentId;
+    private Integer departmentId;
+    private String departmentName;
     private String team;
     private String position;
     private String gender;

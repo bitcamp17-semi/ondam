@@ -1,4 +1,4 @@
-@import url("https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css");
+/*@import url("https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css");*/
 
 * {
     -webkit-font-smoothing: antialiased;
@@ -23,4 +23,10 @@ button:focus-visible {
 
 a {
     text-decoration: none;
+}
+
+  #alarmToast.show {
+  background-color: orange;
+  color: white;
+  font-size: 18px;
 }

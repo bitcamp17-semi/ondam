@@ -2,6 +2,8 @@ package data.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class HtmlController {
@@ -18,13 +20,13 @@ public class HtmlController {
         return "layout/approval/approval_done";
     }
 
-    @GetMapping("/draft/approvalDoneFile")
-    public String approvalDoneFile() {
+    @GetMapping("/draft/approvalDoneFile/{id}")
+    public String approvalDoneFile(@PathVariable int id) {
         return "layout/approval/approval_done_file";
     }
 
-    @GetMapping("/draft/approvalDoneFileWrite")
-    public String approvalDoneFileWrite() {
+    @GetMapping("/draft/approvalDoneFileWrite/{id}")
+    public String approvalDoneFileWrite(@PathVariable int id) {
         return "layout/approval/approval_done_file_write";
     }
 
@@ -33,8 +35,8 @@ public class HtmlController {
         return "layout/approval/approval_inbox";
     }
 
-    @GetMapping("/draft/approvalInboxFile")
-    public String approvalInboxFile() {
+    @GetMapping("/draft/approvalInboxFile/{id}")
+    public String approvalInboxFile(@PathVariable int id) {
         return "layout/approval/approval_inbox_file";
     }
 
@@ -43,8 +45,8 @@ public class HtmlController {
         return "layout/approval/approval_outbox";
     }
 
-    @GetMapping("/draft/approvalOutBoxFile")
-    public String approvalOutBoxFile() {
+    @GetMapping("/draft/approvalOutBoxFile/{id}")
+    public String approvalOutBoxFile(@PathVariable int id) {
         return "layout/approval/approval_outbox_file";
     }
 
@@ -66,6 +68,9 @@ public class HtmlController {
     @GetMapping("/admin/managementApproval")
     public String managementApproval() { return "layout/management/management_approval"; }
 
+    @GetMapping("/admin/managementFormer")
+    public String managementFormer() { return "layout/management/management_former_employees"; }
+
     @GetMapping("/draft/messageInBox")
     public String messageInBox() { return "layout/message/message_inbox"; }
 
@@ -77,6 +82,16 @@ public class HtmlController {
 
     @GetMapping("/organization")
     public String organization() {
-        return "layout/management/organization";
+//        return "layout/management/organization";
+        return "error/ondaming";
     }
+
+    @GetMapping("/alarm")
+    public String alarmList() { return "alarm/alarmlist"; }
+
+    @GetMapping("/errorpage")
+    public String error() { return "error/error"; }
+
+    @GetMapping("/ing")
+    public String ondaming() { return "error/ondaming"; }
 }

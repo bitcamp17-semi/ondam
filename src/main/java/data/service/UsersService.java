@@ -88,6 +88,14 @@ public class UsersService {
         return usersMapper.readUsersByName(name);
     }
 
+    public List<UsersDto> readAllDeactivateUsersByKeyword(String keyword, int offset, int size) {
+        return usersMapper.readAllDeactivateUsersByKeyword(keyword, offset, size);
+    }
+
+    public Integer readCountDeactivateUsersByKeyword(String keyword) {
+        return usersMapper.readCountDeactivateUsersByKeyword(keyword);
+    }
+
     public Date convertStringToDate(String date) throws ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         java.util.Date utilDate = sdf.parse(date);

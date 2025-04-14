@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>관리페이지</title>
     <link rel="stylesheet" th:href="@{/style/globals.css}"/>
     <link rel="stylesheet" th:href="@{/style/management_approval.css}"/>
     <link rel="stylesheet" th:href="@{/style/header.css}"/>
@@ -21,7 +21,7 @@
             <div class="navtitle">관리페이지</div>
             <div class="navbar">
                 <div id="navlist1">인사관리</div>
-                <div id="navlist2">부서관리</div>
+                <div id="navlist2">조직관리</div>
                 <div id="navlist3">전자결재관리</div>
                 <div id="navlist4">퇴사자관리</div>
             </div>
@@ -68,8 +68,9 @@
 </div>
 <script>
     const storageUrl = "https://kr.object.ncloudstorage.com/bitcamp-semi/users/";
-    let depMap = {};
-    let selectedUsers = [];
+    var depMap = {};
+    var selectedUsers = [];
+    var allUsers = [];
     const quill = new Quill('#editor-container', {
         theme: 'snow',
         placeholder: '내용을 입력하세요...',
@@ -161,20 +162,17 @@
             $("#titleInput").val(template.title);
             quill.root.innerHTML = template.content;
 
-            // 전체 유저 목록 필요 (한번만 호출되도록 외부에서 정의되었어야 함)
-            $.get("/api/users/readAllUsers", function (userRes) {
-                if (userRes.status === "ok") {
-                    const mapped = mapApprovalsToSelectedUsers(approvals, userRes.result);
-                    selectedUsers = mapped;
-                    $('.approvalline').empty();
-                    showSelectedUsers(mapped);
-                }
-            });
+            const mapped = mapApprovalsToSelectedUsers(approvals, allUsers);
+            selectedUsers = mapped;
+            $('.approvalline').empty();
+            showSelectedUsers(mapped);
         });
     });
     $(document).ready(function () {
         loadTemplateList();
         fetchDepartments();
+        getAllUsers();
+        checkAdmin();
     });
     $(function () {
         $(".approvalline").sortable({axis: "x", containment: "parent"});
@@ -192,6 +190,14 @@
                 position: user?.position || "-",
                 profileImage: user?.profileImage || "../../images/Rectangle53.png"
             };
+        });
+    }
+
+    function getAllUsers() {
+        $.get("/api/users/readAllUsers", function (res) {
+            if (res.status === "ok") {
+                allUsers = res.result;
+            }
         });
     }
 
@@ -306,6 +312,22 @@
             });
         }
     });
+
+    function checkAdmin() {
+        $.ajax({
+            url: "/api/users/checkAdmin",
+            type: "get",
+            success: function (res) {
+                if (res.status === "ok") {
+                    console.log("admin ok")
+                }
+            },
+            error: function () {
+                alert("not admin");
+                history.back();
+            }
+        })
+    }
 </script>
 </body>
 </html>
@@ -320,6 +342,6 @@
         location.href = "/admin/managementApproval"
     })
     $("#navlist4").click(function () {
-        location.href = "/admin/management"
+        location.href = "/admin/managementFormer"
     })
 </script>

@@ -248,7 +248,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000;
+    z-index: 20000;
 }
 
 .modal-box {
@@ -293,4 +293,8 @@
     border: #b00020 1px solid;
     background: #fff;
     border-radius: 5px;
+}
+.file-name{
+    font-size: 12px;
+    align-content: center;
 }

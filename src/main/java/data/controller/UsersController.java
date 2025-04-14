@@ -5,6 +5,7 @@ import data.service.EmailService;
 import data.service.ObjectStorageService;
 import data.service.UsersService;
 import jakarta.servlet.http.HttpSession;
+import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -66,6 +67,9 @@ public class UsersController {
             UsersDto usersDto = usersService.readUserById((Integer) session.getAttribute("userId"));
 //            UsersDto usersDto = usersService.readUserById(paramDto.getId());
             usersDto.setPassword(usersService.hashingPassword(paramDto.getPassword()));
+            usersDto.setEmail(paramDto.getEmail());
+            usersDto.setPhone(paramDto.getPhone());
+            usersDto.setAddr(paramDto.getAddr());
             usersService.updateUser(usersDto);
             response.put("status", "ok");
             response.put("result", "updated user");
@@ -165,8 +169,8 @@ public class UsersController {
 
     @GetMapping("/readUsersByDep")
     public ResponseEntity<Object> readUsersByDep(@RequestParam(value = "departmentId") int departmentId,
-                                                 @RequestParam(defaultValue = "1") int page,
-                                                 @RequestParam(defaultValue = "10") int size) {
+                                                 @RequestParam(value = "page", defaultValue = "1") int page,
+                                                 @RequestParam(value = "size", defaultValue = "10") int size) {
         Map<String, Object> response = new LinkedHashMap<>();
         try {
             Map<String, Object> result = new HashMap<>();
@@ -241,6 +245,10 @@ public class UsersController {
     public ResponseEntity<Object> deleteUser(@RequestParam(value = "userId") int userId) {
         Map<String, Object> response = new LinkedHashMap<>();
         try {
+            UsersDto dto = usersService.readUserById(userId);
+            if (dto.getProfileImage() != null) {
+                storageService.deleteFile(storageService.getBucketName(),"users",dto.getProfileImage());
+            }
             usersService.deleteUser(userId);
             response.put("status", "ok");
             response.put("result", "delete user");
@@ -273,6 +281,13 @@ public class UsersController {
     public ResponseEntity<Object> deleteUsers(@RequestParam(value = "userList") List<Integer> userList) {
         Map<String, Object> response = new HashMap<>();
         try {
+            for (Integer userId : userList) {
+                UsersDto dto = usersService.readUserById(userId);
+                String img = dto.getProfileImage();
+                if (img != null) {
+                    storageService.deleteFile(storageService.getBucketName(), "users", img);
+                }
+            }
             usersService.deleteUsers(userList);
             response.put("status", "ok");
             response.put("result", "deactivate users");
@@ -314,6 +329,79 @@ public class UsersController {
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             response.put("status", "fail");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/checkPassword")
+    public ResponseEntity<Object> checkPassword(@RequestParam(value = "password") String password, HttpSession session) {
+        Map<String, Object> response = new LinkedHashMap<>();
+        try {
+            int userId = (Integer) session.getAttribute("userId");
+            if (BCrypt.checkpw(password, usersService.readUserById(userId).getPassword())) {
+                response.put("status", "ok");
+                response.put("result", "password is matched");
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            } else {
+                response.put("status", "fail");
+                response.put("result", "password does not match");
+                return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+            }
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/checkAdmin")
+    public ResponseEntity<Object> checkAdmin(HttpSession session) {
+        Map<String, Object> response = new LinkedHashMap<>();
+        try {
+            int userId = (Integer) session.getAttribute("userId");
+            if (usersService.isAdmin(userId)) {
+                response.put("status", "ok");
+                response.put("result", "isAdmin");
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            } else {
+                response.put("status", "fail");
+                response.put("result", "is not admin");
+                return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+            }
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/getFormers")
+    public ResponseEntity<Object> getFormers(
+            @RequestParam(value = "keyword") String keyword,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size,
+            HttpSession session) {
+        Map<String, Object> response = new LinkedHashMap<>();
+        int userId = (Integer) session.getAttribute("userId");
+        try {
+            if (usersService.isAdmin(userId)) {
+                Map<String, Object> result = new HashMap<>();
+                int offset = (page - 1) * size;
+                List<UsersDto> list = usersService.readAllDeactivateUsersByKeyword(keyword, offset, size);
+                int totalCnt = usersService.readCountDeactivateUsersByKeyword(keyword);
+                result.put("list", list);
+                result.put("totalCnt", totalCnt);
+                response.put("status", "ok");
+                response.put("result", result);
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            } else {
+                response.put("status", "fail");
+                response.put("result", "is not admin");
+                return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+            }
+        } catch (Exception e) {
+            response.put("status", "error");
             response.put("error", e.getMessage());
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
