@@ -31,6 +31,7 @@ import java.util.List;
 
     void insertFile(FilesDto file);
 
+    public void deleteFiles(int id);
 
-
+    public FilesDto readDataroomById(int id);
 }

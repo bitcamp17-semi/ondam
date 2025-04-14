@@ -12,11 +12,7 @@
             LIMIT #{offset}, #{limit};
     </select>
 
-    &lt;!&ndash;특정 ID로 파일 하나의 정보를 조회&ndash;&gt;
-    <select id="readDataroomById" resultType="FilesDto">
-        SELECT * FROM files
-        WHERE id = #{id}
-    </select>
+
 
     &lt;!&ndash; 자료실 모든 카테고리 조회 &ndash;&gt;
     <select id="readDataroomCategories" resultType="DataroomDto">
@@ -88,9 +84,17 @@
         ORDER BY createdAt DESC
     </select>
     <insert id="insertFile" parameterType="FilesDto">
-        INSERT INTO files (name, path, type, roomId, comment, title, category, authorId, createdAt, updatedAt)
-        VALUES (#{name}, #{path}, #{type}, #{roomId}, #{comment}, #{title}, #{category}, #{authorId}, NOW(), NOW())
+        INSERT INTO files (name, path, type, teamId, departmentId, title, category, authorId, createdAt, updatedAt)
+        VALUES (#{name}, #{path}, #{type}, #{teamId}, #{departmentId}, #{title}, #{category}, #{authorId}, NOW(), NOW())
     </insert>
 
+    <delete id="deleteFiles" parameterType="int">
+        delete from files
+        where id = #{id}
+    </delete>
 
+    <select id="readDataroomById" resultType="FilesDto">
+        SELECT * FROM files
+        WHERE id = #{id}
+    </select>
 </mapper>

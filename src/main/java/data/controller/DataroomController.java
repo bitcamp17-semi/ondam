@@ -107,24 +107,25 @@ public class DataroomController {
     @ResponseBody
     @PostMapping("/upload")
     public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file,
-                                        @RequestParam("roomId") Integer roomId,
+                                        @RequestParam(value = "teamId", required = false) Integer teamId,
                                         @RequestParam("title") String title,
-                                        @RequestParam("comment") String comment,
+                                        @RequestParam(value = "departmentId", required = false) Integer departmentId,
                                         HttpSession session) {
         try {
-            UsersDto user = (UsersDto) session.getAttribute("login");
-            if (user == null) {
+            Integer userId = (Integer) session.getAttribute("userId");
+            if (userId == null) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 필요");
             }
 
-            String directoryPath = "dataroom/" + roomId;
+            String directoryPath = "dataroom/" + teamId;
             dataroomService.uploadFileAndSaveToDB(
                     objectStorageService.getBucketName(),
                     directoryPath,
                     file,
                     title,
-                    comment,
-                    roomId
+                    departmentId,
+                    teamId,
+                    userId
             );
 
             return ResponseEntity.ok("업로드 성공");
@@ -133,6 +134,21 @@ public class DataroomController {
         }
     }
 
-
-
+    @PostMapping("/deleteFiles")
+    @ResponseBody
+    public ResponseEntity<?> deleteFiles(@RequestParam(value = "id") int id) {
+        Map<String, Object> response = new LinkedHashMap<>();
+        try {
+            FilesDto dto = dataroomService.readDataroomById(id);
+            objectStorageService.deleteFile(objectStorageService.getBucketName(),"dataroom", dto.getPath());
+            dataroomService.deleteFiles(id);
+            response.put("status", "ok");
+            response.put("result", "delete success");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            response.put("status", "fail");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

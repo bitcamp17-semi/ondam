@@ -601,7 +601,7 @@
         const formData = new FormData();
         formData.append("file", file);
         formData.append("category", category);
-        formData.append("roomId", folderId);
+        formData.append("teamId", folderId);
 
         $.ajax({
             url: "/api/dataroom/upload",

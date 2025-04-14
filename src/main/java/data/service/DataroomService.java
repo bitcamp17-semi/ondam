@@ -57,7 +57,7 @@ public class DataroomService {
 
     @Transactional
     public void uploadFileAndSaveToDB(String bucketName, String directoryPath, MultipartFile file,
-                                      String title, String description, Integer roomId) {
+                                      String title, Integer departmentId, Integer teamId, int userId) {
         try {
             String filename = file.getOriginalFilename();
             String ext = filename.substring(filename.lastIndexOf('.') + 1).toLowerCase();
@@ -72,11 +72,11 @@ public class DataroomService {
 
             FilesDto fileRecord = new FilesDto();
             fileRecord.setTitle(title);
-            fileRecord.setComment(description);
-            fileRecord.setRoomId(roomId);
+            fileRecord.setDepartmentId(departmentId);
+            fileRecord.setTeamId(teamId);
             fileRecord.setName(file.getOriginalFilename());
             fileRecord.setPath(uploadedFilename);
-            fileRecord.setAuthorId(1); // TODO: 로그인 사용자로 변경 필요
+            fileRecord.setAuthorId(userId);
             fileRecord.setType(file.getContentType());
 
             dataroomMapper.insertFile(fileRecord); // ✅ 핵심 저장 코드 추가
@@ -87,5 +87,13 @@ public class DataroomService {
             e.printStackTrace();
             throw new RuntimeException("업로드 실패", e);
         }
+    }
+
+    public void deleteFiles(int id) {
+        dataroomMapper.deleteFiles(id);
+    }
+
+    public FilesDto readDataroomById(int id) {
+        return dataroomMapper.readDataroomById(id);
     }
 }
