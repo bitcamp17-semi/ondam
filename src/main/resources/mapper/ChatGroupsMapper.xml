@@ -15,22 +15,31 @@
 		SELECT
 		cg.id,
 		cg.name,
+		cg.createdat,
 		cg.createdby,
-		(SELECT message
-		FROM
-		chat_log cl
+		cg.roomtype,
+		(SELECT cl.message
+		FROM chat_log cl
 		WHERE cl.groupid = cg.id
 		ORDER BY cl.createdat DESC
-		LIMIT 1)
-		AS lastMessage,
+		LIMIT 1) AS last_message,
 		(SELECT COUNT(*)
-		FROM junction_chat_users_groups jcug
-		WHERE jcug.groupId = cg.id) AS memberCount
+		FROM junction_chat_users_groups j
+		WHERE j.groupid = cg.id) AS member_count,
+		(CASE
+		WHEN cg.roomtype = 'PRIVATE' THEN (
+		SELECT u.name
+		FROM users u
+		JOIN junction_chat_users_groups j ON u.id = j.userid
+		WHERE j.groupid = cg.id
+		AND j.userid != #{userId}
+		LIMIT 1
+		)
+		ELSE cg.name
+		END) AS opponent_name
 		FROM chat_groups cg
-		JOIN
-		junction_chat_users_groups jcug ON cg.id = jcug.groupId
-		WHERE
-		jcug.userId = #{userId}
+		JOIN junction_chat_users_groups j ON cg.id = j.groupid
+		WHERE j.userid = #{userId}
 	</select>
 
 	<select id="readGroupById" parameterType="int"
@@ -81,9 +90,12 @@
 		resultType="ChatGroupsDto">
 		select cg.*
 		from chat_groups cg
-		join junction_chat_users_groups j1 on cg.id = j1.groupid
-		join junction_chat_users_groups j2 on cg.id = j2.groupid
-		where cg.roomtype = 'PRIVATE'
+		join
+		junction_chat_users_groups j1 on cg.id = j1.groupid
+		join
+		junction_chat_users_groups j2 on cg.id = j2.groupid
+		where cg.roomtype =
+		'PRIVATE'
 		and j1.userid = #{param1}
 		and j2.userid = #{param2}
 	</select>

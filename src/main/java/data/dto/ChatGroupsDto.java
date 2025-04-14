@@ -14,4 +14,5 @@ public class ChatGroupsDto {
     private String lastMessage;
     private Integer memberCount;
     private String roomtype;
+    private String opponentName;
 }

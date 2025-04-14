@@ -14,14 +14,17 @@ public class ChatLogDto {
     @JsonProperty("isRead")
     private boolean isRead;
     private String message; // content -> message로 통일
-    private Integer groupId;
-    private String file;
+    private Integer groupId;    
     private Timestamp createdAt;
-    private String roomType; // 추가
-    private String roomId; // 추가
-    private Integer targetUserId; // 추가
-    private String time; // 추가
+    private String roomType; 
+    private Integer roomId; 
+    private Integer targetUserId; 
+    private String time; 
     private String senderName; // HTML 렌더링용
     private boolean isMyMessage; // HTML 렌더링용
-    private String formattedCreatedAt; // HTML 렌더링용		
+    private String formattedCreatedAt; // HTML 렌더링용
+    private String file; // 파일명 저장 필드
+    private String fileUrl; // 파일 URL (네이버 클라우드에 저장된 경로)
+    private String fileName; // 원본 파일 이름
+    private String fileType; // 업로드 파일 타입
 }
