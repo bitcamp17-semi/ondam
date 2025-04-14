@@ -21,7 +21,7 @@
             <div class="navbar">
                 <div id="navlist1">인사관리</div>
                 <div id="navlist2">부서관리</div>
-                <div id="navlist3">결재관리</div>
+                <div id="navlist3">전자결재관리</div>
                 <div id="navlist4">퇴사자관리</div>
             </div>
         </div>
@@ -38,100 +38,76 @@
                 </div>
             </div>
             <div class="rightarticle">
-                <span>인사팀(n)</span>
+                <span id="selectedTeam">선택된 팀(0)</span>
                 <div class="righttop">
                     <input type="checkbox" id="selectAll"/>
                     <button id="rightdeletebtn">delete</button>
                 </div>
                 <div class="rightmain">
                     <div class="teamlist">
-                        <div class="teamsawon">
-                            <input type="checkbox" class="childCheckbox"/>
-                            <div class="sawonprofile">
-                                <img src="">
-                                <div class="teamsawonprofile">
-                                    <h3>사원명</h3>
-                                    <b>사원id</b>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- 임의추가 전체선택때문에 -->
-                        <div class="teamsawon">
-                            <input type="checkbox" class="childCheckbox"/>
-                            <div class="sawonprofile">
-                                <img src="">
-                                <div class="teamsawonprofile">
-                                    <h3>사원명</h3>
-                                    <b>사원id</b>
-                                </div>
-                            </div>
-                        </div>
+                        <!-- 사원 목록 위치 -->
                     </div>
-
                     <div class="sawonupdate">
-                    <div class="sawon">
-                        <div class="sawonphoto">
-                            <img id="previewImage" src=""/>
-                            <input type="file" id="fileInput" class="hidden-file"/>
-                            <div class="photoselectbtn" onclick="openFilePicker()">
-                                <div class="photoselect">사진 선택</div>
+                        <div class="sawon">
+                            <div class="sawonphoto">
+                                <img id="previewImage" src=""/>
+                                <input type="file" id="fileInput" class="hidden-file"/>
+                                <div class="photoselectbtn" onclick="openFilePicker()">
+                                    <div class="photoselect">사진 선택</div>
+                                </div>
+                                <p id="fileName">선택된 파일 없음</p>
                             </div>
-                            <p id="fileName">선택된 파일 없음</p>
-                        </div>
-                        <div class="sawoninfo">
-                            <div class="sawonname">
-                                <span>이름</span>
-                                <input type="text" id="name" value=""/>
-                            </div>
-                            <div class="sawonbuseo">
-                                <span>부서</span>
-                                <div class="dropdown">
-                                    <div class="arraybtn1 dropdown-btn">
-                                        <div class="article1 buseo">부서</div>
-                                    </div>
-                                    <div class="dropdown-menu">
-                                        <a href="#">옵션 1-1</a>
-                                        <a href="#">옵션 1-2</a>
-                                        <a href="#">옵션 1-3</a>
+                            <div class="sawoninfo">
+                                <div class="sawonname">
+                                    <span>이름</span>
+                                    <input type="text" id="name" value=""/>
+                                </div>
+                                <div class="sawonbuseo">
+                                    <span>부서</span>
+                                    <div class="dropdown">
+                                        <div class="arraybtn1 dropdown-btn article1 buseo">　</div>
+                                        <div class="dropdown-menu">
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="sawonteam">
-                                <span>팀</span>
-                                <div class="dropdown">
-                                    <div class="arraybtn2 dropdown-btn">
-                                        <div class="article2 team">부서</div>
-                                    </div>
-                                    <div class="dropdown-menu">
-                                        <a href="#">옵션 2-1</a>
-                                        <a href="#">옵션 2-2</a>
-                                        <a href="#">옵션 2-3</a>
+                                <div class="sawonteam">
+                                    <span>팀</span>
+                                    <div class="dropdown">
+                                        <div class="arraybtn2 dropdown-btn article2 team">　</div>
+                                        <div class="dropdown-menu">
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="sawonposition">
-                                <span>직급</span>
-                                <div class="dropdown">
-                                    <div class="arraybtn3 dropdown-btn">
-                                        <div class="article3 position">직급</div>
-                                    </div>
-                                    <div class="dropdown-menu">
-                                        <a href="#">옵션 3-1</a>
-                                        <a href="#">옵션 3-2</a>
-                                        <a href="#">옵션 3-3</a>
+                                <div class="sawonposition">
+                                    <span>직급</span>
+                                    <div class="dropdown">
+                                        <div class="arraybtn3 dropdown-btn article3 position">사원</div>
+                                        <div class="dropdown-menu">
+                                            <a href="#">사원</a>
+                                            <a href="#">주임</a>
+                                            <a href="#">대리</a>
+                                            <a href="#">과장</a>
+                                            <a href="#">차장</a>
+                                            <a href="#">부장</a>
+                                            <a href="#">이사</a>
+                                            <a href="#">상무</a>
+                                            <a href="#">전무</a>
+                                            <a href="#">부사장</a>
+                                            <a href="#">사장</a>
+                                            <a href="#">대표이사</a>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="sawonphone">
-                                <span>전화번호</span>
-                                <input type="text" id="phone" value=""/>
-                            </div>
-                            <div class="sawonmail">
-                                <span>메일</span>
-                                <input type="text" id="mail" value=""/>
+                                <div class="sawonphone">
+                                    <span>전화번호</span>
+                                    <input type="text" id="phone" value=""/>
+                                </div>
+                                <div class="sawonmail">
+                                    <span>메일</span>
+                                    <input type="text" id="mail" value=""/>
+                                </div>
                             </div>
                         </div>
-                    </div>
                         <div class="updatebtnset">
                             <button class="sawonupdatebtn">수정하기</button>
                             <button class="sawondeletebtn">사원정보 삭제</button>
@@ -148,15 +124,12 @@
     <form class="modal-form" id="teammodal-form">
         <div class="modal-content" id="teammodal-content">
             <h2>팀 추가</h2>
-                <div class="dropdown" id="modaldepartment">
-                    <span>부서</span>
-                    <button class="dropdown-btn">부서를 선택하세요</button>
-                    <div class="dropdown-menu">
-                        <a href="#">옵션 2-1</a>
-                        <a href="#">옵션 2-2</a>
-                        <a href="#">옵션 2-3</a>
-                    </div>
+            <div class="dropdown" id="modaldepartment">
+                <span>부서</span>
+                <div class="dropdown-btn" id="modal-team-buseo">부서를 선택하세요</div>
+                <div class="dropdown-menu">
                 </div>
+            </div>
             <div class="modalteamtitle">
                 <span>팀 이름</span>
                 <input class="modaltitle" id="teammodal-title" type="text" placeholder="추가할 팀명을 입력해주세요"/>
@@ -187,19 +160,69 @@
 </div>
 
 <script>
+    const storageUrl = "https://kr.object.ncloudstorage.com/bitcamp-semi/users/";
+    var depMap = {}; // 부서 map
     $(document).ready(function () {
+        readDeps();
+        fetchDepartments();
+        checkAdmin();
         // 상위 체크박스 클릭 시
-        $('#selectAll').on('change', function() {
+        $('#selectAll').on('change', function () {
             $('.childCheckbox').prop('checked', $(this).prop('checked'));
         });
 
         // 하위 체크박스 클릭 시
-        $('.childCheckbox').on('change', function() {
+        $('.childCheckbox').on('change', function () {
             const total = $('.childCheckbox').length;
             const checked = $('.childCheckbox:checked').length;
 
             $('#selectAll').prop('checked', total === checked);
         });
+        $('#rightdeletebtn').on('click', function () {
+            const selectedIds = [];
+
+            $('.childCheckbox:checked').each(function () {
+                const $profile = $(this).siblings('.sawonprofile').find('.teamsawonprofile');
+                const userId = $profile.data('id');
+                if (userId !== undefined) {
+                    selectedIds.push(userId);
+                }
+            });
+
+            if (selectedIds.length === 0) {
+                alert("삭제할 사원을 선택하세요.");
+                return;
+            }
+
+            if (!confirm("정말 삭제하시겠습니까?")) return;
+
+            // FormData 방식으로 리스트 전송
+            $.ajax({
+                url: "/api/users/deactivateUsers",
+                type: "post",
+                traditional: true, // 배열을 key=value1&key=value2 형태로 전송
+                data: {
+                    userList: selectedIds
+                },
+                success: function (res) {
+                    if (res.status === "ok") {
+                        alert("비활성화 처리 완료");
+                        $('.childCheckbox:checked').each(function () {
+                            $(this).closest('.teamsawon').remove();
+                        });
+                        $('#selectAll').prop('checked', false);
+                    } else {
+                        alert("처리에 실패했습니다: " + res.error);
+                    }
+                },
+                error: function (err) {
+                    alert("서버 오류: " + err.responseText);
+                }
+            });
+        });
+
+
+
         // ===== 조직도 기능 =====
         $(".parent").click(function (event) {
             event.stopPropagation(); // 부모 요소로 이벤트 전파 방지
@@ -235,13 +258,28 @@
         });
 
         // 선택한 옵션을 버튼에 표시
-        $(".dropdown-menu a").click(function () {
-            let selectedText = $(this).text();
-            $(this).closest(".dropdown").find(".dropdown-btn").text(selectedText);
-            $(this).closest(".dropdown-menu").hide(); // 선택 후 닫기
+        $(document).on("click", ".dropdown-menu a", function (e) {
+            e.preventDefault();
+
+            const selectedText = $(this).text();
+            const selectedId = $(this).data("id");
+            const $dropdown = $(this).closest(".dropdown");
+            const $btn = $dropdown.find(".dropdown-btn");
+
+            $btn.text(selectedText).attr("data-id", selectedId); // 버튼에 텍스트 & ID 반영
+            $(this).closest(".dropdown-menu").hide();
+
+            if ($btn.hasClass("buseo") || $btn.hasClass("article1")) {
+                readTeamsByDepId(selectedId);
+            }
         });
+
+
         // ===== 팀 추가 모달 =====
         $('#addteambtn').click(function () {
+            // 모달 열기 전에 내용 초기화
+            $("#modal-team-buseo").text("부서를 선택하세요").removeAttr("data-id");
+            $("#teammodal-title").val(""); // 입력값 비우기
             $('#teammodal').css("display", "flex"); // 모달 표시
         });
 
@@ -249,23 +287,78 @@
             $('#teammodal').css("display", "none"); // 모달 숨김
         });
 
-        $("#teammodal-form").on("submit", function(e) {
+        $("#teammodal-form").on("submit", function (e) {
+            let id = $("#modal-team-buseo").attr("data-id");
+            let name = $("#teammodal-title").val();
+            createTeam(id, name);
             e.preventDefault(); // 페이지 리로드 방지
         });
 
         // ===== 부서 추가 모달 =====
         $('#addbuseobtn').click(function () {
+            $("#buseomodal-title").val(""); // 입력창 초기화
             $('#buseomodal').css("display", "flex"); // 모달 표시
+            readDeps();
         });
 
         $('#buseoclose').click(function () {
             $('#buseomodal').css("display", "none"); // 모달 숨김
         });
 
-        $("#buseomodal-form").on("submit", function(e) {
-            console.log("gg")
+        $("#buseomodal-form").on("submit", function (e) {
+            let name = $("#buseomodal-title").val();
+            createDep(name);
             e.preventDefault(); // 페이지 리로드 방지
         });
+
+        $(document).on("click", ".sawonprofile", function () {
+            const userId = $(this).find(".teamsawonprofile").data("id");
+
+            $.ajax({
+                url: "/api/users/readUserById",
+                data: {userId: userId},
+                success: function (res) {
+                    resetUserUpdate(); // 초기화 먼저
+                    const user = res.result;
+
+                    // 기본 정보
+                    $("#name").val(user.name);
+                    $("#phone").val(user.phone);
+                    $("#mail").val(user.email);
+
+                    const profileImg = user.profileImage
+                        ? storageUrl + user.profileImage
+                        : "../../images/Rectangle53.png";
+                    $("#previewImage").attr("src", profileImg);
+
+                    // 드롭다운 텍스트 & id 설정
+                    $(".sawon").attr("data-id", userId);
+                    $(".buseo").text(depMap[user.departmentId]).attr("data-id", user.departmentId).val(depMap[user.departmentId]);
+                    $(".team").text(user.team).val(user.team);
+                    $(".position").text(user.position).val(user.position);
+                    // 부서에 따른 팀 목록 불러오기 (선택된 부서 id 기준)
+                    if (user.departmentId) {
+                        $.ajax({
+                            url: "/api/dep/readTeams",
+                            data: {departmentId: user.departmentId},
+                            success: function (res) {
+                                const $teamMenu = $(".sawonteam .dropdown-menu");
+                                $teamMenu.empty();
+                                res.result.forEach(team => {
+                                    const $a = $("<a>")
+                                        .attr("href", "#")
+                                        .attr("data-id", team.id)
+                                        .text(team.name);
+                                    $teamMenu.append($a);
+                                });
+                            }
+                        });
+                    }
+                }
+            });
+        });
+
+
     });
 
     // 트리 생성 함수
@@ -280,14 +373,15 @@
             // 펼치기/접기 아이콘
             if (hasChildren) {
                 const $icon = $('<i class="bi bi-plus-lg toggle-icon"></i>');
-                $label.append($icon).append(` ${item.name}`);
+                $label.append($icon).append(` ${item.name}`).attr("hch", 1);
             } else {
                 $label.text(item.name);
             }
 
             // 삭제 버튼은 depth가 0이 아닐 때만 표시
             if (depth !== 0) {
-                const $deleteBtn = $('<i class="bi bi-x-circle delete-icon"></i>');
+                const $deleteBtn = $('<i class="bi bi-x-circle delete-icon"></i>')
+                    .attr('data-id', item.id).attr("data-type", item.type);
                 $label.append($deleteBtn);
             }
 
@@ -328,8 +422,9 @@
             const type = $label.data('type');
             const id = $label.data('id');
             const name = $label.text().trim();
+            let selectedTeam = $(this).text();
 
-            if (type === "dep") {
+            if (type === "dep" || type === undefined || type === null) {
                 const $icon = $(this).find('.toggle-icon');
                 $(this).closest('li').children('ul').toggle();
                 $icon.toggleClass('bi-plus-lg bi-dash-lg');
@@ -340,26 +435,31 @@
                     data: {team: name},
                     success: function (res) {
                         if (res.status === "ok") {
-                            const storageUrl = "https://kr.object.ncloudstorage.com/bitcamp-semi/users/";
                             const users = res.result; // UsersDto 리스트
                             const $teamList = $('.teamlist');
                             $teamList.empty(); // 기존 목록 제거
 
-                            users.forEach(user => {
-                                const $userDiv = $(`
+                            if (users.length === 0) {
+                                $teamList.append(`<div class="no-users">해당 팀에 등록된 직원이<br>없습니다.</div>`);
+                            } else {
+                                users.forEach(user => {
+                                    const $userDiv = $(`
                         <div class="teamsawon">
                             <input type="checkbox" class="childCheckbox"/>
                             <div class="sawonprofile">
                                 <img src="${storageUrl}${user.profileImage}" onerror="this.src='../../images/Rectangle53.png'"/>
-                                <div class="teamsawonprofile">
+                                <div class="teamsawonprofile" data-id="${user.id}">
                                     <h3>${user.name}</h3>
                                     <b>${user.loginId}</b>
                                 </div>
                             </div>
                         </div>
                     `);
-                                $teamList.append($userDiv);
-                            });
+                                    $teamList.append($userDiv);
+                                });
+                            }
+                            let selectedCnt = users.length;
+                            $("#selectedTeam").text(`${selectedTeam}(${selectedCnt})`);
                         } else {
                             alert("팀 소속 사원 정보를 불러오지 못했습니다.");
                         }
@@ -377,18 +477,63 @@
         // 삭제 버튼 클릭 이벤트
         $(document).on('click', '.delete-icon', function (e) {
             if (confirm("정말 삭제하시겠습니까?")) {
-                $(this).closest('li').remove();
+                if ($(this).attr("data-type") === "dep") {
+                    if ($(this).closest(".node-label").attr("hch") === "1") {
+                        alert("팀을 가진 부서는 삭제할 수 없습니다.");
+                        return;
+                    }
+                    $(this).closest('li').remove();
+                    $.ajax({
+                        url: "/api/dep/deleteDep",
+                        data: {id: $(this).attr("data-id")},
+                        type: "get",
+                        success: function (res) {
+                            if (res.status === "ok") {
+                                alert("삭제되었습니다.")
+                                readDeps();
+                            }
+                        },
+                        error: function (err) {
+                            alert("서버 오류 발생: " + err.responseText);
+                        }
+                    })
+                } else if ($(this).attr("data-type") === "team") {
+                    let target = $(this);
+                    $.ajax({
+                        url: "/api/users/readUsersByTeam",
+                        type: "get",
+                        data: {team: $(this).closest(".node-label").text().trim()},
+                        success: function (res) {
+                            if (res.result.length > 0) {
+                                alert("팀원이 있는 팀은 삭제할 수 없습니다.");
+                                return;
+                            }
+                            $.ajax({
+                                url: "/api/dep/deleteTeam",
+                                data: {id: target.attr("data-id")},
+                                type: "get",
+                                success: function (res) {
+                                    if (res.status === "ok") {
+                                        alert("삭제되었습니다.");
+                                        target.closest('li').remove();
+                                    }
+                                },
+                                error: function (err) {
+                                    alert("서버 오류 발생: " + err.responseText);
+                                }
+                            });
+                        }
+                    });
+                }
             }
             e.stopPropagation(); // 삭제 시 펼치기 동작 방지
         });
     });
+
     function openFilePicker() {
         $("#fileInput").click();
     }
 
-    $("#buseosubmit").click(function () {
-
-    })
     async function getTreeData() {
         const treeData = {
             name: "Ondam",
@@ -430,6 +575,260 @@
         }
     }
 
+    function readDeps() {
+        $.ajax({
+            url: "/api/dep/readDeps",
+            type: "GET",
+            success: function (response) {
+                if (response.status === "ok") {
+                    let deps = response.result;
+
+                    // ✅ 모달창 부서 드롭다운
+                    const $modalDropdownMenu = $("#modaldepartment .dropdown-menu");
+                    const $modalDropdownBtn = $("#modaldepartment .dropdown-btn");
+
+                    $modalDropdownMenu.empty();
+                    deps.forEach(dep => {
+                        $modalDropdownMenu.append(`<a href="#" data-id="${dep.id}">${dep.name}</a>`);
+                    });
+
+                    $modalDropdownMenu.off("click").on("click", "a", function (e) {
+                        e.preventDefault();
+                        const selectedName = $(this).text();
+                        const selectedId = $(this).data("id");
+
+                        $modalDropdownBtn.text(selectedName);
+                        $modalDropdownBtn.data("id", selectedId);
+                    });
+
+                    // ✅ 사원 정보 수정 창 부서 드롭다운
+                    const $sawonDropdownMenu = $(".sawonbuseo .dropdown-menu");
+                    const $sawonDropdownBtn = $(".sawonbuseo .dropdown-btn .buseo");
+
+                    $sawonDropdownMenu.empty();
+                    deps.forEach(dep => {
+                        $sawonDropdownMenu.append(`<a href="#" data-id="${dep.id}">${dep.name}</a>`);
+                    });
+
+                    $sawonDropdownMenu.off("click").on("click", "a", function (e) {
+                        e.preventDefault();
+                        const selectedName = $(this).text();
+                        const selectedId = $(this).data("id");
+
+                        $sawonDropdownBtn.text(selectedName);
+                        $sawonDropdownBtn.data("id", selectedId);
+                    });
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error("부서 목록 불러오기 실패:", error);
+            }
+        });
+    }
+
+    function readTeamsByDepId(departmentId) {
+        $.ajax({
+            url: "/api/dep/readTeams",
+            type: "GET",
+            data: {departmentId},
+            success: function (response) {
+                if (response.status === "ok") {
+                    const teams = response.result;
+
+                    const $teamMenu = $(".sawonteam .dropdown-menu");
+                    const $teamBtn = $(".sawonteam .dropdown-btn .team");
+
+                    $teamMenu.empty();
+
+                    if (teams.length === 0) {
+                        $teamMenu.append(`<a href="#" data-id="">팀 없음</a>`);
+                    } else {
+                        teams.forEach(team => {
+                            $teamMenu.append(`<a href="#" data-id="${team.id}">${team.name}</a>`);
+                        });
+                    }
+
+                    // 팀 드롭다운 초기화
+                    $teamBtn.text("팀 선택");
+                    $teamBtn.removeData("id");
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error("팀 목록 불러오기 실패:", error);
+            }
+        });
+    }
+
+    function createDep(name) {
+        $.ajax({
+            url: "/api/dep/createDep",
+            data: {name: name},
+            success: async function (res) {
+                if (res.status === "ok") {
+                    let $root = $('#tree-root');
+                    $('#buseomodal').css("display", "none");
+                    $root.empty();
+                    buildTree(await getTreeData(), $root);
+                    readDeps();
+                } else {
+                    alert(res.result);
+                }
+            },
+            error: function () {
+                alert('서버 오류가 발생했습니다.');
+            }
+        });
+    }
+
+    function createTeam(depId, name) {
+        $.ajax({
+            url: "/api/dep/createTeam",
+            data: {departmentId: depId, name: name},
+            success: async function (res) {
+                if (res.status === "ok") {
+                    let $root = $('#tree-root');
+                    $('#teammodal').css("display", "none");
+                    $root.empty();
+                    buildTree(await getTreeData(), $root);
+                } else {
+                    alert(res.result);
+                }
+            },
+            error: function () {
+                alert('서버 오류가 발생했습니다.');
+            }
+        });
+    }
+
+    function resetUserUpdate() {
+        // 텍스트, input 초기화
+        $("#name").val("");
+        $("#phone").val("");
+        $("#mail").val("");
+        $("#previewImage").attr("src", "../../images/Rectangle53.png");
+        $("#fileName").text("선택된 파일 없음");
+
+        // 드롭다운 초기화
+        $(".buseo").text("부서").removeAttr("data-id");
+        $(".team").text("팀").removeAttr("data-id");
+        $(".position").text("직급").removeAttr("data-id");
+
+        // 팀 드롭다운 메뉴 비우기
+        $(".sawonteam .dropdown-menu").empty();
+    }
+
+    // 부서 맵
+    function fetchDepartments() {
+        $.ajax({
+            url: "/api/dep/readDeps",
+            method: "GET",
+            success: function (res) {
+                if (res.status === "ok") {
+                    depMap = {};
+                    res.result.forEach(dep => {
+                        depMap[dep.id] = dep.name;
+                    });
+                }
+            },
+            error: function () {
+                alert("부서 목록을 불러오지 못했습니다.");
+            }
+        });
+    }
+
+    $(".sawonupdatebtn").click(function () {
+        let formData = new FormData();
+        let userId = $(".sawon").attr("data-id");
+        let name = $("#name").val();
+        let departmentId = $(".sawon .buseo").attr("data-id");
+        let team = $(".team").text();
+        let position = $(".position").text();
+        let phone = $("#phone").val();
+        let email = $("#mail").val();
+        let profileImage = $("#previewImage").attr("src").split("/users/")[1];
+        if (profileImage) {
+            formData.append("upload", profileImage);
+        }
+        if (team === "팀 없음") {
+            alert("팀을 선택해주세요");
+            return;
+        }
+        formData.append("id", userId);
+        formData.append("name", name);
+        formData.append("departmentId", departmentId);
+        formData.append("team", team);
+        formData.append("position", position);
+        formData.append("phone", phone);
+        formData.append("email", email);
+        $.ajax({
+            url: "/api/users/updateUserAdmin",
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (res) {
+                if (res.status === "ok") {
+                    alert("사용자 정보가 성공적으로 수정되었습니다.");
+                    location.reload();
+                } else {
+                    alert("수정 실패: " + res.error);
+                }
+            },
+            error: function (err) {
+                alert("서버 오류 발생: " + err.responseText);
+            }
+        });
+    })
+    $(".sawondeletebtn").click(function () {
+        let userId = $(".sawon").attr("data-id");
+        if (confirm("정말 퇴사 처리 하시겠습니까?")) {
+            $.ajax({
+                url: "/api/users/deactivateUser",
+                type: "post",
+                data: {userId: userId},
+                success: function (res) {
+                    if (res.status === "ok") {
+                        alert("퇴사 처리되었습니다.")
+                        location.reload();
+                    }
+                },
+                error: function (err) {
+                    alert("서버 오류 발생: " + err.responseText);
+                }
+            });
+        }
+    })
+
+    function checkAdmin() {
+        $.ajax({
+            url: "/api/users/checkAdmin",
+            type: "get",
+            success: function (res) {
+                if (res.status === "ok") {
+                    console.log("admin ok")
+                }
+            },
+            error: function () {
+                alert("not admin");
+                history.back();
+            }
+        })
+    }
+
+</script>
+<script>
+    $("#navlist1").click(function () {
+        location.href = "/admin/management"
+    })
+    $("#navlist2").click(function () {
+        location.href = "/admin/managementOrg"
+    })
+    $("#navlist3").click(function () {
+        location.href = "/admin/managementApproval"
+    })
+    $("#navlist4").click(function () {
+        location.href = "/admin/managementFormer"
+    })
 </script>
 </body>
 </html>

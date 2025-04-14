@@ -1,0 +1,340 @@
+/*all*/
+
+.fullbox {
+    display: flex;
+    flex-direction: row;
+    width: 96vw;
+    height: 100dvh;
+    color: #686868;
+    position: relative;
+}
+
+.main {
+    display: flex;
+    flex-direction: column;
+    width: 95%;
+    margin-left: 80px;
+    align-items: flex-start;
+    position: relative;
+    background-color: #fff;
+    height: 100%;
+}
+
+.nav {
+    display: flex;
+    flex-direction: column;
+    height: 200px;
+    width: 100%;
+    align-items: flex-start;
+    justify-content: flex-end;
+    margin-left: 70px;
+    gap: 25px;
+}
+
+.navtitle {
+    font-size: 30px;
+    font-weight: bold;
+    color: #3f3f3f;
+}
+
+.navbar {
+    display: flex;
+    align-items: flex-start;
+    gap: 30px;
+    position: relative;
+    align-self: stretch;
+    width: 100%;
+    font-size: 16px;
+}
+
+#navlist1 {
+    cursor: pointer;
+}
+
+#navlist2 {
+    border-left: rgba(0, 0, 0, 0.15) 1px solid;
+    padding-left: 30px;
+    cursor: pointer;
+}
+#navlist3 {
+    border-left: rgba(0, 0, 0, 0.15) 1px solid;
+    padding-left: 30px;
+    cursor: pointer;
+    color: #3f3f3f;
+    font-weight: bold;
+}
+#navlist4 {
+    border-left: rgba(0, 0, 0, 0.15) 1px solid;
+    padding-left: 30px;
+    cursor: pointer;
+}
+
+.section {
+    display: flex;
+    padding: 20px;
+    border: rgba(0, 0, 0, 0.05) 1px solid;
+    border-radius: 15px;
+    width: 96%;
+    height: 100%;
+    margin: 50px 50px 50px 70px;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.btnset {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    gap: 15px;
+    height: 35px;
+    justify-content: space-between;
+}
+
+.orangebtn {
+    border: rgba(0, 0, 0, 0.15) 1px solid;
+    border-radius: 5px;
+    height: 35px;
+    padding: 0 10px 0 10px;
+    background-color: #fa7000;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+.whitebtn {
+    border: rgba(0, 0, 0, 0.15) 1px solid;
+    border-radius: 5px;
+    height: 35px;
+    padding: 0 10px 0 10px;
+    background-color: white;
+    cursor: pointer;
+}
+
+.file-upload-wrapper{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.upload-label {
+    border: rgba(0, 0, 0, 0.15) 1px solid;
+    border-radius: 5px;
+    height: 35px;
+    padding: 0 10px 0 10px;
+    background-color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    font-size: 13px;
+}
+#file-name{
+    font-size: 12px;
+}
+
+#template-list {
+    border: rgba(0, 0, 0, 0.15) 1px solid;
+    border-radius: 5px;
+    height: 35px;
+    padding: 0 20px 0 10px;
+    background-color: white;
+    color: #686868;
+    cursor: pointer;
+}
+
+.approvallist {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    flex-direction: column;
+
+}
+
+#titleInput {
+    width: 100%;
+    padding: 10px;
+    font-size: 18px;
+    border: none;
+    border-bottom: 1px solid #ddd;
+    outline: none;
+}
+
+.listcontent {
+    width: 100%;
+    height: 45px;
+    background-color: white;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: rgba(0, 0, 0, 0.05) 1px solid;
+}
+
+.approvalmain {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+/*에디터 설정내용*/
+.editor-wrapper {
+    flex: 1;
+    height: 100%; /* 부모가 height: 100% 라고 했을 때 */
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+/* 툴바는 자동 높이 */
+.ql-toolbar {
+    flex: 0 0 auto;
+}
+
+/* 에디터 본문은 남은 높이 모두 */
+.ql-container {
+    flex: 1 1 auto;
+    height: 100%;
+    overflow-y: auto;
+}
+
+/* 혹시 에디터가 width 작게 나올 경우 강제로 늘림 */
+#editor-container {
+    width: 100%;
+    height: 100%;
+}
+
+
+.approvalline {
+    width: 100%;
+    height: 100px;
+    background-color: white;
+    display: flex;
+    align-items: end;
+    gap: 10px;
+    overflow-x: auto;
+    min-width: 0;
+}
+
+.profileset {
+    border: rgba(0, 0, 0, 0.05) 1px solid;
+    border-radius: 5px;
+    width: 180px;
+    height: 80px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    min-width: 180px;
+}
+
+.lineprofile {
+    display: flex;
+    flex-direction: column;
+}
+
+.lineprofile span {
+    font-size: 12px;
+}
+
+.lineprofile img {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+}
+
+.removebtn{
+    font-size: 15px;
+    cursor: pointer;
+}
+.removebtn:hover {
+    color: #fa7000;
+}
+
+/*모달스타일*/
+.user-modal {
+    position: fixed;  /* 또는 absolute */
+    top: 50%;
+    display: none;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10000; /* 다른 요소보다 위에 */
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+}
+.modal-backdrop{
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.4);  /* 어두운 배경 */
+    z-index: 9999;
+}
+.user-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 5px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: 0.2s;
+}
+
+.user-item:hover {
+    background-color: #f7f7f7;
+}
+
+.user-item.selected {
+    background-color: #d0ebff;
+    border-color: #74c0fc;
+}
+.modal-content{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.modal-content h3 {
+    font-size: 20px;
+    font-weight: bold;
+    color: #fa7000;
+}
+#departmentSelect{
+    border: rgba(0, 0, 0, 0.15) 1px solid;
+    border-radius: 5px;
+    height: 35px;
+    color: #686868;
+}
+.modalBtn{
+    margin-top: 10px;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+#addSelectedUsers{
+    border: rgba(0, 0, 0, 0.15) 1px solid;
+    border-radius: 5px;
+    height: 35px;
+    padding: 0 10px 0 10px;
+    background-color: #fa7000;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    width: 50%;
+}
+#closeModal{
+    border: rgba(0, 0, 0, 0.15) 1px solid;
+    border-radius: 5px;
+    height: 35px;
+    padding: 0 10px 0 10px;
+    background-color: white;
+    cursor: pointer;
+    width: 50%;
+}
+#userList img {
+    width: 25px;
+    height: 25px;
+    border-radius: 5px;
+}

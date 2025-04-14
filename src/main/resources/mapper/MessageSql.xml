@@ -1,4 +1,239 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="data.mapper.MessageMapper">
+
+
+    <!-- 특정 유저의 받은 메시지 목록 조회 (Read) -->
+    <select id="readMessagesForReceiver" parameterType="int" resultType="MessagesDto">
+        SELECT m.id,
+               m.title,
+               m.content,
+               m.senderid   AS senderId,
+               m.receiverid AS receiverId,
+               m.isread     AS isRead,
+               m.createdat  AS createdAt,
+               m.readat     AS readAt,
+               m.isImportant,
+               u.name       AS senderName
+        FROM messages m
+                 JOIN users u ON m.senderid = u.id
+        WHERE m.receiverid = #{receiverId}
+        ORDER BY m.createdat DESC
+    </select>
+    <!-- 메시지 읽음 처리 (Update) -->
+    <update id="updateMessageAsRead" parameterType="int">
+        UPDATE messages
+        SET isread = TRUE,
+            readat = now()
+        WHERE id = #{id}
+    </update>
+
+
+    <!-- 마지막 방문 시간 업데이트 (Update) -->
+    <update id="updateUserLastVisitTime" parameterType="int">
+        INSERT INTO user_last_message_visit (user_id, last_visit_time)
+        VALUES (#{userId}, CURRENT_TIMESTAMP) ON DUPLICATE KEY
+        UPDATE last_visit_time = CURRENT_TIMESTAMP
+    </update>
+
+    <!-- 메시지 삭제 (Delete) -->
+    <delete id="deleteMessageById" parameterType="int">
+        DELETE
+        FROM messages
+        WHERE id = #{id}
+    </delete>
+
+    <!-- 메시지 작성 (Create) -->
+    <insert id="createMessage" parameterType="MessagesDto" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO messages (title, content, senderid, receiverid, isread, createdat, readat)
+        VALUES (#{title}, #{content}, #{senderId}, #{receiverId}, #{isRead}, now(), #{readAt})
+    </insert>
+
+
+    <!-- 검색 기능 추가 -->
+    <select id="readSearchMessagesByKeyword" parameterType="map" resultType="MessagesDto">
+        SELECT m.id, m.title, m.content,
+               m.senderid AS senderId,
+               m.receiverid AS receiverId,
+               m.isread AS isRead,
+               m.createdat AS createdAt,
+               m.readat AS readAt,
+               m.isImportant,
+               u.name AS senderName
+        FROM messages m
+            JOIN users u ON m.senderid = u.id
+        WHERE m.receiverid = #{receiverId}
+                AND (
+                    m.title LIKE CONCAT('%', #{keyword}, '%') OR
+                    m.content LIKE CONCAT('%', #{keyword}, '%') OR
+                    m.senderid IN (
+                    SELECT id FROM users WHERE name LIKE CONCAT('%', #{keyword}, '%')
+                    )
+            )
+          <if test="category eq 'IMPORTANT'">
+          AND m.isImportant = TRUE
+        </if>
+        ORDER BY m.createdat DESC
+    </select>
+    <select id="readSearchSentMessagesByKeyword" parameterType="map" resultType="MessagesDto">
+        SELECT m.id, m.title, m.content,
+               m.senderid AS senderId,m.receiverid AS receiverId,
+               m.isread AS isRead,m.createdat AS createdAt,
+               m.readat AS readAt,m.isImportant,
+               u.name AS receiverName
+        FROM messages m
+            JOIN users u ON m.receiverid = u.id
+        WHERE m.senderid = #{senderId}
+          AND (
+              m.title LIKE CONCAT('%', #{keyword}, '%')
+                  OR m.content LIKE CONCAT('%', #{keyword}, '%')
+                  OR u.name LIKE CONCAT('%', #{keyword}, '%')
+              )
+          <if test="category eq 'IMPORTANT'">
+          AND m.isImportant = TRUE
+        </if>
+        ORDER BY m.createdat DESC
+    </select>
+
+
+
+
+
+    <select id="readMessageDetail" parameterType="int" resultType="MessagesDto">
+        SELECT id,
+               title,
+               content,
+               senderid   AS senderId,
+               receiverid AS receiverId,
+               isread     AS isRead,
+               createdat  AS createdAt,
+               readat     AS readAt,
+               isImportant
+        FROM messages
+        WHERE id = #{id}
+    </select>
+    <update id="updateMessageImportance" parameterType="map">
+        UPDATE messages
+        SET isImportant = #{isImportant}
+        WHERE id = #{id}
+    </update>
+    <select id="readCountUnreadMessages" parameterType="int" resultType="int">
+        SELECT COUNT(*)
+        FROM messages
+        WHERE receiverid = #{receiverId}
+          AND isread = FALSE
+    </select>
+    <select id="readUnreadMessagesForReceiver" parameterType="int" resultType="MessagesDto">
+        SELECT m.id,
+               m.title,
+               m.content,
+               m.senderid    AS senderId,
+               m.receiverid  AS receiverId,
+               m.isread      AS isRead,
+               m.createdat   AS createdAt,
+               m.readat      AS readAt,
+               m.isimportant AS isImportant,
+               u.username    AS senderName
+        FROM messages m
+                 JOIN users u ON m.senderid = u.id
+        WHERE m.receiverid = #{receiverId}
+          AND m.isread = 0
+        ORDER BY m.createdat DESC
+    </select>
+    <select id="readAllDepartment" resultType="String">
+        SELECT DISTINCT d.name
+        FROM users u
+                 JOIN department d ON u.departmentId = d.id
+        WHERE d.name IS NOT NULL
+          AND d.name != 'admin'
+    </select>
+    <!-- 부서별 유저 목록 -->
+    <select id="readUsersByDepartment" parameterType="String" resultType="UsersDto">
+        SELECT u.*
+        FROM users u
+                 JOIN department d ON u.departmentId = d.id
+        WHERE d.name = #{department}
+          AND u.isDeleted = 0
+    </select>
+
+    <!-- 보낸 메시지 목록 조회 (senderId 기준) -->
+    <select id="readMessagesBySender" parameterType="int" resultType="MessagesDto">
+        SELECT m.id,
+               m.title,
+               m.content,
+               m.senderid   AS senderId,
+               m.receiverid AS receiverId,
+               m.isread     AS isRead,
+               m.createdat  AS createdAt,
+               m.readat     AS readAt,
+               m.isImportant,
+               u.name       AS receiverName
+        FROM messages m
+                 JOIN users u ON m.receiverid = u.id
+        WHERE m.senderid = #{senderId}
+        ORDER BY m.createdat DESC
+    </select>
+    <select id="readNextMessageByReceiver" parameterType="map" resultType="MessagesDto">
+    <![CDATA[
+        SELECT m.id, m.title, m.content,
+               m.senderid AS senderId,
+               m.receiverid AS receiverId,
+               m.isread AS isRead,
+               m.createdat AS createdAt,
+               m.readat AS readAt,
+               m.isImportant
+        FROM messages m
+        WHERE m.receiverid = #{receiverId}
+          AND m.createdat &lt; #{currentCreatedAt}
+        ORDER BY m.createdat DESC
+            LIMIT 1
+        ]]>
+    </select>
+
+
+    <!-- 이전 메시지 (현재보다 나중에 작성된, 오래된 순 1건) -->
+    <select id="readPrevMessageByReceiver" parameterType="map" resultType="MessagesDto">
+        SELECT m.id,
+               m.title,
+               m.content,
+               m.senderid   AS senderId,
+               m.receiverid AS receiverId,
+               m.isread     AS isRead,
+               m.createdat  AS createdAt,
+               m.readat     AS readAt,
+               m.isImportant
+        FROM messages m
+        WHERE m.receiverid = #{receiverId}
+          AND m.createdat &gt; #{currentCreatedAt}
+        ORDER BY m.createdat ASC LIMIT 1
+    </select>
+
+    <select id="readNextMessageById" parameterType="map" resultType="MessagesDto">
+        SELECT *
+        FROM messages
+        WHERE receiverid = #{receiverId}
+          AND id &gt; #{currentMessageId}
+        ORDER BY id ASC
+            LIMIT 1
+    </select>
+
+    <select id="readPrevMessageById" parameterType="map" resultType="MessagesDto">
+        SELECT *
+        FROM messages
+        WHERE receiverid = #{receiverId}
+          AND id &lt; #{currentMessageId}
+        ORDER BY id DESC LIMIT 1
+    </select>
+
+    <select id="getMinMessageId" parameterType="int" resultType="int">
+        SELECT MIN(id) FROM messages WHERE receiverid = #{receiverId}
+    </select>
+
+    <select id="getMaxMessageId" parameterType="int" resultType="int">
+        SELECT MAX(id) FROM messages WHERE receiverid = #{receiverId}
+    </select>
+
+
+
+
 </mapper>

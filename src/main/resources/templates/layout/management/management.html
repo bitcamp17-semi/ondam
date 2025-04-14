@@ -8,207 +8,182 @@
     <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
 </head>
-<style>
-    #userTableBody {
-        display: contents;
-    }
-</style>
 <body>
-<div class="management">
+<div class="fullbox">
+    <div th:replace="~{layout/header :: header}"></div>
     <div class="main">
-        <div class="top">
-            <div class="nav">
-                <div class="title">
-                    <div class="div">관리페이지</div>
-                </div>
-                <div class="menu">
-                    <div class="div2">인사 관리</div>
-                    <div class="div3">|</div>
-                    <div class="div4">부서 관리</div>
-                    <div class="div3">|</div>
-                    <div class="div4">결재 관리</div>
-                    <div class="div3">|</div>
-                    <div class="div4">퇴사자 관리</div>
-                </div>
+        <div class="nav">
+            <div class="navtitle">
+                관리페이지
+            </div>
+            <div class="navbar">
+                <div id="navlist1" class="navlistnone">인사관리</div>
+                <div id="navlist2" class="navlistnone">부서관리</div>
+                <div id="navlist3" class="navlistnone">전자결재관리</div>
+                <div id="navlist4" class="navlistnone">퇴사자관리</div>
             </div>
         </div>
         <div class="section">
-            <div class="article">
-                <div class="btnframe">
-                    <div style="display: flex">
-                        <div class="arraysettitle dropdown">
-                            <button class="arraybtn dropdownButton">
-                                <div class="article2">부서</div>
-                                <div class="polygon-2">▼</div>
-                            </button>
-                            <div class="dropdown-content">
-                            </div>
-                        </div>
-                        <button class="btnwhite3" id="delete-selected">
-                            <div class="div5">선택 삭제</div>
-                        </button>
-                    </div>
-                    <button class="btnwhite" onclick="openModal()">
-                        <div class="div5">직원 등록</div>
+            <div class="btnframe">
+                <div class="arraysettitle dropdown">
+                    <button class="arraybtn dropdownButton">
+                        <div class="article2">부서</div>
+                        <div class="polygon-2">▼</div>
                     </button>
-                    <!-- 모달 -->
-                    <div class="modal" id="myModal">
-                        <div class="management-modal" id="management-modal">
-                            <div class="frame-82">
-                                <div class="div11">직원 등록</div>
-                            </div>
-                            <div class="frame-111">
-                                <div class="frame-99">
-                                    <img class="rectangle-74" id="previewImage" src=""/>
-                                    <input type="file" id="fileInput" class="hidden-file"/>
-                                    <div class="frame-56" onclick="openFilePicker()">
-                                        <div class="div12">사진 선택</div>
-                                    </div>
-                                    <p id="fileName">선택된 파일 없음</p>
-                                </div>
-                                <div class="frame-81">
-                                    <div class="frame-75">
-                                        <div class="textsettitle">
-                                            <div class="title">이름</div>
-                                            <div class="text">
-                                                <input type="text" class="article3" placeholder="이름을 입력하세요"></input>
-                                            </div>
-                                        </div>
+                    <div class="dropdown-content">
+                    </div>
+                </div>
+                <button class="btnwhite3" id="delete-selected">
+                    선택 삭제
+                </button>
+                <button class="btnwhite" onclick="openModal()">
+                    직원 등록
+                </button>
+            </div>
+            <div class="tableset">
+                <div class="tabletitle">
+                    <input type="checkbox" class="checkbox list-cell" id="head-check"/>
+                    <div class="list-cell">부서</div>
+                    <div class="list-cell">이름</div>
+                    <div class="list-cell">팀</div>
+                    <div class="list-cell">연락처</div>
+                    <div class="list-cell">직급</div>
+                    <div class="list-cell">이메일</div>
+                    <div class="list-cell">입사일</div>
+                    <div class="list-cell">사진</div>
+                    <div class="list-cell">삭제</div>
+                </div>
 
-                                        <div class="arraysettitle3">
-                                            <div class="title">부서</div>
-                                            <div class="dropdown">
-                                                <div class="arraybtn3 dropdownButton">
-                                                    <div class="article3 buseo">부서</div>
-                                                    <div class="polygon-2">▼</div>
-                                                </div>
-                                                <div class="dropdown-content">
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="frame-142">
-                                            <div class="dropdown">
-                                                <div class="arraysettitle2" id="teamDropdown">
-                                                    <div class="title">팀</div>
-                                                    <div class="arraybtn3 dropdownButton">
-                                                        <div class="article3">팀</div>
-                                                        <div class="polygon-2">▼</div>
-                                                    </div>
-                                                    <div class="dropdown-content">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="dropdown">
-                                                <div class="arraysettitle2" id="position">
-                                                    <div class="title">직급</div>
-                                                    <div class="arraybtn3 dropdownButton">
-                                                        <div class="article3">사원</div>
-                                                        <div class="polygon-2">▼</div>
-                                                    </div>
-                                                    <div class="dropdown-content">
-                                                        <a href="#">사원</a>
-                                                        <a href="#">주임</a>
-                                                        <a href="#">대리</a>
-                                                        <a href="#">과장</a>
-                                                        <a href="#">차장</a>
-                                                        <a href="#">부장</a>
-                                                        <a href="#">이사</a>
-                                                        <a href="#">상무</a>
-                                                        <a href="#">전무</a>
-                                                        <a href="#">부사장</a>
-                                                        <a href="#">사장</a>
-                                                        <a href="#">대표이사</a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="textsettitle">
-                                            <div class="title">전화번호</div>
-                                            <div class="text">
-                                                <input type="text" class="article3" placeholder="전화번호를 입력하세요"></input>
-                                            </div>
-                                        </div>
-                                        <div class="textsettitle">
-                                            <div class="title">이메일</div>
-                                            <div class="text">
-                                                <input type="text" class="article3" placeholder="메일을 입력하세요"></input>
-                                            </div>
-                                        </div>
-                                        <div class="radioset">
-                                            <div class="div13">성별</div>
-                                            <div class="arraybtn2">
-                                                <div class="m">
-                                                    <input name="gender" class="radio" value="남성" type="radio" checked/>
-                                                    <div class="div13">남성</div>
-                                                </div>
-                                                <div class="w">
-                                                    <input name="gender" class="radio" value="여성" type="radio"/>
-                                                    <div class="div13">여성</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="textsettitle">
-                                            <div class="title">주소</div>
-
-                                            <div class="text">
-                                                <input type="text" class="article3" placeholder="주소를 입력하세요"></input>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="frame-53">
-                                <div class="frame-50" onclick="createUser()">
-                                    <div class="div14">등록하기</div>
-                                </div>
-                                <div class="frame-52" onclick="closeModal()">
-                                    <div class="close">취소</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div id="userTableBody">
+                    <!-- 동적으로 데이터가 추가될 부분 -->
                 </div>
-                <div class="tableset">
-                    <div class="tabletitle">
-                        <input class="checkbox" id="head-check" type="checkbox"/>
-                        <div class="div6">|</div>
-                        <div class="div7">부서</div>
-                        <div class="div6">|</div>
-                        <div class="div7">이름</div>
-                        <div class="div6">|</div>
-                        <div class="div7">팀</div>
-                        <div class="div6">|</div>
-                        <div class="div8">연락처</div>
-                        <div class="div6">|</div>
-                        <div class="div7">직급</div>
-                        <div class="div6">|</div>
-                        <div class="div8">이메일</div>
-                        <div class="div6">|</div>
-                        <div class="div7">입사일</div>
-                        <div class="div6">|</div>
-                        <div class="div9">사진</div>
-                        <div class="div6">|</div>
-                        <div class="div10">삭제</div>
-                    </div>
-                    <div id="userTableBody">
-                        <!-- 동적으로 데이터가 추가될 부분 -->
-                    </div>
-                    <div class="frame-136"></div>
+            </div>
+            <div class="pagenumset">
+                <i class="bi bi-arrow-left leftbtn page-arrow"></i>
+                <div class="pagenum">
+                    <!--                        <div class="_1">1</div>-->
+                    <!--                        <div class="_2">2</div>-->
                 </div>
-                <div class="pagenumset">
-                    <i class="bi bi-arrow-left leftbtn page-arrow"></i>
-                    <div class="pagenum">
-                        <!--                        <div class="_1">1</div>-->
-                        <!--                        <div class="_2">2</div>-->
-                    </div>
-                    <i class="bi bi-arrow-right rightbtn page-arrow"></i>
-                </div>
+                <i class="bi bi-arrow-right rightbtn page-arrow"></i>
             </div>
         </div>
     </div>
-    <div th:replace="layout/header :: header"></div>
 </div>
+<!-- 모달 -->
+<div class="modal" id="myModal">
+    <div class="management-modal" id="management-modal">
+        <div class="frame-82">
+            <div class="div11">직원 등록</div>
+        </div>
+        <div class="frame-111">
+            <div class="frame-99">
+                <img class="rectangle-74" id="previewImage" src=""/>
+                <input type="file" id="fileInput" class="hidden-file"/>
+                <div class="frame-56" onclick="openFilePicker()">
+                    <div class="div12">사진 선택</div>
+                </div>
+                <p id="fileName">선택된 파일 없음</p>
+            </div>
+            <div class="frame-81">
+                <div class="frame-75">
+                    <div class="textsettitle">
+                        <div class="title">이름</div>
+                        <div class="text">
+                            <input type="text" class="article3" placeholder="이름을 입력하세요"></input>
+                        </div>
+                    </div>
+                    <div class="arraysettitle3">
+                        <div class="title">부서</div>
+                        <div class="dropdown">
+                            <div class="arraybtn3 dropdownButton">
+                                <div class="article3 buseo">부서</div>
+                                <div class="polygon-2">▼</div>
+                            </div>
+                            <div class="dropdown-content">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="frame-142">
+                        <div class="dropdown">
+                            <div class="arraysettitle2" id="teamDropdown">
+                                <div class="title">팀</div>
+                                <div class="arraybtn3 dropdownButton">
+                                    <div class="article3">팀</div>
+                                    <div class="polygon-2">▼</div>
+                                </div>
+                                <div class="dropdown-content">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="dropdown">
+                            <div class="arraysettitle2" id="position">
+                                <div class="title">직급</div>
+                                <div class="arraybtn3 dropdownButton">
+                                    <div class="article3">사원</div>
+                                    <div class="polygon-2">▼</div>
+                                </div>
+                                <div class="dropdown-content">
+                                    <a href="#">사원</a>
+                                    <a href="#">주임</a>
+                                    <a href="#">대리</a>
+                                    <a href="#">과장</a>
+                                    <a href="#">차장</a>
+                                    <a href="#">부장</a>
+                                    <a href="#">이사</a>
+                                    <a href="#">상무</a>
+                                    <a href="#">전무</a>
+                                    <a href="#">부사장</a>
+                                    <a href="#">사장</a>
+                                    <a href="#">대표이사</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="textsettitle">
+                        <div class="title">전화번호</div>
+                        <div class="text">
+                            <input type="text" class="article3" placeholder="전화번호를 입력하세요"></input>
+                        </div>
+                    </div>
+                    <div class="textsettitle">
+                        <div class="title">이메일</div>
+                        <div class="text">
+                            <input type="text" class="article3" placeholder="메일을 입력하세요"></input>
+                        </div>
+                    </div>
+                    <div class="radioset">
+                        <div class="div13">성별</div>
+                        <div class="arraybtn2">
+                            <div class="m">
+                                <input name="gender" class="radio" value="남성" type="radio" checked/>
+                                <div class="div13">남성</div>
+                            </div>
+                            <div class="w">
+                                <input name="gender" class="radio" value="여성" type="radio"/>
+                                <div class="div13">여성</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="textsettitle">
+                        <div class="title">주소</div>
 
+                        <div class="text">
+                            <input type="text" class="article3" placeholder="주소를 입력하세요"></input>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="frame-53">
+            <div class="frame-50" onclick="createUser()">
+                <div class="div14">등록하기</div>
+            </div>
+            <div class="frame-52" onclick="closeModal()">
+                <div class="close">취소</div>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>
 <script>
@@ -217,7 +192,7 @@
     let currentPage = 1; // 현재 페이지
     $(document).ready(function () {
         loadDepartments();
-        loadUsers();
+        checkAdmin();
         const $headCheck = $('#head-check');
 
         // 전체 선택/해제
@@ -291,7 +266,7 @@
 
             // 드롭다운 버튼 class에 따라 분기
             if (dropdownButton.hasClass("article2")) {
-                currentDep = selectedText
+                currentDep = selectedId
                 currentPage = 1;
                 loadUsers(currentDep, currentPage); // 메인화면 부서 선택
             } else if (dropdownButton.hasClass("buseo")) {
@@ -349,11 +324,22 @@
     function loadUsers(dep, page) {
         let dropdownButton = $(".arraybtn .article2");
         let department = dropdownButton.attr("data-selected-value");
+        let depMap = {};
+        $.ajax({
+            url: "/api/dep/readDeps", // 전체 부서 리스트 API
+            success: function (res) {
+                if (res.status === "ok") {
+                    res.result.forEach(dep => {
+                        depMap[dep.id] = dep.name;
+                    });
+                }
+            }
+        });
         if (dep != null) {
             $.ajax({
                 url: '/api/users/readUsersByDep',
                 type: 'GET',
-                data: {department: dep, page: page, size: pageSize},
+                data: {departmentId: dep, page: page, size: pageSize},
                 success: function (response) {
                     if (response.status === "ok") {
                         let users = response.result.list;
@@ -367,30 +353,24 @@
                             let createdAt = user.createdAt.split(" ")[0];
                             let row = `
                         <div class="table">
-                            <input class="checkbox user-check" type="checkbox" data-user-id="${user.id}"/>
-                            <div class="div6">|</div>
-                            <div class="div7">${user.department}</div>
-                            <div class="div6">|</div>
-                            <div class="div7">${user.name}</div>
-                            <div class="div6">|</div>
-                            <div class="div7">${user.team}</div>
-                            <div class="div6">|</div>
-                            <div class="_010-8888-9999">${user.phone}</div>
-                            <div class="div6">|</div>
-                            <div class="div7">${user.position}</div>
-                            <div class="div6">|</div>
-                            <div class="hgd-gmail-com">${user.email}</div>
-                            <div class="div6">|</div>
-                            <div class="_2024-10-11">${createdAt}</div>
-                            <div class="div6">|</div>
-                            <div class="frame-70">
-                                <img class="rectangle-53" src="https://kr.object.ncloudstorage.com/bitcamp-semi/users/${user.profileImage}" onerror="this.src='../../images/Rectangle53.png'"/>
-                            </div>
-                            <div class="div6">|</div>
-                            <button class="btnwhite2" onclick="deleteUser(${user.id})">
-                                <div class="div5">삭제</div>
-                            </button>
-                        </div>
+                            <input type="checkbox" class="checkbox user-check list-cell" data-user-id="${user.id}">
+                    	    <div class="list-cell">${depMap[user.departmentId]}</div>
+                    	    <div class="list-cell">${user.name}</div>
+                    	    <div class="list-cell">${user.team}</div>
+                    	    <div class="list-cell">${user.phone}</div>
+                    	    <div class="list-cell">${user.position}</div>
+                    	    <div class="list-cell">${user.email}</div>
+                    	    <div class="list-cell">${createdAt}</div>
+                    	    <div class="list-cell">
+                    	        <img class="rectangle-53" src="https://kr.object.ncloudstorage.com/bitcamp-semi/users/${user.profileImage}" onerror="this.src='../../images/Rectangle53.png'"/>
+                    	    </div>
+                    	    <div class="list-cell">
+                    		<button class="btnwhite2" onclick="deleteUser(${user.id})">
+                    			삭제
+                    		</button>
+                    		</div>
+                    	</div>
+
                         `;
                             tableBody.append(row);
                         });
@@ -471,7 +451,7 @@
 
         // 입력 값 가져오기
         let name = $("input[placeholder='이름을 입력하세요']").val().trim();
-        let department = $(".buseo").text().trim();
+        let departmentId = $(".buseo").attr("data-id");
         let team = $("#teamDropdown .article3").text().trim();
         let position = $("#position .article3").text().trim();
         let phone = $("input[placeholder='전화번호를 입력하세요']").val().trim();
@@ -479,16 +459,17 @@
         let gender = $("input[name='gender']:checked").val();
         let address = $("input[placeholder='주소를 입력하세요']").val().trim();
         let profileImage = $("#fileInput")[0].files[0];
+        console.log(departmentId)
 
         // 필수값 검증
-        if (!name || !department || !position || !phone || !email) {
+        if (!name || !departmentId || !position || !phone || !email) {
             alert("필수 정보를 입력하세요.");
             return;
         }
 
         // FormData에 값 추가
         formData.append("name", name);
-        formData.append("department", department);
+        formData.append("departmentId", departmentId);
         formData.append("team", team);
         formData.append("position", position);
         formData.append("phone", phone);
@@ -581,8 +562,34 @@
             }
         });
     }
+    function checkAdmin() {
+        $.ajax({
+            url: "/api/users/checkAdmin",
+            type: "get",
+            success: function (res) {
+                if (res.status === "ok") {
+                    console.log("admin ok")
+                }
+            },
+            error: function () {
+                alert("not admin")
+                history.back();
+            }
+        })
+    }
 
-    $("#head-check")
-
-
+</script>
+<script>
+    $("#navlist1").click(function () {
+        location.href = "/admin/management"
+    })
+    $("#navlist2").click(function () {
+        location.href = "/admin/managementOrg"
+    })
+    $("#navlist3").click(function () {
+        location.href = "/admin/managementApproval"
+    })
+    $("#navlist4").click(function () {
+        location.href = "/admin/managementFormer"
+    })
 </script>

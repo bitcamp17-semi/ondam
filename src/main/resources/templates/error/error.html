@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Ondam Error</title>
+    <style>
+        body {
+            background: #f6f8fa;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+            color: #333;
+        }
+
+        .emoji {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin: 0;
+        }
+        p {
+            font-size: 1.1rem;
+            color: #555;
+            margin-top: 10px;
+        }
+        a {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #ff6600;
+            color: white;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        a:hover {
+            background: #e05500;
+        }
+    </style>
+</head>
+<body>
+<div class="emoji">🧭</div>
+<h1 th:text="${code} + ' - 오류가 발생했어요'">오류</h1>
+<p th:text="${message}">죄송합니다. 문제가 발생했어요.</p>
+<p>이 페이지는 존재하지 않거나, 이사 갔을 수 있어요.</p>
+<a href="/">홈으로 가기</a>
+</body>
+</html>

@@ -1,0 +1,301 @@
+/*all*/
+
+.fullbox {
+    display: flex;
+    flex-direction: row;
+    width: 96vw;
+    height: 100dvh;
+    color: #686868;
+    position: relative;
+}
+
+.main {
+    display: flex;
+    flex-direction: column;
+    width: 95%;
+    margin-left: 80px;
+    align-items: flex-start;
+    position: relative;
+    background-color: #fff;
+    height: 100%;
+    min-height: 0;
+}
+
+.nav {
+    display: flex;
+    flex-direction: column;
+    height: 200px;
+    width: 100%;
+    align-items: flex-start;
+    justify-content: flex-end;
+    margin-left: 70px;
+    gap: 25px;
+}
+
+.navtitle {
+    font-size: 30px;
+    font-weight: bold;
+    color: #3f3f3f;
+}
+
+.navbar {
+    display: flex;
+    align-items: flex-start;
+    gap: 30px;
+    position: relative;
+    align-self: stretch;
+    width: 100%;
+    font-size: 16px;
+}
+
+#navlist1 {
+    color: #fa7000;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#navlist2 {
+    font-weight: bold;
+    color: #3f3f3f;
+    border-left: rgba(0, 0, 0, 0.15) 1px solid;
+    padding-left: 30px;
+    cursor: pointer;
+}
+
+.navlistnone {
+    border-left: rgba(0, 0, 0, 0.15) 1px solid;
+    padding-left: 30px;
+    cursor: pointer;
+}
+
+.section {
+    display: flex;
+    padding: 20px;
+    border: rgba(0, 0, 0, 0.05) 1px solid;
+    border-radius: 15px;
+    width: 96%;
+    height: 100%;
+    margin: 50px 50px 50px 70px;
+    flex-direction: column;
+    gap: 15px;
+    min-height: 0;
+}
+
+.btnset {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    gap: 10px;
+    height: 35px;
+}
+
+.orangebtn {
+    border: rgba(0, 0, 0, 0.15) 1px solid;
+    border-radius: 5px;
+    height: 35px;
+    padding: 0 10px 0 10px;
+    background-color: #fa7000;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.whitebtn {
+    border: rgba(0, 0, 0, 0.15) 1px solid;
+    border-radius: 5px;
+    height: 35px;
+    padding: 0 10px 0 10px;
+    background-color: white;
+    color: #686868;
+    cursor: pointer;
+}
+
+#approve-btn {
+    margin-left: auto;
+}
+
+.approvallist {
+    display: flex;
+    width: 100%;
+    flex-grow: 1;
+    min-height: 0;
+    flex-direction: column;
+
+}
+
+.listtop {
+    width: 100%;
+    height: 45px;
+    background-color: rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: rgba(0, 0, 0, 0.05) 1px solid;
+}
+
+.list-cell {
+    border-left: rgba(0, 0, 0, 0.05) 1px solid;
+    text-align: center;
+}
+
+.list-cell.first {
+    border-left: none;
+}
+
+#title{
+    width: 65%;
+}
+#sendname{
+    width: 10%;
+}
+#status{
+    width: 10%;
+}
+#date{
+    width: 15%;
+}
+
+.listcontent {
+    width: 100%;
+    height: 45px;
+    background-color: white;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: rgba(0, 0, 0, 0.05) 1px solid;
+}
+
+
+#readonly-content {
+    flex: 1;
+    height: 100%;
+    overflow-y: auto;
+    border: rgba(0, 0, 0, 0.05) 1px solid;
+    padding: 10px;
+    min-height: 0;
+}
+
+.approvalline {
+    width: 100%;
+    height: 100px;
+    background-color: white;
+    display: flex;
+    align-items: end;
+    gap: 10px;
+    overflow-x: auto;
+    min-width: 0;
+}
+
+.profileset {
+    border: rgba(0, 0, 0, 0.05) 1px solid;
+    border-radius: 5px;
+    width: 180px;
+    height: 80px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    min-width: 180px;
+}
+
+.lineprofile {
+    display: flex;
+    flex-direction: column;
+}
+
+.lineprofile span {
+    font-size: 12px;
+}
+
+.lineprofile img {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+}
+
+.linebtn {
+    border: rgba(0, 0, 0, 0.15) 1px solid;
+    border-radius: 5px;
+    height: 35px;
+    padding: 0 10px 0 10px;
+    background-color: white;
+    display: flex;
+    align-items: center;
+    font-size: 13px;
+}
+
+.linebtn.approved {
+    background-color: #28a745;
+    color: white;
+}
+
+.linebtn.rejected {
+    background-color: #aa222f;
+    color: white;
+    cursor: pointer;
+}
+
+/*모달 css*/
+.modal-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 20000;
+}
+
+.modal-box {
+    background-color: white;
+    padding: 20px;
+    gap: 20px;
+    border-radius: 10px;
+    width: 400px;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-box h3 {
+    font-size: 20px;
+    font-weight: bold;
+    color: #fa7000;
+}
+
+.modal-box textarea {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    resize: none;
+    border: rgba(0, 0, 0, 0.15) 1px solid;
+    border-radius: 5px;
+}
+
+.modal-btns {
+    margin-top: 10px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+/*반려 토글*/
+.reject-reason-box {
+    font-size: 14px;
+    color: #b00020;
+    display: none;
+    margin-top: 5px;
+    padding: 10px;
+    border: #b00020 1px solid;
+    background: #fff;
+    border-radius: 5px;
+}
+.file-name{
+    font-size: 12px;
+    align-content: center;
+}

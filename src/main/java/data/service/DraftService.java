@@ -53,6 +53,42 @@ public class DraftService {
         draftMapper.updateDraftStatus(id, status);
     };
 
+    public List<DraftsDto> getPendingDraftsForUser(int userId, int size, int offset) {
+        return draftMapper.readPendingDraftsForUser(userId, size, offset);
+    }
+
+    public Integer readCountDraftsForActions(int userId) {
+        return draftMapper.readCountDraftsForActions(userId);
+    }
+
+    public Integer readCheckIsOrder(int userId, int draftId) {
+        return draftMapper.readCheckIsOrder(userId, draftId);
+    }
+
+    public List<DraftsDto> readPendingDraftsById(int userId, int size, int offset) {
+        return draftMapper.readPendingDraftsById(userId, size, offset);
+    }
+
+    public Integer readCountPendingdraftsById(int userId) {
+        return draftMapper.readCountPendingdraftsById(userId);
+    }
+
+    public List<DraftsDto> readSentDoneById(int userId, int size, int offset) {
+        return draftMapper.readSentDoneById(userId, size, offset);
+    }
+
+    public Integer readCountSentDoneById(int userId) {
+        return draftMapper.readCountSentDoneById(userId);
+    }
+
+    public List<DraftsDto> readReceivedDoneById(int userId, int size, int offset) {
+        return draftMapper.readReceivedDoneById(userId, size, offset);
+    }
+
+    public Integer readCountReceivedDoneById(int userId) {
+        return draftMapper.readCountReceivedDoneById(userId);
+    }
+
     public void stringToEnumAndUpdate(int id, String status) {
         ApprovalsDto.ApprovalStatus approvalStatus = ApprovalsDto.ApprovalStatus.valueOf(status);
     }
@@ -61,11 +97,12 @@ public class DraftService {
         return ApprovalLogDto.ApprovalAction.valueOf(status.toUpperCase());
     }
 
-    public void stringToApprovalLogEnumAndCreateLog(int draftId, int userId, String action) {
+    public void stringToApprovalLogEnumAndCreateLog(int draftId, int userId, String action, String reason) {
         ApprovalLogDto logDto = new ApprovalLogDto();
         logDto.setAction(stringToApprovalLogEnum(action));
         logDto.setDraftId(draftId);
         logDto.setApprovalId(userId);
+        logDto.setReason(reason);
         approvalsService.createApprovalLog(logDto);
     }
 }

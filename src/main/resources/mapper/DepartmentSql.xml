@@ -9,6 +9,11 @@
         select *
         from department
     </select>
+    <select id="readDepById" parameterType="int" resultType="DepartmentDto">
+        select *
+        from department
+        where id = #{id}
+    </select>
     <update id="updateDep" parameterType="DepartmentDto">
         update department
         <set>
@@ -23,4 +28,7 @@
         from department
         where id = #{id}
     </delete>
+    <select id="readTeamsByDepartmentId" parameterType="int" resultType="TeamDto">
+        SELECT * FROM team WHERE departmentId = #{deptId}
+    </select>
 </mapper>

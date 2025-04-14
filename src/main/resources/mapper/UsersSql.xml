@@ -2,16 +2,15 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="data.mapper.UsersMapper">
     <insert id="createUser" parameterType="UsersDto" useGeneratedKeys="true" keyProperty="id">
-        insert into users (email, name, phone, profileImage, addr, department, team, gender, position, password,
+        insert into users (email, name, phone, profileImage, addr, departmentId, team, gender, position, password,
                            loginId)
-        values (#{email}, #{name}, #{phone}, #{profileImage}, #{addr}, #{department}, #{team}, #{gender},
+        values (#{email}, #{name}, #{phone}, #{profileImage}, #{addr}, #{departmentId}, #{team}, #{gender},
                 #{position}, #{password}, #{loginId})
     </insert>
     <select id="readUserById" parameterType="int" resultType="UsersDto">
         select *
         from users
         where id = #{id}
-          and isDeleted = 0
     </select>
     <select id="readUserByLoginId" parameterType="String" resultType="UsersDto">
         select *
@@ -23,6 +22,7 @@
         select *
         from users
         where isDeleted = 0
+          and departmentId is not null
     </select>
     <select id="readAllDeactivateUsers" resultType="UsersDto">
         select *
@@ -37,15 +37,21 @@
     <select id="readUsersByDep" parameterType="map" resultType="UsersDto">
         select *
         from users
-        where department = #{department}
+        where departmentId = #{departmentId}
           and isDeleted = 0
             LIMIT #{size}
         OFFSET #{offset}
     </select>
-    <select id="readCountUsersByDep" parameterType="String" resultType="int">
+    <select id="readAllUsersByDep" parameterType="int" resultType="UsersDto">
+        select *
+        from users
+        where departmentId = #{departmentId}
+          and isDeleted = 0
+    </select>
+    <select id="readCountUsersByDep" parameterType="int" resultType="int">
         SELECT COUNT(*)
         FROM users
-        WHERE department = #{department}
+        WHERE departmentId = #{departmentId}
           and isDeleted = 0
     </select>
     <select id="readUsersByTeam" parameterType="String" resultType="UsersDto">
@@ -53,6 +59,13 @@
         from users
         where team = #{team}
           and isDeleted = 0
+    </select>
+    <select id="readUsersByTeamId" parameterType="int" resultType="UsersDto">
+        SELECT *
+        FROM users
+        WHERE id IN (SELECT userId
+                     FROM junction_users_teams
+                     WHERE teamId = #{teamId})
     </select>
     <select id="readUsersByName" parameterType="String" resultType="UsersDto">
         SELECT *
@@ -63,10 +76,13 @@
     <update id="updateUser" parameterType="map">
         update users
         <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="profileImage != null">profileImage = #{profileImage},</if>
             <if test="password != null">password = #{password},</if>
             <if test="addr != null">addr = #{addr},</if>
             <if test="phone != null">phone = #{phone},</if>
-            <if test="department != null">department = #{department},</if>
+            <if test="departmentId != null">departmentId = #{departmentId},</if>
             <if test="team != null">team = #{team},</if>
             <if test="position != null">position = #{position},</if>
             updatedAt = now()
@@ -84,4 +100,33 @@
         from users
         where id = #{id}
     </delete>
+    <select id="readAllDeactivateUsersByKeyword" parameterType="map" resultType="UsersDto">
+        SELECT u.*, d.name AS departmentName
+        FROM users AS u
+        JOIN department AS d ON u.departmentId = d.id
+        WHERE u.isDeleted = 1
+        <if test="keyword != null and keyword != ''">
+            AND (
+            u.name LIKE CONCAT('%', #{keyword}, '%')
+            OR d.name LIKE CONCAT('%', #{keyword}, '%')
+            OR u.team LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+        ORDER BY u.deletedAt DESC
+        LIMIT #{size}
+        OFFSET #{offset}
+    </select>
+    <select id="readCountDeactivateUsersByKeyword" parameterType="map" resultType="int">
+        SELECT COUNT(*)
+        FROM users AS u
+        JOIN department AS d ON u.departmentId = d.id
+        WHERE u.isDeleted = 1
+        <if test="keyword != null and keyword != ''">
+            AND (
+            u.name LIKE CONCAT('%', #{keyword}, '%')
+            OR d.name LIKE CONCAT('%', #{keyword}, '%')
+            OR u.team LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+    </select>
 </mapper>

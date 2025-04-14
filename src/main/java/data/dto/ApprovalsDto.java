@@ -11,8 +11,12 @@ public class ApprovalsDto {
     }
     private int id;
     private int userId;
-    private int draftId;
-    private int templateId;
+    private Integer draftId;
+    private Integer templateId;
     private int order;
     private ApprovalStatus status;
+    // user 정보를 위한 필드
+    private String userName;
+    private String profileImage;
+    private String position;
 }

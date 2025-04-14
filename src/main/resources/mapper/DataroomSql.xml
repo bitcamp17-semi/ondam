@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="data.mapper.DataroomMapper">
     <!--자료실 ID와 키워드로 파일 목록을 조회 -->
-    <select id="readDataroomFilesByIdAndKeyword" resultType="FilesDto">
+    <!--<select id="readDataroomFilesByIdAndKeyword" resultType="FilesDto">
         SELECT * FROM files
         WHERE (roomId = #{roomId} OR #{roomId} = 0)
           AND (title LIKE CONCAT('%', #{keyword}, '%')
@@ -11,26 +11,86 @@
         ORDER BY createdAt DESC
             LIMIT #{offset}, #{limit};
     </select>
-    <!--특정 ID로 파일 하나의 정보를 조회-->
+
+    &lt;!&ndash;특정 ID로 파일 하나의 정보를 조회&ndash;&gt;
     <select id="readDataroomById" resultType="FilesDto">
         SELECT * FROM files
         WHERE id = #{id}
     </select>
 
-    <!-- 자료실 모든 카테고리 조회 -->
+    &lt;!&ndash; 자료실 모든 카테고리 조회 &ndash;&gt;
     <select id="readDataroomCategories" resultType="DataroomDto">
-        SELECT DISTINCT name FROM data_room
+        SELECT DISTINCT id, name
+        FROM data_room
         ORDER BY name
     </select>
 
-    <!--자료실에 새 파일을 생성 -->
+    &lt;!&ndash;자료실에 새 파일을 생성 &ndash;&gt;
     <insert id="createDataroomFile">
         INSERT INTO files (title, comment, roomId, name, path, authorId, type, createdAt,updatedAt)
         VALUES (#{title}, #{comment}, #{roomId}, #{name}, #{path}, #{authorId}, #{type}, NOW(),NOW())
     </insert>
-    <!--특정 ID의 파일을 삭제-->
+    &lt;!&ndash;특정 ID의 파일을 삭제&ndash;&gt;
     <delete id="deleteDataroomById">
         DELETE FROM files
         WHERE id = #{id}
     </delete>
+    <select id="getDataroomListByDepartment" resultType="DataroomDto">
+        SELECT * FROM dataroom
+        WHERE name = #{department}
+    </select>-->
+    <select id="readAllFolders" resultType="DataRoomDto">
+        SELECT
+            id,
+            name,
+            parent_id AS parentId
+        FROM data_room
+        WHERE parent_id IS NULL
+        ORDER BY id;
+    </select>
+
+    <select id="readSubFolders" resultType="DataRoomDto">
+        SELECT
+            id,
+            name,
+            parent_id AS parentId
+        FROM data_room
+        WHERE parent_id = #{parentId}
+        ORDER BY id;
+    </select>
+
+    <select id="readHasChild" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM data_room
+        WHERE parent_id = #{folderId}
+    </select>
+
+    <select id="readFolderExists" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM data_room
+        WHERE name = #{folderName} AND parent_id = #{parentId}
+    </select>
+
+    <insert id="insertFolder">
+        INSERT INTO data_room (name, parent_id, created_date)
+        VALUES (#{name}, #{parentId}, NOW());
+    </insert>
+
+    <delete id="deleteFolder">
+        DELETE FROM data_room
+        WHERE id = #{folderId};
+    </delete>
+
+    <select id="readFilesByRoomId" resultType="FilesDto">
+        SELECT *
+        FROM files
+        WHERE roomId = #{roomId}
+        ORDER BY createdAt DESC
+    </select>
+    <insert id="insertFile" parameterType="FilesDto">
+        INSERT INTO files (name, path, type, room_id, comment, title, category, author_id, created_at, updated_at)
+        VALUES (#{name}, #{path}, #{type}, #{roomId}, #{comment}, #{title}, #{category}, #{authorId}, NOW(), NOW())
+    </insert>
+
+
 </mapper>
