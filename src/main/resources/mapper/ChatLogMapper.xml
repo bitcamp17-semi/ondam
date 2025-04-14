@@ -6,18 +6,20 @@
 	<!-- 💾 채팅 로그 저장 -->
 	<insert id="createChatLog" parameterType="ChatLogDto">
 		insert into chat_log
-		(senderid, receiverid, groupid, message, createdat)
+		(senderid, receiverid, groupid, message, createdat, file, fileType)
 		values
-		(#{senderId}, #{receiverId}, #{groupId}, #{message}, #{createdAt})
+		(#{senderId}, #{receiverId}, #{groupId}, #{message},
+		#{createdAt}, #{file}, #{fileType})
 	</insert>
 
 	<!-- 📜 그룹 채팅 전체 메시지 조회 -->
 	<select id="readAllLogsByGroupId" parameterType="long"
 		resultType="ChatLogDto">
-		select * from chat_log
-		where groupid = #{groupId}
-		order by
-		createdat asc
+		SELECT id, senderid, message, file, filetype,
+		createdat
+		FROM chat_log
+		WHERE groupid = #{groupId}
+		ORDER BY createdat ASC
 	</select>
 
 	<!-- 📩 그룹 채팅 마지막 메시지 조회 -->
@@ -64,9 +66,12 @@
 	</select>
 	<!-- 🧾 1:1 채팅 전체 메시지 조회 -->
 	<select id="readAllPrivateLogs" resultType="ChatLogDto">
-		SELECT * FROM chat_log
+		SELECT * FROM
+		chat_log
 		WHERE (senderid = #{userId} AND receiverid = #{chatId})
-		OR (senderid = #{chatId} AND receiverid = #{userId})
-		ORDER BY createdat ASC
+		OR
+		(senderid = #{chatId} AND receiverid = #{userId})
+		ORDER BY createdat
+		ASC
 	</select>
 </mapper>

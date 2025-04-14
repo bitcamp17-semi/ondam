@@ -9,8 +9,13 @@ import data.mapper.UsersMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.amazonaws.services.s3.AmazonS3;
+
+import config.NaverConfig;
 
 import java.util.HashMap;
 import java.util.List;
@@ -32,7 +37,7 @@ public class ChatService {
     private UsersMapper usersMapper;
 
     // 사용자가 속한 그룹 목록과 마지막 메시지 조회
-    public List<ChatGroupsDto> getAllGroupsWithLastMessages(Integer userId) {
+    public List<ChatGroupsDto> readAllGroupsWithLastMessages(Integer userId) {
     	List<ChatGroupsDto> groups = chatGroupsMapper.readAllGroupsWithLastMessages(Long.valueOf(userId));
         for (ChatGroupsDto group : groups) {
             // 각 채팅방의 사용자 수를 조회하여 memberCount 설정
@@ -43,12 +48,12 @@ public class ChatService {
     }
 
     // 특정 그룹 정보 조회
-    public ChatGroupsDto getGroupById(Integer groupId) {
+    public ChatGroupsDto readGroupById(Integer groupId) {
         return chatGroupsMapper.readGroupById(groupId);
     }
 
     // 그룹 채팅 메시지 조회
-    public List<ChatLogDto> getGroupMessages(Integer groupId) {
+    public List<ChatLogDto> readGroupMessages(Integer groupId) {
         List<ChatLogDto> messages = chatLogMapper.readAllLogsByGroupId(Long.valueOf(groupId));
         for (ChatLogDto msg : messages) {
             UsersDto sender = usersMapper.readUserById(msg.getSenderId());
@@ -60,7 +65,7 @@ public class ChatService {
     }
 
     // 1:1 채팅 메시지 조회
-    public List<ChatLogDto> getPrivateMessages(Integer userId, Integer chatId) {
+    public List<ChatLogDto> readPrivateMessages(Integer userId, Integer chatId) {
         Map<String, Integer> params = new HashMap<>();
         params.put("userId", userId);
         params.put("chatId", chatId);
@@ -75,7 +80,7 @@ public class ChatService {
     }
 
     // 채팅 메시지 저장
-    public void saveChatMessage(ChatLogDto chatLogDto) {
+    public void createChatMessage(ChatLogDto chatLogDto) {
         if (chatLogDto == null) {
             logger.error("ChatLogDto is null");
             throw new IllegalArgumentException("ChatLogDto cannot be null");
@@ -98,17 +103,17 @@ public class ChatService {
     }
 
     // 사용자 정보 조회
-    public UsersDto getUserById(Integer userId) {
+    public UsersDto readUserById(Integer userId) {
         return usersMapper.readUserById(userId);
     }
 
     // 사용자가 속한 그룹의 사용자 목록 조회
-    public List<Long> getGroupUserIds(Integer groupId) {
+    public List<Long> readGroupUserIds(Integer groupId) {
         return chatGroupsMapper.readGroupUserIds(Long.valueOf(groupId));
     }
 
     // 현재 사용자를 제외한 모든 사용자 목록 조회 (contacts용)
-    public List<UsersDto> getAllUsersExceptCurrent(Integer userId) {
+    public List<UsersDto> readAllUsersExceptCurrent(Integer userId) {
         List<UsersDto> allUsers = usersMapper.readAllActiveUsers();
         if (allUsers == null || userId == null) {
             return List.of();
@@ -180,34 +185,45 @@ public class ChatService {
             throw new IllegalArgumentException("User ID and Target User ID cannot be null");
         }
 
-        // 이미 존재하는 개인 채팅방 확인
         ChatGroupsDto existingChat = chatGroupsMapper.readPrivateChatBetweenUsers(userId, targetUserId);
         if (existingChat != null) {
             logger.info("Private chat already exists between userId={} and targetUserId={}: chatId={}", userId, targetUserId, existingChat.getId());
             return existingChat.getId();
         }
 
-        // 대상 사용자 이름 가져오기 (채팅방 이름으로 사용)
-        UsersDto targetUser = usersMapper.readUserById(targetUserId.intValue());
-        if (targetUser == null) {
-            logger.error("Target user not found: targetUserId={}", targetUserId);
-            throw new IllegalArgumentException("Target user not found");
-        }
-
-        // 개인 채팅방 생성
         ChatGroupsDto privateChat = new ChatGroupsDto();
-        privateChat.setName(targetUser.getName());
+        privateChat.setName("");
         privateChat.setCreatedBy(userId);
-        privateChat.setRoomtype("PRIVATE"); // roomtype 설정 추가
+        privateChat.setRoomtype("PRIVATE");
         chatGroupsMapper.createGroup(privateChat);
 
         Long chatId = Long.valueOf(privateChat.getId());
         logger.info("Created private chat with ID: {}", chatId);
 
-        // 두 사용자 추가
         chatGroupsMapper.createGroupUser(userId, chatId);
         chatGroupsMapper.createGroupUser(targetUserId, chatId);
 
         return privateChat.getId();
+    }
+    
+    //파일 업로드 및 다운로드
+    public void createFileMessage(ChatLogDto chatLogDto) {
+        if (chatLogDto == null) {
+            logger.error("ChatLogDto가 null입니다.");
+            throw new IllegalArgumentException("ChatLogDto는 null일 수 없습니다.");
+        }
+        // groupId가 null이면 roomId로 설정
+        if (chatLogDto.getGroupId() == null) {
+            chatLogDto.setGroupId(chatLogDto.getRoomId());
+            logger.info("groupId가 null이므로 roomId로 설정: groupId={}", chatLogDto.getGroupId());
+        }
+        logger.info("파일 메시지 저장: {}", chatLogDto);
+        try {
+            chatLogMapper.createChatLog(chatLogDto);
+            logger.info("파일 메시지 저장 성공: {}", chatLogDto.getFile());
+        } catch (Exception e) {
+            logger.error("파일 메시지 저장 실패: {}", e.getMessage(), e);
+            throw new RuntimeException("파일 메시지 저장에 실패했습니다.", e);
+        }
     }
 }

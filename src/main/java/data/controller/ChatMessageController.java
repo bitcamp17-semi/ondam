@@ -41,7 +41,7 @@ public class ChatMessageController {
         validateGroupIdMatch(chatLogDto, groupId);
 
         try {
-            chatService.saveChatMessage(chatLogDto);
+            chatService.createChatMessage(chatLogDto);
             String destination = "/topic/group/" + groupId;
             messagingTemplate.convertAndSend(destination, chatLogDto);
             logger.debug("Broadcasted message to: {}", destination);
@@ -65,7 +65,7 @@ public class ChatMessageController {
         validateChatLogDto(chatLogDto, null);
 
         try {
-            chatService.saveChatMessage(chatLogDto);
+            chatService.createChatMessage(chatLogDto);
             return chatLogDto;
         } catch (Exception e) {
             logger.error("Failed to process private message", e);
