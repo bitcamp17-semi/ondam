@@ -113,7 +113,7 @@ $(document).ready(function () {
     function getRedirectUrlByType(alarmType, causedId) {
         switch (alarmType) {
             case "MESSAGE":
-                return `/draft/messageInBox`;
+                return `/messages/inbox`;
             case "APPROVAL":
                 return `/draft/approvalInbox`;
             case "SYSTEM":
