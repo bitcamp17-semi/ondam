@@ -12,6 +12,7 @@ body {
     width: 96vw;
     height: 100dvh;
     position: relative;
+    white-space: nowrap
 }
 
 .main {
