@@ -17,10 +17,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Controller
 @RequestMapping("/api/dataroom")
@@ -98,17 +95,53 @@ public class DataroomController {
     }
 
     // ✅ 파일 목록 조회: 특정 roomId 에 속한 파일들 반환
-    @ResponseBody
     @GetMapping("/files")
-    public List<FilesDto> getFilesByRoomId(@RequestParam int roomId) {
-        return dataroomService.getFilesByRoomId(roomId);
+    public ResponseEntity<List<FilesDto>> getFiles(@RequestParam(value = "teamId", required = false) Integer teamId) {
+        List<FilesDto> files = dataroomService.getFilesByTeam(teamId);
+        return ResponseEntity.ok(files);
     }
+    /*@GetMapping("/files")
+    public ResponseEntity<List<Map<String, Object>>> getFilesWithAuthorName(@RequestParam(value = "teamId", required = false) Integer teamId) {
+        // 팀 ID로 파일 리스트 가져오기
+        List<FilesDto> files = dataroomService.getFilesByTeam(teamId);
+
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        // 파일 리스트를 Map으로 변환하면서 authorName 추가
+        for (FilesDto file : files) {
+            Map<String, Object> fileMap = new HashMap<>();
+            fileMap.put("id", file.getId());
+            fileMap.put("name", file.getName());
+            fileMap.put("path", file.getPath());
+            fileMap.put("title", file.getTitle());
+            fileMap.put("category", file.getCategory());
+            fileMap.put("createdAt", file.getCreatedAt());
+            fileMap.put("updatedAt", file.getUpdatedAt());
+            fileMap.put("authorId", file.getAuthorId());
+            fileMap.put("type", file.getType());
+            fileMap.put("departmentId", file.getDepartmentId());
+            fileMap.put("teamId", file.getTeamId());
+
+            // authorId로 사용자 이름 조회
+            String authorName = dataroomMapper.readUserNameById(file.getAuthorId());
+            fileMap.put("authorName", authorName);  // authorName 추가
+
+            result.add(fileMap);
+        }
+
+        return ResponseEntity.ok(result);
+    }*/
+
+
+
+
 
     @ResponseBody
     @PostMapping("/upload")
     public ResponseEntity<?> uploadFile(@RequestParam("upload") MultipartFile upload,
                                         @RequestParam(value = "teamId", required = false) Integer teamId,
                                         @RequestParam("title") String title,
+                                        @RequestParam("category") String category,
                                         @RequestParam(value = "departmentId", required = false) Integer departmentId,
                                         HttpSession session) {
         try {
@@ -116,19 +149,27 @@ public class DataroomController {
             if (userId == null) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 필요");
             }
+            System.out.println("업로드 시작: " + upload.getOriginalFilename());
+
             String directoryPath = "dataroom";
             dataroomService.uploadFileAndSaveToDB(
                     objectStorageService.getBucketName(),
                     directoryPath,
                     upload,
                     title,
+                    category,
                     departmentId,
                     teamId,
                     userId
             );
 
-            return ResponseEntity.ok("업로드 성공");
+            // JSON 형식으로 응답 반환
+            System.out.println("업로드 성공 응답: 업로드 성공");
+            return ResponseEntity.ok().body(new HashMap<String, String>() {{
+                put("message", "업로드 성공");
+            }});
         } catch (Exception e) {
+            System.err.println("업로드 실패: " + e.getMessage());  // 예외 로그
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("업로드 실패: " + e.getMessage());
         }
     }
@@ -150,4 +191,8 @@ public class DataroomController {
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+
+
+
 }

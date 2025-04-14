@@ -4,13 +4,13 @@ import data.dto.DataRoomDto;
 import data.dto.FilesDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
 @Mapper
-    public interface DataroomMapper {
-    //특정 자료실(roomId)의 모든 파일 목록 조회
-    // 폴더 목록 조회 (상위 폴더)
+public interface DataroomMapper {
+    // 특정 자료실(roomId)의 모든 파일 목록 조회
     List<DataRoomDto> readAllFolders();
 
     // 자식 폴더 조회
@@ -31,7 +31,17 @@ import java.util.List;
 
     void insertFile(FilesDto file);
 
-    public void deleteFiles(int id);
+    void deleteFiles(int id);
 
-    public FilesDto readDataroomById(int id);
+    FilesDto readDataroomById(int id);
+
+    List<FilesDto> readFilesByDepartmentId(@Param("departmentId") int departmentId);
+
+    // @Select 어노테이션을 사용하여 SQL을 직접 작성
+
+    List<FilesDto> readFilesByTeamId(@Param("teamId") Integer teamId);
+
+    String readUserNameById(@Param("id") int id);
+
+
 }

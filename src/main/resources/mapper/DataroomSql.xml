@@ -1,40 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="data.mapper.DataroomMapper">
-    <!--자료실 ID와 키워드로 파일 목록을 조회 -->
-    <!--<select id="readDataroomFilesByIdAndKeyword" resultType="FilesDto">
-        SELECT * FROM files
-        WHERE (roomId = #{roomId} OR #{roomId} = 0)
-          AND (title LIKE CONCAT('%', #{keyword}, '%')
-            OR comment LIKE CONCAT('%', #{keyword}, '%')
-            OR name LIKE CONCAT('%', #{keyword}, '%'))
-        ORDER BY createdAt DESC
-            LIMIT #{offset}, #{limit};
-    </select>
-
-
-
-    &lt;!&ndash; 자료실 모든 카테고리 조회 &ndash;&gt;
-    <select id="readDataroomCategories" resultType="DataroomDto">
-        SELECT DISTINCT id, name
-        FROM data_room
-        ORDER BY name
-    </select>
-
-    &lt;!&ndash;자료실에 새 파일을 생성 &ndash;&gt;
-    <insert id="createDataroomFile">
-        INSERT INTO files (title, comment, roomId, name, path, authorId, type, createdAt,updatedAt)
-        VALUES (#{title}, #{comment}, #{roomId}, #{name}, #{path}, #{authorId}, #{type}, NOW(),NOW())
-    </insert>
-    &lt;!&ndash;특정 ID의 파일을 삭제&ndash;&gt;
-    <delete id="deleteDataroomById">
-        DELETE FROM files
-        WHERE id = #{id}
-    </delete>
-    <select id="getDataroomListByDepartment" resultType="DataroomDto">
-        SELECT * FROM dataroom
-        WHERE name = #{department}
-    </select>-->
     <select id="readAllFolders" resultType="DataRoomDto">
         SELECT
             id,
@@ -56,13 +22,13 @@
     </select>
 
     <select id="readHasChild" resultType="boolean">
-        SELECT COUNT(*) > 0
+        SELECT COUNT(*) &gt; 0
         FROM data_room
         WHERE parentId = #{folderId}
     </select>
 
     <select id="readFolderExists" resultType="boolean">
-        SELECT COUNT(*) > 0
+        SELECT COUNT(*) &gt; 0
         FROM data_room
         WHERE name = #{folderName} AND parentid = #{parentId}
     </select>
@@ -97,4 +63,22 @@
         SELECT * FROM files
         WHERE id = #{id}
     </select>
+
+    <select id="readFilesByDepartmentId" resultType="FilesDto">
+        SELECT *
+        FROM files
+        WHERE (departmentId = #{departmentId} OR #{departmentId} IS NULL)
+        ORDER BY createdAt DESC
+    </select>
+
+    <select id="readFilesByTeamId" resultType="FilesDto">
+        SELECT *
+        FROM files
+        WHERE (teamId = #{teamId} OR #{teamId} IS NULL)
+        ORDER BY createdAt DESC
+    </select>
+    <select id="readUserNameById" resultType="string">
+        SELECT name FROM user WHERE id = #{id}
+    </select>
+
 </mapper>
