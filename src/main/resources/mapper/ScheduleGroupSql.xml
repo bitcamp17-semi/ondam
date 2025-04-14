@@ -38,6 +38,11 @@
     	LIMIT 1
 	</select>
 	
+	<!-- groupId로 그룹 정보 가져오기 -->
+	<select id="getGroupById" parameterType="int" resultType="ScheduleGroupDto">
+    	SELECT * FROM schedule_group WHERE id = #{groupId}
+	</select>
+	
 	<!-- 그룹 수정 -->
 	<update id="updateSchGroup" parameterType="ScheduleGroupDto" >
 		update schedule_group set name=#{name},color=#{color} where id=#{id}
