@@ -152,7 +152,7 @@ public class SchedulesController {
 		        group.setOwnerName(ownerUser.getName());
 		    } else {
 		        group.setOwnerName("알 수 없음");
-		        System.out.println("그룹 ID={}의 ownerId={} 유저 정보가 없습니다."+ group.getId()+ ownerId);
+		        //System.out.println("그룹 ID={}의 ownerId={} 유저 정보가 없습니다."+ group.getId()+ ownerId);
 		    }
 			
 		}
