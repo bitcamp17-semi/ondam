@@ -30,7 +30,7 @@ public class BoardController {
 		List<BoardDto> boardList = boardService.getAllBoards();
 		model.addAttribute("boardList", boardList);
 		
-		// 💥 임시 기본값 설정
+		//임시 기본값 설정
 	    model.addAttribute("currentPage", 1);
 	    model.addAttribute("totalPages", 1);
 		
@@ -63,8 +63,10 @@ public class BoardController {
 	// 글 상세보기
 	@GetMapping("/boardDetail/{id}")
 	public String getBoardDetail(@PathVariable int id, Model model) {
+		
 		System.out.println("controller 1 >> id = " + id);
 		BoardDto boardDto = boardService.getBoardDetailById(id);
+		System.out.println("boardDto = " + boardDto);
 		model.addAttribute("board", boardDto);
 		return "layout/boardDetail";
 	}
