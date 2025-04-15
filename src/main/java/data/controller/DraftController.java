@@ -492,4 +492,23 @@ public class DraftController {
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @GetMapping("/homeDraftCnt")
+    public ResponseEntity<Object> homeDraftCnt(HttpSession session) {
+        Map<String, Object> response = new LinkedHashMap<>();
+        Map<String, Object> result = new HashMap<>();
+        int userId = (Integer) session.getAttribute("userId");
+        try {
+            result.put("received",draftService.readCountDraftsForActions(userId));
+            result.put("sent", draftService.readCountPendingdraftsById(userId));
+            result.put("done", draftService.readCountSentDoneById(userId));
+            response.put("status", "ok");
+            response.put("result", result);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("message", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

@@ -8,9 +8,10 @@
                 #{position}, #{password}, #{loginId})
     </insert>
     <select id="readUserById" parameterType="int" resultType="UsersDto">
-        select *
-        from users
-        where id = #{id}
+        select u.*, d.name as departmentName
+        from users as u
+                 join department as d on u.departmentId = d.id
+        where u.id = #{id}
     </select>
     <select id="readUserByLoginId" parameterType="String" resultType="UsersDto">
         select *

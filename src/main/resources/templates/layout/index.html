@@ -33,13 +33,13 @@
                     <img id="profileImage"
                          th:src="@{/images/Rectangle53.png}"
                          onerror="this.onerror=null; this.src='/images/Rectangle53.png';"
-                         alt="프로필 이미지" />
+                         alt="프로필 이미지"/>
 
                     <div class="profileinfo" id="profileInfo">
-                        <div><span>이름</span><span id="infoName">홍길동</span></div>
-                        <div><span>직급</span><span id="infoPosition">대리</span></div>
-                        <div><span>부서</span><span id="infoDepartment">개발팀</span></div>
-                        <div><span>번호</span><span id="infoPhone">010-1234-5678</span></div>
+                        <div><span>이름</span><span id="infoName">이름</span></div>
+                        <div><span>직급</span><span id="infoPosition">직급</span></div>
+                        <div><span>부서</span><span id="infoDepartment">부서</span></div>
+                        <div><span>번호</span><span id="infoPhone"></span></div>
                     </div>
 
                     <button class="whitebtn" id="editUserBtn">개인정보 수정하기</button>
@@ -60,19 +60,15 @@
                     <div class="approvalmini">
                         <div class="approvalcontent" th:data-url="@{/draft/approvalInbox}">
                             <span>결재할 문서</span>
-                            <a>7</a>
-                        </div>
-                        <div class="approvalcontent" th:data-url="@{/draft/approvalOutBox}">
-                            <span>진행중 문서</span>
-                            <a>7</a>
-                        </div>
-                        <div class="approvalcontent" th:data-url="@{/draft/approvalOutBox}">
-                            <span>진행중 문서</span>
-                            <a>7</a>
+                            <a>0</a>
                         </div>
                         <div class="approvalcontent" th:data-url="@{/draft/approvalOutBox}">
                             <span>대기중 문서</span>
-                            <a>7</a>
+                            <a>0</a>
+                        </div>
+                        <div class="approvalcontent" th:data-url="@{/draft/approvalDone}">
+                            <span>완료된 문서</span>
+                            <a>0</a>
                         </div>
                     </div>
                 </div>
@@ -117,7 +113,7 @@
 <div id="passwordCheckModal" class="modal-overlay">
     <div class="modal-content">
         <h2>비밀번호 확인</h2>
-        <input type="password" id="checkPasswordInput" placeholder="현재 비밀번호 입력" class="modaltitlebox" />
+        <input type="password" id="checkPasswordInput" placeholder="현재 비밀번호 입력" class="modaltitlebox"/>
         <div class="buttonset">
             <button class="submit-password">확인</button>
             <button class="close-password">취소</button>
@@ -143,7 +139,7 @@
                     $("#todayWeekday").text(getWeekday());
                     $("#infoName").text(currentUser.name);
                     $("#infoPosition").text(currentUser.position);
-                    $("#infoDepartment").text(currentUser.department);
+                    $("#infoDepartment").text(currentUser.departmentName);
                     $("#infoPhone").text(currentUser.phone);
                     if (currentUser.profileImage) {
                         $("#profileImage").attr("src", "/images/" + currentUser.profileImage);
@@ -151,6 +147,7 @@
                 }
             }
         });
+        renderDraftCnt();
 
         // 비밀번호 입력창에서 Enter 키 입력 시 자동 제출
         $("#checkPasswordInput").on("keypress", function (e) {
@@ -182,7 +179,7 @@
             $.ajax({
                 url: "/api/users/checkPassword",
                 method: "POST",
-                data: { password: pw },
+                data: {password: pw},
                 success: function (res) {
                     if (res.status === "ok") {
                         // 인증 성공 시 → 수정 모달 열기
@@ -214,7 +211,7 @@
         }
     });
 
-        // 저장 버튼 클릭
+    // 저장 버튼 클릭
     $(".submit-modal").on("click", function () {
         const email = $("#modalEmail").val().trim();
         const phone = $("#modalPhone").val().trim();
@@ -254,28 +251,53 @@
         });
     });
 
-        // 닫기 버튼 클릭 시 모달 닫기
-        $(".close-modal").on("click", function () {
-            closeModal();
-        });
+    // 닫기 버튼 클릭 시 모달 닫기
+    $(".close-modal").on("click", function () {
+        closeModal();
+    });
 
-        // 공통 모달 닫기 함수
-        function closeModal() {
-            $("#modalOverlay").fadeOut(200);
-        }
+    // 공통 모달 닫기 함수
+    function closeModal() {
+        $("#modalOverlay").fadeOut(200);
+    }
 
-        function getToday() {
-            const now = new Date();
-            return `${now.getFullYear()}년 ${String(now.getMonth() + 1).padStart(2, "0")}월 ${String(now.getDate()).padStart(2, "0")}일`;
-        }
-        function getWeekday() {
-            return new Date().toLocaleDateString("ko-KR", { weekday: 'long' });
-        }
+    function getToday() {
+        const now = new Date();
+        return `${now.getFullYear()}년 ${String(now.getMonth() + 1).padStart(2, "0")}월 ${String(now.getDate()).padStart(2, "0")}일`;
+    }
+
+    function getWeekday() {
+        return new Date().toLocaleDateString("ko-KR", {weekday: 'long'});
+    }
 
     $(".approvalcontent").on("click", function () {
         const url = $(this).data("url");
         window.location.href = url;
     });
+
+    function renderDraftCnt() {
+        $.ajax({
+            url: "/api/draft/homeDraftCnt",
+            type: "get",
+            success: function (res) {
+                if (res.status === "ok") {
+                    const { received, sent, done } = res.result;
+
+                    const numbers = [received, sent, done];
+
+                    $('.approvalcontent').each(function (index) {
+                        const cnt = numbers[index];
+                        const display = cnt > 99 ? "99+" : cnt;
+                        $(this).find("a").text(display);
+                    });
+                }
+            },
+            error: function () {
+                console.error("전자결재 수치 불러오기 실패");
+            }
+        });
+    }
+
 </script>
 <script th:inline="javascript">
     const loginUserId = /*[[${userId}]]*/ 0;
