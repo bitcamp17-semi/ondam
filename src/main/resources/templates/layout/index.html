@@ -77,8 +77,14 @@
                 <div id='calendar'></div>
             </div>
             <div class="right">
-                <div id="weather-today" class="weather-today"></div>
-                <div id="weather-week" class="weather-cards"></div>
+                <div class="weather-widget" id="weatherWidget">
+                    <div class="current-weather">
+                        <div class="weather-icon"><img id="currentIcon" src="" alt="날씨 아이콘"/></div>
+                        <div class="temperature" id="currentTemp">--°C</div>
+                        <div class="description" id="currentDesc">날씨 정보</div>
+                    </div>
+                    <div class="daily-forecast" id="forecastContainer"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -298,5 +304,47 @@
             }
         });
     }
+    const API_KEY = "f53a3ce7ed05c1360e18559855cdc023"; // OpenWeatherMap API Key
+    const CITY = "Seoul";
+    const KELVIN_TO_C = k => (k - 273.15).toFixed(1);
 
+    fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${CITY}&appid=${API_KEY}&lang=kr`)
+        .then(res => res.json())
+        .then(data => {
+            // 현재 날씨
+            const current = data.list[0];
+            document.getElementById('currentTemp').textContent = `${KELVIN_TO_C(current.main.temp)}°C`;
+            document.getElementById('currentDesc').textContent = current.weather[0].description;
+            document.getElementById('currentIcon').src = `https://openweathermap.org/img/wn/${current.weather[0].icon}@2x.png`;
+
+            // 예보 요일별로 그룹화
+            const dailyData = {};
+            data.list.forEach(item => {
+                const date = new Date(item.dt_txt);
+                const day = date.toLocaleDateString('ko-KR', { weekday: 'short' });
+
+                if (!dailyData[day]) {
+                    dailyData[day] = item;
+                }
+            });
+
+            // 요일별 예보 출력
+            const forecastEl = document.getElementById("forecastContainer");
+            Object.entries(dailyData).slice(1, 6).forEach(([day, forecast]) => {
+                const temp = KELVIN_TO_C(forecast.main.temp);
+                const icon = forecast.weather[0].icon;
+                const el = document.createElement("div");
+                el.className = "day";
+                el.innerHTML = `
+          <div>${day}</div>
+          <img src="https://openweathermap.org/img/wn/${icon}.png" alt=""/>
+          <div>${temp}°C</div>
+        `;
+                forecastEl.appendChild(el);
+            });
+        })
+        .catch(err => {
+            console.error("날씨 정보를 불러오는 중 오류 발생:", err);
+            document.getElementById("weatherWidget").innerHTML = "<p>날씨 정보를 불러올 수 없습니다.</p>";
+        });
 </script>

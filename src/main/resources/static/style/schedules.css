@@ -1,10 +1,12 @@
 /* Layout */
-.fullbox {
+.fullbox{
     display: flex;
-    width: 96vw;
+    flex-direction: row;
+    width: calc(100vw - 75px);
     height: 100dvh;
+    color: #686868;
     position: relative;
-    white-space: nowrap
+    white-space: nowrap;
 }
 
 .main {
