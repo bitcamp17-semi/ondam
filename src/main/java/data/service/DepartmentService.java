@@ -45,4 +45,8 @@ public class DepartmentService {
     public List<TeamDto> getTeamsByDepartmentId(int deptId) {
         return departmentMapper.readTeamsByDepartmentId(deptId);
     }
+
+    public void updateDepLeader(int userId, int departmentId) {
+        departmentMapper.updateDepLeader(userId, departmentId);
+    }
 }

@@ -32,4 +32,8 @@
     <select id="readTeamsByDepartmentId" parameterType="int" resultType="TeamDto">
         SELECT * FROM team WHERE departmentId = #{deptId}
     </select>
+    <update id="updateDepLeader" parameterType="map">
+        update department set userId = #{userId}
+        where id = #{departmentId}
+    </update>
 </mapper>

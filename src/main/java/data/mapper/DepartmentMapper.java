@@ -21,4 +21,6 @@ public interface DepartmentMapper {
     public DepartmentDto readDepById(int id);
 
     List<TeamDto> readTeamsByDepartmentId(@Param("deptId") int deptId);
+
+    public void updateDepLeader(int userId, int departmentId);
 }
