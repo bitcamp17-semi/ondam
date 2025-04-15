@@ -169,4 +169,10 @@ public class BoardController {
 	    model.addAttribute("writerMap", writerMap);
 		return "layout/boardDepartment";
 	}
+	
+	@GetMapping("/board/top-notices")
+	@ResponseBody
+	public List<BoardDto> getTopNotices() {
+	    return boardService.getTopNotices();
+	}
 }

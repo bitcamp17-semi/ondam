@@ -125,9 +125,9 @@
     </style>
 </head>
 <body>
-
-<div class="container">
-    <!-- 좌측 사이드바 -->
+	<section layout:fragment="content">
+		<div class="container">
+			<!-- 좌측 사이드바 -->
 			<div class="sidebar">
 				<img src="../images/ondam.png" width="60"
 					style="display: block; margin: 0 auto 20px;" />
@@ -138,7 +138,7 @@
 				<div class="menu-item" onclick="location.href='/board/boardDepartment'">부서게시판</div>
 			</div>
 
-    <!-- 본문 -->
+			<!-- 본문 -->
 			<div class="main-content">
 				<div class="header">
 					<h1>공지사항</h1>
@@ -147,32 +147,49 @@
 					</div>
 				</div>
 
+				<div class="card mb-3">
+					<div class="card-header bg-warning text-white fw-bold">📢 최근 공지사항</div>
+					<a href="/board/boardNoti"
+						class="btn btn-sm btn-light text-primary fw-semibold"> 전체 보기 <i	class="bi bi-arrow-right-short"></i>
+					</a>
+					<ul class="list-group list-group-flush">
+						<th:block th:each="notice : ${noticeList}">
+							<li class="list-group-item"><a
+								th:href="@{'/board/boardDetail/' + ${notice.id}}"
+								class="text-dark fw-semibold">
+									[[${#strings.abbreviate(notice.title, 30)}]] </a> 
+									<small class="text-muted float-end">[[${#dates.format(notice.createdAt,'yyyy-MM-dd')}]]</small></li>
+						</th:block>
+					</ul>
+				</div>
+
 				<!-- 게시글 리스트 -->
 				<div class="card-list" th:each="board : ${boardList}">
-				  <div class="card">
-					<div class="card-title">
-						<a th:href="@{'/board/boardDetail/' + ${board.id}}"
-							th:text="${board.title}"
-							style="text-decoration: none; color: #212529;"></a>
-					</div>
-
-					<div class="card-content" th:text="${board.content}"></div>
-
-					<div class="card-footer">
-						<div class="writer-info">
-							<span th:text="${writerMap[board.authorId]}"></span>
-							<span th:text="${#dates.format(board.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
+					<div class="card">
+						<div class="card-title">
+							<a th:href="@{'/board/boardDetail/' + ${board.id}}"
+								th:text="${board.title}"
+								style="text-decoration: none; color: #212529;"></a>
 						</div>
-						<div class="icons">
-							<span onclick="likePost(this)">♥ <span>0</span></span>
-							<span>💬 <span>0</span></span>
+
+						<div class="card-content" th:text="${board.content}"></div>
+
+						<div class="card-footer">
+							<div class="writer-info">
+								<span th:text="${writerMap[board.authorId]}"></span> <span
+									th:text="${#dates.format(board.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
+							</div>
+							<div class="icons">
+								<span onclick="likePost(this)">♥ <span>0</span></span> <span>💬
+									<span>0</span>
+								</span>
+							</div>
 						</div>
 					</div>
 				</div>
-			  </div>
 			</div>
 		</div>
-		
+
 		<div class="container mt-3 d-flex justify-content-center">
 			<ul class="pagination">
 				<li class="page-item"><a class="page-link" href="#">이전</a></li>

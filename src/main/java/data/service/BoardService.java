@@ -84,4 +84,8 @@ public class BoardService {
 		// TODO Auto-generated method stub
 		return 0;
 	}	
+	
+	public List<BoardDto> getTopNotices() {
+	    return boardMapper.getTopNotices();
+	}
 }

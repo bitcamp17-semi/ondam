@@ -140,11 +140,29 @@ body {
 						<button onclick="location.href='/board/boardWrite?hidden=true'">글쓰기</button>
 					</div>
 				</div>
-
+				
+				<div class="card mb-3">
+					<div class="card-header bg-warning text-white fw-bold">📢 최근 공지사항</div>
+					<a href="/board/boardNoti"
+						class="btn btn-sm btn-light text-primary fw-semibold"> 전체 보기 <i
+						class="bi bi-arrow-right-short"></i>
+					</a>
+					<ul class="list-group list-group-flush">
+						<th:block th:each="notice : ${noticeList}">
+							<li class="list-group-item"><a
+								th:href="@{'/board/boardDetail/' + ${notice.id}}"
+								class="text-dark fw-semibold">
+									[[${#strings.abbreviate(notice.title, 30)}]] </a> <small
+								class="text-muted float-end">[[${#dates.format(notice.createdAt,
+									'yyyy-MM-dd')}]]</small></li>
+						</th:block>
+					</ul>
+				</div>
+				
 				<!-- 게시글 리스트 -->
 				<div class="card" th:each="board : ${boardList}">
 					<div class="card-title">
-						<a th:href="@{'/boardDetail/' + ${board.id}}" th:text="${board.title}" style="text-decoration: none; color: #212529;"></a>
+						<a th:href="@{'/board/boardDetail/' + ${board.id}}" th:text="${board.title}" style="text-decoration: none; color: #212529;"></a>
 					</div>
 
 					<div class="card-content" th:text="${board.content}">내용</div>

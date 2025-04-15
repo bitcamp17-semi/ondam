@@ -75,6 +75,7 @@
 		ORDER BY createdAt DESC
 	</select>
 	
+	<!-- 작성게시글 수정하기 -->
 	<update id="updatePost" parameterType="BoardDto">
     	UPDATE board
     	SET title = #{title}, content = #{content}, update_date = NOW()
@@ -91,4 +92,12 @@
 	<select id="selectBoardCount" resultType="int">
     	SELECT COUNT(*) FROM board
 	</select>
+	
+	<select id="getTopNotices" resultType="data.dto.BoardDto">
+    SELECT *
+    FROM board
+    WHERE category = '공지사항' AND is_hidden = 0
+    ORDER BY writeday DESC
+    LIMIT 3
+</select>
 </mapper>
