@@ -15,14 +15,9 @@
 	<!-- 글쓰기 저장 (hidden 값이 있을 경우에만 포함) -->
 	<insert id="insertWrite" parameterType="data.dto.BoardDto">
 		INSERT INTO board (
-			id, category, title, content, authorId,
-			<if test="hidden != null">hidden,</if>
-			createdAt
-		)
+				id, category, title, content, authorId,hidden,createdAt)
 		VALUES (
-			#{id}, #{category}, #{title}, #{content}, #{authorId},
-			<if test="hidden != null">#{hidden},</if>
-			NOW()
+			#{id}, #{category}, #{title}, #{content}, #{authorId},#{hidden},NOW()
 		)
 	</insert>
 

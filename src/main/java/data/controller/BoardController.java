@@ -29,6 +29,11 @@ public class BoardController {
 	public String boardMain(Model model) {
 		List<BoardDto> boardList = boardService.getAllBoards();
 		model.addAttribute("boardList", boardList);
+		
+		// 💥 임시 기본값 설정
+	    model.addAttribute("currentPage", 1);
+	    model.addAttribute("totalPages", 1);
+		
 		return "layout/boardMain";
 	}
 
@@ -45,6 +50,10 @@ public class BoardController {
 	@PostMapping("/boardInsert")
 	@ResponseBody
 	public Map<String, Object> insertWrite(BoardDto dto) {
+		System.out.println("=== 글쓰기 요청 ===");
+		System.out.println("카테고리: " + dto.getCategory());
+		System.out.println("hidden 값: " + dto.isHidden()); // 👈 여기!
+		
 		boolean success = boardService.boardInsert(dto);
 		Map<String, Object> result = new HashMap<>();
 		result.put("result", success ? 1 : 0);
