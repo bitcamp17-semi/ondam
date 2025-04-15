@@ -10,7 +10,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -51,14 +50,23 @@ public class BoardController {
 		return result;
 	}
 
-	// 글 상세보기
 	@GetMapping("/boardDetail/{id}")
-	public String getBoardDetail(@PathVariable int id, Model model) {
-		System.out.println("controller 1 >> id = " + id);
-		BoardDto boardDto = boardService.getBoardDetailById(id);
-		model.addAttribute("board", boardDto);
-		return "layout/boardDetail";
+	public String boardDetail(@PathVariable("id") int id, Model model) {
+	    BoardDto board = boardService.getBoardDetailById(id); 
+	    model.addAttribute("board", board);
+	    model.addAttribute("isAuthorOrAdmin", true);
+
+	    return "layout/boardDetail"; 
 	}
+	
+//	// 글 상세보기
+//	@GetMapping("/boardDetail/{id}")
+//	public String boardDetail(@PathVariable int id, Model model) {
+//		System.out.println("controller 1 >> id = " + id);
+//		BoardDto boardDto = boardService.getBoardDetailById(id);
+//		model.addAttribute("board", boardDto);
+//		return "layout/boardDetail";
+//	}
 
 	@GetMapping("/boardList")
 	public String boardList(Model model) {
@@ -76,18 +84,15 @@ public class BoardController {
 
 	@GetMapping("/boardNoti")
 	public String boardNoti(Model model) {
-	    List<BoardDto> notiList = boardService.getNotiPosts();
-	    model.addAttribute("boardList", notiList);
-	    return "layout/boardNoti"; //공지사항
+		List<BoardDto> boardList = boardService.getAllBoards();
+		model.addAttribute("boardList", boardList);
+		return "layout/boardNoti";
 	}
-
+	
 	@GetMapping("/boardDepartment")
 	public String boardDepartment(Model model) {
 		List<BoardDto> boardList = boardService.getAllBoards();
 		model.addAttribute("boardList", boardList);
 		return "layout/boardDepartment";
 	}
-	
-
-
 }

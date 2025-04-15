@@ -1,76 +1,181 @@
 <!DOCTYPE html>
-<<html>
+<html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>게시글 상세보기</title>
-	<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Gaegu&family=Jua&family=Nanum+Pen+Script&family=Playwrite+AU+SA:wght@100..400&family=Single+Day&display=swap" rel="stylesheet">
-   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-   <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
-   <link rel="stylesheet" href="/css/board.css">
-   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
-     
-   <style>
-       body *{
-           font-family: 'Jua';
-       }
+<title>게시글 작성</title>
+<link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
+
+<style>
+body {
+	font-family: 'Jua', sans-serif;
+	background-color: #f5f5f5;
+	margin: 0;
+	padding: 0;
+}
+
+.main-container {
+	max-width: 800px;
+	margin: 40px auto;
+	background-color: white;
+	padding: 30px;
+	border-radius: 20px;
+	box-shadow: 0 0 15px rgba(0, 0, 0, 0.08);
+}
+
+h2 {
+	text-align: center;
+	margin-bottom: 30px;
+}
+
+.form-group {
+	margin-bottom: 20px;
+}
+
+label {
+	display: block;
+	font-weight: bold;
+	margin-bottom: 8px;
+}
+
+input[type="text"], select, textarea {
+	width: 100%;
+	padding: 12px 15px;
+	border: 1px solid #ccc;
+	border-radius: 12px;
+	font-size: 16px;
+}
+
+textarea {
+	resize: vertical;
+}
+
+input[type="file"] {
+	display: block;
+	margin-top: 10px;
+}
+
+.form-actions {
+	display: flex;
+	justify-content: center;
+	gap: 15px;
+	margin-top: 30px;
+}
+
+.form-actions button {
+	padding: 10px 30px;
+	font-size: 16px;
+	border: none;
+	border-radius: 20px;
+	cursor: pointer;
+	transition: background-color 0.2s;
+}
+
+.form-actions button[type="submit"] {
+	background-color: #007bff;
+	color: white;
+}
+
+.form-actions button[type="submit"]:hover {
+	background-color: #0056b3;
+}
+
+.form-actions button[type="button"] {
+	background-color: #ccc;
+	color: black;
+}
+
+.form-actions button[type="button"]:hover {
+	background-color: #999;
+}
 </style>
 </head>
 <body>
-<div class="container">
-    <!-- 상단 제목 -->
-    <header class="detail-header">
-        <h2 th:text="${board.category} + ' > ' + ${board.subcategory}">인사총무</h2>
-        <h1 th:text="${board.title}">[안내] 2025년 4월 조식 식단표</h1>
-        <div class="post-meta">
-            <span th:text="${board.writer}">이온담 매니저</span>
-            <span th:text="${#temporals.format(board.createdAt, 'yyyy-MM-dd HH:mm')}">2025-04-03 15:14</span>
-            <button class="favorite-button">🤍</button>
-        </div>
-    </header>
+	<section layout:fragment="content">
+		<div class="main-container">
+			<h2>게시글</h2>
 
-    <!-- 본문 내용 -->
-    <section class="post-content">
-        <p th:utext="${board.content}">
-            안녕하세요. 인사총무팀입니다. 2025년 4월 조식 식단표를 공유드리오니, 참고 부탁드립니다!
-        </p>
+			<form id="boardfrm" method="post" action="/board/boardInsert"
+				enctype="multipart/form-data" th:object="${board}">
+				
+				<!-- 카테고리 선택 -->
+				<div class="form-group">
+					<label for="selectCategory">카테고리</label> 
+					<select th:field="*{category}" id="selectCategory" required>
+						<option value="">-- 카테고리 선택 --</option>
+						<option value="normal">전체게시판</option>
+						<option value="anonimity">익명게시판</option>
+						<option value="notice">공지사항</option>
+						<option value="department">부서게시판</option>
+					</select>
+					<p id="anon-notice" style="color: red; display: none; margin-top: 10px;">※ 익명으로 게시됩니다.</p>
+				</div>
 
-        <!-- 첨부 파일 -->
-        <div class="attachments" th:if="${board.files != null}">
-            <h3>첨부파일</h3>
-            <ul>
-                <li th:each="file : ${board.files}">
-                    <a th:href="@{'/download/' + ${file.id}}" th:text="${file.originalFilename}">파일명.pdf</a>
-                </li>
-            </ul>
-        </div>
-    </section>
+				<!-- 제목 입력 -->
+				<div class="form-group">
+					<label for="title">제목</label> 
+					<input type="text" th:field="*{title}" id="title" placeholder="제목을 입력하세요" required />
+				</div>
 
-    <!-- 댓글 -->
-    <section class="comments">
-        <h3>댓글</h3>
-        <ul>
-            <li th:each="reple : ${reples}">
-                <span th:text="${reple.writer}">댓글작성자</span>:
-                <span th:text="${reple.content}">댓글 내용</span>
-                <span class="comment-date" th:text="${#temporals.format(reple.createdAt, 'MM-dd HH:mm')}">04-03 16:00</span>
-            </li>
-        </ul>
-        <form method="post" th:action="@{/boardReple/write}" th:object="${newReple}">
-            <input type="hidden" name="boardId" th:value="${board.id}">
-            <textarea name="content" placeholder="댓글을 입력하세요"></textarea>
-            <button type="submit">등록</button>
-        </form>
-    </section>
+				<!-- 내용 입력 -->
+				<div class="form-group">
+					<label for="content">내용</label>
+					<textarea th:field="*{content}" id="content" rows="10" placeholder="내용을 입력하세요" required></textarea>
+				</div>
 
-    <!-- 수정/삭제 버튼 (권한 있을 경우에만 표시) -->
-    <div class="actions" th:if="${isAuthorOrAdmin}">
-        <button th:onclick="'location.href=\'/boardUpdate/' + ${board.id} + '\''">수정</button>
-        <form method="post" th:action="@{/board/delete}">
-            <input type="hidden" name="id" th:value="${board.id}">
-            <button type="submit" onclick="return confirm('정말 삭제하시겠습니까?')">삭제</button>
-        </form>
-    </div>
-</div>
+				<!-- hidden 값 -->
+				<input type="hidden" name="hidden" id="hidden" th:value="${board.hidden}" />
+				
+				<!-- 버튼 -->
+				<div class="form-actions">
+					<button type="submit">작성 완료</button>
+					<button type="button" onclick="history.back()">취소</button>
+				</div>
+			</form>
+		</div>
+	</section>
+
+	<script type="text/javascript">
+	// 카테고리 변경 시 hidden 값과 안내문구 처리
+	$("#selectCategory").on("change", function() {
+		const isAnon = $(this).val() === "anonimity";
+		$("#hidden").val(isAnon ? "true" : "false");
+		$("#anon-notice").toggle(isAnon);
+	});
+
+	// AJAX 폼 제출 처리
+	$(function() {
+		$('#boardfrm').on("submit", function(e) {
+			e.preventDefault();
+			const category = $("#selectCategory").val();
+			$("#hidden").val(category === "anonimity" ? "true" : "false");
+
+			const formData = new FormData(this);
+
+			$.ajax({
+				type: 'POST',
+				url: "/board/boardInsert",
+				data: formData,
+				contentType: false,
+				processData: false,
+				success: function(res) {
+					if (res.result > 0) {
+						alert("게시글이 업로드 되었습니다.");
+						location.href = "/board/boardMain";
+					} else {
+						alert("다시 시도해주세요.");
+						location.href = "/board/boardMain";
+					}
+				},
+				error: function() {
+					alert("서버 오류가 발생했습니다.");
+				}
+			});
+		});
+	});
+	</script>
 </body>
 </html>
