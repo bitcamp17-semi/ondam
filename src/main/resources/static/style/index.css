@@ -140,9 +140,15 @@
 }
 .notice{
     display: flex;
+    padding: 5px;
+}
+.notice:hover {
+    cursor: pointer;
+    background-color: #eee;
 }
 .notice>span {
     color: #3f3f3f;
+    font-weight: bold;
 }
 .notice>a {
     font-size: 12px;

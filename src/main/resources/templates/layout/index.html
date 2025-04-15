@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Drive Storage</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css"/>
     <link rel="stylesheet" th:href="@{/style/globals.css}"/>
     <link rel="stylesheet" th:href="@{/style/index.css}"/>
     <link rel="stylesheet" th:href="@{/style/header.css}"/>
@@ -149,6 +149,7 @@
             }
         });
         renderDraftCnt();
+        renderNotice();
 
         // 비밀번호 입력창에서 Enter 키 입력 시 자동 제출
         $("#checkPasswordInput").on("keypress", function (e) {
@@ -278,11 +279,11 @@
 
     function renderDraftCnt() {
         $.ajax({
-            url: "/api/draft/homeDraftCnt",
+            url: "/index/draftCnt",
             type: "get",
             success: function (res) {
                 if (res.status === "ok") {
-                    const { received, sent, done } = res.result;
+                    const {received, sent, done} = res.result;
 
                     const numbers = [received, sent, done];
 
@@ -297,6 +298,32 @@
                 console.error("전자결재 수치 불러오기 실패");
             }
         });
+    }
+
+    function renderNotice() {
+        $.ajax({
+            url: "/index/noticeTop3",
+            type: "get",
+            success: function (res) {
+                const noticeContainer = $(".leftmiddle");
+                noticeContainer.find(".notice").remove(); // 기존 공지 제거
+                res.result.forEach(notice => {
+                    const createdDate = notice.createdAt?.split(' ')[0] ?? '';
+                        const $notice = $(`
+                    <div class="notice">
+                        <span>[공지] ${notice.title}</span>
+                        <a>${createdDate}</a>
+                    </div>
+                    `);
+                        $notice.click(() => {
+                            window.location.href = `/board/boardDetail/${notice.id}`;
+                        });
+
+                        noticeContainer.append($notice);
+                    }
+                )
+            }
+        })
     }
 
 </script>
