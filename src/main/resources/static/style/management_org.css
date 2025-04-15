@@ -8,6 +8,7 @@
     color: #686868;
     position: relative;
     white-space: nowrap;
+    min-height: 0;
 }
 
 .header {
@@ -85,12 +86,10 @@
     padding: 20px;
     border: rgba(0, 0, 0, 0.05) 1px solid;
     border-radius: 15px;
-    width: 96%;
+    flex: 1;
     height: 100%;
     margin: 50px 50px 50px 70px;
     min-height: 0;
-    min-width: 0;
-    white-space: nowrap;
 }
 
 /*inbox left*/
@@ -100,7 +99,7 @@
     flex-direction: column;
     height: 100%;
     max-height: 610px;
-    flex: 1;
+    width: 250px;
 }
 
 #orgtitle{
@@ -189,15 +188,12 @@
 .rightarticle{
     display: flex;
     flex-direction: column;
-    flex: 4;
+    width: 100%;
     height: 100%;
     border-left: rgba(0, 0, 0, 0.05) 1px solid;
     margin-left: 20px;
     padding-left: 20px;
     min-height: 0;
-    min-width: 0;
-    white-space: nowrap;
-
 }
 .rightarticle span{
     font-size: 20px;
@@ -209,15 +205,14 @@
     padding-bottom: 20px;
     width: 100%;
     border-bottom: rgba(0, 0, 0, 0.05) 1px solid;
-    min-height: 0;
-    min-width: 0;
 }
 
 .rightmain{
     display: flex;
-    overflow: auto;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
     min-height: 0;
-    min-width: 0;
 }
 
 #rightmaintitle{
@@ -226,12 +221,11 @@
     margin-bottom: 20px;
 }
 .teamlist{
-    flex: 1;
+    width: 250px;
     border-right: rgba(0, 0, 0, 0.05) 1px solid;
     overflow-y: auto;
     height: 100%;
     min-height: 0;
-    min-width: 0;
 }
 .teamsawon{
     display: flex;
@@ -271,13 +265,11 @@
     font-size: 12px;
 }
 .sawonupdate{
+    flex-grow: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-width: 0;
-    flex: 3;
-    min-height: 0;
 }
 .sawon{
     width: 100%;
