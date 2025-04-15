@@ -3,6 +3,7 @@ package data.controller;
 import data.dto.DepartmentDto;
 import data.dto.TeamDto;
 import data.service.DepartmentService;
+import data.service.ScheduleGroupService;
 import data.service.TeamService;
 import data.service.UsersService;
 import jakarta.servlet.http.HttpSession;
@@ -12,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +27,8 @@ public class DepartmentTeamController {
     TeamService teamService;
     @Autowired
     UsersService usersService;
+    @Autowired
+    ScheduleGroupService scheduleGroupService;
 
     @GetMapping("/createDep")
     public ResponseEntity<Object> createDep(
@@ -35,7 +39,20 @@ public class DepartmentTeamController {
         Map<String, Object> response = new LinkedHashMap<String, Object>();
         if (usersService.isAdmin(userId)) {
             try {
-                departmentService.createDep(userId, name);
+            	// 부서 생성 및 부서 ID 반환 (DTO 기반)
+                int departmentId = departmentService.createDep(userId, name);
+
+                // 일정 그룹 생성
+                Map<String, Object> groupMap = new HashMap<>();
+                groupMap.put("name", name);
+                groupMap.put("departmentId", departmentId);
+                groupMap.put("ownerId", userId);
+                groupMap.put("color", "#808080");
+
+                //System.out.println("그룹 생성용 맵: " + groupMap);
+
+                scheduleGroupService.scheGroupInsert(groupMap);
+                
                 response.put("status", "ok");
                 response.put("result", "success");
                 return new ResponseEntity<>(response, HttpStatus.CREATED);

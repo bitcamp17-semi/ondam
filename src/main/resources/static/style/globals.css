@@ -5,13 +5,11 @@
     box-sizing: border-box;
 }
 
-html,
-body {
+html body * ,html body{
     margin: 0;
     padding: 0;
-    font-family: "Noto Sans-Bold", Helvetica, "Noto Sans-Regular";
-    font-size: 16px;
-    color: #686868;
+    font-family: 'Pretendard', sans-serif;
+    font-weight: normal;
     /*overflow: hidden;*/
 }
 

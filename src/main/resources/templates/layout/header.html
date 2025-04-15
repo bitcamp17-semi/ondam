@@ -2,6 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" />
     <link rel="stylesheet" th:href="@{/style/globals.css}"/>
     <link rel="stylesheet" th:href="@{/style/header.css}"/>
     <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
@@ -75,6 +76,7 @@
         $(document).ready(function () {
             getProfile();
             checkLoginStatus();
+            updateAlarmIndicator();
         });
         $("#header-logout").click(function () { // ✅ 중첩 제거
             $.ajax({
@@ -106,7 +108,7 @@
                     alert("로그인이 필요합니다.");
                     location.href = "/login";
                 }
-            }).error(function () {
+            }).fail(function () {
                 alert("로그인이 필요합니다.");
                 location.href = "/login";
             });
@@ -130,6 +132,25 @@
                 }
             })
         }
+        
+      	//알람 목록에 '미확인' 알람이 하나라도 있으면 .ellipse 표시 아니면 숨김
+        function updateAlarmIndicator() {
+    		$.ajax({
+        		url: "/alarm/unreadExist", // 여기 맞게 경로 조정됨
+        		type: "GET",
+        		success: function (res) {
+        			console.log("알림 상태 응답:", res);
+            		if (res.status == "ok" && res.hasUnread) {
+             		   $(".header-layout .ellipse").show();
+            		} else {
+            		    $(".header-layout .ellipse").hide();
+            		}
+        		},
+        		error: function () {
+            		console.error("알림 상태 확인 실패");
+        		}
+    		});
+		}
     </script>
 
 <!-- 토스트 노출-->

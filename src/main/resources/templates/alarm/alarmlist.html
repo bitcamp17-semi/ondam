@@ -56,11 +56,11 @@
                     </div>
               </div>
               <div class="pagenumset">
-                    <img class="before" src="before0.svg"/>
+                    <i class="bi bi-arrow-left leftbtn page-arrow"></i>
                     <div class="pagenum">
                     	<!-- 페이징 처리 부분 -->
                     </div>
-                    <img class="next" src="next0.svg"/>
+                    <i class="bi bi-arrow-right rightbtn page-arrow"></i>
               </div>
 		</div>
 	</div>
@@ -73,6 +73,8 @@ $(document).ready(function () {
 
     // 현재 탭 상태 저장
     let currentTabUrl = "/alarm/all";
+    //마지막 페이징 
+    let lastPagingData = null;
 
     // 탭 class 동기화 함수
     function updateTabClass(activeUrl) {
@@ -106,6 +108,24 @@ $(document).ready(function () {
             }
         });
     }
+    
+    //알람 타입별 이동할 링크 지정
+    function getRedirectUrlByType(alarmType, causedId) {
+        switch (alarmType) {
+            case "MESSAGE":
+                return `/messages/inbox`;
+            case "APPROVAL":
+                return `/draft/approvalInbox`;
+            case "SYSTEM":
+                return `/`;
+            case "SCHEDULE":
+                return `/schedules`;
+            case "BOARD":
+                return `/board`; //임시 지정 게시판 페이지 링크로 수정할 예정
+            default:
+                return "#"; //정의되지 않은 알람이 들어올 경우 현재 페이지 머무르기
+        }
+    }
 
     // 알람 테이블 렌더링
     function renderAlarmTable(alarms) {
@@ -115,12 +135,12 @@ $(document).ready(function () {
         alarms.forEach(alarm => {
             const rowClass = alarm.isRead == 1 ? '' : 'unread-row';
             const row = `
-              <div class="table_row ${rowClass}">
+              <div class="table_row ${rowClass}" data-type="${alarm.type}" data-id="${alarm.id}">
                 <input class="checkbox" type="checkbox" data-id="${alarm.id}" />
                 <div class="div6">|</div>
                 <div class="div7">${alarm.type}</div>
                 <div class="div6">|</div>
-                <div class="div7">${alarm.causedBy}</div>
+                <div class="div7">${alarm.causedName}</div>
                 <div class="div6">|</div>
                 <div class="div7">${alarm.createdAt}</div>
                 <div class="div6">|</div>
@@ -139,6 +159,7 @@ $(document).ready(function () {
 
     // 페이징 처리
     function renderPagination(res) {
+    	lastPagingData = res; // 좌우 버튼에서 페이지 정보 접근용
         const $pagination = $(".pagenum");
         $pagination.empty();
 
@@ -148,6 +169,14 @@ $(document).ready(function () {
 
         for (let i = startPage; i <= endPage; i++) {
             const pageBtn = $(`<div class="page-btn">${i}</div>`);
+            
+         	// 클래스 부여
+            if (i === currentPage) {
+            	pageBtn.addClass("currentPage");
+            } else {
+            	pageBtn.addClass("otherPage");
+            }
+            
             if (i == currentPage) {
                 pageBtn.addClass("active");
             }
@@ -157,6 +186,17 @@ $(document).ready(function () {
             $pagination.append(pageBtn);
         }
     }
+ 	// 좌/우 화살표 이벤트 추가
+    $(document).on("click", ".leftbtn", function () {
+        if (lastPagingData && lastPagingData.currentPage > 1) {
+            loadAlarmList(lastPagingData.currentPage - 1);
+        }
+    });
+    $(document).on("click", ".rightbtn", function () {
+        if (lastPagingData && lastPagingData.currentPage < lastPagingData.totalPage) {
+            loadAlarmList(lastPagingData.currentPage + 1);
+        }
+    });
 
     // 알람 읽음 처리
     function updateAlarmReadStatus(ids) {
@@ -168,7 +208,8 @@ $(document).ready(function () {
             data: { id: idParam },
             success: function (res) {
                 if (res.status === "ok") {
-                    loadAlarmList(); // 새로고침
+                    //loadAlarmList(); // 새로고침
+                	location.reload();
                 } else {
                     alert("알람 상태 업데이트 실패: " + res.result);
                 }
@@ -231,7 +272,7 @@ $(document).ready(function () {
         const url = $(this).attr("href");
         currentTabUrl = url;
 
-        updateTabClass(url); // ✅ 탭 스타일 업데이트
+        updateTabClass(url); //탭 스타일 업데이트
 
         $.get(url, function (res) {
             if (res.status === "ok") {
@@ -253,7 +294,21 @@ $(document).ready(function () {
         const checked = $("#userTableBody .checkbox:checked").length;
         $(".tabletitle .checkbox").prop("checked", total == checked);
     });
+	
+ 	// 알람 행 클릭 시 해당 타입에 따라 페이지 이동
+    $(document).on("click", ".table_row", function (e) {
+        if ($(e.target).is("input[type='checkbox']") || $(e.target).is("button")) return;
 
+        const type = $(this).data("type");
+        const id = $(this).data("id");
+
+        const url = getRedirectUrlByType(type, id);
+        if (url && url !== "#") {
+            window.location.href = url;
+        } else {
+            alert("해당 알람은 이동할 수 없습니다.");
+        }
+    });
     // 초기 로딩
     updateTabClass(currentTabUrl); // 초기 탭 class 적용
     loadAlarmList();

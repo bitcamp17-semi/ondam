@@ -1,19 +1,19 @@
 document.addEventListener("DOMContentLoaded", function () {
     console.log("알림 스크립트 로드됨");
-	// //bootstrap css가 없는 곳에서는 동적으로 넣어주도록 설정
-	// if (!document.querySelector('link[href*="bootstrap.min.css"]')) {
-	//     const bootstrapCss = document.createElement("link");
-	//     bootstrapCss.rel = "stylesheet";
-	//     bootstrapCss.href = "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css";
-	//     document.head.appendChild(bootstrapCss);
-	// }
-	// //폰트 css 동적 추가
-	// if (!document.querySelector('link[href*="fonts.googleapis.com"]')) {
-	//   const fontLink = document.createElement("link");
-	//   fontLink.rel = "stylesheet";
-	//   fontLink.href = "https://fonts.googleapis.com/css2?family=Jua";
-	//   document.head.appendChild(fontLink);
-	// }
+	//bootstrap css가 없는 곳에서는 동적으로 넣어주도록 설정
+	if (!document.querySelector('link[href*="bootstrap.min.css"]')) {
+	    const bootstrapCss = document.createElement("link");
+	    bootstrapCss.rel = "stylesheet";
+	    bootstrapCss.href = "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css";
+	    document.head.appendChild(bootstrapCss);
+	}
+	//폰트 css 동적 추가
+	if (!document.querySelector('link[href*="fonts.googleapis.com"]')) {
+	  const fontLink = document.createElement("link");
+	  fontLink.rel = "stylesheet";
+	  fontLink.href = "https://fonts.googleapis.com/css2?family=Jua";
+	  document.head.appendChild(fontLink);
+	}
 
     // AJAX로 로그인한 사용자 ID 받아오기
     $.ajax({
