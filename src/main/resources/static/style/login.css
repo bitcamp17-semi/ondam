@@ -103,7 +103,7 @@
     flex-shrink: 0;
     position: relative;
 }
-.idbox {
+#loginId , #password{
     background: #ffffff;
     border-radius: 5px;
     border-style: solid;

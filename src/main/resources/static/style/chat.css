@@ -20,7 +20,7 @@
 .nav {
     display: flex;
     flex-direction: column;
-    height: 200px;
+    height: 135px;
     width: 100%;
     align-items: flex-start;
     justify-content: flex-end;
@@ -30,21 +30,6 @@
 
 .navtitle {
     font-size: 30px;
-    font-weight: bold;
-    color: #3f3f3f;
-}
-
-.mainnavbar {
-    display: flex;
-    align-items: flex-start;
-    position: relative;
-    align-self: stretch;
-    width: 100%;
-    font-size: 16px;
-    white-space: nowrap;
-}
-
-#navlist2 {
     font-weight: bold;
     color: #3f3f3f;
 }

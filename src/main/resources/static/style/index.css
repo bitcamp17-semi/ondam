@@ -91,7 +91,7 @@
 .lefttop img {
     width: 120px;
     height: 120px;
-    border-radius: 5px;
+    border-radius: 10px;
     border: 1px solid rgba(0, 0, 0, 0.05);
     background-position: center;
 }
@@ -112,7 +112,7 @@
 .whitebtn{
     margin-left: auto;
     border: rgba(0, 0, 0, 0.15) 1px solid;
-    border-radius: 5px;
+    border-radius: 10px;
     height: 35px;
     background-color: white;
     color: #686868;
@@ -211,7 +211,7 @@
     background-color: white;
     overflow-y: auto;
     width: 150px;
-    border-radius: 5px;
+    border-radius: 10px;
 
     display: flex;
     flex-direction: column;
@@ -320,7 +320,7 @@
     border: 1px solid rgba(0, 0, 0, 0.05);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
     max-height: 100%;
-    overflow-y: auto;
+    overflow: hidden;
 }
 
 .current-weather {
