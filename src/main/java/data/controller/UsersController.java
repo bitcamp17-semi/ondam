@@ -101,7 +101,7 @@ public class UsersController {
 
                                 //List<Map<String, Object>> buseoList = new ArrayList<>();
                                 //buseoList.add(buseoMap);
-                                //scheduleGroupMemberService.scheGroupMemberInsert(buseoList);
+                                scheduleGroupMemberService.scheGroupMemberInsert(List.of(buseoMap));
                                 System.out.println("부서일정 그룹에 멤버 자동 추가 완료");
                             }
                         } else {
