@@ -1,7 +1,4 @@
-.login,
-.login * {
-    box-sizing: border-box;
-}
+
 .login {
     background: #ffffff;
     display: flex;
@@ -50,7 +47,6 @@
 .ondam {
     color: #3f3f3f;
     text-align: left;
-    font-family: "NotoSans-Bold", sans-serif;
     font-size: 30px;
     line-height: 22px;
     font-weight: 700;
@@ -64,7 +60,6 @@
 .groupware {
     color: #3f3f3f;
     text-align: left;
-    font-family: "NotoSans-Bold", sans-serif;
     font-size: 20px;
     line-height: 22px;
     font-weight: 700;
@@ -123,7 +118,6 @@
 .div {
     color: rgba(0, 0, 0, 0.35);
     text-align: left;
-    font-family: "NotoSans-Medium", sans-serif;
     font-size: 12px;
     line-height: 22px;
     font-weight: 500;
@@ -146,14 +140,14 @@
     flex-shrink: 0;
     height: 35px;
     position: relative;
+    cursor: pointer;
 }
 .div2 {
     color: #ffffff;
     text-align: center;
-    font-family: "NotoSans-Bold", sans-serif;
     font-size: 16px;
     line-height: 22px;
-    font-weight: 700;
+    font-weight: bold;
     position: relative;
     flex: 1;
     display: flex;
@@ -173,7 +167,6 @@
 .div3 {
     color: #686868;
     text-align: center;
-    font-family: "NotoSans-Regular", sans-serif;
     font-size: 13px;
     line-height: 22px;
     font-weight: 400;
@@ -197,11 +190,11 @@
     flex-shrink: 0;
     height: 35px;
     position: relative;
+    cursor: pointer;
 }
 .div4 {
     color: #454545;
     text-align: center;
-    font-family: "NotoSans-Regular", sans-serif;
     font-size: 12px;
     line-height: 22px;
     font-weight: 400;
