@@ -191,9 +191,14 @@ public class UsersController {
         Map<String, Object> response = new LinkedHashMap<>();
         try {
             response.put("status", "ok");
-            UsersDto usersDto = usersService.readUserById((Integer) session.getAttribute("userId"));
-            usersDto.setPassword(null);
-            response.put("result", usersDto);
+            Integer userId = (Integer) session.getAttribute("userId");
+            UsersDto usersDto = usersService.readUserById(userId);
+            System.out.println(usersDto);
+            System.out.println(userId);
+            if (usersDto != null) {
+                usersDto.setPassword(null);
+                response.put("result", usersDto);
+            }
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             response.put("status", "fail");

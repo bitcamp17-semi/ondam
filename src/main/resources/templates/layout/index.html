@@ -130,6 +130,7 @@
             url: "/api/users/readUserBySession",
             method: "GET",
             success: function (res) {
+                let storageUrl = "https://kr.object.ncloudstorage.com/bitcamp-semi/";
                 if (res.status === "ok") {
                     currentUser = res.result;
 
@@ -142,7 +143,7 @@
                     $("#infoDepartment").text(currentUser.departmentName);
                     $("#infoPhone").text(currentUser.phone);
                     if (currentUser.profileImage) {
-                        $("#profileImage").attr("src", "/images/" + currentUser.profileImage);
+                        $("#profileImage").attr("src", storageUrl + "users/" + currentUser.profileImage);
                     }
                 }
             }
