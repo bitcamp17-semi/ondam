@@ -200,6 +200,7 @@
     justify-content: flex-start;
     flex-shrink: 0;
     position: relative;
+    user-select: none;
 }
 .currentPage {
     /*color: #3f3f3f;*/
