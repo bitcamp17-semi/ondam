@@ -130,8 +130,7 @@ body {
 				<div class="menu-item" onclick="location.href='/board/boardMain'">전체게시판</div>
 				<div class="menu-item" onclick="location.href='/board/boardBlind'">익명게시판</div>
 				<div class="menu-item" onclick="location.href='/board/boardNoti'">공지사항</div>
-				<div class="menu-item"
-					onclick="location.href='/board/boardDepartment'">부서게시판</div>
+				<div class="menu-item" onclick="location.href='/board/boardDepartment'">부서게시판</div>
 			</div>
 
 			<!-- 본문 -->
@@ -146,22 +145,18 @@ body {
 				<!-- 게시글 리스트 -->
 				<div class="card" th:each="board : ${boardList}">
 					<div class="card-title">
-						<a th:href="@{'/board/boardDetail/' + ${board.id}}"
-							th:text="${board.title}"
-							style="text-decoration: none; color: #212529;"></a>
+						<a th:href="@{'/board/boardDetail/' + ${board.id}}" th:text="${board.title}" style="text-decoration: none; color: #212529;"></a>
 					</div>
 
-					<div class="card-content" th:text="${board.content}">내용전달드립니다!</div>
+					<div class="card-content" th:text="${board.content}">내용</div>
 
 					<div class="card-footer">
 						<div class="writer-info">
-							<span th:text="${board.authorId}">작성자</span> <span
-								th:text="${#dates.format(board.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
+							<span th:text="${board.authorId}">작성자</span> 
+							<span th:text="${#dates.format(board.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
 						</div>
 						<div class="icons">
-							<span onclick="likePost(this)">♥ <span>0</span></span> <span>💬
-								<span>0</span>
-							</span>
+							<span onclick="likePost(this)">♥ <span>0</span></span><span>💬<span>0</span></span>
 						</div>
 					</div>
 				</div>
@@ -169,18 +164,11 @@ body {
 		</div>
 		<div class="container mt-3 d-flex justify-content-center">
 			<ul class="pagination">
-				<li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
-					<a class="page-link" th:href="@{/board/boardMain(page=${currentPage - 1})}">이전</a>
-				</li>
-
-				<li class="page-item" th:each="i : ${#numbers.sequence(1, totalPages)}"
-					th:classappend="${i == currentPage} ? 'active'">
-					<a class="page-link" th:href="@{/board/boardMain(page=${i})}" th:text="${i}">1</a>
-				</li>
-
-				<li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
-					<a class="page-link" th:href="@{/board/boardMain(page=${currentPage + 1})}">다음</a>
-				</li>
+				<li class="page-item"><a class="page-link" href="#">이전</a></li>
+				<li class="page-item"><a class="page-link" href="#">1</a></li>
+				<li class="page-item active"><a class="page-link" href="#">2</a></li>
+				<li class="page-item"><a class="page-link" href="#">3</a></li>
+				<li class="page-item"><a class="page-link" href="#">다음</a></li>
 			</ul>
 		</div>
 </section>
