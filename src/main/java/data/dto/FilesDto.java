@@ -14,10 +14,11 @@ public class FilesDto {
     private String path;
     private String category;
     private String type;
-    private int roomId;
-    private String comment;
+    private Integer teamId;
+    private Integer departmentId;
     private String title;
     private int authorId;
+    private String authorName;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/Seoul")
     private Timestamp createdAt;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/Seoul")
