@@ -16,5 +16,6 @@ public interface ChatGroupsMapper {
     List<Long> readJoinedGroupIds(Long userId); // 사용자가 가입한 그룹 ID 목록 조회
     List<ChatGroupsDto> readAllGroupsByUserId(Long userId); // 사용자가 속한 모든 그룹 조회
     ChatGroupsDto readPrivateChatBetweenUsers(Long userId1, Long userId2);
+	Integer getLastGroupId();
     
 }

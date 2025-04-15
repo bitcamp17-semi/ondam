@@ -125,11 +125,13 @@ public class ChatController {
 			HttpSession session, RedirectAttributes redirectAttributes) {
 		return handleSessionAction(session, redirectAttributes, () -> {
 			validateSelfChat(session, targetUserId);
+			Integer newChatId = null;
 			Integer userId = getUserIdFromSession(session);
 			Integer chatId = chatService.createPrivateChat(Long.valueOf(userId), Long.valueOf(targetUserId));
 			addChatToSession(session, chatId);
 			redirectAttributes.addFlashAttribute("message", "개인 채팅이 생성되었습니다.");
 			redirectAttributes.addAttribute("activeTab", activeTab);
+			redirectAttributes.addAttribute("chatId", newChatId);
 		});
 	}
 
@@ -158,29 +160,44 @@ public class ChatController {
 	}
 	
 	@GetMapping("/loadChat")
-	@ResponseBody
-	public ChatRoomData loadChat(@RequestParam("chatId") Integer chatId, HttpSession session) {
-	    Integer userId = (Integer) session.getAttribute("userId");
-	    if (userId == null) {
-	        throw new IllegalStateException("로그인이 필요합니다.");
-	    }
-	    ChatGroupsDto chatGroup = chatService.readGroupById(chatId);
-	    if (chatGroup == null) {
-	        throw new IllegalArgumentException("채팅방을 찾을 수 없습니다.");
-	    }
+    @ResponseBody
+    public ChatRoomData loadChat(@RequestParam("chatId") Integer chatId, HttpSession session) {
+        Integer userId = (Integer) session.getAttribute("userId");
+        if (userId == null) {
+            throw new IllegalStateException("로그인이 필요합니다.");
+        }
+        ChatGroupsDto chatGroup = chatService.readGroupById(chatId);
+        if (chatGroup == null) {
+            throw new IllegalArgumentException("채팅방을 찾을 수 없습니다.");
+        }
 
-	    ChatRoomData chatRoomData = new ChatRoomData();
-	    chatRoomData.setRoomId(chatId);
-	    chatRoomData.setRoomName(chatGroup.getName());
-	    chatRoomData.setRoomType("GROUP");
-	    chatRoomData.setMessages(chatService.readGroupMessages(chatId));
-	    chatRoomData.getMessages().forEach(msg -> {
-	        msg.setMyMessage(msg.getSenderId().equals(userId));
-	        msg.setFormattedCreatedAt(msg.getCreatedAt() != null ?
-	                new SimpleDateFormat("yyyy-MM-dd HH:mm").format(msg.getCreatedAt()) : "");
-	    });
-	    return chatRoomData;
-	}
+        ChatRoomData chatRoomData = new ChatRoomData();
+        chatRoomData.setRoomId(chatId);
+
+        if ("GROUP".equals(chatGroup.getRoomType())) {
+            chatRoomData.setRoomName(chatGroup.getName());
+            chatRoomData.setRoomType("GROUP");
+            chatRoomData.setMessages(chatService.readGroupMessages(chatId));
+        } else if ("PRIVATE".equals(chatGroup.getRoomType())) {
+            Long targetUserId = chatGroup.getTargetUserId();
+            if (targetUserId == null) {
+                throw new IllegalStateException("개인 채팅방의 상대방 ID를 찾을 수 없습니다.");
+            }
+            UsersDto targetUser = chatService.readUserById(targetUserId.intValue());
+            String roomName = targetUser != null ? targetUser.getName() : "알 수 없는 사용자";
+            chatRoomData.setRoomName(roomName);
+            chatRoomData.setRoomType("PRIVATE");
+            chatRoomData.setTargetUserId(targetUserId.intValue());
+            chatRoomData.setMessages(chatService.readPrivateMessages(userId, chatId));
+        }
+
+        chatRoomData.getMessages().forEach(msg -> {
+            msg.setMyMessage(msg.getSenderId().equals(userId));
+            msg.setFormattedCreatedAt(msg.getCreatedAt() != null ?
+                    new SimpleDateFormat("yyyy-MM-dd HH:mm").format(msg.getCreatedAt()) : "");
+        });
+        return chatRoomData;
+    }
 
 	// ===== Private Methods =====
 
@@ -210,25 +227,38 @@ public class ChatController {
     }
 
 	private ChatRoomData prepareFirstChatData(Integer chatId, Integer userId) {
-        ChatGroupsDto firstChat = chatService.readGroupById(chatId);
-        if (firstChat == null) {
-            return null;
-        }
+	    ChatGroupsDto firstChat = chatService.readGroupById(chatId);
+	    if (firstChat == null) {
+	        return null;
+	    }
 
-        ChatRoomData chatRoomData = new ChatRoomData();
-        chatRoomData.setRoomId(chatId);
-        chatRoomData.setRoomName(firstChat.getName());
-        chatRoomData.setRoomType(GROUP_ROOM_TYPE);
+	    ChatRoomData chatRoomData = new ChatRoomData();
+	    chatRoomData.setRoomId(chatId);
 
-        List<ChatLogDto> messages = chatService.readGroupMessages(chatId);
-        messages.forEach(msg -> {
-            msg.setMyMessage(msg.getSenderId().equals(userId));
-            msg.setFormattedCreatedAt(msg.getCreatedAt() != null ?
-                    DATE_FORMATTER.format(msg.getCreatedAt()) : "");
-        });
-        chatRoomData.setMessages(messages);
-        return chatRoomData;
-    }
+	    if ("GROUP".equals(firstChat.getRoomType())) {
+	        chatRoomData.setRoomName(firstChat.getName());
+	        chatRoomData.setRoomType(GROUP_ROOM_TYPE);
+	        chatRoomData.setMessages(chatService.readGroupMessages(chatId));
+	    } else if ("PRIVATE".equals(firstChat.getRoomType())) {
+	        Long targetUserId = firstChat.getTargetUserId();
+	        if (targetUserId == null) {
+	            throw new IllegalStateException("개인 채팅방의 상대방 ID를 찾을 수 없습니다.");
+	        }
+	        UsersDto targetUser = chatService.readUserById(targetUserId.intValue());
+	        String roomName = targetUser != null ? targetUser.getName() : "알 수 없는 사용자";
+	        chatRoomData.setRoomName(roomName);
+	        chatRoomData.setRoomType(PRIVATE_ROOM_TYPE);
+	        chatRoomData.setTargetUserId(targetUserId.intValue());
+	        chatRoomData.setMessages(chatService.readPrivateMessages(userId, chatId));
+	    }
+
+	    chatRoomData.getMessages().forEach(msg -> {
+	        msg.setMyMessage(msg.getSenderId().equals(userId));
+	        msg.setFormattedCreatedAt(msg.getCreatedAt() != null ?
+	                DATE_FORMATTER.format(msg.getCreatedAt()) : "");
+	    });
+	    return chatRoomData;
+	}
 
 	private String handleSessionAction(HttpSession session, RedirectAttributes redirectAttributes, Runnable action) {
 		Integer userId = validateSession(session, redirectAttributes);

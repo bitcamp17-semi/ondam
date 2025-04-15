@@ -37,11 +37,37 @@ public class ChatService {
 
     // 사용자가 속한 그룹 목록과 마지막 메시지 조회
     public List<ChatGroupsDto> readAllGroupsWithLastMessages(Integer userId) {
-    	List<ChatGroupsDto> groups = chatGroupsMapper.readAllGroupsWithLastMessages(Long.valueOf(userId));
+        List<ChatGroupsDto> groups = chatGroupsMapper.readAllGroupsWithLastMessages(Long.valueOf(userId));
         for (ChatGroupsDto group : groups) {
-            // 각 채팅방의 사용자 수를 조회하여 memberCount 설정
             List<Long> groupUserIds = chatGroupsMapper.readGroupUserIds(Long.valueOf(group.getId()));
             group.setMemberCount(groupUserIds != null ? groupUserIds.size() : 0);
+
+            // displayName과 displayInitial 계산
+            String displayName;
+            String displayInitial;
+            if ("PRIVATE".equals(group.getRoomType())) {
+                if (group.getOpponentName() != null && !group.getOpponentName().isEmpty()) {
+                    displayName = group.getOpponentName();
+                } else {
+                    // opponentName이 없는 경우, 상대방 사용자 이름을 직접 조회
+                    Long targetUserId = groupUserIds.stream()
+                            .filter(id -> !id.equals(Long.valueOf(userId)))
+                            .findFirst()
+                            .orElse(null);
+                    if (targetUserId != null) {
+                        UsersDto targetUser = usersMapper.readUserById(targetUserId.intValue());
+                        displayName = (targetUser != null && targetUser.getName() != null) ? targetUser.getName() : "알 수 없는 사용자";
+                    } else {
+                        displayName = "이름 없음";
+                    }
+                }
+            } else {
+                displayName = group.getName() != null && !group.getName().isEmpty() ? group.getName() : "이름 없음";
+            }
+            group.setDisplayName(displayName);
+
+            displayInitial = displayName.length() > 0 ? displayName.substring(0, 1) : "G";
+            group.setDisplayInitial(displayInitial);
         }
         return groups;
     }
@@ -121,7 +147,7 @@ public class ChatService {
                 .filter(user -> user.getId() != userId)
                 .collect(Collectors.toList());
     }
-    
+
     public void createGroupUser(Integer userId, Integer groupId) {
         if (userId == null || groupId == null) {
             logger.error("User ID or Group ID is null: userId={}, groupId={}", userId, groupId);
@@ -149,7 +175,7 @@ public class ChatService {
         chatGroupsMapper.createGroupUser(Long.valueOf(userId), Long.valueOf(groupId));
         logger.info("User invited to group: userId={}, groupId={}", userId, groupId);
     }
-    
+
     @Transactional
     public Integer createGroup(String groupName, Long createdBy, List<Long> invitedUserIds) {
         // 1. 그룹 생성
@@ -177,7 +203,7 @@ public class ChatService {
         }
         return groupId; // 생성된 groupId 반환
     }
-    
+
     // 개인 채팅 생성
     public Integer createPrivateChat(Long userId, Long targetUserId) {
         if (userId == null || targetUserId == null) {
@@ -185,28 +211,36 @@ public class ChatService {
             throw new IllegalArgumentException("User ID and Target User ID cannot be null");
         }
 
+        // 기존 개인 채팅방이 있는지 확인
         ChatGroupsDto existingChat = chatGroupsMapper.readPrivateChatBetweenUsers(userId, targetUserId);
         if (existingChat != null) {
             logger.info("Private chat already exists between userId={} and targetUserId={}: chatId={}", userId, targetUserId, existingChat.getId());
             return existingChat.getId();
         }
 
+        // 개인 채팅 그룹 생성
         ChatGroupsDto privateChat = new ChatGroupsDto();
-        privateChat.setName("");
+        privateChat.setName(""); // 개인 채팅은 이름이 없음
         privateChat.setCreatedBy(userId);
         privateChat.setRoomType("PRIVATE");
         chatGroupsMapper.createGroup(privateChat);
 
-        Long chatId = Long.valueOf(privateChat.getId());
+        // 생성된 채팅방 ID 가져오기
+        Integer chatId = privateChat.getId();
+        if (chatId == null) {
+            logger.error("Failed to get chatId after creating private chat");
+            throw new IllegalStateException("Failed to get chatId after creating private chat");
+        }
         logger.info("Created private chat with ID: {}", chatId);
 
-        chatGroupsMapper.createGroupUser(userId, chatId);
-        chatGroupsMapper.createGroupUser(targetUserId, chatId);
+        // 생성된 채팅방에 사용자 추가
+        chatGroupsMapper.createGroupUser(userId, Long.valueOf(chatId));
+        chatGroupsMapper.createGroupUser(targetUserId, Long.valueOf(chatId));
 
-        return privateChat.getId();
+        return chatId;
     }
-    
-    //파일 업로드 및 다운로드
+
+    // 파일 업로드 및 다운로드
     public void createFileMessage(ChatLogDto chatLogDto) {
         if (chatLogDto == null) {
             logger.error("ChatLogDto가 null입니다.");
@@ -226,6 +260,7 @@ public class ChatService {
             throw new RuntimeException("파일 메시지 저장에 실패했습니다.", e);
         }
     }
+
     public ChatRoomData getPrivateChatById(Integer chatId, Integer userId) {
         ChatGroupsDto chat = chatGroupsMapper.readGroupById(chatId);
         if (chat == null || !chat.getRoomType().equals("PRIVATE")) {
@@ -247,7 +282,7 @@ public class ChatService {
         chatRoomData.setTargetUserId(targetUserId.intValue());
         return chatRoomData;
     }
-    
+
     public void openChat(Long chatId, HttpSession session) {
         // 1. 세션에서 기존 openChats 리스트 가져오기 (없으면 새로 만듦)
         List<Long> openChats = (List<Long>) session.getAttribute("openChats");
@@ -267,7 +302,5 @@ public class ChatService {
         if (session.getAttribute("firstChatId") == null) {
             session.setAttribute("firstChatId", chatId);
         }
-
-        // (선택 사항) 채팅방 이름, 채팅 내역 등도 세션에 저장 가능
-    }    
+    }
 }

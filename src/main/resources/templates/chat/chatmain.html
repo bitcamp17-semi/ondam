@@ -1,181 +1,203 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>My Messenger</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" th:href="@{/style/globals.css}" />
-    <link rel="stylesheet" th:href="@{/style/header.css}" />
-    <link rel="stylesheet" th:href="@{/style/chat.css}" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
+<meta charset="UTF-8">
+<title>My Messenger</title>
+<link rel="stylesheet"
+	href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" />
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+	rel="stylesheet">
+<link rel="stylesheet" th:href="@{/style/globals.css}" />
+<link rel="stylesheet" th:href="@{/style/header.css}" />
+<link rel="stylesheet" th:href="@{/style/chat.css}" />
+<link rel="stylesheet"
+	href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
 </head>
 <body>
-    <div th:replace="~{layout/header :: header}"></div>
-    <div class="fullbox">
-        <div class="chat-container main">
-            <div id='scheTitle' class="nav">
-                <div class="navtitle">채팅</div>
-            </div>
-            <div class="section">
-                <!-- Sidebar -->
-                <div class="sidebar leftarticle">
-                    <div class="sidebar-header lefttop">
-                        My Messenger
-                        <button class="btn btn-primary groupbtn">그룹 채팅 생성</button>
-                    </div>
+	<div th:replace="~{layout/header :: header}"></div>
+	<div class="fullbox">
+		<div class="chat-container main">
+			<div id='scheTitle' class="nav">
+				<div class="navtitle">채팅</div>
+			</div>
+			<div class="section">
+				<!-- Sidebar -->
+				<div class="sidebar leftarticle">
+					<div class="sidebar-header lefttop">
+						My Messenger
+						<button class="btn btn-primary groupbtn">그룹 채팅 생성</button>
+					</div>
 
-                    <div class="tab-buttons">
-                        <button class="tab-button" onclick="switchTab('chats')"
-                                th:classappend="${activeTab == 'chats'} ? ' active'">채팅
-                        </button>
-                        <button class="tab-button" onclick="switchTab('contacts')"
-                                th:classappend="${activeTab == 'contacts'} ? ' active'">멤버
-                        </button>
-                    </div>
+					<div class="tab-buttons">
+						<button class="tab-button" onclick="switchTab('chats')"
+							th:classappend="${activeTab == 'chats'} ? ' active'">채팅
+						</button>
+						<button class="tab-button" onclick="switchTab('contacts')"
+							th:classappend="${activeTab == 'contacts'} ? ' active'">멤버
+						</button>
+					</div>
 
-                    <div class="chat-list" th:if="${activeTab == 'chats'}">
-                        <div class="chat-item" th:each="group : ${chatGroupsList}">
-                            <div class="chat-item-content"
-                                 th:onclick="|openChat('${group.id}')|">
-                                <div th:text="${group.name != null and #strings.length(group.name) > 0} ? ${#strings.substring(group.name, 0, 1)} : 'G'"></div>
-                                <div class="chat-info">
-                                    <div class="chat-name" th:text="${group.name}"></div>
-                                    <div class="chat-preview" th:text="${group.lastMessage}"></div>
-                                </div>
-                            </div>
-                            <button class="invite-button"
-                                    th:attr="data-group-id=${group.id},data-group-name=${group.name}"
-                                    onclick="showInviteForm(event)">초대</button>
-                        </div>
-                    </div>
+					<div class="chat-list" th:if="${activeTab == 'chats'}">
+						<div class="chat-item" th:each="group : ${chatGroupsList}">
+							<div class="chat-item-content"
+								th:onclick="|openChat('${group.id}')|">
+								<div th:text="${group.displayInitial}"></div>
+								<div class="chat-info">
+									<div class="chat-name" th:text="${group.displayName}"></div>
+									<div class="chat-preview"
+										th:text="${group.lastMessage} ?: '메시지 없음'"></div>
+								</div>
+							</div>
+							<button class="invite-button"
+								th:attr="data-group-id=${group.id},data-group-name=${group.displayName}"
+								onclick="showInviteForm(event)">초대</button>
+						</div>
+					</div>
 
-                    <div class="contact-list" th:if="${activeTab == 'contacts'}">
-                        <div class="contact-item" th:each="contact : ${contacts}">
-                            <div class="contact-info"
-                                 th:onclick="|openChat('${contact.id}')|">
-                                <img th:if="${contact.profileImage != null and contact.profileImage != ''}"
-                                     th:src="${contact.profileImage}" alt="Profile Image"
-                                     class="contact-avatar"
-                                     style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
-                                <div th:unless="${contact.profileImage != null and contact.profileImage != ''}"
-                                     class="contact-avatar"
-                                     th:text="${#strings.substring(contact.name, 0, 1)}"></div>
-                                <div class="contact-name" th:text="${contact.name}"></div>
-                            </div>
-                            <form th:action="@{/chat/createPrivateChat}" method="post"
-                                  style="display: inline;">
-                                <input type="hidden" name="targetUserId" th:value="${contact.id}" />
-                                <input type="hidden" name="activeTab" th:value="${activeTab}" />
-                                <button type="submit" class="btn btn-sm btn-outline-primary private-chat-btn onechat"
-                                        title="개인 채팅">1 대1 채팅</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-                <!-- Chat Area -->
-                <div class="chat-area">
-                    <div class="chat-content">
-                        <div class="chat-messages" id="chatMessages"></div>
-                        <div class="no-chat-selected" id="noChatSelected" style="display: block;">
-                            채팅방을 선택하세요.
-                        </div>
-                        <div class="chat-input-area" id="chatInputArea" style="display: none;">
-                            <div class="input-group">
-                                <input type="text" id="messageInput" class="form-control"
-                                       placeholder="메시지를 입력하세요" required />
-                                <button id="sendButton" class="btn btn-primary">전송</button>
-                                <button id="fileButton" class="btn btn-primary"
-                                        style="background-color: blue;">파일</button>
-                                <input type="file" id="fileInput" style="display: none;" />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- 초대 폼 -->
-    <div class="overlay" id="overlay"></div>
-    <div class="invite-form" id="inviteForm">
-        <form th:action="@{/chat/invite}" method="post">
-            <input type="hidden" name="groupId" id="inviteGroupId" />
-            <input type="hidden" name="activeTab" th:value="${activeTab}" />
-            <div class="input-group mb-2">
-                <select name="userId" id="inviteUserId" class="form-control" required>
-                    <option value="" disabled selected>초대할 사용자 선택</option>
-                    <option th:each="contact : ${contacts}" th:value="${contact.id}"
-                            th:text="${contact.name}"></option>
-                </select>
-                <button type="submit" class="btn btn-primary">초대하기</button>
-            </div>
-            <div>
-                <span>초대할 그룹: </span> <span id="inviteGroupName"></span>
-            </div>
-        </form>
-    </div>
+					<div class="contact-list" th:if="${activeTab == 'contacts'}">
+						<div class="contact-item" th:each="contact : ${contacts}">
+							<div class="contact-info"
+								th:onclick="|openChat('${contact.id}')|">
+								<img
+									th:if="${contact.profileImage != null and contact.profileImage != ''}"
+									th:src="${contact.profileImage}" alt="Profile Image"
+									class="contact-avatar"
+									style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+								<div
+									th:unless="${contact.profileImage != null and contact.profileImage != ''}"
+									class="contact-avatar"
+									th:text="${#strings.substring(contact.name, 0, 1)}"></div>
+								<div class="contact-name" th:text="${contact.name}"></div>
+							</div>
+							<form th:action="@{/chat/createPrivateChat}" method="post"
+								style="display: inline;">
+								<input type="hidden" name="targetUserId"
+									th:value="${contact.id}" /> <input type="hidden"
+									name="activeTab" th:value="${activeTab}" />
+								<button type="submit"
+									class="btn btn-sm btn-outline-primary private-chat-btn onechat"
+									title="개인 채팅">1 대1 채팅</button>
+							</form>
+						</div>
+					</div>
+				</div>
+				<!-- Chat Area -->
+				<div class="chat-area">
+					<div class="chat-content">
+						<div class="chat-header" id="chatHeader">
+							<!-- JavaScript로 동적으로 채팅방 이름 삽입 -->
+							<h5 id="chatRoomName"></h5>
+						</div>
+						<div class="chat-messages" id="chatMessages"></div>
+						<div class="no-chat-selected" id="noChatSelected"
+							style="display: block;">채팅방을 선택하세요.</div>
+						<div class="chat-input-area" id="chatInputArea"
+							style="display: none;">
+							<div class="input-group">
+								<input type="text" id="messageInput" class="form-control"
+									placeholder="메시지를 입력하세요" required />
+								<button id="sendButton" class="btn btn-primary">전송</button>
+								<button id="fileButton" class="btn btn-primary"
+									style="background-color: blue;">파일</button>
+								<input type="file" id="fileInput" style="display: none;" />
+							</div>
+						</div>
+					</div>
+				</div>				
+			</div>
+		</div>
+	</div>
+	<!-- 초대 폼 -->
+	<div class="overlay" id="overlay"></div>
+	<div class="invite-form" id="inviteForm">
+		<form th:action="@{/chat/invite}" method="post">
+			<input type="hidden" name="groupId" id="inviteGroupId" /> <input
+				type="hidden" name="activeTab" th:value="${activeTab}" />
+			<div class="input-group mb-2">
+				<select name="userId" id="inviteUserId" class="form-control"
+					required>
+					<option value="" disabled selected>초대할 사용자 선택</option>
+					<option th:each="contact : ${contacts}" th:value="${contact.id}"
+						th:text="${contact.name}"></option>
+				</select>
+				<button type="submit" class="btn btn-primary">초대하기</button>
+			</div>
+			<div>
+				<span>초대할 그룹: </span> <span id="inviteGroupName"></span>
+			</div>
+		</form>
+	</div>
 
-    <!-- 그룹 채팅 생성 모달 -->
-    <div class="modal fade" id="createGroupModal" tabindex="-1"
-         aria-labelledby="createGroupModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="createGroupModalLabel">그룹 채팅 생성</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"
-                            aria-label="Close"></button>
-                </div>
-                <form th:action="@{/chat/createGroup}" method="post">
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label for="groupName" class="form-label">그룹 이름</label>
-                            <input type="text" class="form-control" id="groupName" name="groupName" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">초대할 멤버</label>
-                            <div class="contact-list" style="max-height: 200px; overflow-y: auto;">
-                                <div class="contact-item" th:each="contact : ${contacts}">
-                                    <input type="checkbox" th:name="invitedUserIds" th:value="${contact.id}">
-                                    <span th:text="${contact.name}"></span>
-                                </div>
-                            </div>
-                        </div>
-                        <input type="hidden" name="activeTab" th:value="${activeTab}" />
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
-                        <button type="submit" class="btn btn-primary">생성</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+	<!-- 그룹 채팅 생성 모달 -->
+	<div class="modal fade" id="createGroupModal" tabindex="-1"
+		aria-labelledby="createGroupModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="createGroupModalLabel">그룹 채팅 생성</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"
+						aria-label="Close"></button>
+				</div>
+				<form th:action="@{/chat/createGroup}" method="post">
+					<div class="modal-body">
+						<div class="mb-3">
+							<label for="groupName" class="form-label">그룹 이름</label> <input
+								type="text" class="form-control" id="groupName" name="groupName"
+								required>
+						</div>
+						<div class="mb-3">
+							<label class="form-label">초대할 멤버</label>
+							<div class="contact-list"
+								style="max-height: 200px; overflow-y: auto;">
+								<div class="contact-item" th:each="contact : ${contacts}">
+									<input type="checkbox" th:name="invitedUserIds"
+										th:value="${contact.id}"> <span
+										th:text="${contact.name}"></span>
+								</div>
+							</div>
+						</div>
+						<input type="hidden" name="activeTab" th:value="${activeTab}" />
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary"
+							data-bs-dismiss="modal">취소</button>
+						<button type="submit" class="btn btn-primary">생성</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
 
-    <!-- 이미지 모달 -->
-    <div class="modal fade" id="imageModal" tabindex="-1"
-         aria-labelledby="imageModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="imageModalLabel">이미지 보기</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"
-                            aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <img id="modalImage" src="" alt="Image Preview">
-                </div>
-                <div class="modal-footer">
-                    <button id="downloadButton" class="btn btn-primary">다운로드</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
-                </div>
-            </div>
-        </div>
-    </div>
+	<!-- 이미지 모달 -->
+	<div class="modal fade" id="imageModal" tabindex="-1"
+		aria-labelledby="imageModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="imageModalLabel">이미지 보기</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"
+						aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<img id="modalImage" src="" alt="Image Preview">
+				</div>
+				<div class="modal-footer">
+					<button id="downloadButton" class="btn btn-primary">다운로드</button>
+					<button type="button" class="btn btn-secondary"
+						data-bs-dismiss="modal">닫기</button>
+				</div>
+			</div>
+		</div>
+	</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
-    <script th:inline="javascript">
+	<script
+		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+	<script
+		src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+	<script
+		src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+	<script th:inline="javascript">
         class ChatClient {
             static DESTINATIONS = {
                 GROUP: '/app/chat.send.group',
@@ -444,6 +466,18 @@
                 const messagesContainer = document.getElementById('chatMessages');
                 const noChatMessage = document.getElementById('noChatSelected');
                 const inputArea = document.getElementById('chatInputArea');
+                const chatHeader = document.getElementById('chatHeader');
+                const chatRoomName = document.getElementById('chatRoomName');
+
+                // 채팅방 이름 업데이트
+                if (chatRoomName) {
+                    chatRoomName.textContent = chatData.roomName || '채팅방';
+                }
+
+                // 채팅 헤더 표시
+                if (chatHeader) {
+                    chatHeader.style.display = 'block';
+                }
 
                 if (messagesContainer) {
                     messagesContainer.innerHTML = ''; // 기존 메시지 지우기
