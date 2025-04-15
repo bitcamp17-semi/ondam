@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import data.dto.ScheduleGroupDto;
 
@@ -32,4 +33,7 @@ public interface ScheduleGroupMapper {
 	
 	//그룹 삭제
 	public void deleteScheGroup(int groupId);
+	
+	//부서 그룹 조회
+	public Integer readBuseoGroupId(@Param("departmentId") int departmentId);
 }

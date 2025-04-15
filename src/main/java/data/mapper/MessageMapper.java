@@ -57,6 +57,7 @@ public interface MessageMapper {
     int getMinMessageId(@Param("receiverId") int receiverId);
     int getMaxMessageId(@Param("receiverId") int receiverId);
 
-
+    //쪽지 보내면 알람 발송하기 전 생성된 쪽지 id조회
+    public MessagesDto getMessageById(int id);
 
 }

@@ -6,6 +6,8 @@ import data.service.FileStorageService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -43,21 +45,24 @@ public class ChatController {
 	private final FileStorageService fileStorageService;
 	private final SimpMessagingTemplate messagingTemplate;
 	private final NaverConfig naverConfig;
+	
+	private String bucketName="bitcamp-semi";//각자 자기꺼 써야함
 
 	/**
 	 * 채팅 메인 페이지 렌더링
 	 */
 	@GetMapping("/main")
-	public String chatMain(HttpSession session, Model model,
-			@RequestParam(name = "activeTab", defaultValue = DEFAULT_TAB) String activeTab,
-			RedirectAttributes redirectAttributes) {
-		Integer userId = validateSession(session, redirectAttributes);
-		if (userId == null) {
-			return LOGIN_REDIRECT;
-		}
-		initializeChatMainModel(session, model, userId, activeTab);
-		return MAIN_PAGE;
-	}
+    public String chatMain(HttpSession session, Model model,
+            @RequestParam(name = "activeTab", defaultValue = DEFAULT_TAB) String activeTab,
+            @RequestParam(name = "chatId", required = false) Integer chatId,
+            RedirectAttributes redirectAttributes) {
+        Integer userId = validateSession(session, redirectAttributes);
+        if (userId == null) {
+            return LOGIN_REDIRECT;
+        }
+        initializeChatMainModel(session, model, userId, activeTab, chatId);
+        return MAIN_PAGE;
+    }
 
 	/**
 	 * 채팅방 열기
@@ -151,45 +156,79 @@ public class ChatController {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
 		}
 	}
+	
+	@GetMapping("/loadChat")
+	@ResponseBody
+	public ChatRoomData loadChat(@RequestParam("chatId") Integer chatId, HttpSession session) {
+	    Integer userId = (Integer) session.getAttribute("userId");
+	    if (userId == null) {
+	        throw new IllegalStateException("로그인이 필요합니다.");
+	    }
+	    ChatGroupsDto chatGroup = chatService.readGroupById(chatId);
+	    if (chatGroup == null) {
+	        throw new IllegalArgumentException("채팅방을 찾을 수 없습니다.");
+	    }
+
+	    ChatRoomData chatRoomData = new ChatRoomData();
+	    chatRoomData.setRoomId(chatId);
+	    chatRoomData.setRoomName(chatGroup.getName());
+	    chatRoomData.setRoomType("GROUP");
+	    chatRoomData.setMessages(chatService.readGroupMessages(chatId));
+	    chatRoomData.getMessages().forEach(msg -> {
+	        msg.setMyMessage(msg.getSenderId().equals(userId));
+	        msg.setFormattedCreatedAt(msg.getCreatedAt() != null ?
+	                new SimpleDateFormat("yyyy-MM-dd HH:mm").format(msg.getCreatedAt()) : "");
+	    });
+	    return chatRoomData;
+	}
 
 	// ===== Private Methods =====
 
-	private void initializeChatMainModel(HttpSession session, Model model, Integer userId, String activeTab) {
-		model.addAttribute("chatGroupsList", chatService.readAllGroupsWithLastMessages(userId));
-		model.addAttribute("contacts", chatService.readAllUsersExceptCurrent(userId));
-		model.addAttribute("openChats", getOpenChats(session));
-		model.addAttribute("firstChatData", prepareFirstChatData(getOpenChats(session), userId));
-		model.addAttribute("userId", userId);
-		model.addAttribute("activeTab", activeTab);
+	private void initializeChatMainModel(HttpSession session, Model model, Integer userId, String activeTab, Integer chatId) {
+        List<UsersDto> contacts = chatService.readAllUsersExceptCurrent(userId);
+        for (UsersDto contact : contacts) {
+            if (contact.getProfileImage() != null && !contact.getProfileImage().isEmpty()) {
+                String imageUrl = "https://kr.object.ncloudstorage.com/" + bucketName + "/users/" + contact.getProfileImage();
+                contact.setProfileImage(imageUrl);
+            }
+        }
 
-		UsersDto user = chatService.readUserById(userId);
-		session.setAttribute("user", user);
-	}
+        model.addAttribute("chatGroupsList", chatService.readAllGroupsWithLastMessages(userId));
+        model.addAttribute("contacts", contacts);
+        model.addAttribute("userId", userId);
+        model.addAttribute("activeTab", activeTab);
 
-	private ChatRoomData prepareFirstChatData(List<Integer> openChats, Integer userId) {
-		if (openChats.isEmpty()) {
-			return null;
-		}
-		Integer firstChatId = openChats.get(0);
-		ChatGroupsDto firstChat = chatService.readGroupById(firstChatId);
-		if (firstChat == null) {
-			return null;
-		}
+        // chatId가 있을 때만 firstChatData 설정
+        if (chatId != null) {
+            model.addAttribute("firstChatData", prepareFirstChatData(chatId, userId));
+        } else {
+            model.addAttribute("firstChatData", null);
+        }
 
-		ChatRoomData chatRoomData = new ChatRoomData();
-		chatRoomData.setRoomId(firstChatId);
-		chatRoomData.setRoomName(firstChat.getName());
-		chatRoomData.setRoomType(GROUP_ROOM_TYPE);
+        UsersDto user = chatService.readUserById(userId);
+        session.setAttribute("user", user);
+    }
 
-		List<ChatLogDto> messages = chatService.readGroupMessages(firstChatId);
-		messages.forEach(msg -> {
-			msg.setMyMessage(msg.getSenderId().equals(userId));
-			msg.setFormattedCreatedAt(msg.getCreatedAt() != null ?
-					DATE_FORMATTER.format(msg.getCreatedAt()) : "");
-		});
-		chatRoomData.setMessages(messages);
-		return chatRoomData;
-	}
+	private ChatRoomData prepareFirstChatData(Integer chatId, Integer userId) {
+        ChatGroupsDto firstChat = chatService.readGroupById(chatId);
+        if (firstChat == null) {
+            return null;
+        }
+
+        ChatRoomData chatRoomData = new ChatRoomData();
+        chatRoomData.setRoomId(chatId);
+        chatRoomData.setRoomName(firstChat.getName());
+        chatRoomData.setRoomType(GROUP_ROOM_TYPE);
+
+        List<ChatLogDto> messages = chatService.readGroupMessages(chatId);
+        messages.forEach(msg -> {
+            msg.setMyMessage(msg.getSenderId().equals(userId));
+            msg.setFormattedCreatedAt(msg.getCreatedAt() != null ?
+                    DATE_FORMATTER.format(msg.getCreatedAt()) : "");
+        });
+        chatRoomData.setMessages(messages);
+        return chatRoomData;
+    }
 
 	private String handleSessionAction(HttpSession session, RedirectAttributes redirectAttributes, Runnable action) {
 		Integer userId = validateSession(session, redirectAttributes);
