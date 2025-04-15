@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>공지사항</title>
+	    
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* 좌측 메뉴 */
+        .sidebar {
+            width: 220px;
+            background-color: #ffffff;
+            border-right: 1px solid #dee2e6;
+            padding: 20px;
+        }
+
+        .sidebar h2 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .menu-item {
+            margin-bottom: 12px;
+            padding: 10px;
+            border-radius: 6px;
+            color: #495057;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .menu-item.active, .menu-item:hover {
+            background-color: #0d6efd;
+            color: white;
+        }
+
+        /* 본문 영역 */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            color: #343a40;
+        }
+
+        .header .buttons button {
+            background-color: #0d6efd;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        /* 게시글 카드 */
+        .card-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .card {
+            background-color: #ffffff;
+            border: 1px solid #dee2e6;
+            padding: 20px;
+            border-radius: 8px;
+            transition: box-shadow 0.2s;
+        }
+
+        .card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #212529;
+            margin-bottom: 8px;
+        }
+
+        .card-content {
+            font-size: 14px;
+            color: #495057;
+            margin-bottom: 12px;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #868e96;
+        }
+
+        .icons span {
+            margin-left: 12px;
+            cursor: pointer;
+        }
+        
+        
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- 좌측 사이드바 -->
+			<div class="sidebar">
+				<img src="../images/ondam.png" width="60"
+					style="display: block; margin: 0 auto 20px;" />
+				<h2>전사게시판</h2>
+				<div class="menu-item" onclick="location.href='/board/boardMain'">전체게시판</div>
+				<div class="menu-item" onclick="location.href='/board/boardBlind'">익명게시판</div>
+				<div class="menu-item" onclick="location.href='/board/boardNoti'">공지사항</div>
+				<div class="menu-item" onclick="location.href='/board/boardDepartment'">부서게시판</div>
+				<div class="menu-item" onclick="location.href='/board/boardEvent'">사내소식</div>
+			</div>
+
+    <!-- 본문 -->
+    <div class="main-content">
+        <div class="header">
+            <h1>공지사항</h1>
+            <div class="buttons">
+                <button onclick="location.href='/boardWrite.html'">글쓰기</button>
+            </div>
+        </div>
+
+        
+        </div>
+    </div>
+</div>
+</body>
+</html>
