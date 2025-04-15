@@ -11,6 +11,8 @@ html body * ,html body{
     font-family: 'Pretendard', sans-serif;
     font-weight: normal;
     /*overflow: hidden;*/
+    --bs-body-line-height: 1; /* 원하는 줄간격 값으로 */
+    line-height: var(--bs-body-line-height);
 }
 
 /* a blue color as a generic focus style */

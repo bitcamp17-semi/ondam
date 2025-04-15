@@ -1,25 +1,14 @@
 /*all*/
 
-.fullbox {
+.fullbox{
     display: flex;
     flex-direction: row;
-    width: 96vw;
+    width: calc(100vw - 75px);
     height: 100dvh;
     color: #686868;
     position: relative;
+    white-space: nowrap;
 }
-
-.header {
-    width: 80px;
-    height: 100%;
-    display: flex;
-    position: absolute;
-    left: 0;
-    top: 0;
-    overflow: hidden;
-    z-index: 10000;
-}
-
 .main {
     display: flex;
     flex-direction: column;

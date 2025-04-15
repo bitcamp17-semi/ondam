@@ -3,9 +3,8 @@
 .fullbox{
     display: flex;
     flex-direction: row;
-    width: 96vw;
+    width: calc(100vw - 75px);
     height: 100dvh;
-    font-family: "Noto Sans-Bold", Helvetica, "Noto Sans-Regular";
     color: #686868;
     position: relative;
 }
@@ -375,10 +374,10 @@ mark {
     justify-content: center;
     align-items: center;
     transition: visibility 0s, opacity 0.3s; /* 애니메이션 효과 */
-    z-index: 10000;
+    z-index: 1000;
 }
 
-#modal-content {
+#modal-contents {
     background-color: white;
     padding: 30px;
     border-radius: 10px;
@@ -386,10 +385,10 @@ mark {
     display: flex;
     flex-direction: column;
 }
-#modal-content span{
+#modal-contents span{
     font-size: 12px;
 }
-#modal-content h2 {
+#modal-contents h2 {
     font-size: 20px;
     font-weight: bold;
     color: #3f3f3f;
