@@ -5,9 +5,8 @@
 <mapper namespace="data.mapper.ChatGroupsMapper">
 	<insert id="createGroup" parameterType="ChatGroupsDto"
 		useGeneratedKeys="true" keyProperty="id">
-		insert into chat_groups (name,
-		createdby)
-		values (#{name}, #{createdBy})
+		insert into chat_groups (name, createdby, roomtype)
+		values (#{name}, #{createdBy}, #{roomType})
 	</insert>
 
 	<select id="readAllGroupsWithLastMessages"
@@ -21,16 +20,19 @@
 		(SELECT cl.message
 		FROM chat_log cl
 		WHERE cl.groupid = cg.id
-		ORDER BY cl.createdat DESC
+		ORDER BY
+		cl.createdat DESC
 		LIMIT 1) AS last_message,
 		(SELECT COUNT(*)
-		FROM junction_chat_users_groups j
+		FROM
+		junction_chat_users_groups j
 		WHERE j.groupid = cg.id) AS member_count,
 		(CASE
 		WHEN cg.roomtype = 'PRIVATE' THEN (
 		SELECT u.name
 		FROM users u
-		JOIN junction_chat_users_groups j ON u.id = j.userid
+		JOIN
+		junction_chat_users_groups j ON u.id = j.userid
 		WHERE j.groupid = cg.id
 		AND j.userid != #{userId}
 		LIMIT 1
@@ -38,7 +40,8 @@
 		ELSE cg.name
 		END) AS opponent_name
 		FROM chat_groups cg
-		JOIN junction_chat_users_groups j ON cg.id = j.groupid
+		JOIN junction_chat_users_groups j ON cg.id =
+		j.groupid
 		WHERE j.userid = #{userId}
 	</select>
 

@@ -364,11 +364,17 @@
 }
 
 .chat-header {
-    padding: 10px;
-    border-bottom: 1px solid #ddd;
-    background-color: #f8f9fa;
+    padding: 15px 20px; /* lefttop과 유사한 패딩 */
+    border-bottom: 1px solid #e0e0e0; /* 구분선 */
+    background-color: #f8f9fa; /* lefttop과 동일한 배경색 */
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
 }
+
 .chat-header h5 {
     margin: 0;
-    font-size: 1.25rem;
+    font-size: 20px; /* navtitle보다 작게 설정 */
+    font-weight: bold; /* navtitle과 유사한 글씨 두께 */
+    color: #3f3f3f; /* navtitle과 동일한 색상 */
 }

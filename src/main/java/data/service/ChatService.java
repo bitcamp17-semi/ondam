@@ -194,7 +194,7 @@ public class ChatService {
         ChatGroupsDto privateChat = new ChatGroupsDto();
         privateChat.setName("");
         privateChat.setCreatedBy(userId);
-        privateChat.setRoomtype("PRIVATE");
+        privateChat.setRoomType("PRIVATE");
         chatGroupsMapper.createGroup(privateChat);
 
         Long chatId = Long.valueOf(privateChat.getId());
@@ -228,7 +228,7 @@ public class ChatService {
     }
     public ChatRoomData getPrivateChatById(Integer chatId, Integer userId) {
         ChatGroupsDto chat = chatGroupsMapper.readGroupById(chatId);
-        if (chat == null || !chat.getRoomtype().equals("PRIVATE")) {
+        if (chat == null || !chat.getRoomType().equals("PRIVATE")) {
             return null;
         }
 
