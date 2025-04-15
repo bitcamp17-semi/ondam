@@ -16,10 +16,24 @@ public class BoardService {
 	@Autowired
 	BoardMapper boardMapper;
 
+	public List<BoardDto> getPagedBoardList(int offset, int limit) {
+	    return boardMapper.selectPagedBoardList(offset, limit);
+	}
+
+	public int getBoardCount() {
+	    return boardMapper.selectBoardCount();
+	}
+	
 	// 글쓰기 저장
 	public boolean boardInsert(BoardDto boardDto) {
 		int result = boardMapper.insertWrite(boardDto);
+		System.out.println("1?0?"+result);
 		return result > 0;
+	}
+
+	//글 상세보기
+	public BoardDto getBoardDetailById(int id) {
+	    return boardMapper.boardDetailById(id);
 	}
 
 	public int getTotalCount() {
@@ -49,6 +63,10 @@ public class BoardService {
 	public List<BoardDto> getSelectById(String myid) {
 		return boardMapper.getSelectById(myid);
 	}
+	
+	public List<BoardDto> getNotiPosts() {
+	    return boardMapper.selectNotiPosts(); // 공지사항만
+	}
 
 	public List<BoardDto> getAllBoards() {
 		return boardMapper.getAllBoards();
@@ -62,13 +80,8 @@ public class BoardService {
 		return boardMapper.findByCategory(category);
 	}
 
-	public BoardDto getBoardById(int id) {
-	    return boardMapper.findById(id);
-	}
-
 	public int updateBoard(BoardDto dto, MultipartFile[] files) {
 		// TODO Auto-generated method stub
 		return 0;
-	}
-
+	}	
 }

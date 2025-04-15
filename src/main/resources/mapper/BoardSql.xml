@@ -7,17 +7,17 @@
 		SELECT COUNT(*) FROM board
 	</select>
 
-	<!-- 최대 idx -->
-	<select id="getMaxIdx" resultType="int">
-		SELECT MAX(idx) FROM board
+	<!-- 최대 id -->
+	<select id="getMaxidx" resultType="int">
+		SELECT MAX(id) FROM board
 	</select>
 
 	<!-- 글쓰기 저장 (hidden 값이 있을 경우에만 포함) -->
 	<insert id="insertWrite" parameterType="data.dto.BoardDto">
 		INSERT INTO board (
-			id, category, title, content, authorid,
+			id, category, title, content, authorId,
 			<if test="hidden != null">hidden,</if>
-			createdat
+			createdAt
 		)
 		VALUES (
 			#{id}, #{category}, #{title}, #{content}, #{authorId},
@@ -26,17 +26,24 @@
 		)
 	</insert>
 
+	<!-- 글 상세보기 -->
+	<select id="boardDetailById" parameterType="int" resultType="BoardDto">
+	    SELECT id, title, content
+	    FROM board
+	    WHERE id = #{id}
+	</select>
+
 	<!-- 페이징된 게시글 목록 -->
 	<select id="getPagingList" resultType="data.dto.BoardDto">
 		SELECT * FROM board
-		ORDER BY idx DESC
+		ORDER BY id DESC
 		LIMIT #{start}, #{perpage}
 	</select>
 
 	<!-- 사용자 ID 기준 게시글 조회 -->
 	<select id="getSelectById" resultType="data.dto.BoardDto">
 		SELECT * FROM board
-		WHERE authorid = #{myid}
+		WHERE authorId = #{myId}
 	</select>
 
 	<!-- 게시글 수정 -->
@@ -44,20 +51,20 @@
 		UPDATE board
 		SET title = #{title},
 			content = #{content}
-		WHERE idx = #{idx}
+		WHERE id = #{id}
 	</update>
 
 	<!-- 게시글 삭제 -->
 	<delete id="deleteBoard">
 		DELETE FROM board
-		WHERE idx = #{idx}
+		WHERE id= #{id}
 	</delete>
 
 	<!-- 익명게시판 글 목록 조회 -->
 	<select id="selectHiddenPosts" resultType="data.dto.BoardDto">
 		SELECT * FROM board
 		WHERE hidden = true
-		ORDER BY idx DESC
+		ORDER BY id DESC
 	</select>
 
 	<!-- 전체 글 목록 -->
@@ -70,7 +77,23 @@
 	<select id="findByCategory" resultType="data.dto.BoardDto">
 		SELECT * FROM board
 		WHERE category = #{category}
-		ORDER BY createdate DESC
+		ORDER BY createdAt DESC
+	</select>
+	
+	<update id="updatePost" parameterType="BoardDto">
+    	UPDATE board
+    	SET title = #{title}, content = #{content}, update_date = NOW()
+    	WHERE id = #{id}
+	</update>
+	
+	<!-- 게시글 넘기기 -->
+	<select id="selectPagedBoardList" resultType="BoardDto">
+    	SELECT * FROM board
+    	ORDER BY created_at DESC
+    	LIMIT #{limit} OFFSET #{offset}
 	</select>
 
+	<select id="selectBoardCount" resultType="int">
+    	SELECT COUNT(*) FROM board
+	</select>
 </mapper>
