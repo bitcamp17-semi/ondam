@@ -16,5 +16,6 @@ public class DataRoomDto {
     private String name;
     private int parentId;
     private boolean hasChild;
+    private String type;
     private List<DataRoomDto> subFolders;
 }

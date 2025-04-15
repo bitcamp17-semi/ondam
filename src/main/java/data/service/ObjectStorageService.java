@@ -11,6 +11,7 @@ import java.util.UUID;
 
 import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.model.*;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -115,6 +116,9 @@ public class ObjectStorageService {
         }
     }
 
+
+
+
     public String generateFileURL(String bucketName, String filePath) {
         // NCloud Object Storage 엔드포인트
         String endpoint = "https://kr.object.ncloudstorage.com";
@@ -139,7 +143,8 @@ public class ObjectStorageService {
 
         // Ncloud EndPoint
         String endpoint = "https://kr.object.ncloudstorage.com";
-        String fullPath = "dataroom/" + filePath;
+        String fullPath =  filePath;
+        System.out.println(fullPath);
         // Content-Disposition 헤더 설정
         String contentDisposition;
         try {
