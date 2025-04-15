@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -145,7 +145,7 @@ body {
 				<!-- 게시글 리스트 -->
 				<div class="card" th:each="board : ${boardList}">
 					<div class="card-title">
-						<a th:href="@{'/board/boardDetail/' + ${board.id}}"
+						<a th:href="@{'/boardDetail/' + ${board.id}}"
 							th:text="${board.title}"
 							style="text-decoration: none; color: #212529;"></a>
 					</div>
@@ -154,12 +154,11 @@ body {
 
 					<div class="card-footer">
 						<div class="writer-info">
-							<span th:text="${board.authorId}"></span> 
+							<span th:text="${writerMap[board.authorId]}"></span> 
 							<span th:text="${#dates.format(board.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
 						</div>
 						<div class="icons">
-							<span onclick="likePost(this)">♥ <span>0</span></span>
-							<span>💬<span>0</span></span>
+							<span onclick="likePost(this)">♥ <span>0</span></span><span>💬 <span>0</span></span>
 						</div>
 					</div>
 				</div>
