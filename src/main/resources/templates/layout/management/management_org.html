@@ -29,8 +29,8 @@
             <div class="leftarticle">
                 <div id="orgtitle">조직도</div>
                 <div class="orgaddbox">
-                    <button class="addbtn" id="addbuseobtn">부서 추가</button>
-                    <button class="addbtn" id="addteambtn">팀 추가</button>
+                    <button class="whitebtn" id="addbuseobtn">부서 추가</button>
+                    <button class="whitebtn" id="addteambtn">팀 추가</button>
                 </div>
 
                 <div class="orgchart">
@@ -40,8 +40,8 @@
             <div class="rightarticle">
                 <span id="selectedTeam">선택된 팀(0)</span>
                 <div class="righttop">
-                    <input type="checkbox" id="selectAll"/>
-                    <button id="rightdeletebtn">delete</button>
+                    <input type="checkbox" id="selectAll"/>&nbsp;
+                    <button id="rightdeletebtn" class="whitebtn">삭제</button>
                 </div>
                 <div class="rightmain">
                     <div class="teamlist">
@@ -109,8 +109,9 @@
                             </div>
                         </div>
                         <div class="updatebtnset">
-                            <button class="sawonupdatebtn">수정하기</button>
-                            <button class="sawondeletebtn">사원정보 삭제</button>
+                            <button class="whitebtn" id="dephead">부서장 지정</button>
+                            <button class="sawonupdatebtn whitebtn">수정하기</button>
+                            <button class="sawondeletebtn whitebtn">사원정보 삭제</button>
                         </div>
                     </div>
                 </div>
@@ -122,7 +123,7 @@
 <!-- 팀 추가 모달 -->
 <div class="modal-overlay" id="teammodal">
     <form class="modal-form" id="teammodal-form">
-        <div class="modal-content" id="teammodal-content">
+        <div class="modal-contents" id="teammodal-content">
             <h2>팀 추가</h2>
             <div class="dropdown" id="modaldepartment">
                 <span>부서</span>
@@ -145,7 +146,7 @@
 <!-- 부서추가모달 -->
 <div class="modal-overlay" id="buseomodal">
     <form class="modal-form" id="buseomodal-form">
-        <div class="modal-content" id="buseomodal-content">
+        <div class="modal-contents" id="buseomodal-content">
             <h2>부서 추가</h2>
             <div class="modalteamtitle">
                 <span>부서 이름</span>
