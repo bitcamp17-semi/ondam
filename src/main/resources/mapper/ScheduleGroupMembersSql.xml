@@ -23,4 +23,11 @@
 	<delete id="deleteScheGroupMem" parameterType="int">
 		delete from schedule_group_members where groupId=#{groupId}
 	</delete>
+	
+	<!-- 특정 그룹에 유저가 있는지 확인-->
+	<select id="readGroupMemExist" resultType="Integer">
+		select *
+		from schedule_group_members
+		where groupId=#{groupId} and userId=#{userId} 
+	</select>
 </mapper>

@@ -104,5 +104,11 @@ public class MessageService {
     public int getMaxMessageId(@Param("receiverId") int receiverId) {
         return messageMapper.getMaxMessageId(receiverId);
     }
+    
+    //쪽지 보내면 알람 발송하기 전 생성된 쪽지 id조회
+    public MessagesDto getMessageById(int id)
+    {
+    	return messageMapper.getMessageById(id);
+    }
 
 }

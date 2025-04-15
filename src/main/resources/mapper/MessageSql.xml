@@ -232,8 +232,13 @@
     <select id="getMaxMessageId" parameterType="int" resultType="int">
         SELECT MAX(id) FROM messages WHERE receiverid = #{receiverId}
     </select>
-
-
+	
+	<!-- 메세지 생성 시 알람 발송에 필요 -->
+	<select id="getMessageById" parameterType="int" resultType="MessagesDto">
+    	SELECT *
+    	FROM messages
+    	WHERE id = #{id}
+	</select>
 
 
 </mapper>

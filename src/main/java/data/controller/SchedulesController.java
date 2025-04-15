@@ -82,43 +82,6 @@ public class SchedulesController {
 		//String ownerName=userService.readUserById(sUserId).getName();
 		String ownerName = user.getName();
 		
-		//로그인 시 로그인한 계정이 그룹장이며 그룹이름이 '개인일정'인 그룹
-		//있는지 체크 후 없으면 그룹 자동 생성
-		ScheduleGroupDto privateExisting=scheduleGroupService.readPrivateGroup(sUserId);
-		if (privateExisting == null) {
-			Map<String, Object> map = new HashMap<>();
-	        map.put("name", "개인일정");
-	        map.put("color", "#28a745"); // 초록계열
-	        map.put("ownerId", sUserId);//dto.setOwnerId(userId);
-	        //map.put("departmentId", "");//dto.setDepartmentId(null);
-
-	        scheduleGroupService.scheGroupInsert(map);
-	    }
-		
-		//로그한 계정이 '회사그룹'의 멤버로 없다면 멤버로 등록 시키기
-		Integer companyMemExist=scheduleGroupService.readCompanyGroupMember(sUserId);
-		if(companyMemExist==null)
-		{
-			//'회사그룹'의 그룹 id 저장
-			Integer groupId=scheduleGroupService.readCompanyGroupId();
-			
-			if (groupId != null) { // 예외 대비해서 한 번 더 체크
-				Map<String, Object> memberMap = new HashMap<>();
-				memberMap.put("userId",sUserId);
-				memberMap.put("groupId",groupId);
-				memberMap.put("color","#ffa500");
-			
-				// Map 하나만 등록하더라도 리스트로 감싸서 넘기기 > scheGroupMemberInsert list를 반환하도록 되어있음
-				List<Map<String, Object>> memberList = new ArrayList<>();
-				memberList.add(memberMap);
-				
-				scheduleGroupMemberService.scheGroupMemberInsert(memberList);
-				System.out.println("회사일정 그룹에 사용자 자동 추가 완료");
-			}else {
-				System.out.println("'회사일정' 그룹이 존재하지 않습니다.");
-			}
-		}
-		
 		//전체 일정 읽어오기
 		List<SchedulesDto> list = schedulesService.readAllSche(sUserId);
 		//전체 user 읽어오기

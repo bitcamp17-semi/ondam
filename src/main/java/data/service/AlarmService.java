@@ -126,9 +126,9 @@ public class AlarmService {
   	}
   	
   	//쪽지 받으면 받는 사람한테만 알람 발생하도록하기
-  	public void receivedMessageAlarm(int userId, int causedBy, String content)
+  	public void receivedMessageAlarm(int userId, int causedBy)
   	{
-  			content = "쪽지가 도착했습니다.";//알람 문구 지정 > 수정해도 됨		
+  			String content = "쪽지가 도착했습니다.";//알람 문구 지정 > 수정해도 됨		
   			
   			//알람 dto 생성
   			AlarmDto dto =new AlarmDto();
@@ -137,7 +137,7 @@ public class AlarmService {
   	    	dto.setCausedBy(causedBy);//보낸 사람 저장해야함
   	    	dto.setContent(content);//알람 내용
   	    	dto.setCreatedAt(new Timestamp(System.currentTimeMillis()));//쪽지 받은 시간 저장하기
-  	    	dto.setIsRead('0'); //기본으로 읽지않은 상태 저장
+  	    	dto.setIsRead(0); //기본으로 읽지않은 상태 저장
   	    	
   			//alarm DB 저장
   			insertAlarm(dto);
@@ -166,9 +166,9 @@ public class AlarmService {
   	}
   	
   	//내가 작성한 게시글에 댓글이 달린경우 알람 발생
-  	public void addRepleMyBoard(int userId, int causedBy, String content)
+  	public void addRepleMyBoard(int userId, int causedBy)
   	{
-  			content = "댓글이 달렸습니다.";//알람 문구 지정 > 수정해도 됨		
+  			String content = "댓글이 달렸습니다.";//알람 문구 지정 > 수정해도 됨		
   			
   			//알람 dto 생성
   			AlarmDto dto =new AlarmDto();
@@ -177,7 +177,7 @@ public class AlarmService {
   	    	dto.setCausedBy(causedBy);//댓글 작성한 사람 id 저장
   	    	dto.setContent(content);//알람 내용
   	    	dto.setCreatedAt(new Timestamp(System.currentTimeMillis()));//쪽지 받은 시간 저장하기
-  	    	dto.setIsRead('0'); //기본으로 읽지않은 상태 저장
+  	    	dto.setIsRead(0); //기본으로 읽지않은 상태 저장
   	    	
   			//alarm DB 저장
   			insertAlarm(dto);
@@ -206,9 +206,9 @@ public class AlarmService {
   	}
   	
   	//내가 해야할 결제가 생긴(내 차례가 된) 경우 알람 발생
-  	public void approvalTurnAlarm(int userId, int causedBy, String content)
+  	public void approvalTurnAlarm(int userId, int causedBy)
   	{
-  			content = "확인 할 결제가 생겼습니다.";//알람 문구 지정 > 수정해도 됨		
+  			String content = "확인 할 결제가 생겼습니다.";//알람 문구 지정 > 수정해도 됨		
   			
   			//알람 dto 생성
   			AlarmDto dto =new AlarmDto();
@@ -217,10 +217,13 @@ public class AlarmService {
   	    	dto.setCausedBy(causedBy);//결제를 올린사람
   	    	dto.setContent(content);//알람 내용
   	    	dto.setCreatedAt(new Timestamp(System.currentTimeMillis()));//쪽지 받은 시간 저장하기
-  	    	dto.setIsRead('0'); //기본으로 읽지않은 상태 저장
-  	    	
+  	    	dto.setIsRead(0); //기본으로 읽지않은 상태 저장
+
+  	    	System.out.println("알림 발생 시도: userId=" + userId + ", causedBy=" + causedBy + ", type=" + dto.getType());
   			//alarm DB 저장
   			insertAlarm(dto);
+  			System.out.println("insertAlarm 호출 완료");
+  			
   			
   			//SSE 전송
   			SseEmitter emitter = emitterRepository.get((long) userId);
@@ -246,9 +249,9 @@ public class AlarmService {
   	}
   	
   	//결제가 최종 승인된 경우 알람 발생
-  	public void confirmedApprovalAlarm(int userId, int causedBy, String content)
+  	public void confirmedApprovalAlarm(int userId, int causedBy)
   	{
-  			content = "결제가 최종 승인되었습니다.";//알람 문구 지정 > 수정해도 됨		
+  			String content = "결제가 최종 승인되었습니다.";//알람 문구 지정 > 수정해도 됨		
   			
   			//알람 dto 생성
   			AlarmDto dto =new AlarmDto();
@@ -257,7 +260,7 @@ public class AlarmService {
   	    	dto.setCausedBy(causedBy);//최종 승인한 사람 id
   	    	dto.setContent(content);//알람 내용
   	    	dto.setCreatedAt(new Timestamp(System.currentTimeMillis()));//쪽지 받은 시간 저장하기
-  	    	dto.setIsRead('0'); //기본으로 읽지않은 상태 저장
+  	    	dto.setIsRead(0); //기본으로 읽지않은 상태 저장
   	    	
   			//alarm DB 저장
   			insertAlarm(dto);
@@ -286,9 +289,9 @@ public class AlarmService {
   	}
   	
   	//결제가 반려된 경우 알람 발생
-  	public void rejectedApprovalAlarm(int userId, int causedBy, String content)
+  	public void rejectedApprovalAlarm(int userId, int causedBy)
   	{
-  			content = "올린 결제가 반려되었습니다.";//알람 문구 지정 > 수정해도 됨		
+  			String content = "결제가 반려되었습니다.";//알람 문구 지정 > 수정해도 됨		
   			
   			//알람 dto 생성
   			AlarmDto dto =new AlarmDto();
@@ -297,7 +300,7 @@ public class AlarmService {
   	    	dto.setCausedBy(causedBy);//결제 올린 사람 id
   	    	dto.setContent(content);//알람 내용
   	    	dto.setCreatedAt(new Timestamp(System.currentTimeMillis()));//반려한 사람의 id 저장
-  	    	dto.setIsRead('0'); //기본으로 읽지않은 상태 저장
+  	    	dto.setIsRead(0); //기본으로 읽지않은 상태 저장
   	    	
   			//alarm DB 저장
   			insertAlarm(dto);

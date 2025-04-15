@@ -3,6 +3,7 @@ package data.mapper;
 import data.dto.DraftTemplatesDto;
 import data.dto.DraftsDto;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -26,7 +27,7 @@ public interface DraftMapper {
 
     public void updateDraftStatus(int id, String status);
 
-    public List<DraftsDto> readPendingDraftsForUser(int userId, int size, int offset);
+    public List<DraftsDto> readPendingDraftsForUser(@Param("userId") int userId,@Param("size") int size,@Param("offset") int offset);
 
     public Integer readCountDraftsForActions(int userId);
 
@@ -43,4 +44,7 @@ public interface DraftMapper {
     public List<DraftsDto> readReceivedDoneById(int userId, int size, int offset);
 
     public Integer readCountReceivedDoneById(int userId);
+    
+    //기안자의 userId 조회
+    public int readDrafterIdByDraftId(int id);
 }
