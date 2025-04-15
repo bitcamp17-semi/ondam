@@ -1,0 +1,31 @@
+<div th:fragment="calendarOnly">
+    <div id="calendar" th:attr="data-events=${scheduleList}">달력자리</div>
+</div>
+    <script th:inline="javascript">
+        const scheduleList = /*[[${scheduleList}]]*/ [];
+
+        const events = scheduleList.map(s => ({
+            id: s.id,
+            title: s.name,
+            start: s.startTime.replace(' ', 'T'),
+            end: s.endTime.replace(' ', 'T'),
+            allDay: s.alltime,
+            color: s.color,
+            content: s.content,
+            writer: s.writer
+        }));
+
+        const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
+            initialView: 'dayGridMonth',
+            locale: 'ko',
+            events: events,
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            }
+        });
+
+        calendar.render();
+    </script>
+</div>

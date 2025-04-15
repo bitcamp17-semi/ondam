@@ -1,13 +1,13 @@
 /*all*/
 
-.fullbox {
+.fullbox{
     display: flex;
     flex-direction: row;
-    width: 96vw;
+    width: calc(100vw - 75px);
     height: 100dvh;
-    font-family: "Noto Sans-Bold", Helvetica, "Noto Sans-Regular";
     color: #686868;
     position: relative;
+    white-space: nowrap;
 }
 
 .main {

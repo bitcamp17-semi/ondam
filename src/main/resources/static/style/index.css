@@ -1,11 +1,13 @@
 /* Layout */
 
-.fullbox {
+.fullbox{
     display: flex;
-    width: 96vw;
+    flex-direction: row;
+    width: calc(100vw - 75px);
     height: 100dvh;
     color: #686868;
     position: relative;
+    white-space: nowrap;
 }
 
 .main {
@@ -171,7 +173,7 @@
     flex: 1;
     flex-direction: row;
     justify-content: space-between;
-    padding: 10px;
+    padding: 20px;
 }
 .approvalcontent{
     display: flex;
@@ -181,7 +183,7 @@
     justify-content: center;
     gap: 20px;
     border-left: rgba(0,0,0,0.05) solid 1px;
-    padding-left: 25px;
+    padding-left: 45px;
     cursor: pointer;
 }
 .approvalcontent:first-child{
@@ -234,7 +236,7 @@
     z-index: 20000;
 }
 
-.modal-content {
+.modal-contents {
     background-color: white;
     padding: 30px;
     border-radius: 10px;
@@ -244,18 +246,18 @@
     gap: 20px;
 }
 
-.modal-overlay.show .modal-content {
+.modal-overlay.show .modal-contents {
     transform: scale(1);
 }
 
-.modal-content h2 {
+.modal-contents h2 {
     font-size: 20px;
     font-weight: bold;
     color: #3f3f3f;
     margin-bottom: 15px;
 }
 
-.modal-content span {
+.modal-contents span {
     font-size: 12px;
 }
 
