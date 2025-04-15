@@ -4,10 +4,11 @@
 .fullbox{
     display: flex;
     flex-direction: row;
-    width: 96vw;
+    width: calc(100vw - 75px);
     height: 100dvh;
     color: #686868;
     position: relative;
+    white-space: nowrap;
 }
 .header {
     width: 80px;
@@ -409,6 +410,7 @@
     justify-content: flex-start;
     flex-shrink: 0;
     position: relative;
+    user-select: none;
 }
 .currentPage {
     /*color: #3f3f3f;*/

@@ -3,443 +3,159 @@
 <head>
 <meta charset="UTF-8">
 <title>My Messenger</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet"
+	href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" />
 <link
 	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
 	rel="stylesheet">
+<link rel="stylesheet" th:href="@{/style/globals.css}" />
+<link rel="stylesheet" th:href="@{/style/header.css}" />
+<link rel="stylesheet" th:href="@{/style/chat.css}" />
+<link rel="stylesheet"
+	href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
 <style>
-/* 기존 스타일 유지 */
-body {
-	font-family: 'Apple SD Gothic Neo', sans-serif;
-	margin: 0;
-	padding: 0;
-	background-color: #f5f5f5;
-	height: 100vh;
-	overflow: hidden;
-}
-
-.chat-container {
-	display: flex;
-	height: 100vh;
-	overflow: hidden;
-}
-
-.sidebar {
-	width: 350px;
-	background-color: #fff;
-	border-right: 1px solid #e0e0e0;
-	display: flex;
-	flex-direction: column;
-}
-
-.sidebar-header {
-	padding: 15px;
-	background-color: #f8f9fa;
-	border-bottom: 1px solid #e0e0e0;
-	font-weight: bold;
-}
-
-.tab-buttons {
-	display: flex;
-	border-bottom: 1px solid #e0e0e0;
-}
-
-.tab-button {
-	flex: 1;
-	padding: 12px;
-	text-align: center;
-	background: none;
-	border: none;
-	cursor: pointer;
-	font-size: 14px;
-}
-
-.tab-button.active {
-	font-weight: bold;
-	border-bottom: -2px solid #3c7eff;
-	color: #3c7eff;
-}
-
-.chat-list, .contact-list {
-	flex: 1;
-	overflow-y: auto;
-}
-
-.chat-item {
-	padding: 12px 15px;
-	border-bottom: 1px solid #f0f0f0;
-	display: flex;
-	align-items: center;
-	cursor: pointer;
-}
-
-.contact-item {
-	padding: 12px 15px;
-	border-bottom: 1px solid #f0f0f0;
-	display: flex;
-	align-items: center;
-	cursor: pointer;
-}
-
-.chat-avatar, .contact-avatar {
-	width: 40px;
-	height: 40px;
-	background-color: #e0e0e0;
-	border-radius: 50%;
-	margin-right: 10px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	font-weight: bold;
-	color: #fff;
-}
-
-.chat-info {
-	flex: 1;
-	display: flex;
-	flex-direction: column;
-}
-
-.chat-name {
-	font-weight: 500;
-	margin-bottom: 3px;
-}
-
-.chat-preview {
-	font-size: 13px;
-	color: #777;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
-}
-
-.chat-time {
-	font-size: 11px;
-	color: #999;
-}
-
-.chat-area {
-	flex: 1;
-	display: flex;
-	flex-direction: column;
-	height: 100%;
-}
-
-.chat-tabs {
-	display: flex;
-	background-color: #f8f9fa;
-	border-bottom: 1px solid #e0e0e0;
-}
-
-.chat-tab {
-	padding: 12px 20px;
-	cursor: pointer;
-	border-right: 1px solid #e0e0e0;
-	font-size: 14px;
-	max-width: 200px;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
-
-.chat-tab.active {
-	background-color: #fff;
-	font-weight: bold;
-}
-
-.chat-tab-close {
-	margin-left: 8px;
-	color: #999;
-	border: none;
-	background: transparent;
-}
-
-.chat-tab-close:hover {
-	color: #333;
-}
-
-.chat-content {
-	flex: 1;
-	background-color: #fff;
-	display: flex;
-	flex-direction: column;
-	position: relative;
-	height: 100%;
-}
-
-.chat-messages {
-	flex: 1 1 auto;
-	padding: 20px;
-	overflow-y: auto;
-	max-height: calc(100% - 70px - 44px);
-	height: calc(100% - 70px - 44px);
-}
-
-.message {
-	display: flex;
-	margin-bottom: 15px;
-}
-
-.message.my-message {
-	justify-content: flex-end;
-}
-
-.message-content {
-	max-width: 70%;
-}
-
-.message-sender {
-	font-weight: 500;
-	font-size: 13px;
-	margin-bottom: 3px;
-}
-
-.message-text {
-	background-color: #f0f0f0;
-	padding: 10px 12px;
-	border-radius: 18px;
-	font-size: 14px;
-	display: inline-block;
-}
-
-.message-time {
-	font-size: 11px;
-	color: #999;
-	margin-top: 5px;
-	margin-left: 10px;
-}
-
-.my-message .message-text {
-	background-color: #3c7eff;
-	color: #fff;
-}
-
-.chat-input-area {
-	padding: 15px;
-	border-top: 1px solid #e0e0e0;
-	background-color: #fff;
-	flex: 0 0 auto;
-	position: sticky;
-	bottom: 0;
-	width: 100%;
-}
-
-.no-chat-selected {
-	flex: 1;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	color: #999;
-	font-size: 16px;
-}
-
-#connection-status {
-	position: fixed;
-	bottom: 10px;
-	right: 10px;
-	padding: 5px 10px;
-	border-radius: 4px;
-	background-color: #fff;
-	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.invite-button {
-	font-size: 12px;
-	padding: 5px 10px;
-	background-color: #3c7eff;
-	color: #fff;
-	border: none;
-	border-radius: 5px;
-	cursor: pointer;
-}
-
-.invite-button:hover {
-	background-color: #2a5cd6;
-}
-
-.invite-form {
-	display: none;
-	padding: 10px;
-	background-color: #f8f9fa;
-	border-bottom: 1px solid #e0e0e0;
-	position: fixed;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-	z-index: 1000;
-	width: 300px;
-	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.invite-form.active {
-	display: block;
-}
-
-.chat-item-content {
-	display: flex;
-	align-items: center;
-	flex: 1;
-}
-
-.overlay {
-	display: none;
-	position: fixed;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	background: rgba(0, 0, 0, 0.5);
-	z-index: 999;
-}
-
-.overlay.active {
-	display: block;
-}
-
-.groupbtn {
-	margin-left: 80px;
-}
-
-.onechat {
-	margin-left: 180px;
-}
-
-/* 모달 스타일 추가 */
-#imageModal .modal-dialog {
-	max-width: 800px;
-}
-
-#imageModal .modal-body img {
-	width: 100%;
-	height: auto;
-	border-radius: 8px;
-}
-
-#imageModal .modal-footer {
-	justify-content: space-between;
-}
 </style>
 </head>
 <body>
-	<div class="chat-container">
-		<!-- Sidebar -->
-		<div class="sidebar">
-			<div class="sidebar-header">
-				My Messenger
-				<button class="btn btn-primary groupbtn">그룹 채팅 생성</button>
+	<div th:replace="~{layout/header :: header}"></div>
+	<div class="fullbox">
+		<div class="chat-container main">
+			<div id='scheTitle' class="nav">
+				<div class="navtitle">채팅</div>
 			</div>
-
-			<div class="tab-buttons">
-				<button class="tab-button" onclick="switchTab('chats')"
-					th:classappend="${activeTab == 'chats'} ? ' active'">채팅</button>
-				<button class="tab-button" onclick="switchTab('contacts')"
-					th:classappend="${activeTab == 'contacts'} ? ' active'">멤버</button>
-			</div>
-
-			<div class="chat-list" th:if="${activeTab == 'chats'}">
-				<div class="chat-item" th:each="group : ${chatGroupsList}">
-					<div class="chat-item-content"
-						th:onclick="|openChat('${group.id}')|">
-						<div
-							th:text="${group.name != null and #strings.length(group.name) > 0} ? ${#strings.substring(group.name, 0, 1)} : 'G'"></div>
-						<div class="chat-info">
-							<div class="chat-name" th:text="${group.name}"></div>
-							<div class="chat-preview" th:text="${group.lastMessage}"></div>
-						</div>
+			<div class="section">
+				<!-- Sidebar -->
+				<div class="sidebar leftarticle">
+					<div class="sidebar-header lefttop">
+						My Messenger
+						<button class="btn btn-primary groupbtn">그룹 채팅 생성</button>
 					</div>
-					<button class="invite-button"
-						th:attr="data-group-id=${group.id},data-group-name=${group.name}"
-						onclick="showInviteForm(event)">초대</button>
-				</div>
-			</div>
 
-			<div class="contact-list" th:if="${activeTab == 'contacts'}">
-				<div class="contact-item" th:each="contact : ${contacts}">
-					<div class="contact-info" th:onclick="|openChat('${contact.id}')|">
-						<div class="contact-avatar"
-							th:text="${#strings.substring(contact.name, 0, 1)}"></div>
-						<div class="contact-name" th:text="${contact.name}"></div>
+					<div class="tab-buttons">
+						<button class="tab-button" onclick="switchTab('chats')"
+							th:classappend="${activeTab == 'chats'} ? ' active'">채팅
+						</button>
+						<button class="tab-button" onclick="switchTab('contacts')"
+							th:classappend="${activeTab == 'contacts'} ? ' active'">멤버
+						</button>
 					</div>
-					<form th:action="@{/chat/createPrivateChat}" method="post"
-						style="display: inline;">
-						<input type="hidden" name="targetUserId" th:value="${contact.id}" />
-						<input type="hidden" name="activeTab" th:value="${activeTab}" />
-						<button type="submit"
-							class="btn btn-sm btn-outline-primary private-chat-btn onechat"
-							title="개인 채팅">1 대1 채팅</button>
-					</form>
-				</div>
-			</div>
-		</div>
-		<!-- Chat Area -->
-		<div class="chat-area">
-			<div class="chat-tabs"
-				th:if="${openChats != null and !openChats.isEmpty()}">
-				<div class="chat-tab" th:each="chatId : ${openChats}"
-					th:classappend="${firstChatData != null and chatId == firstChatData.roomId} ? ' active'">
-					<span
-						th:text="${firstChatData != null and chatId == firstChatData.roomId} ?
-                                ${firstChatData.roomName} : '채팅방 ' + ${chatId}"></span>
-					<form th:action="@{/chat/closeChat}" method="post"
-						style="display: inline;">
-						<input type="hidden" name="chatId" th:value="${chatId}" />
-						<button type="submit" class="chat-tab-close">×</button>
-					</form>
-				</div>
-			</div>
 
-			<div class="chat-content">
-				<div class="chat-messages" th:if="${firstChatData != null}">
-					<div class="message" th:each="msg : ${firstChatData.messages}"
-						th:classappend="${msg.isMyMessage} ? ' my-message'">
-						<div class="message-avatar"
-							th:text="${#strings.substring(msg.senderName, 0, 1)}"></div>
-						<div class="message-content">
-							<div class="message-sender" th:text="${msg.senderName}"></div>
-							<div class="message-text">
-								<span th:if="${msg.file == null}" th:text="${msg.message}"></span>
-								<span th:if="${msg.file != null}"
-									th:attr="data-file-url=${msg.file},data-file-type=${msg.fileType}">
-									<!-- 디버깅 로그 추가 --> <script th:inline="javascript">
-							        console.log('Message file URL: [[${msg.file}]]');
-							        console.log('Message file type: [[${msg.fileType}]]');
-							        </script> <!-- 이미지 파일인 경우 --> <a
-									th:if="${msg.fileType != null and msg.fileType.startsWith('image/')}"
-									href="javascript:void(0)"
-									th:attr="data-file-url=${msg.file},data-file-name=${msg.message}"
-									onclick="showImageModal(this)"> <img th:src="${msg.file}"
-										style="max-width: 200px; border-radius: 8px;"
-										th:alt="${msg.message}"
-										onerror="this.onerror=null; this.src='/images/fallback-image.png';" />
-								</a> <!-- 이미지 파일이 아닌 경우 다운로드 링크 --> <a
-									th:if="${msg.fileType == null or !msg.fileType.startsWith('image/')}"
-									th:href="${msg.file}" th:download="${msg.message}"> <span
-										th:text="${msg.message}"></span>
-								</a>
-								</span>
+					<div class="chat-list" th:if="${activeTab == 'chats'}">
+						<div class="chat-item" th:each="group : ${chatGroupsList}">
+							<div class="chat-item-content"
+								th:onclick="|openChat('${group.id}')|">
+								<div
+									th:text="${group.name != null and #strings.length(group.name) > 0} ? ${#strings.substring(group.name, 0, 1)} : 'G'"></div>
+								<div class="chat-info">
+									<div class="chat-name" th:text="${group.name}"></div>
+									<div class="chat-preview" th:text="${group.lastMessage}"></div>
+								</div>
 							</div>
-							<div class="message-time" th:text="${msg.formattedCreatedAt}"></div>
+							<button class="invite-button"
+								th:attr="data-group-id=${group.id},data-group-name=${group.name}"
+								onclick="showInviteForm(event)">초대</button>
+						</div>
+					</div>
+
+					<div class="contact-list" th:if="${activeTab == 'contacts'}">
+						<div class="contact-item" th:each="contact : ${contacts}">
+							<div class="contact-info"
+								th:onclick="|openChat('${contact.id}')|">
+								<!-- 프로필 이미지가 있는 경우 -->
+								<img
+									th:if="${contact.profileImage != null and contact.profileImage != ''}"
+									th:src="${contact.profileImage}" alt="Profile Image"
+									class="contact-avatar"
+									style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+								<!-- 프로필 이미지가 없는 경우 -->
+								<div
+									th:unless="${contact.profileImage != null and contact.profileImage != ''}"
+									class="contact-avatar"
+									th:text="${#strings.substring(contact.name, 0, 1)}"></div>
+								<div class="contact-name" th:text="${contact.name}"></div>
+							</div>
+							<form th:action="@{/chat/createPrivateChat}" method="post"
+								style="display: inline;">
+								<input type="hidden" name="targetUserId"
+									th:value="${contact.id}" /> <input type="hidden"
+									name="activeTab" th:value="${activeTab}" />
+								<button type="submit"
+									class="btn btn-sm btn-outline-primary private-chat-btn onechat"
+									title="개인 채팅">1 대1 채팅</button>
+							</form>
 						</div>
 					</div>
 				</div>
+				<!-- Chat Area -->
+				<div class="chat-area">
+					<div class="chat-tabs"
+						th:if="${openChats != null and !openChats.isEmpty()}">
+						<div class="chat-tab" th:each="chatId : ${openChats}"
+							th:classappend="${firstChatData != null and chatId == firstChatData.roomId} ? ' active'">
+							<span
+								th:text="${firstChatData != null and chatId == firstChatData.roomId} ?
+                                ${firstChatData.roomName} : '채팅방 ' + ${chatId}"></span>
+							<form th:action="@{/chat/closeChat}" method="post"
+								style="display: inline;">
+								<input type="hidden" name="chatId" th:value="${chatId}" />
+								<button type="submit" class="chat-tab-close">×</button>
+							</form>
+						</div>
+					</div>
 
-				<div class="no-chat-selected" th:unless="${firstChatData != null}">
-					사용 중인 메신저룸이 없습니다.</div>
+					<div class="chat-content">
+						<div class="chat-messages" th:if="${firstChatData != null}">
+							<div class="message" th:each="msg : ${firstChatData.messages}"
+								th:classappend="${msg.isMyMessage} ? ' my-message'">
+								<div class="message-avatar"
+									th:text="${#strings.substring(msg.senderName, 0, 1)}"></div>
+								<div class="message-content">
+									<div class="message-sender" th:text="${msg.senderName}"></div>
+									<div class="message-text">
+										<span th:if="${msg.file == null}" th:text="${msg.message}"></span>
+										<span th:if="${msg.file != null}"
+											th:attr="data-file-url=${msg.file},data-file-type=${msg.fileType}">
+											<!-- 디버깅 로그 추가 --> <script th:inline="javascript">
+							        console.log('Message file URL: [[${msg.file}]]');
+                                    console.log('Message file type: [[${msg.fileType}]]');
+							        </script> <!-- 이미지 파일인 경우 --> <a
+											th:if="${msg.fileType != null and msg.fileType.startsWith('image/')}"
+											href="javascript:void(0)"
+											th:attr="data-file-url=${msg.file},data-file-name=${msg.message}"
+											onclick="showImageModal(this)"> <img th:src="${msg.file}"
+												style="max-width: 200px; border-radius: 8px;"
+												th:alt="${msg.message}"
+												onerror="this.onerror=null; this.src='/images/fallback-image.png';" />
+										</a> <!-- 이미지 파일이 아닌 경우 다운로드 링크 --> <a
+											th:if="${msg.fileType == null or !msg.fileType.startsWith('image/')}"
+											th:href="${msg.file}" th:download="${msg.message}"> <span
+												th:text="${msg.message}"></span>
+										</a>
+										</span>
+									</div>
+									<div class="message-time" th:text="${msg.formattedCreatedAt}"></div>
+								</div>
+							</div>
+						</div>
 
-				<div th:if="${firstChatData != null}" class="chat-input-area">
-					<div class="input-group">
-						<input type="text" id="messageInput" class="form-control"
-							placeholder="메시지를 입력하세요" required />
-						<button id="sendButton" class="btn btn-primary">전송</button>
-						<button id="fileButton" class="btn btn-primary"
-							style="background-color: blue;">파일</button>
-						<input type="file" id="fileInput" style="display: none;" />
+						<div class="no-chat-selected" th:unless="${firstChatData != null}">
+							사용 중인 메신저룸이 없습니다.</div>
+
+						<div th:if="${firstChatData != null}" class="chat-input-area">
+							<div class="input-group">
+								<input type="text" id="messageInput" class="form-control"
+									placeholder="메시지를 입력하세요" required />
+								<button id="sendButton" class="btn btn-primary">전송</button>
+								<button id="fileButton" class="btn btn-primary"
+									style="background-color: blue;">파일</button>
+								<input type="file" id="fileInput" style="display: none;" />
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
-
 	<!-- 초대 폼 -->
 	<div class="overlay" id="overlay"></div>
 	<div class="invite-form" id="inviteForm">
@@ -535,107 +251,107 @@ body {
 	<script
 		src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
 	<script th:inline="javascript">
-        class ChatClient {
-            static DESTINATIONS = {
-                GROUP: '/app/chat.send.group',
-                PRIVATE: '/app/chat.send.private'
-            };
+    class ChatClient {
+        static DESTINATIONS = {
+            GROUP: '/app/chat.send.group',
+            PRIVATE: '/app/chat.send.private'
+        };
 
-            static SUBSCRIPTIONS = {
-                GROUP: (roomId) => `/topic/group/${roomId}`,
-                PRIVATE: '/user/queue/private'
-            };
+        static SUBSCRIPTIONS = {
+            GROUP: (roomId) => `/topic/group/${roomId}`,
+            PRIVATE: '/user/queue/private'
+        };
 
-            constructor(config = {}) {
-                this.stompClient = null;
-                this.userId = config.userId ?? null;
-                this.roomId = config.roomId ?? null;
-                this.roomType = config.roomType ?? null;
-                this.targetUserId = config.targetUserId ?? null;
-                this.senderName = config.senderName ?? 'User';
-                this.connected = false;
+        constructor(config = {}) {
+            this.stompClient = null;
+            this.userId = config.userId ?? null;
+            this.roomId = config.roomId ?? null;
+            this.roomType = config.roomType ?? null;
+            this.targetUserId = config.targetUserId ?? null;
+            this.senderName = config.senderName ?? 'User';
+            this.connected = false;
 
-                this.init();
+            this.init();
+        }
+
+        init() {
+            if (this.roomId) {
+                this.connect();
+                this.setupEventListeners();
             }
+        }
 
-            init() {
-                if (this.roomId) {
-                    this.connect();
-                    this.setupEventListeners();
+        connect() {
+            const socket = new SockJS('/ws');
+            this.stompClient = Stomp.over(socket);
+
+            this.stompClient.debug = (str) => {
+                console.log('STOMP Debug: ' + str);
+            };
+
+            this.stompClient.connect(
+                {'userId': this.userId},
+                (frame) => {
+                    this.connected = true;
+                    this.subscribe();
+                },
+                (error) => {
+                    this.connected = false;
+                    console.error('WebSocket Connection Error:', error);
+                    setTimeout(() => this.connect(), 5000);
                 }
-            }
+            );
+        }
 
-            connect() {
-                const socket = new SockJS('/ws');
-                this.stompClient = Stomp.over(socket);
+        subscribe() {
+            const subscriptionPath = this.roomType === 'GROUP'
+                ? ChatClient.SUBSCRIPTIONS.GROUP(this.roomId)
+                : ChatClient.SUBSCRIPTIONS.PRIVATE;
 
-                this.stompClient.debug = (str) => {
-                    console.log('STOMP Debug: ' + str);
-                };
+            this.stompClient.subscribe(subscriptionPath, (message) => {
+                this.handleMessage(JSON.parse(message.body));
+            });
+        }
 
-                this.stompClient.connect(
-                    { 'userId': this.userId },
-                    (frame) => {
-                        this.connected = true;
-                        this.subscribe();
-                    },
-                    (error) => {
-                        this.connected = false;
-                        console.error('WebSocket Connection Error:', error);
-                        setTimeout(() => this.connect(), 5000);
-                    }
-                );
-            }
+        handleMessage(message) {
+            const messagesContainer = document.querySelector('.chat-messages');
+            if (!messagesContainer) return;
 
-            subscribe() {
-                const subscriptionPath = this.roomType === 'GROUP'
-                    ? ChatClient.SUBSCRIPTIONS.GROUP(this.roomId)
-                    : ChatClient.SUBSCRIPTIONS.PRIVATE;
+            const isMyMessage = message.isMyMessage !== undefined ?
+                message.isMyMessage :
+                message.senderId == this.userId;
 
-                this.stompClient.subscribe(subscriptionPath, (message) => {
-                    this.handleMessage(JSON.parse(message.body));
-                });
-            }
+            const messageElement = this.createMessageElement(message, isMyMessage);
+            messagesContainer.appendChild(messageElement);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
 
-            handleMessage(message) {
-                const messagesContainer = document.querySelector('.chat-messages');
-                if (!messagesContainer) return;
+        createMessageElement(message, isMyMessage) {
+            const element = document.createElement('div');
+            element.className = `message ${isMyMessage ? 'my-message' : ''}`;
 
-                const isMyMessage = message.isMyMessage !== undefined ?
-                    message.isMyMessage :
-                    message.senderId == this.userId;
+            const time = new Date(message.createdAt || message.time).toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
 
-                const messageElement = this.createMessageElement(message, isMyMessage);
-                messagesContainer.appendChild(messageElement);
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            }
-
-            createMessageElement(message, isMyMessage) {
-                const element = document.createElement('div');
-                element.className = `message ${isMyMessage ? 'my-message' : ''}`;
-
-                const time = new Date(message.createdAt || message.time).toLocaleTimeString([], {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-
-                // 파일 메시지인 경우
-                let content = '';
-                if (message.file) {
-                    // 이미지 파일인지 확인 (확장자로 간단히 판단)
-                    const isImage = /\.(jpg|jpeg|png|gif)$/i.test(message.message);
-                    if (isImage) {
-                        content = `<a href="javascript:void(0)" data-file-url="${message.file}" data-file-name="${message.message}" onclick="showImageModal(this)">
+            // 파일 메시지인 경우
+            let content = '';
+            if (message.file) {
+                // 이미지 파일인지 확인 (확장자로 간단히 판단)
+                const isImage = /\.(jpg|jpeg|png|gif)$/i.test(message.message);
+                if (isImage) {
+                    content = `<a href="javascript:void(0)" data-file-url="${message.file}" data-file-name="${message.message}" onclick="showImageModal(this)">
                             <img src="${message.file}" style="max-width: 200px; border-radius: 8px;" alt="${message.message}" />
                         </a>`;
-                    } else {
-                        content = `<a href="${message.file}" download="${message.message}">파일: ${message.message}</a>`;
-                    }
                 } else {
-                    content = message.message || message.content;
+                    content = `<a href="${message.file}" download="${message.message}">파일: ${message.message}</a>`;
                 }
+            } else {
+                content = message.message || message.content;
+            }
 
-                element.innerHTML = `
+            element.innerHTML = `
                     <div class="message-avatar">${message.senderName?.charAt(0) || 'U'}</div>
                     <div class="message-content">
                         <div class="message-sender">${message.senderName || 'Unknown'}</div>
@@ -644,281 +360,308 @@ body {
                     </div>
                 `;
 
-                return element;
-            }
-
-            sendMessage(content) {
-                if (!this.isReadyToSend(content)) {
-                    return;
-                }
-                const message = this.createMessageObject(content);
-                this.sendMessageToServer(message);
-            }
-
-            isReadyToSend(content) {
-                if (!this.connected) {
-                    console.warn("Cannot send message: Not connected to WebSocket");
-                    return false;
-                }
-
-                if (!content || !content.trim()) {
-                    console.warn("Cannot send message: Content is empty or whitespace");
-                    return false;
-                }
-
-                if (!this.userId) {
-                    console.error("Cannot send message: userId is not defined");
-                    return false;
-                }
-
-                if (!this.roomId) {
-                    console.error("Cannot send message: roomId is not defined");
-                    return false;
-                }
-
-                if (!this.stompClient) {
-                    console.error("Cannot send message: STOMP client is not initialized");
-                    return false;
-                }
-
-                return true;
-            }
-
-            createMessageObject(content) {
-                if (!content || !content.trim()) {
-                    console.error("Message content is empty");
-                    throw new Error("Message content cannot be empty");
-                }
-
-                return {
-                    senderId: this.userId,
-                    senderName: this.senderName,
-                    message: content,
-                    time: new Date().toISOString(),
-                    createdAt: new Date().toISOString(),
-                    groupId: this.roomType === 'GROUP' ? Number(this.roomId) : null,
-                    roomId: Number(this.roomId),
-                    roomType: this.roomType,
-                    targetUserId: this.targetUserId ? Number(this.targetUserId) : null,
-                    isMyMessage: true
-                };
-            }
-
-            sendMessageToServer(message) {
-                const destination = this.getDestination();
-                console.log("Sending message:", message);
-
-                if (!message) {
-                    console.error("Message object is null!");
-                    return;
-                }
-
-                try {
-                    const messageJson = JSON.stringify(message);
-                    console.log("Serialized message:", messageJson);
-                    this.stompClient.send(destination,
-                        { 'content-type': 'application/json' },
-                        messageJson);
-                } catch (error) {
-                    console.error("Failed to send message:", error);
-                }
-            }
-
-            getDestination() {
-                const dest = this.roomType === 'GROUP'
-                    ? `${ChatClient.DESTINATIONS.GROUP}/${this.roomId}`
-                    : ChatClient.DESTINATIONS.PRIVATE;
-                console.log("Sending to:", dest);
-                return dest;
-            }
-
-            async uploadFile(file) {
-                if (!file) {
-                    console.warn("No file selected");
-                    return;
-                }
-
-                const formData = new FormData();
-                formData.append("file", file);
-                formData.append("roomId", this.roomId);
-                formData.append("roomType", this.roomType);
-                formData.append("senderId", this.userId);
-                formData.append("senderName", this.senderName);
-
-                try {
-                    const response = await fetch('/chat/uploadFile', {
-                        method: 'POST',
-                        body: formData
-                    });
-
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-
-                    const result = await response.json();
-                    console.log("File upload successful:", result);
-                } catch (error) {
-                    console.error("File upload failed:", error);
-                    alert("파일 업로드에 실패했습니다.");
-                }
-            }
-
-            setupEventListeners() {
-                const input = document.getElementById('messageInput');
-                const sendButton = document.getElementById('sendButton');
-                const fileButton = document.getElementById('fileButton');
-                const fileInput = document.getElementById('fileInput');
-
-                if (input && sendButton) {
-                    sendButton.addEventListener('click', () => {
-                        this.sendMessage(input.value);
-                        input.value = '';
-                    });
-
-                    input.addEventListener('keypress', (e) => {
-                        if (e.key === 'Enter') {
-                            this.sendMessage(input.value);
-                            input.value = '';
-                        }
-                    });
-                }
-
-                if (fileButton && fileInput) {
-                    fileButton.addEventListener('click', () => {
-                        fileInput.click();
-                    });
-
-                    fileInput.addEventListener('change', () => {
-                        const file = fileInput.files[0];
-                        if (file) {
-                            this.uploadFile(file);
-                            fileInput.value = '';
-                        }
-                    });
-                }
-            }
+            return element;
         }
 
-        function showInviteForm(event) {
-            event.stopPropagation();
-            const groupId = event.target.getAttribute('data-group-id');
-            const groupName = event.target.getAttribute('data-group-name');
-            console.log('showInviteForm called with groupId:', groupId, 'groupName:', groupName);
+        sendMessage(content) {
+            if (!this.isReadyToSend(content)) {
+                return;
+            }
+            const message = this.createMessageObject(content);
+            this.sendMessageToServer(message);
+        }
 
-            const inviteForm = document.getElementById('inviteForm');
-            const groupIdInput = document.getElementById('inviteGroupId');
-            const groupNameSpan = document.getElementById('inviteGroupName');
-            const overlay = document.getElementById('overlay');
+        isReadyToSend(content) {
+            if (!this.connected) {
+                console.warn("Cannot send message: Not connected to WebSocket");
+                return false;
+            }
 
-            if (!inviteForm || !groupIdInput || !groupNameSpan || !overlay) {
-                console.error('Invite form elements not found:', {
-                    inviteForm: !!inviteForm,
-                    groupIdInput: !!groupIdInput,
-                    groupNameSpan: !!groupNameSpan,
-                    overlay: !!overlay
-                });
+            if (!content || !content.trim()) {
+                console.warn("Cannot send message: Content is empty or whitespace");
+                return false;
+            }
+
+            if (!this.userId) {
+                console.error("Cannot send message: userId is not defined");
+                return false;
+            }
+
+            if (!this.roomId) {
+                console.error("Cannot send message: roomId is not defined");
+                return false;
+            }
+
+            if (!this.stompClient) {
+                console.error("Cannot send message: STOMP client is not initialized");
+                return false;
+            }
+
+            return true;
+        }
+
+        createMessageObject(content) {
+            if (!content || !content.trim()) {
+                console.error("Message content is empty");
+                throw new Error("Message content cannot be empty");
+            }
+
+            return {
+                senderId: this.userId,
+                senderName: this.senderName,
+                message: content,
+                time: new Date().toISOString(),
+                createdAt: new Date().toISOString(),
+                groupId: this.roomType === 'GROUP' ? Number(this.roomId) : null,
+                roomId: Number(this.roomId),
+                roomType: this.roomType,
+                targetUserId: this.targetUserId ? Number(this.targetUserId) : null,
+                isMyMessage: true
+            };
+        }
+
+        sendMessageToServer(message) {
+            const destination = this.getDestination();
+            console.log("Sending message:", message);
+
+            if (!message) {
+                console.error("Message object is null!");
                 return;
             }
 
-            document.querySelectorAll('.invite-form.active').forEach(form => {
-                form.classList.remove('active');
-            });
-            document.querySelectorAll('.overlay.active').forEach(ov => {
-                ov.classList.remove('active');
-            });
-
-            inviteForm.classList.add('active');
-            overlay.classList.add('active');
-            groupIdInput.value = groupId;
-            groupNameSpan.textContent = groupName;
-            console.log('Invite form displayed for group:', groupName);
-
-            overlay.addEventListener('click', () => {
-                inviteForm.classList.remove('active');
-                overlay.classList.remove('active');
-            });
-        }
-
-        function openChat(chatId) {
-            console.log('openChat called with chatId:', chatId);
-            document.getElementById('chatIdInput').value = chatId;
-            document.getElementById('openChatForm').submit();
-        }
-
-        function switchTab(tabName) {
-            console.log('switchTab called with tabName:', tabName);
-            window.location.href = `/chat/main?activeTab=${tabName}`;
-        }
-
-        // 이미지 모달 표시 함수
-        function showImageModal(element) {
-		    const fileUrl = element.getAttribute('data-file-url');
-		    console.log('Attempting to load image from:', fileUrl); // 로그 추가
-		    
-		    const img = new Image();
-		    img.onload = function() {
-		        document.getElementById('modalImage').src = fileUrl;
-		        new bootstrap.Modal(document.getElementById('imageModal')).show();
-		    };
-		    img.onerror = function() {
-		        console.error('Failed to load image:', fileUrl);
-		        alert('이미지를 불러올 수 없습니다.');
-		    };
-		    img.src = fileUrl;
-
-            // 기존 이벤트 리스너 제거 (중복 방지)
-            const newDownloadButton = downloadButton.cloneNode(true);
-            downloadButton.parentNode.replaceChild(newDownloadButton, downloadButton);
-
-            // 다운로드 버튼에 이벤트 리스너 추가
-            newDownloadButton.addEventListener('click', () => {
-                downloadFile(fileUrl, fileName);
-            });
-
-            const modal = new bootstrap.Modal(document.getElementById('imageModal'));
-            modal.show();
-        }
-
-        // 파일 다운로드 함수
-        async function downloadFile(fileUrl, fileName) {
             try {
-                const response = await fetch(fileUrl);
+                const messageJson = JSON.stringify(message);
+                console.log("Serialized message:", messageJson);
+                this.stompClient.send(destination,
+                    {'content-type': 'application/json'},
+                    messageJson);
+            } catch (error) {
+                console.error("Failed to send message:", error);
+            }
+        }
+
+        getDestination() {
+            const dest = this.roomType === 'GROUP'
+                ? `${ChatClient.DESTINATIONS.GROUP}/${this.roomId}`
+                : ChatClient.DESTINATIONS.PRIVATE;
+            console.log("Sending to:", dest);
+            return dest;
+        }
+
+        async uploadFile(file) {
+            if (!file) {
+                console.warn("No file selected");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("file", file);
+            formData.append("roomId", this.roomId);
+            formData.append("roomType", this.roomType);
+            formData.append("senderId", this.userId);
+            formData.append("senderName", this.senderName);
+
+            try {
+                const response = await fetch('/chat/uploadFile', {
+                    method: 'POST',
+                    body: formData
+                });
+
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
 
-                const blob = await response.blob();
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = fileName;
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
-                window.URL.revokeObjectURL(url);
+                const result = await response.json();
+                console.log("File upload successful:", result);
             } catch (error) {
-                console.error('Download failed:', error);
-                alert('파일 다운로드에 실패했습니다.');
+                console.error("File upload failed:", error);
+                alert("파일 업로드에 실패했습니다.");
             }
         }
 
-        document.querySelector('.groupbtn').addEventListener('click', () => {
-            const modal = new bootstrap.Modal(document.getElementById('createGroupModal'));
-            modal.show();
+        setupEventListeners() {
+            const input = document.getElementById('messageInput');
+            const sendButton = document.getElementById('sendButton');
+            const fileButton = document.getElementById('fileButton');
+            const fileInput = document.getElementById('fileInput');
+
+            if (input && sendButton) {
+                sendButton.addEventListener('click', () => {
+                    this.sendMessage(input.value);
+                    input.value = '';
+                });
+
+                input.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.sendMessage(input.value);
+                        input.value = '';
+                    }
+                });
+            }
+
+            if (fileButton && fileInput) {
+                fileButton.addEventListener('click', () => {
+                    fileInput.click();
+                });
+
+                fileInput.addEventListener('change', () => {
+                    const file = fileInput.files[0];
+                    if (file) {
+                        this.uploadFile(file);
+                        fileInput.value = '';
+                    }
+                });
+            }
+        }
+    }
+
+    function showInviteForm(event) {
+        event.stopPropagation();
+        const groupId = event.target.getAttribute('data-group-id');
+        const groupName = event.target.getAttribute('data-group-name');
+        console.log('showInviteForm called with groupId:', groupId, 'groupName:', groupName);
+
+        const inviteForm = document.getElementById('inviteForm');
+        const groupIdInput = document.getElementById('inviteGroupId');
+        const groupNameSpan = document.getElementById('inviteGroupName');
+        const overlay = document.getElementById('overlay');
+
+        if (!inviteForm || !groupIdInput || !groupNameSpan || !overlay) {
+            console.error('Invite form elements not found:', {
+                inviteForm: !!inviteForm,
+                groupIdInput: !!groupIdInput,
+                groupNameSpan: !!groupNameSpan,
+                overlay: !!overlay
+            });
+            return;
+        }
+        
+     // 탭 클릭 이벤트 핸들러
+        document.querySelectorAll('.chat-tab').forEach(tab => {
+            tab.addEventListener('click', function(e) {
+                // 닫기 버튼 클릭 시는 이벤트 전파 중지
+                if (e.target.classList.contains('chat-tab-close')) {
+                    return;
+                }
+                
+                const chatId = this.querySelector('input[name="chatId"]').value;
+                loadChatRoom(chatId);
+            });
         });
 
-        const chatClientConfig = {
-            userId: Number(/*[[${userId}]]*/ null),
-            roomId: Number(/*[[${firstChatData?.roomId}]]*/ null),
-            roomType: /*[[${firstChatData?.roomType}]]*/ null,
-            targetUserId: Number(/*[[${firstChatData?.targetUserId}]]*/ null),
-            senderName: /*[[${session.user?.name}]]*/ 'User'
+        document.querySelectorAll('.invite-form.active').forEach(form => {
+            form.classList.remove('active');
+        });
+        document.querySelectorAll('.overlay.active').forEach(ov => {
+            ov.classList.remove('active');
+        });
+
+        inviteForm.classList.add('active');
+        overlay.classList.add('active');
+        groupIdInput.value = groupId;
+        groupNameSpan.textContent = groupName;
+        console.log('Invite form displayed for group:', groupName);
+
+        overlay.addEventListener('click', () => {
+            inviteForm.classList.remove('active');
+            overlay.classList.remove('active');
+        });
+    }
+    
+    function loadChatRoom(chatId) {
+        fetch(`/chat/loadChat?chatId=${chatId}`)
+            .then(response => response.json())
+            .then(data => {
+                updateChatUI(data);
+                const messagesContainer = document.querySelector('.chat-messages');
+                if (messagesContainer) {
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                }
+            });
+    }
+
+    function openChat(chatId) {
+        console.log('openChat called with chatId:', chatId);
+        document.getElementById('chatIdInput').value = chatId;
+        document.getElementById('openChatForm').submit();
+    }
+
+    function switchTab(tabName) {
+        console.log('switchTab called with tabName:', tabName);
+        window.location.href = `/chat/main?activeTab=${tabName}`;
+    }
+
+    // 이미지 모달 표시 함수
+    function showImageModal(element) {
+        const fileUrl = element.getAttribute('data-file-url');
+        console.log('Attempting to load image from:', fileUrl); // 로그 추가
+
+        const img = new Image();
+        img.onload = function () {
+            document.getElementById('modalImage').src = fileUrl;
+            new bootstrap.Modal(document.getElementById('imageModal')).show();
         };
+        img.onerror = function () {
+            console.error('Failed to load image:', fileUrl);
+            alert('이미지를 불러올 수 없습니다.');
+        };
+        img.src = fileUrl;
 
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('DOM fully loaded, ChatClient Config:', chatClientConfig);
-            new ChatClient(chatClientConfig);
+        // 기존 이벤트 리스너 제거 (중복 방지)
+        const newDownloadButton = downloadButton.cloneNode(true);
+        downloadButton.parentNode.replaceChild(newDownloadButton, downloadButton);
+
+        // 다운로드 버튼에 이벤트 리스너 추가
+        newDownloadButton.addEventListener('click', () => {
+            downloadFile(fileUrl, fileName);
         });
-    </script>
+
+        const modal = new bootstrap.Modal(document.getElementById('imageModal'));
+        modal.show();
+    }
+
+    // 파일 다운로드 함수
+    async function downloadFile(fileUrl, fileName) {
+        try {
+            const response = await fetch(fileUrl);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Download failed:', error);
+            alert('파일 다운로드에 실패했습니다.');
+        }
+    }
+
+    document.querySelector('.groupbtn').addEventListener('click', () => {
+        const modal = new bootstrap.Modal(document.getElementById('createGroupModal'));
+        modal.show();
+    });
+
+    const chatClientConfig = {
+        userId: Number(/*[[${userId}]]*/ null),
+        roomId: Number(/*[[${firstChatData?.roomId}]]*/ null),
+        roomType: /*[[${firstChatData?.roomType}]]*/ null,
+        targetUserId: Number(/*[[${firstChatData?.targetUserId}]]*/ null),
+        senderName: /*[[${session.user?.name}]]*/ 'User'
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const messagesContainer = document.querySelector('.chat-messages');
+        if (messagesContainer) {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+    });
+</script>
 </body>
 </html>

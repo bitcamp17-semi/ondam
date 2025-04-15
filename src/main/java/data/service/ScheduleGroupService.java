@@ -3,6 +3,7 @@ package data.service;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -60,4 +61,11 @@ public class ScheduleGroupService {
 	{
 		scheduleGroupMapper.deleteScheGroup(groupId);
 	}
+	
+	//부서 그룹 조회
+	public Integer readBuseoGroupId(@Param("departmentId") int departmentId)
+	{
+		return scheduleGroupMapper.readBuseoGroupId(departmentId);
+	}
+	
 }

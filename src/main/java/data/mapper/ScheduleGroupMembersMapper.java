@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import data.dto.ScheduleGroupMembersDto;
 
@@ -15,4 +16,6 @@ public interface ScheduleGroupMembersMapper {
 	public List<ScheduleGroupMembersDto> readGroupMemByGroupId(int groupId);
 	//그룹멤버 전체 삭제
 	public void deleteScheGroupMem(int groupId);
+	//특정 그룹에 유저가 멤버로 있는지 확인
+	public Integer readGroupMemExist (@Param("groupId") int groupId, @Param("userId") int userId);
 }

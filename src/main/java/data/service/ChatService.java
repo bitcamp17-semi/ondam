@@ -2,21 +2,20 @@ package data.service;
 
 import data.dto.ChatGroupsDto;
 import data.dto.ChatLogDto;
+import data.dto.ChatRoomData;
 import data.dto.UsersDto;
 import data.mapper.ChatGroupsMapper;
 import data.mapper.ChatLogMapper;
 import data.mapper.UsersMapper;
+import jakarta.servlet.http.HttpSession;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.amazonaws.services.s3.AmazonS3;
-
-import config.NaverConfig;
-
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,13 +47,13 @@ public class ChatService {
     }
 
     // 특정 그룹 정보 조회
-    public ChatGroupsDto readGroupById(Integer groupId) {
-        return chatGroupsMapper.readGroupById(groupId);
+    public ChatGroupsDto readGroupById(Integer firstChatId) {
+        return chatGroupsMapper.readGroupById(firstChatId);
     }
 
     // 그룹 채팅 메시지 조회
-    public List<ChatLogDto> readGroupMessages(Integer groupId) {
-        List<ChatLogDto> messages = chatLogMapper.readAllLogsByGroupId(Long.valueOf(groupId));
+    public List<ChatLogDto> readGroupMessages(Integer firstChatId) {
+        List<ChatLogDto> messages = chatLogMapper.readAllLogsByGroupId(Long.valueOf(firstChatId));
         for (ChatLogDto msg : messages) {
             UsersDto sender = usersMapper.readUserById(msg.getSenderId());
             if (sender != null) {
@@ -152,7 +151,7 @@ public class ChatService {
     }
     
     @Transactional
-    public void createGroup(String groupName, Long createdBy, List<Long> invitedUserIds) {
+    public Integer createGroup(String groupName, Long createdBy, List<Long> invitedUserIds) {
         // 1. 그룹 생성
         ChatGroupsDto group = new ChatGroupsDto();
         group.setName(groupName);
@@ -176,6 +175,7 @@ public class ChatService {
                 createGroupUser(invitedUserId.intValue(), groupId); // 초대된 사용자 추가
             }
         }
+        return groupId; // 생성된 groupId 반환
     }
     
     // 개인 채팅 생성
@@ -226,4 +226,48 @@ public class ChatService {
             throw new RuntimeException("파일 메시지 저장에 실패했습니다.", e);
         }
     }
+    public ChatRoomData getPrivateChatById(Integer chatId, Integer userId) {
+        ChatGroupsDto chat = chatGroupsMapper.readGroupById(chatId);
+        if (chat == null || !chat.getRoomtype().equals("PRIVATE")) {
+            return null;
+        }
+
+        List<Long> userIds = chatGroupsMapper.readGroupUserIds(Long.valueOf(chatId));
+        Long targetUserId = userIds.stream()
+                .filter(id -> !id.equals(Long.valueOf(userId)))
+                .findFirst()
+                .orElse(null);
+
+        if (targetUserId == null) {
+            return null;
+        }
+
+        ChatRoomData chatRoomData = new ChatRoomData();
+        chatRoomData.setRoomId(chatId);
+        chatRoomData.setTargetUserId(targetUserId.intValue());
+        return chatRoomData;
+    }
+    
+    public void openChat(Long chatId, HttpSession session) {
+        // 1. 세션에서 기존 openChats 리스트 가져오기 (없으면 새로 만듦)
+        List<Long> openChats = (List<Long>) session.getAttribute("openChats");
+        if (openChats == null) {
+            openChats = new ArrayList<>();
+        }
+
+        // 2. 해당 채팅방이 리스트에 없으면 추가
+        if (!openChats.contains(chatId)) {
+            openChats.add(chatId);
+        }
+
+        // 3. 다시 세션에 저장
+        session.setAttribute("openChats", openChats);
+
+        // 4. 첫 번째 채팅방 선택용 값도 세션에 저장 (처음 열었을 때만)
+        if (session.getAttribute("firstChatId") == null) {
+            session.setAttribute("firstChatId", chatId);
+        }
+
+        // (선택 사항) 채팅방 이름, 채팅 내역 등도 세션에 저장 가능
+    }    
 }

@@ -4,10 +4,11 @@
 .fullbox{
     display: flex;
     flex-direction: row;
-    width: 96vw;
+    width: calc(100vw - 75px);
     height: 100dvh;
     color: #686868;
     position: relative;
+    white-space: nowrap;
 }
 .header {
     width: 80px;
@@ -122,7 +123,6 @@
 .article2 {
     color: #3f3f3f;
     text-align: left;
-    font-family: "NotoSans-Medium", sans-serif;
     font-size: 16px;
     line-height: 22px;
     font-weight: 500;
@@ -208,7 +208,7 @@
 .div6 {
     color: rgba(238, 238, 238, 0.8);
     text-align: left;
-    font-family: "NotoSans-Regular", sans-serif;
+
     font-size: 16px;
     line-height: 22px;
     font-weight: 400;
@@ -221,7 +221,7 @@
 .div7 {
     color: #686868;
     text-align: left;
-    font-family: "NotoSans-Regular", sans-serif;
+
     font-size: 16px;
     line-height: 22px;
     font-weight: 400;
@@ -234,7 +234,7 @@
 .div8 {
     color: #686868;
     text-align: left;
-    font-family: "NotoSans-Regular", sans-serif;
+
     font-size: 16px;
     line-height: 22px;
     font-weight: 400;
@@ -247,7 +247,7 @@
 .div9 {
     color: #686868;
     text-align: center;
-    font-family: "NotoSans-Regular", sans-serif;
+
     font-size: 16px;
     line-height: 22px;
     font-weight: 400;
@@ -260,7 +260,7 @@
 .div10 {
     color: #686868;
     text-align: center;
-    font-family: "NotoSans-Regular", sans-serif;
+
     font-size: 16px;
     line-height: 22px;
     font-weight: 400;
@@ -274,7 +274,6 @@
 ._010-8888-9999 {
     color: #686868;
     text-align: left;
-    font-family: "NotoSans-Regular", sans-serif;
     font-size: 16px;
     line-height: 22px;
     font-weight: 400;
@@ -287,7 +286,6 @@
 .hgd-gmail-com {
     color: #686868;
     text-align: left;
-    font-family: "NotoSans-Regular", sans-serif;
     font-size: 16px;
     line-height: 22px;
     font-weight: 400;
@@ -300,7 +298,6 @@
 ._2024-10-11 {
     color: #686868;
     text-align: left;
-    font-family: "NotoSans-Regular", sans-serif;
     font-size: 16px;
     line-height: 22px;
     font-weight: 400;
@@ -390,11 +387,11 @@
     justify-content: flex-start;
     flex-shrink: 0;
     position: relative;
+    user-select: none;
 }
 .currentPage {
     /*color: #3f3f3f;*/
     text-align: left;
-    font-family: "NotoSans-Bold", sans-serif;
     font-size: 16px;
     line-height: 22px;
     font-weight: 700;
@@ -409,7 +406,6 @@
 .otherPage {
     color: #686868;
     text-align: left;
-    font-family: "NotoSans-Regular", sans-serif;
     font-size: 16px;
     line-height: 22px;
     font-weight: 400;
@@ -476,7 +472,6 @@
 .div11 {
     color: #fa7000;
     text-align: left;
-    font-family: "NotoSans-Bold", sans-serif;
     font-size: 25px;
     line-height: 22px;
     font-weight: 700;
@@ -532,7 +527,6 @@
 .close {
     color: #3f3f3f;
     text-align: center;
-    font-family: "NotoSans-Regular", sans-serif;
     font-size: 16px;
     line-height: 22px;
     font-weight: 400;
@@ -574,7 +568,6 @@
 .title {
     color: #686868;
     text-align: left;
-    font-family: "NotoSans-Regular", sans-serif;
     font-size: 14px;
     line-height: 22px;
     font-weight: 400;
@@ -604,7 +597,7 @@
     border: none;
     color: #3f3f3f;
     text-align: left;
-    font-family: "NotoSans-Medium", sans-serif;
+
     font-size: 16px;
     line-height: 22px;
     font-weight: 500;
@@ -689,7 +682,6 @@
 .div12 {
     color: #686868;
     text-align: left;
-    font-family: "NotoSans-Regular", sans-serif;
     font-size: 14px;
     line-height: 22px;
     font-weight: 400;
@@ -703,7 +695,6 @@
 #fileName{
     color: #686868;
     text-align: center;
-    font-family: "NotoSans-Regular", sans-serif;
     font-size: 12px;
     line-height: 22px;
     font-weight: 400;
@@ -746,7 +737,6 @@
 .div13 {
     color: #686868;
     text-align: left;
-    font-family: "NotoSans-Regular", sans-serif;
     font-size: 14px;
     line-height: 22px;
     font-weight: 400;
@@ -794,7 +784,7 @@
 .div14 {
     color: #ffffff;
     text-align: center;
-    font-family: "NotoSans-Regular", sans-serif;
+
     font-size: 16px;
     line-height: 22px;
     font-weight: 500;

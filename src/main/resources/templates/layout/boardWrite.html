@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -106,10 +106,10 @@ input[type="file"] {
 					<label for="selectCategory">카테고리</label> 
 					<select th:field="*{category}" id="selectCategory" required>
 						<option value="">-- 카테고리 선택 --</option>
-						<option value="normal">전체게시판</option>
-						<option value="anonimity">익명게시판</option>
-						<option value="notice">공지사항</option>
-						<option value="department">부서게시판</option>
+						<option value="NORMAL">전체게시판</option>
+						<option value="ANONYMITY">익명게시판</option>
+						<option value="NOTICE">공지사항</option>
+						<option value="DEPARTMENT">부서게시판</option>
 					</select>
 					<p id="anon-notice" style="color: red; display: none; margin-top: 10px;">※ 익명으로 게시됩니다.</p>
 				</div>
@@ -151,7 +151,7 @@ input[type="file"] {
 		$('#boardfrm').on("submit", function(e) {
 			e.preventDefault();
 			const category = $("#selectCategory").val();
-			$("#hidden").val(category === "anonimity" ? "true" : "false");
+			$("#hidden").val(category === "ANONYMITY" ? "true" : "false");
 
 			const formData = new FormData(this);
 
