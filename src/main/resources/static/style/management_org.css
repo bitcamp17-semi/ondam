@@ -438,6 +438,22 @@
     flex-direction: row;
 }
 
+.sawonleaderbtn {
+    border: rgba(0, 0, 0, 0.15) 1px solid;
+    border-radius: 5px;
+    height: 35px;
+    width: 130px;
+    background-color: white;
+    color: #686868;
+    cursor: pointer;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    flex-direction: row;
+}
+
 /* 모달 css*/
 .modal-overlay {
     position: fixed;
