@@ -59,14 +59,13 @@ public class DataroomService {
 
     @Transactional
     public void uploadFileAndSaveToDB(String bucketName, String directoryPath, MultipartFile file,
-                                      String title, String category,Integer departmentId, Integer teamId, int userId) {
+                                      String title, String category, Integer departmentId, Integer teamId, int userId) {
         try {
-            // 파일 업로드 및 저장
             System.out.println("파일 업로드 시작: " + file.getOriginalFilename());
             String filename = file.getOriginalFilename();
             String ext = filename.substring(filename.lastIndexOf('.') + 1).toLowerCase();
 
-            if (!List.of("pdf", "docx", "xlsx", "png", "jpg").contains(ext)) {
+            if (!List.of("pdf", "docx", "xlsx", "png", "jpg","doc","ppt","pptx").contains(ext)) {
                 throw new IllegalArgumentException("허용되지 않은 확장자입니다.");
             }
 
@@ -85,7 +84,7 @@ public class DataroomService {
             fileRecord.setAuthorId(userId);
             fileRecord.setType(file.getContentType());
 
-            // 디버깅: 파일 정보 출력
+            // **디버깅: 파일 정보 출력**
             System.out.println("파일 저장 정보: " + fileRecord);
 
             // DB에 저장
@@ -98,6 +97,7 @@ public class DataroomService {
         }
     }
 
+
     public List<Map<String, Object>> getFilesWithAuthorName(Integer departmentId, Integer teamId) {
         List<FilesDto> files = getFilesByFolder(departmentId, teamId);
         List<Map<String, Object>> result = new ArrayList<>();
@@ -106,9 +106,9 @@ public class DataroomService {
             Map<String, Object> fileMap = new HashMap<>();
             fileMap.put("id", file.getId());
             fileMap.put("name", file.getName());
-            fileMap.put("path", file.getPath());
             fileMap.put("title", file.getTitle());
             fileMap.put("category", file.getCategory());
+            fileMap.put("path", file.getPath());
             fileMap.put("createdAt", file.getCreatedAt());
             fileMap.put("updatedAt", file.getUpdatedAt());
             fileMap.put("authorId", file.getAuthorId());
@@ -116,7 +116,7 @@ public class DataroomService {
             fileMap.put("departmentId", file.getDepartmentId());
             fileMap.put("teamId", file.getTeamId());
 
-            // authorId → 이름 변환
+            // authorName 추가
             String authorName = dataroomMapper.readUserNameById(file.getAuthorId());
             fileMap.put("authorName", authorName);
 
@@ -125,6 +125,7 @@ public class DataroomService {
 
         return result;
     }
+
 
 
     public void deleteFiles(int id) {

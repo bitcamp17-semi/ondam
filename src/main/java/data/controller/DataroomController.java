@@ -9,6 +9,7 @@ import data.service.DataroomService;
 import data.service.ObjectStorageService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -17,6 +18,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.net.URI;
 import java.util.*;
 
 @Controller
@@ -100,37 +102,17 @@ public class DataroomController {
         List<FilesDto> files = dataroomService.getFilesByTeam(teamId);
         return ResponseEntity.ok(files);
     }
-    /*@GetMapping("/files")
-    public ResponseEntity<List<Map<String, Object>>> getFilesWithAuthorName(@RequestParam(value = "teamId", required = false) Integer teamId) {
-        // 팀 ID로 파일 리스트 가져오기
-        List<FilesDto> files = dataroomService.getFilesByTeam(teamId);
 
-        List<Map<String, Object>> result = new ArrayList<>();
+    /*@ResponseBody
+    @GetMapping("/files")
+    public ResponseEntity<List<Map<String, Object>>> getFiles(
+            @RequestParam(value = "departmentId", required = false) Integer departmentId,
+            @RequestParam(value = "teamId", required = false) Integer teamId) {
 
-        // 파일 리스트를 Map으로 변환하면서 authorName 추가
-        for (FilesDto file : files) {
-            Map<String, Object> fileMap = new HashMap<>();
-            fileMap.put("id", file.getId());
-            fileMap.put("name", file.getName());
-            fileMap.put("path", file.getPath());
-            fileMap.put("title", file.getTitle());
-            fileMap.put("category", file.getCategory());
-            fileMap.put("createdAt", file.getCreatedAt());
-            fileMap.put("updatedAt", file.getUpdatedAt());
-            fileMap.put("authorId", file.getAuthorId());
-            fileMap.put("type", file.getType());
-            fileMap.put("departmentId", file.getDepartmentId());
-            fileMap.put("teamId", file.getTeamId());
-
-            // authorId로 사용자 이름 조회
-            String authorName = dataroomMapper.readUserNameById(file.getAuthorId());
-            fileMap.put("authorName", authorName);  // authorName 추가
-
-            result.add(fileMap);
-        }
-
-        return ResponseEntity.ok(result);
+        List<Map<String, Object>> files = dataroomService.getFilesWithAuthorName(departmentId, teamId);
+        return ResponseEntity.ok(files);
     }*/
+
 
 
 
@@ -144,11 +126,13 @@ public class DataroomController {
                                         @RequestParam("category") String category,
                                         @RequestParam(value = "departmentId", required = false) Integer departmentId,
                                         HttpSession session) {
+        System.out.println("업로드 요청 받음");
         try {
             Integer userId = (Integer) session.getAttribute("userId");
             if (userId == null) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 필요");
             }
+
             System.out.println("업로드 시작: " + upload.getOriginalFilename());
 
             String directoryPath = "dataroom";
@@ -163,16 +147,51 @@ public class DataroomController {
                     userId
             );
 
-            // JSON 형식으로 응답 반환
-            System.out.println("업로드 성공 응답: 업로드 성공");
+            System.out.println("업로드 성공");
             return ResponseEntity.ok().body(new HashMap<String, String>() {{
                 put("message", "업로드 성공");
             }});
         } catch (Exception e) {
-            System.err.println("업로드 실패: " + e.getMessage());  // 예외 로그
+            System.err.println("업로드 실패: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("업로드 실패: " + e.getMessage());
         }
     }
+
+
+    @GetMapping("/download")
+    public ResponseEntity<Void> downloadFile(
+            @RequestParam String path,    // 파일 경로
+            @RequestParam String name     // 파일 원본 이름
+    ) {
+        String folder = "dataroom"; // 폴더명 고정 (필요한 경우 다르게 수정 가능)
+
+        // presigned URL 생성
+        String presignedUrl = objectStorageService.generatePresignedURL(
+                objectStorageService.getBucketName(),
+                folder + "/" + path,  // path는 저장된 파일의 경로
+                name,                 // 파일 이름
+                3600                  // 만료 시간 1시간
+        );
+
+        // presigned URL 확인
+        System.out.println("presignedUrl: " + presignedUrl);
+
+        // 헤더 설정: 파일 다운로드를 위한 Content-Disposition 추가
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "attachment; filename=\"" + name + "\"");
+
+        // 리다이렉트 응답 대신, 파일을 다운로드할 수 있도록 리턴
+        return ResponseEntity.status(HttpStatus.FOUND) // 302 Found
+                .location(URI.create(presignedUrl))      // presigned URL로 리다이렉트
+                .headers(headers)                         // 헤더 설정 추가
+                .build();
+    }
+
+
+
+
+
+
 
     @PostMapping("/deleteFiles")
     @ResponseBody

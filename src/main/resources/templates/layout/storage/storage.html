@@ -54,9 +54,9 @@
                                        readonly>
                                 <select id="file-category" class="form-select" required>
                                     <option value="" disabled selected>파일 분류 선택</option>
-                                    <option value="sales">영업</option>
-                                    <option value="hr">인사</option>
-                                    <option value="finance">재무</option>
+                                    <option value="영업">영업</option>
+                                    <option value="인사">인사</option>
+                                    <option value="재무">재무</option>
                                 </select>
                                 <button id="file-select-btn" class="btn btn-secondary">파일 선택</button>
                                 <button id="upload-btn" class="btn btn-primary">업로드</button>
@@ -178,7 +178,7 @@
 
     // 파일 리스트 렌더링 함수
     function renderFileList(files) {
-        console.log("renderFileList 함수 호출, 파일 목록:", files);  // 전달받은 파일 목록 출력
+        console.log("renderFileList 함수 호출, 파일 목록:", files);
 
         if (!Array.isArray(files)) {
             console.error("renderFileList: 전달된 값이 배열이 아님!", files);
@@ -189,37 +189,58 @@
         $fileListContainer.empty();
 
         let html = `
-    <div class="listtop">
-        <input type="checkbox" class="selectAll list-cell">
-        <div class="list-cell">번호</div>
-        <div class="list-cell listtitle">제목</div>
-        <div class="list-cell">파일분류</div>
-        <div class="list-cell">작성자</div>
-        <div class="list-cell">작성일</div>
-        <div class="list-cell">삭제</div>
-    </div>
-    `;
+     <div class="listtop">
+         <input type="checkbox" class="selectAll list-cell">
+         <div class="list-cell">번호</div>
+         <div class="list-cell listtitle">제목</div>
+         <div class="list-cell">파일분류</div>
+         <div class="list-cell">작성자</div>
+         <div class="list-cell">작성일</div>
+         <div class="list-cell">삭제</div>
+     </div>
+ `;
 
         if (!files.length) {
             html += `<div class='list-empty' style='width: 100%; text-align: center; padding: 20px;'>파일이 없습니다</div>`;
+            console.log("파일 목록이 없습니다.");
         } else {
             files.forEach((file, index) => {
-                console.log(`파일 ${index + 1}:`, file);  // 각 파일 데이터 출력
+                console.log(`파일 ${index + 1}:`, file);
+
                 html += `<div class="listcontent" data-id="${file.id}">
-                <input type="checkbox" class="childCheckbox list-cell">
-                <div class="list-cell">${index + 1}</div>
-                <div class="list-cell listtitle">${file.name}</div>
-                <div class="list-cell">${file.category || "-"}</div>
-                <div class="list-cell">${file.authorId}</div>
-                <div class="list-cell">${file.createdAt || "-"}</div>
-                <div class="list-cell"><i class="bi bi-trash3 filedelete"></i></div>
-            </div>`;
+                 <input type="checkbox" class="childCheckbox list-cell">
+                 <div class="list-cell">${index + 1}</div>
+                 <div class="list-cell listtitle pointer" data-path="${file.path}" data-name="${file.name}">
+                     ${file.name}
+                 </div>
+                 <div class="list-cell">${file.category || "-"}</div>
+                 <div class="list-cell">${file.authorName || "-"}</div>
+                 <div class="list-cell">${file.createdAt || "-"}</div>
+                 <div class="list-cell"><i class="bi bi-trash3 filedelete"></i></div>
+             </div>`;
             });
         }
 
+        console.log("파일 목록 HTML 생성 완료:", html);
         $fileListContainer.html(html);
     }
 
+
+
+    // 클릭 이벤트 위임 사용
+    $(document).on("click", ".listtitle", function () {
+        const path = $(this).data("path");
+        const name = $(this).data("name");
+
+        if (!path || !name) {
+            console.warn("경로 또는 파일명이 없습니다.");
+            return;
+        }
+
+        // 서버로 다운로드를 위한 URL 요청
+        const url = `/api/dataroom/download?path=${encodeURIComponent(path)}&name=${encodeURIComponent(name)}`;
+        window.location.href = url;  // 해당 URL로 리다이렉트하여 다운로드 시작
+    });
 
 
 
@@ -272,45 +293,62 @@
         let clickLocked = false;
 
 
+        // 부서 폴더 클릭 이벤트
         $(document).on("click", ".folder.dept", function () {
             const $li = $(this).closest("li");
             const $ul = $li.children("ul");
             const $icon = $(this).find(".toggle-icon");
 
             const folderId = $(this).data("id");
-            console.log(`폴더 ${folderId} 클릭됨`); // 디버깅용 로그
-            $openButton.show(); // 업로드 버튼 표시
+            console.log(`폴더 ${folderId} 클릭됨 (부서)`); // 디버깅용 로그
 
+            $openButton.show(); // 업로드 버튼 표시
 
             if ($ul.length > 0) {
                 if ($ul.is(":visible")) {
                     $ul.slideUp();
                     $icon.removeClass("bi-chevron-down").addClass("bi-chevron-right");
+                    console.log(`폴더 ${folderId} 숨김 처리됨`);
                 } else {
                     $ul.slideDown();
                     $icon.removeClass("bi-chevron-right").addClass("bi-chevron-down");
+                    console.log(`폴더 ${folderId} 열림 처리됨`);
                 }
             }
         });
+        /*$(document).on("click", ".listtitle", function () {
+            const path = $(this).data("path");
+            const name = $(this).data("name");
+
+            if (!path || !name) {
+                console.warn("경로 또는 파일명이 없습니다.");
+                return;
+            }
+
+            const url = `/api/dataroom/download?path=${encodeURIComponent(path)}&name=${encodeURIComponent(name)}`;
+            window.location.href = url;
+        });*/
 
 
+
+        // 팀 폴더 클릭 이벤트
         $(document).on("click", ".folder.team", function () {
             const teamId = $(this).data("id");
             $(".folder").removeClass("selected");
             $(this).addClass("selected");
             $("#upload-folder-id").val(teamId);
 
-            console.log(`폴더 ${teamId} 클릭됨`); // 디버깅용 로그
+            console.log(`폴더 ${teamId} 클릭됨 (팀)`); // 디버깅용 로그
 
             $.get(`/api/dataroom/files?teamId=${teamId}`, function (files) {
                 console.log("파일 목록:", files); // 서버로부터 반환된 파일 목록
-                renderFileList(files);
+                renderFileList(files);  // 파일 목록 렌더링
             }).fail(function (error) {
                 console.error("파일 조회 실패:", error); // 오류 로그
             });
         });
 
-        // 폴더 클릭 이벤트 수정
+        // 폴더 클릭 이벤트 수정 (부서/팀 구분)
         $(document).on("click", ".folder", function () {
             $(".folder").removeClass("active");
             $(this).addClass("active");
@@ -318,10 +356,8 @@
             const folderId = $(this).data("id");
             const isDepartment = $(this).data("type") === "department";
             const queryParam = isDepartment ? `departmentId=${folderId}` : `teamId=${folderId}`;
-
-            console.log("폴더 클릭됨, 폴더 ID:", folderId);
-            console.log("폴더 타입 (부서 여부):", isDepartment ? "부서" : "팀");
-            console.log("쿼리 파라미터:", queryParam);
+            console.log(`폴더 클릭됨, 폴더 ID: ${folderId}, 폴더 타입: ${isDepartment ? "부서" : "팀"}`);  // 디버깅용 로그
+            console.log(`쿼리 파라미터: ${queryParam}`);  // 쿼리 파라미터 확인
 
             // 폴더 열기/닫기 처리
             const $span = $(this);
@@ -333,12 +369,14 @@
                 $li.removeClass("open");
                 $li.children("ul").slideUp(200);
                 $icon.removeClass("bi-chevron-down").addClass("bi-chevron-right");
+                console.log(`폴더 ${folderId} 닫힘`);
             } else {
                 const $existingUl = $li.children("ul");
                 if ($existingUl.length > 0) {
                     $li.addClass("open");
                     $existingUl.slideDown(200);
                     $icon.removeClass("bi-chevron-right").addClass("bi-chevron-down");
+                    console.log(`폴더 ${folderId} 이미 열려있는 폴더 처리됨`);
                 } else {
                     $.get(`/api/dataroom/subfolders/json/${folderId}`).done(function (subfolders) {
                         console.log("하위 폴더 데이터:", subfolders);  // 하위 폴더 로딩 확인
@@ -354,23 +392,23 @@
                         });
                         $li.append($ul).addClass("open");
                         $icon.removeClass("bi-chevron-right").addClass("bi-chevron-down");
+                        console.log(`하위 폴더 ${folderId} 로딩 완료`);
                     }).fail(function (error) {
-                        console.error("폴더 데이터 로딩 실패:", error);
+                        console.error("폴더 데이터 로딩 실패:", error);  // 오류 로그
                     });
                 }
             }
 
             // 파일 목록 요청
             $.get(`/api/dataroom/files?${queryParam}`, function (files) {
-                console.log("파일 목록 요청 응답:", files);  // 응답 확인
+                console.log("파일 목록 요청 응답:", files);  // 서버 응답 확인
                 if (!Array.isArray(files)) {
                     console.warn("renderFileList: 전달된 값이 배열이 아님!", files);
                     return;
                 }
-
-                renderFileList(files);
+                renderFileList(files);  // 파일 목록 렌더링
             }).fail(function (error) {
-                console.error("파일 목록 요청 실패:", error);
+                console.error("파일 목록 요청 실패:", error);  // 오류 로그
             });
 
             $openButton.show(); // 업로드 버튼 표시
@@ -515,6 +553,7 @@
 
 
         // 업로드 버튼 클릭
+        // 업로드 버튼 클릭 시
         $("#upload-btn").on("click", function () {
             const file = $("#file-input")[0].files[0];
             const category = $("#file-category").val();
@@ -542,13 +581,15 @@
             const formData = new FormData();
             formData.append("upload", file);
             formData.append("category", category);
+            const title = file.name;
+            formData.append("title", title);
             if (isDepartment) {
                 formData.append("departmentId", folderId);
             } else {
                 formData.append("teamId", folderId);
             }
 
-            // AJAX 요청 전 디버깅
+            // **디버깅 로그 추가**
             console.log("업로드 폼 데이터:", formData);
 
             $.ajax({
@@ -598,6 +639,7 @@
                 }
             });
         });
+
 
 
 
