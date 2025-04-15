@@ -1,8 +1,12 @@
 package data.controller;
 
+import data.dto.ScheduleGroupDto;
 import data.dto.UsersDto;
 import data.service.EmailService;
 import data.service.ObjectStorageService;
+import data.service.ScheduleGroupMembersService;
+import data.service.ScheduleGroupService;
+import data.service.SchedulesService;
 import data.service.UsersService;
 import jakarta.servlet.http.HttpSession;
 import org.mindrot.jbcrypt.BCrypt;
@@ -21,6 +25,12 @@ public class UsersController {
     UsersService usersService;
     @Autowired
     ObjectStorageService storageService;
+    @Autowired
+    SchedulesService scheduleService;
+    @Autowired
+    ScheduleGroupService scheduleGroupService;
+    @Autowired
+    ScheduleGroupMembersService scheduleGroupMemberService;
 
     @PostMapping("/createUser")
     public ResponseEntity<Object> createUser(
@@ -38,9 +48,71 @@ public class UsersController {
                 // 사용자 생성 로직
                 boolean isCreated = usersService.createUser(usersDto);
                 if (isCreated) {
-                    response.put("status", "ok");
+                	Integer newUserId = usersDto.getId(); // 생성된 사용자 ID
+                	
+                	// '개인일정' 그룹 없으면 자동 생성
+                    ScheduleGroupDto privateGroup = scheduleGroupService.readPrivateGroup(newUserId);
+                    if (privateGroup == null) {
+                        Map<String, Object> groupMap = new HashMap<>();
+                        groupMap.put("name", "개인일정");
+                        groupMap.put("color", "#28a745");
+                        groupMap.put("ownerId", newUserId);
+                        scheduleGroupService.scheGroupInsert(groupMap);
+                    }
+
+                    //'회사일정' 그룹 멤버가 아니면 자동 등록
+                    Integer companyMemExist = scheduleGroupService.readCompanyGroupMember(newUserId);
+                    if (companyMemExist == null) {
+                        //'회사그룹'의 그룹 id 저장
+                    	Integer companyGroupId = scheduleGroupService.readCompanyGroupId();
+                        if (companyGroupId != null) {
+                            Map<String, Object> companyMap = new HashMap<>();
+                            companyMap.put("userId", newUserId);
+                            companyMap.put("groupId", companyGroupId);
+                            companyMap.put("color", "#ffa500");
+                            
+                            // Map 하나만 등록하더라도 리스트로 감싸서 넘기기 > scheGroupMemberInsert list를 반환하도록 되어있음
+                            //List<Map<String, Object>> memberList = new ArrayList<>();
+                            //memberList.add(memberMap);
+                            //멤버 등록	
+                            //scheduleGroupMemberService.scheGroupMemberInsert(memberList);
+                            scheduleGroupMemberService.scheGroupMemberInsert(List.of(companyMap));
+                            System.out.println("회사일정 그룹에 멤버 자동 추가 완료");
+                        } else {
+                            System.out.println("'회사일정' 그룹이 존재하지 않습니다.");
+                        }
+                    }
+                	
+                    //회원가입 시 선택한 부서가 일정 그룹 멤버로 추가
+                    // '부서일정' 그룹 자동 등록 (부서ID 기반)
+                    Integer departmentId = usersDto.getDepartmentId(); //생성한 유저의 departmentId 받기
+                    if (departmentId != null) {
+                        // 부서 일정 그룹 ID 조회
+                        Integer buseoGroupId = scheduleGroupService.readBuseoGroupId(departmentId);
+                        
+                        // 그룹 ID가 존재하고, 아직 멤버가 아닌 경우만 등록
+                        if (buseoGroupId != null) {
+                        	Integer buseoMemberExist = scheduleGroupMemberService.readGroupMemExist(buseoGroupId, newUserId);
+                            if (buseoMemberExist == null) {
+                                Map<String, Object> buseoMap = new HashMap<>();
+                                buseoMap.put("userId", newUserId);
+                                buseoMap.put("groupId", buseoGroupId);
+                                buseoMap.put("color", "#808080"); // 부서 그룹 기본 색 (원하면 변경 가능)
+
+                                //List<Map<String, Object>> buseoList = new ArrayList<>();
+                                //buseoList.add(buseoMap);
+                                //scheduleGroupMemberService.scheGroupMemberInsert(buseoList);
+                                System.out.println("부서일정 그룹에 멤버 자동 추가 완료");
+                            }
+                        } else {
+                            System.out.println("해당 부서의 '부서일정' 그룹이 존재하지 않습니다.");
+                        }
+                    }
+                    
+                	
+                	response.put("status", "ok");
                     response.put("result", usersDto);  // 생성된 사용자 정보 반환
-                    return new ResponseEntity<>(response, HttpStatus.CREATED);
+                    return new ResponseEntity<>(response, HttpStatus.CREATED);      
                 } else {
                     response.put("status", "fail");
                     return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);

@@ -52,4 +52,11 @@
 	<delete id="deleteScheGroup" parameterType="int">
 		delete from schedule_group where id=#{id}
 	</delete>
+	
+	<!-- 부서그룹 조회 -->
+	<select id="readBuseoGroupId" parameterType="int" resultType="Integer">
+    	SELECT id 
+    	FROM schedule_group 
+    	WHERE departmentId = #{departmentId}
+	</select>
 </mapper>

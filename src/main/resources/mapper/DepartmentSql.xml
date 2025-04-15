@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="data.mapper.DepartmentMapper">
-    <insert id="createDep" parameterType="map">
+	<!-- 부서 생성 시 id를 얻을 수 있도록 수정함 -->
+    <insert id="createDep" parameterType="map" useGeneratedKeys="true" keyProperty="id">
         insert into department (userId, name)
         values (#{userId}, #{name})
     </insert>
