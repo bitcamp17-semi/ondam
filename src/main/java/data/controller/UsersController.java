@@ -193,8 +193,6 @@ public class UsersController {
             response.put("status", "ok");
             Integer userId = (Integer) session.getAttribute("userId");
             UsersDto usersDto = usersService.readUserById(userId);
-            System.out.println(usersDto);
-            System.out.println(userId);
             if (usersDto != null) {
                 usersDto.setPassword(null);
                 response.put("result", usersDto);

@@ -35,11 +35,11 @@
                 <i class="bi bi-clipboard-check"></i>
                 <span class="label">전자결재</span>
             </div>
-            <div class="div-2" id="header-board" th:data-url="@{/}">
+            <div class="div-2" id="header-board" th:data-url="@{/board/boardMain}">
                 <i class="bi bi-list-task"></i>
                 <span class="label">게시판</span>
             </div>
-            <div class="div-2" id="header-storage" th:data-url="@{/draft/storage}">
+            <div class="div-2" id="header-storage" th:data-url="@{/api/dataroom}">
                 <i class="bi bi-cloud-download"></i>
                 <span class="label">드라이브</span>
             </div>
@@ -58,6 +58,7 @@
                     <div class="overlap-group">
                         <i class="bi bi-bell"></i>
                         <div class="ellipse"></div>
+                        <span class="label">알림</span>
                     </div>
                 </div>
             </div>
@@ -68,6 +69,7 @@
             </div>
             <div class="div-2" id="header-logout">
                 <i class="bi bi-box-arrow-right"></i>
+                <span class="label">로그아웃</span>
             </div>
 
         </div>
@@ -132,7 +134,7 @@
                 }
             })
         }
-        
+
       	//알람 목록에 '미확인' 알람이 하나라도 있으면 .ellipse 표시 아니면 숨김
         function updateAlarmIndicator() {
     		$.ajax({

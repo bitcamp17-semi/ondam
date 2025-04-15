@@ -25,7 +25,7 @@
     display: flex;
     flex-direction: column;
     height: 200px;
-    width: 100%;
+
     align-items: flex-start;
     justify-content: flex-end;
     margin-left: 70px;
@@ -83,7 +83,7 @@
     align-items: center;
     gap: 20px;
     border: rgba(0,0,0,0.05) solid 1px;
-    border-radius: 5px;
+    border-radius: 10px;
     padding: 30px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
@@ -91,7 +91,7 @@
 .lefttop img {
     width: 120px;
     height: 120px;
-    border-radius: 5px;
+    border-radius: 10px;
     border: 1px solid rgba(0, 0, 0, 0.05);
     background-position: center;
 }
@@ -112,7 +112,7 @@
 .whitebtn{
     margin-left: auto;
     border: rgba(0, 0, 0, 0.15) 1px solid;
-    border-radius: 5px;
+    border-radius: 10px;
     height: 35px;
     background-color: white;
     color: #686868;
@@ -127,7 +127,7 @@
     display: flex;
     flex-direction: column;
     padding: 30px;
-    border-radius: 5px;
+    border-radius: 10px;
     border: 1px solid rgba(0, 0, 0, 0.05);
     gap: 20px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
@@ -140,9 +140,15 @@
 }
 .notice{
     display: flex;
+    padding: 5px;
+}
+.notice:hover {
+    cursor: pointer;
+    background-color: #eee;
 }
 .notice>span {
     color: #3f3f3f;
+    font-weight: bold;
 }
 .notice>a {
     font-size: 12px;
@@ -154,7 +160,7 @@
     width: 100%;
     flex: 3;
     padding: 30px;
-    border-radius: 5px;
+    border-radius: 10px;
     border: 1px solid rgba(0, 0, 0, 0.05);
     flex-direction: column;
     gap: 20px;
@@ -201,7 +207,7 @@
     background-color: white;
     flex:5;
     padding: 30px;
-    border-radius: 5px;
+    border-radius: 10px;
     border: 1px solid rgba(0, 0, 0, 0.05);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
@@ -210,10 +216,13 @@
 .right {
     background-color: white;
     overflow-y: auto;
-    flex:1;
-    padding: 30px;
-    border-radius: 5px;
-    border: 1px solid rgba(0, 0, 0, 0.05);
+    width: 150px;
+    border-radius: 10px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;  /* 중앙 정렬 */
+    justify-content: flex-start;
 }
 
 .weather-cards {
@@ -305,3 +314,59 @@
     flex: 1;
     padding: 20px;
 }
+
+.weather-widget {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 15px;
+    border-radius: 12px;
+    background-color: white;
+    width: 100%;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    max-height: 100%;
+    overflow: hidden;
+}
+
+.current-weather {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.weather-icon img {
+    width: 60px;
+    height: 60px;
+}
+
+.temperature {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.description {
+    font-size: 14px;
+    color: #333;
+}
+
+.daily-forecast {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+}
+
+.day {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    padding: 0 5px;
+}
+
+.day img {
+    width: 30px;
+    height: 30px;
+}
+

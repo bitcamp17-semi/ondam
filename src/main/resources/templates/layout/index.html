@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Drive Storage</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css"/>
     <link rel="stylesheet" th:href="@{/style/globals.css}"/>
     <link rel="stylesheet" th:href="@{/style/index.css}"/>
     <link rel="stylesheet" th:href="@{/style/header.css}"/>
@@ -77,8 +77,14 @@
                 <div id='calendar'></div>
             </div>
             <div class="right">
-                <div id="weather-today" class="weather-today"></div>
-                <div id="weather-week" class="weather-cards"></div>
+                <div class="weather-widget" id="weatherWidget">
+                    <div class="current-weather">
+                        <div class="weather-icon"><img id="currentIcon" src="" alt="날씨 아이콘"/></div>
+                        <div class="temperature" id="currentTemp">--°C</div>
+                        <div class="description" id="currentDesc">날씨 정보</div>
+                    </div>
+                    <div class="daily-forecast" id="forecastContainer"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -149,6 +155,7 @@
             }
         });
         renderDraftCnt();
+        renderNotice();
 
         // 비밀번호 입력창에서 Enter 키 입력 시 자동 제출
         $("#checkPasswordInput").on("keypress", function (e) {
@@ -278,11 +285,11 @@
 
     function renderDraftCnt() {
         $.ajax({
-            url: "/api/draft/homeDraftCnt",
+            url: "/index/draftCnt",
             type: "get",
             success: function (res) {
                 if (res.status === "ok") {
-                    const { received, sent, done } = res.result;
+                    const {received, sent, done} = res.result;
 
                     const numbers = [received, sent, done];
 
@@ -297,6 +304,74 @@
                 console.error("전자결재 수치 불러오기 실패");
             }
         });
+    }
+    const API_KEY = "f53a3ce7ed05c1360e18559855cdc023"; // OpenWeatherMap API Key
+    const CITY = "Seoul";
+    const KELVIN_TO_C = k => (k - 273.15).toFixed(1);
+
+    fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${CITY}&appid=${API_KEY}&lang=kr`)
+        .then(res => res.json())
+        .then(data => {
+            // 현재 날씨
+            const current = data.list[0];
+            document.getElementById('currentTemp').textContent = `${KELVIN_TO_C(current.main.temp)}°C`;
+            document.getElementById('currentDesc').textContent = current.weather[0].description;
+            document.getElementById('currentIcon').src = `https://openweathermap.org/img/wn/${current.weather[0].icon}@2x.png`;
+
+            // 예보 요일별로 그룹화
+            const dailyData = {};
+            data.list.forEach(item => {
+                const date = new Date(item.dt_txt);
+                const day = date.toLocaleDateString('ko-KR', { weekday: 'short' });
+
+                if (!dailyData[day]) {
+                    dailyData[day] = item;
+                }
+            });
+
+            // 요일별 예보 출력
+            const forecastEl = document.getElementById("forecastContainer");
+            Object.entries(dailyData).slice(1, 6).forEach(([day, forecast]) => {
+                const temp = KELVIN_TO_C(forecast.main.temp);
+                const icon = forecast.weather[0].icon;
+                const el = document.createElement("div");
+                el.className = "day";
+                el.innerHTML = `
+          <div>${day}</div>
+          <img src="https://openweathermap.org/img/wn/${icon}.png" alt=""/>
+          <div>${temp}°C</div>
+        `;
+                forecastEl.appendChild(el);
+            });
+        })
+        .catch(err => {
+            console.error("날씨 정보를 불러오는 중 오류 발생:", err);
+            document.getElementById("weatherWidget").innerHTML = "<p>날씨 정보를 불러올 수 없습니다.</p>";
+        });
+    function renderNotice() {
+        $.ajax({
+            url: "/index/noticeTop3",
+            type: "get",
+            success: function (res) {
+                const noticeContainer = $(".leftmiddle");
+                noticeContainer.find(".notice").remove(); // 기존 공지 제거
+                res.result.forEach(notice => {
+                    const createdDate = notice.createdAt?.split(' ')[0] ?? '';
+                        const $notice = $(`
+                    <div class="notice">
+                        <span>[공지] ${notice.title}</span>
+                        <a>${createdDate}</a>
+                    </div>
+                    `);
+                        $notice.click(() => {
+                            window.location.href = `/board/boardDetail/${notice.id}`;
+                        });
+
+                        noticeContainer.append($notice);
+                    }
+                )
+            }
+        })
     }
 
 </script>

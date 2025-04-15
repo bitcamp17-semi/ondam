@@ -1,10 +1,12 @@
 /* Layout */
-.fullbox {
+.fullbox{
     display: flex;
-    width: 96vw;
+    flex-direction: row;
+    width: calc(100vw - 75px);
     height: 100dvh;
+    color: #686868;
     position: relative;
-    white-space: nowrap
+    white-space: nowrap;
 }
 
 .main {
@@ -20,7 +22,7 @@
 .nav {
     display: flex;
     flex-direction: column;
-    height: 200px;
+    height: 135px;
     width: 100%;
     align-items: flex-start;
     justify-content: flex-end;
@@ -34,19 +36,6 @@
     color: #3f3f3f;
 }
 
-.mainnavbar {
-    display: flex;
-    align-items: flex-start;
-    position: relative;
-    align-self: stretch;
-    width: 100%;
-    font-size: 16px;
-    white-space: nowrap;
-}
-
-#navlist2 {
-    color: #3f3f3f;
-}
 
 .section {
     display: flex;
