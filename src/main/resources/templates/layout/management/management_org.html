@@ -745,9 +745,10 @@
         let position = $(".position").text();
         let phone = $("#phone").val();
         let email = $("#mail").val();
-        let profileImage = $("#previewImage").attr("src").split("/users/")[1];
-        if (profileImage) {
-            formData.append("upload", profileImage);
+        let fileInput = document.getElementById("fileInput");
+        let file = fileInput.files[0];
+        if (file) {
+            formData.append("upload", file);
         }
         if (team === "팀 없음") {
             alert("팀을 선택해주세요");
@@ -780,7 +781,7 @@
         });
     })
 
-    $(".dephead").click(function () {
+    $("#dephead").click(function () {
         let userId = $(".sawon").attr("data-id");
         if (confirm("부서장으로 지정하시겠습니까?\n기존의 부서장과 교체됩니다.")) {
             if (!userId) {
