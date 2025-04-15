@@ -87,4 +87,9 @@
 		WHERE room_type = 'PRIVATE' AND room_id = #{chatId}
 		ORDER BY createdat ASC
 	</select>
+	<select id="readPrivateChatById" resultType="ChatLogDto">
+    SELECT * FROM chat_log 
+    WHERE groupid = #{chatId} AND room_type = 'PRIVATE'
+    LIMIT 1
+</select>
 </mapper>

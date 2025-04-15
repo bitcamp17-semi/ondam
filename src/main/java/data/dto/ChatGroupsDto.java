@@ -13,6 +13,7 @@ public class ChatGroupsDto {
     private Long createdBy;
     private String lastMessage;
     private Integer memberCount;
-    private String roomtype;
+    private String roomType;
     private String opponentName;
+    private Long receiverId;
 }
