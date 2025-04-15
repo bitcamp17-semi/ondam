@@ -142,6 +142,7 @@
 .orgchart{
     flex-grow: 1;
     color: #3f3f3f;
+    overflow-y: auto;
 }
 .orgchart ul {
     list-style-type: none;
