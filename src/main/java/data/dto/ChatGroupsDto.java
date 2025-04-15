@@ -16,4 +16,7 @@ public class ChatGroupsDto {
     private String roomType;
     private String opponentName;
     private Long receiverId;
+    private Long targetUserId;
+    private String displayName;    
+    private String displayInitial;
 }
