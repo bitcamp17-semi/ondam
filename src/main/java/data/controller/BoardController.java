@@ -49,9 +49,9 @@ public class BoardController {
 	@PostMapping("/boardInsert")
 	@ResponseBody
 	public Map<String, Object> insertWrite(BoardDto dto) {
-		System.out.println("=== 글쓰기 요청 ===");
-		System.out.println("카테고리: " + dto.getCategory());
-		System.out.println("hidden 값: " + dto.isHidden()); // 👈 여기!
+		//System.out.println("=== 글쓰기 요청 ===");
+		//System.out.println("카테고리: " + dto.getCategory());
+		//System.out.println("hidden 값: " + dto.isHidden()); // 👈 여기!
 		
 		boolean success = boardService.boardInsert(dto);
 		Map<String, Object> result = new HashMap<>();
@@ -93,14 +93,14 @@ public class BoardController {
 
 	@GetMapping("/boardNoti")
 	public String boardNoti(Model model) {
-		List<BoardDto> boardList = boardService.getAllBoards();
+		List<BoardDto> boardList = boardService.getBoardListByCategory("NOTICE");
 		model.addAttribute("boardList", boardList);
 		return "layout/boardNoti";
 	}
 	
 	@GetMapping("/boardDepartment")
 	public String boardDepartment(Model model) {
-		List<BoardDto> boardList = boardService.getAllBoards();
+		List<BoardDto> boardList = boardService.getBoardListByCategory("DEPARTMENT");
 		model.addAttribute("boardList", boardList);
 		return "layout/boardDepartment";
 	}
