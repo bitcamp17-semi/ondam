@@ -76,46 +76,11 @@
                 <!-- Chat Area -->
                 <div class="chat-area">
                     <div class="chat-content">
-                        <div class="chat-messages" th:if="${firstChatData != null}">
-                            <div class="message" th:each="msg : ${firstChatData.messages}"
-                                 th:classappend="${msg.isMyMessage} ? ' my-message'">
-                                <div class="message-avatar"
-                                     th:text="${#strings.substring(msg.senderName, 0, 1)}"></div>
-                                <div class="message-content">
-                                    <div class="message-sender" th:text="${msg.senderName}"></div>
-                                    <div class="message-text">
-                                        <span th:if="${msg.file == null}" th:text="${msg.message}"></span>
-                                        <span th:if="${msg.file != null}"
-                                              th:attr="data-file-url=${msg.file},data-file-type=${msg.fileType}">
-                                            <script th:inline="javascript">
-                                                console.log('Message file URL: [[${msg.file}]]');
-                                                console.log('Message file type: [[${msg.fileType}]]');
-                                            </script>
-                                            <a th:if="${msg.fileType != null and msg.fileType.startsWith('image/')}"
-                                               href="javascript:void(0)"
-                                               th:attr="data-file-url=${msg.file},data-file-name=${msg.message}"
-                                               onclick="showImageModal(this)">
-                                                <img th:src="${msg.file}"
-                                                     style="max-width: 200px; border-radius: 8px;"
-                                                     th:alt="${msg.message}"
-                                                     onerror="this.onerror=null; this.src='/images/fallback-image.png';" />
-                                            </a>
-                                            <a th:if="${msg.fileType == null or !msg.fileType.startsWith('image/')}"
-                                               th:href="${msg.file}" th:download="${msg.message}">
-                                                <span th:text="${msg.message}"></span>
-                                            </a>
-                                        </span>
-                                    </div>
-                                    <div class="message-time" th:text="${msg.formattedCreatedAt}"></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="no-chat-selected" th:unless="${firstChatData != null}">
+                        <div class="chat-messages" id="chatMessages"></div>
+                        <div class="no-chat-selected" id="noChatSelected" style="display: block;">
                             채팅방을 선택하세요.
                         </div>
-
-                        <div th:if="${firstChatData != null}" class="chat-input-area">
+                        <div class="chat-input-area" id="chatInputArea" style="display: none;">
                             <div class="input-group">
                                 <input type="text" id="messageInput" class="form-control"
                                        placeholder="메시지를 입력하세요" required />
@@ -224,11 +189,11 @@
 
             constructor(config = {}) {
                 this.stompClient = null;
-                this.userId = config.userId ?? null;
+                this.userId = config.userId ?? 0;
                 this.roomId = null;
                 this.roomType = null;
                 this.targetUserId = null;
-                this.senderName = config.senderName ?? 'User';
+                this.senderName = config.senderName ?? 'Unknown';
                 this.connected = false;
                 this.subscription = null;
 
@@ -241,29 +206,39 @@
             }
 
             connect() {
-                const socket = new SockJS('/ws');
-                this.stompClient = Stomp.over(socket);
+                try {
+                    const socket = new SockJS('/ws');
+                    this.stompClient = Stomp.over(socket);
 
-                this.stompClient.debug = (str) => {
-                    console.log('STOMP Debug: ' + str);
-                };
+                    this.stompClient.debug = (str) => {
+                        console.log('STOMP Debug: ' + str);
+                    };
 
-                this.stompClient.connect(
-                    {'userId': this.userId},
-                    (frame) => {
-                        this.connected = true;
-                        console.log('WebSocket connected');
-                    },
-                    (error) => {
-                        this.connected = false;
-                        console.error('WebSocket Connection Error:', error);
-                        setTimeout(() => this.connect(), 5000);
-                    }
-                );
+                    this.stompClient.connect(
+                        {'userId': this.userId},
+                        (frame) => {
+                            this.connected = true;
+                            console.log('WebSocket 연결 성공');
+                            if (this.roomId) {
+                                this.subscribe();
+                            }
+                        },
+                        (error) => {
+                            this.connected = false;
+                            console.error('WebSocket 연결 실패:', error);
+                            setTimeout(() => this.connect(), 5000);
+                        }
+                    );
+                } catch (error) {
+                    console.error('WebSocket 초기화 오류:', error);
+                }
             }
 
             subscribe() {
-                if (!this.roomId) return;
+                if (!this.roomId || !this.connected) {
+                    console.warn('구독 불가: roomId 또는 연결 없음');
+                    return;
+                }
                 if (this.subscription) {
                     this.subscription.unsubscribe();
                 }
@@ -277,13 +252,15 @@
             }
 
             handleMessage(message) {
-                const messagesContainer = document.querySelector('.chat-messages');
-                if (!messagesContainer) return;
+                const messagesContainer = document.getElementById('chatMessages');
+                if (!messagesContainer) {
+                    console.warn('메시지 컨테이너 없음');
+                    return;
+                }
 
                 const isMyMessage = message.isMyMessage !== undefined
                     ? message.isMyMessage
                     : message.senderId == this.userId;
-                console.log('handleMessage - isMyMessage:', isMyMessage, 'senderId:', message.senderId, 'userId:', this.userId);
 
                 const messageElement = this.createMessageElement(message, isMyMessage);
                 messagesContainer.appendChild(messageElement);
@@ -294,23 +271,25 @@
                 const element = document.createElement('div');
                 element.className = `message ${isMyMessage ? 'my-message' : ''}`;
 
-                const time = new Date(message.createdAt || message.time).toLocaleTimeString([], {
+                const time = new Date(message.createdAt || message.time || Date.now()).toLocaleTimeString([], {
                     hour: '2-digit',
                     minute: '2-digit'
                 });
 
                 let content = '';
                 if (message.file) {
-                    const isImage = /\.(jpg|jpeg|png|gif)$/i.test(message.message);
+                    const isImage = message.fileType?.startsWith('image/') || /\.(jpg|jpeg|png|gif)$/i.test(message.message);
                     if (isImage) {
-                        content = `<a href="javascript:void(0)" data-file-url="${message.file}" data-file-name="${message.message}" onclick="showImageModal(this)">
-                                <img src="${message.file}" style="max-width: 200px; border-radius: 8px;" alt="${message.message}" />
+                        content = `
+                            <a href="javascript:void(0)" data-file-url="${message.file}" data-file-name="${message.message}" onclick="showImageModal(this)">
+                                <img src="${message.file}" style="max-width: 200px; border-radius: 8px;" alt="${message.message}"
+                                     onerror="this.onerror=null; this.src='/images/fallback-image.png';" />
                             </a>`;
                     } else {
-                        content = `<a href="${message.file}" download="${message.message}">파일: ${message.message}</a>`;
+                        content = `<a href="${message.file}" download="${message.message}">${message.message}</a>`;
                     }
                 } else {
-                    content = message.message || message.content;
+                    content = message.message || message.content || '';
                 }
 
                 element.innerHTML = `
@@ -333,15 +312,15 @@
 
             isReadyToSend(content) {
                 if (!this.connected) {
-                    console.warn("Cannot send message: Not connected to WebSocket");
+                    console.warn("메시지 전송 불가: WebSocket 연결 안 됨");
                     return false;
                 }
                 if (!content || !content.trim()) {
-                    console.warn("Cannot send message: Content is empty or whitespace");
+                    console.warn("메시지 전송 불가: 내용이 비어 있음");
                     return false;
                 }
                 if (!this.userId || !this.roomId || !this.stompClient) {
-                    console.error("Cannot send message: Missing required properties");
+                    console.error("메시지 전송 불가: 필수 속성 누락");
                     return false;
                 }
                 return true;
@@ -369,9 +348,7 @@
                         {'content-type': 'application/json'},
                         JSON.stringify(message));
                 } catch (error) {
-                    console.error("Failed to send message:", error);
-
-
+                    console.error("메시지 전송 실패:", error);
                 }
             }
 
@@ -395,10 +372,10 @@
                         method: 'POST',
                         body: formData
                     });
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    if (!response.ok) throw new Error(`HTTP 오류! 상태: ${response.status}`);
                     await response.json();
                 } catch (error) {
-                    console.error("File upload failed:", error);
+                    console.error("파일 업로드 실패:", error);
                     alert("파일 업로드에 실패했습니다.");
                 }
             }
@@ -447,38 +424,57 @@
         let chatClient = null;
 
         async function openChat(chatId) {
-            console.log('openChat called with chatId:', chatId);
+            console.log('openChat 호출됨, chatId:', chatId);
             try {
+                if (!chatClient) {
+                    console.error('chatClient가 초기화되지 않음');
+                    return;
+                }
+
+                // 채팅 데이터 가져오기
                 const response = await fetch(`/chat/loadChat?chatId=${chatId}`, {
                     method: 'GET',
                     headers: {'Content-Type': 'application/json'}
                 });
-                if (!response.ok) throw new Error('Failed to load chat');
+                if (!response.ok) throw new Error('채팅 로드 실패');
                 const chatData = await response.json();
+                console.log('채팅 데이터 로드됨:', chatData);
 
-                const messagesContainer = document.querySelector('.chat-messages');
-                const inputArea = document.querySelector('.chat-input-area');
-                const noChatMessage = document.querySelector('.no-chat-selected');
+                // UI 즉시 갱신
+                const messagesContainer = document.getElementById('chatMessages');
+                const noChatMessage = document.getElementById('noChatSelected');
+                const inputArea = document.getElementById('chatInputArea');
 
                 if (messagesContainer) {
-                    messagesContainer.innerHTML = '';
-                    chatData.messages.forEach(msg => {
-                        const isMyMessage = msg.senderId == chatClient.userId;
-                        console.log('openChat - isMyMessage:', isMyMessage, 'senderId:', msg.senderId, 'userId:', chatClient.userId);
-                        const messageElement = chatClient.createMessageElement(msg, isMyMessage);
-                        messagesContainer.appendChild(messageElement);
-                    });
+                    messagesContainer.innerHTML = ''; // 기존 메시지 지우기
+                    if (chatData.messages && chatData.messages.length > 0) {
+                        chatData.messages.forEach(msg => {
+                            const isMyMessage = msg.senderId == chatClient.userId;
+                            const messageElement = chatClient.createMessageElement(msg, isMyMessage);
+                            messagesContainer.appendChild(messageElement);
+                        });
+                    } else {
+                        console.log('메시지 없음');
+                    }
                     messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                } else {
+                    console.warn('chatMessages 요소를 찾을 수 없음');
                 }
 
-                if (noChatMessage) noChatMessage.style.display = 'none';
-                if (inputArea) inputArea.style.display = 'block';
+                if (noChatMessage) {
+                    noChatMessage.style.display = 'none';
+                }
+                if (inputArea) {
+                    inputArea.style.display = 'block';
+                }
 
+                // WebSocket 방 정보 업데이트
                 chatClient.updateRoom(chatData.roomId, chatData.roomType, chatData.targetUserId);
 
+                // URL 업데이트 (리로드 없이)
                 history.pushState(null, '', `/chat/main?activeTab=chats&chatId=${chatId}`);
             } catch (error) {
-                console.error('Error loading chat:', error);
+                console.error('채팅 로드 오류:', error);
                 alert('채팅방을 불러오는데 실패했습니다.');
             }
         }
@@ -533,7 +529,7 @@
         async function downloadFile(fileUrl, fileName) {
             try {
                 const response = await fetch(fileUrl);
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                if (!response.ok) throw new Error(`HTTP 오류! 상태: ${response.status}`);
                 const blob = await response.blob();
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
@@ -544,28 +540,35 @@
                 a.remove();
                 window.URL.revokeObjectURL(url);
             } catch (error) {
-                console.error('Download failed:', error);
+                console.error('다운로드 실패:', error);
                 alert('파일 다운로드에 실패했습니다.');
             }
         }
 
-        document.querySelector('.groupbtn').addEventListener('click', () => {
+        document.querySelector('.groupbtn')?.addEventListener('click', () => {
             const modal = new bootstrap.Modal(document.getElementById('createGroupModal'));
             modal.show();
         });
 
         const chatClientConfig = {
-            userId: Number(/*[[${userId}]]*/ null),
-            senderName: /*[[${session.user?.name}]]*/ 'User'
+            userId: Number(/*[[${userId}]]*/ 0) || 0,
+            senderName: /*[[${session.user?.name}]]*/ 'Unknown' || 'Unknown'
         };
 
         document.addEventListener('DOMContentLoaded', () => {
-            chatClient = new ChatClient(chatClientConfig);
+            console.log('DOMContentLoaded 실행됨');
+            try {
+                chatClient = new ChatClient(chatClientConfig);
+                console.log('chatClient 초기화 완료:', chatClientConfig);
 
-            const urlParams = new URLSearchParams(window.location.search);
-            const chatId = urlParams.get('chatId');
-            if (chatId) {
-                openChat(chatId);
+                const urlParams = new URLSearchParams(window.location.search);
+                const chatId = urlParams.get('chatId');
+                if (chatId) {
+                    console.log('chatId 발견:', chatId);
+                    openChat(chatId);
+                }
+            } catch (error) {
+                console.error('초기화 오류:', error);
             }
         });
     </script>
