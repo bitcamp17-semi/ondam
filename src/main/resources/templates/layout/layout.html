@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title layout:title-pattern="$DECORATOR_TITLE - Ondam">Ondam Layout</title>
+    
+    <!-- 공통 스타일 -->
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    
+    <!-- 부트스트랩 등 외부 라이브러리도 필요하면 추가 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+
+    <!-- ✅ 공통 헤더 -->
+    <header style="background-color: #0d6efd; padding: 10px; color: white;">
+        <div style="max-width: 1200px; margin: auto;">
+            <h2>Ondam 사내 게시판</h2>
+        </div>
+    </header>
+
+    <!-- ✅ 본문 콘텐츠 자리 -->
+    <main style="max-width: 1200px; margin: 30px auto;">
+        <section layout:fragment="content">
+            
+        </section>
+    </main>
+
+    <!-- ✅ 공통 푸터 -->
+    <footer style="background-color: #f1f1f1; padding: 20px; text-align: center;">
+        <p>© 2025 Ondam Inc. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>

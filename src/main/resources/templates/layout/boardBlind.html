@@ -1,10 +1,13 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-	layout:decorate="~{layout/layout}">
+<html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>전사게시판</title>
+<link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
+<title>익명게시판</title>
 
 <style>
 body {
@@ -121,48 +124,51 @@ body {
 		<div class="container">
 			<!-- 좌측 사이드바 -->
 			<div class="sidebar">
-				<img src="../images/ondam.png" width="60"
-					style="display: block; margin: 0 auto 20px;" />
+				<img src="../images/ondam.png" width="60" style="display: block; margin: 0 auto 20px;" />
 				<h2>전사게시판</h2>
 				<div class="menu-item" onclick="location.href='/board/boardMain'">전체게시판</div>
 				<div class="menu-item" onclick="location.href='/board/boardBlind'">익명게시판</div>
 				<div class="menu-item" onclick="location.href='/board/boardNoti'">공지사항</div>
 				<div class="menu-item" onclick="location.href='/board/boardDepartment'">부서게시판</div>
-				<div class="menu-item" onclick="location.href='/board/boardEvent'">사내소식</div>
 			</div>
 
 			<!-- 본문 -->
 			<div class="main-content">
 				<div class="header">
-					<h1>전체 게시판</h1>
+					<h1>익명 게시판</h1>
 					<div class="buttons">
-						<button onclick="location.href='/board/boardWrite'">글쓰기</button>
+						<button onclick="location.href='/board/boardWrite?hidden=true'">글쓰기</button>
 					</div>
 				</div>
 
 				<!-- 게시글 리스트 -->
 				<div class="card" th:each="board : ${boardList}">
 					<div class="card-title">
-						<a th:href="@{'/boardDetail/' + ${board.id}}"
-							th:text="${board.title}"
-							style="text-decoration: none; color: #212529;"></a>
+						<a th:href="@{'/boardDetail/' + ${board.id}}" th:text="${board.title}" style="text-decoration: none; color: #212529;"></a>
 					</div>
 
-					<div class="card-content" th:text="${board.content}">내용전달드립니다!</div>
+					<div class="card-content" th:text="${board.content}">내용</div>
 
 					<div class="card-footer">
 						<div class="writer-info">
-							<span th:text="${board.authorId}">작성자</span> · <span
-								th:text="${#dates.format(board.createdAt, 'yyyy-MM-dd')}">2025.04.01</span>
+							<span th:text="${board.authorId}">작성자</span> 
+							<span th:text="${#dates.format(board.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
 						</div>
 						<div class="icons">
-							<span onclick="likePost(this)">♥ <span>0</span></span>
-							<span>💬 <span>0</span></span>
+							<span onclick="likePost(this)">♥ <span>0</span></span><span>💬<span>0</span></span>
 						</div>
 					</div>
 				</div>
-
 			</div>
+		</div>
+		<div class="container mt-3 d-flex justify-content-center">
+			<ul class="pagination">
+				<li class="page-item"><a class="page-link" href="#">이전</a></li>
+				<li class="page-item"><a class="page-link" href="#">1</a></li>
+				<li class="page-item active"><a class="page-link" href="#">2</a></li>
+				<li class="page-item"><a class="page-link" href="#">3</a></li>
+				<li class="page-item"><a class="page-link" href="#">다음</a></li>
+			</ul>
 		</div>
 	</section>
 </body>

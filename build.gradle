@@ -46,6 +46,8 @@ dependencies {
     implementation group: 'org.mindrot', name: 'jbcrypt', version: '0.4'
     // mail service
     implementation 'org.springframework.boot:spring-boot-starter-mail'
+    //의존성 추가
+    implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:3.1.0'
 }
 
 tasks.named('test') {

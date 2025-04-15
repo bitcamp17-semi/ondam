@@ -8,7 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -30,14 +32,16 @@ public class BoardController {
 		return "layout/boardMain";
 	}
 
-	@GetMapping("/boardWrite")
-	public String boardWrite(@RequestParam(value = "hidden", defaultValue = "false") boolean hidden, Model model) {
-		BoardDto boardDto = new BoardDto();
+	@GetMapping("/boardWrite") 
+	public String boardWrite(@RequestParam(value = "hidden", defaultValue = "false") 
+	boolean hidden, Model model) { 
+		BoardDto boardDto = new BoardDto(); 
 		boardDto.setHidden(hidden);
-		model.addAttribute("board", boardDto);
-		return "layout/boardWrite";
+		model.addAttribute("board", boardDto); 
+		return "layout/boardWrite"; 
 	}
-
+	  
+	// 글쓰기 저장
 	@PostMapping("/boardInsert")
 	@ResponseBody
 	public Map<String, Object> insertWrite(BoardDto dto) {
@@ -45,6 +49,15 @@ public class BoardController {
 		Map<String, Object> result = new HashMap<>();
 		result.put("result", success ? 1 : 0);
 		return result;
+	}
+
+	// 글 상세보기
+	@GetMapping("/boardDetail/{id}")
+	public String getBoardDetail(@PathVariable int id, Model model) {
+		System.out.println("controller 1 >> id = " + id);
+		BoardDto boardDto = boardService.getBoardDetailById(id);
+		model.addAttribute("board", boardDto);
+		return "layout/boardDetail";
 	}
 
 	@GetMapping("/boardList")
@@ -58,27 +71,23 @@ public class BoardController {
 	public String boardBlind(Model model) {
 		List<BoardDto> hiddenList = boardService.getHiddenPosts();
 		model.addAttribute("boardList", hiddenList);
-		return "layout/blindBoard";
+		return "layout/boardBlind";
 	}
 
-	@GetMapping("/boardUpdate")
-	public String boardUpdate(@RequestParam("id") int id, Model model) {
-		BoardDto board = boardService.getBoardById(id);
-		model.addAttribute("board", board);
-		return "layout/boardUpdate";
+	@GetMapping("/boardNoti")
+	public String boardNoti(Model model) {
+	    List<BoardDto> notiList = boardService.getNotiPosts();
+	    model.addAttribute("boardList", notiList);
+	    return "layout/boardNoti"; //공지사항
 	}
 
-	@GetMapping("/boardEvent")
-	public String boardEvent(Model model) {
-		List<BoardDto> list = boardService.getBoardListByCategory("사내소식");
-		model.addAttribute("list", list);
-		model.addAttribute("totalCount", list.size());
-		return "boardEvent"; //
+	@GetMapping("/boardDepartment")
+	public String boardDepartment(Model model) {
+		List<BoardDto> boardList = boardService.getAllBoards();
+		model.addAttribute("boardList", boardList);
+		return "layout/boardDepartment";
 	}
 	
-	 @GetMapping("/boardnoti")
-	    public String showNoticeBoard(Model model) {
-	        
-	    return "board/boardnoti";
-	    }
+
+
 }
