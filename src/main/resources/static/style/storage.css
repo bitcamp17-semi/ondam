@@ -509,3 +509,8 @@ li.open > .folder > .sub-folder-icon {
     color: green;
     margin-left: 10px; /* 텍스트와 아이콘 간격 */
 }
+.pointer {
+    cursor: pointer;
+    color: #007bff;
+    text-decoration: underline;
+}

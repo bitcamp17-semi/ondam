@@ -71,12 +71,24 @@
         ORDER BY createdAt DESC
     </select>
 
-    <select id="readFilesByTeamId" resultType="FilesDto">
+   <!-- <select id="readFilesByTeamId" resultType="FilesDto">
         SELECT *
         FROM files
         WHERE (teamId = #{teamId} OR #{teamId} IS NULL)
         ORDER BY createdAt DESC
+    </select>-->
+
+    <select id="readFilesByTeamId" resultType="FilesDto">
+        SELECT
+            f.*,
+            u.name AS authorName
+        FROM files f
+                 LEFT JOIN users u ON f.authorId = u.id
+        WHERE f.teamId = #{teamId}
+        ORDER BY f.createdAt DESC
     </select>
+
+
     <select id="readUserNameById" resultType="string">
         SELECT name FROM user WHERE id = #{id}
     </select>

@@ -18,6 +18,7 @@ public class FilesDto {
     private Integer departmentId;
     private String title;
     private int authorId;
+    private String authorName;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/Seoul")
     private Timestamp createdAt;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/Seoul")
