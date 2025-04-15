@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css"/>
     <link rel="stylesheet" th:href="@{/style/globals.css}"/>
     <link rel="stylesheet" th:href="@{/style/management_org.css}"/>
     <link rel="stylesheet" th:href="@{/style/header.css}"/>
@@ -221,7 +221,6 @@
                 }
             });
         });
-
 
 
         // ===== 조직도 기능 =====
@@ -780,6 +779,29 @@
             }
         });
     })
+
+    $(".dephead").click(function () {
+        let userId = $(".sawon").attr("data-id");
+        if (confirm("부서장으로 지정하시겠습니까?\n기존의 부서장과 교체됩니다.")) {
+            if (!userId) {
+                alert("직원을 선택해주세요");
+            } else {
+                $.ajax({
+                    url: "/api/dep/updateDepLeader",
+                    data: {id: userId},
+                    type: "get",
+                    success: function (res) {
+                        if (res.status === "ok") {
+                            alert("부서장이 교체되었습니다")
+                        }
+                    }, error: function () {
+                        alert("서버 에러")
+                    }
+                })
+            }
+        }
+    })
+
     $(".sawondeletebtn").click(function () {
         let userId = $(".sawon").attr("data-id");
         if (confirm("정말 퇴사 처리 하시겠습니까?")) {

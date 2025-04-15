@@ -2,6 +2,7 @@ package data.controller;
 
 import data.dto.DepartmentDto;
 import data.dto.TeamDto;
+import data.dto.UsersDto;
 import data.service.DepartmentService;
 import data.service.ScheduleGroupService;
 import data.service.TeamService;
@@ -112,6 +113,29 @@ public class DepartmentTeamController {
         if (usersService.isAdmin(userId)) {
             try {
                 departmentService.deleteDep(id);
+                response.put("status", "ok");
+                response.put("result", "success");
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            } catch (Exception e) {
+                response.put("status", "error");
+                response.put("result", e.getMessage());
+                return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            response.put("status", "fail");
+            response.put("error", "you are not admin");
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("/updateDepLeader")
+    public ResponseEntity<Object> updateDepLeader(@RequestParam("id") int id, HttpSession session) {
+        Map<String, Object> response = new LinkedHashMap<>();
+        Integer userId = (Integer) session.getAttribute("userId");
+        if (usersService.isAdmin(userId)) {
+            try {
+                UsersDto dto = usersService.readUserById(id);
+                departmentService.updateDepLeader(id, dto.getDepartmentId());
                 response.put("status", "ok");
                 response.put("result", "success");
                 return new ResponseEntity<>(response, HttpStatus.OK);
