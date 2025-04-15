@@ -16,7 +16,7 @@ public class BoardDto {
 	private String category;
 	private String title;
 	private String content;
-	private String authorId;
+	private int authorId;
 	private boolean hidden;
 	private boolean important;
 	private int replyCount;
