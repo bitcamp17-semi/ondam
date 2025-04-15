@@ -6,6 +6,8 @@ import data.service.FileStorageService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -43,6 +45,8 @@ public class ChatController {
 	private final FileStorageService fileStorageService;
 	private final SimpMessagingTemplate messagingTemplate;
 	private final NaverConfig naverConfig;
+	
+	private String bucketName="bitcamp-semi";//각자 자기꺼 써야함
 
 	/**
 	 * 채팅 메인 페이지 렌더링
@@ -155,8 +159,16 @@ public class ChatController {
 	// ===== Private Methods =====
 
 	private void initializeChatMainModel(HttpSession session, Model model, Integer userId, String activeTab) {
+		List<UsersDto> contacts = chatService.readAllUsersExceptCurrent(userId);
+		for (UsersDto contact : contacts) {
+			if (contact.getProfileImage() != null && !contact.getProfileImage().isEmpty()) {
+				String imageUrl = "https://kr.object.ncloudstorage.com/"+ bucketName + "/users/" + contact.getProfileImage();
+				contact.setProfileImage(imageUrl); // 전체 URL로 업데이트
+			}
+		}
+
 		model.addAttribute("chatGroupsList", chatService.readAllGroupsWithLastMessages(userId));
-		model.addAttribute("contacts", chatService.readAllUsersExceptCurrent(userId));
+		model.addAttribute("contacts", contacts);
 		model.addAttribute("openChats", getOpenChats(session));
 		model.addAttribute("firstChatData", prepareFirstChatData(getOpenChats(session), userId));
 		model.addAttribute("userId", userId);
