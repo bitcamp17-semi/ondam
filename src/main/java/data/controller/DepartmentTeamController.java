@@ -39,16 +39,18 @@ public class DepartmentTeamController {
         Map<String, Object> response = new LinkedHashMap<String, Object>();
         if (usersService.isAdmin(userId)) {
             try {
-            	//부서 생성 및 부서 ID 반환
+            	// 부서 생성 및 부서 ID 반환 (DTO 기반)
                 int departmentId = departmentService.createDep(userId, name);
-                
-                //일정 그룹 생성 (그룹 이름은 부서 이름 그대로 사용)
+
+                // 일정 그룹 생성
                 Map<String, Object> groupMap = new HashMap<>();
-                groupMap.put("name", name); // 그룹 이름
+                groupMap.put("name", name);
                 groupMap.put("departmentId", departmentId);
                 groupMap.put("ownerId", userId);
                 groupMap.put("color", "#808080");
-                
+
+                //System.out.println("그룹 생성용 맵: " + groupMap);
+
                 scheduleGroupService.scheGroupInsert(groupMap);
                 
                 response.put("status", "ok");

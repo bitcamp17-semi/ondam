@@ -17,11 +17,13 @@ public class DepartmentService {
 
     public int createDep(int userId, String name) {
     	//부서 생성 시 일정 그룹도 생성도되록 하기위해 수정함
-    	Map<String, Object> map = new HashMap<>();
-        map.put("userId", userId);
-        map.put("name", name);
-        departmentMapper.createDep(map); // insert 시 id 자동 채워짐
-        return (Integer) map.get("id"); // 생성된 부서 ID 반환
+    	DepartmentDto dto = new DepartmentDto();
+        dto.setUserId(userId);
+        dto.setName(name);
+
+        departmentMapper.createDep(dto); // insert 후 id가 dto에 자동으로 세팅됨
+
+        return dto.getId(); // 바로 int로 안전하게 사용 가능
     }
 
     public List<DepartmentDto> readAllDeps() {

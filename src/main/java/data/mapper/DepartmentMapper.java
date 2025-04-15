@@ -10,7 +10,7 @@ import java.util.Map;
 
 @Mapper
 public interface DepartmentMapper {
-    public void createDep(Map<String, Object> map);
+    public void createDep(DepartmentDto dto);
 
     public List<DepartmentDto> readAllDeps();
 
