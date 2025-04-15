@@ -8,7 +8,7 @@ import java.util.List;
 public interface ChatGroupsMapper {
     void createGroup(ChatGroupsDto chatGroupsDto); // 그룹 생성
     List<ChatGroupsDto> readAllGroupsWithLastMessages(Long userId); // 사용자가 속한 그룹과 마지막 메시지 조회
-    ChatGroupsDto readGroupById(Integer id); // 특정 그룹 조회
+    ChatGroupsDto readGroupById(Integer firstChatId); // 특정 그룹 조회
     void updateGroup(ChatGroupsDto chatGroupsDto); // 그룹 정보 수정
     void deleteGroup(Long groupId); // 그룹 삭제
     void createGroupUser(Long userId, Long groupId); // 그룹에 사용자 추가
