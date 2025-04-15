@@ -20,13 +20,13 @@
 	<div class="fullbox">
 		<div class="chat-container main">
 			<div id='scheTitle' class="nav">
-				<div class="navtitle">채팅</div>
+				<div class="navtitle">메신저</div>
 			</div>
 			<div class="section">
 				<!-- Sidebar -->
 				<div class="sidebar leftarticle">
 					<div class="sidebar-header lefttop">
-						My Messenger
+						Ondam Messenger
 						<button class="btn btn-primary groupbtn">그룹 채팅 생성</button>
 					</div>
 
@@ -92,15 +92,14 @@
 						</div>
 						<div class="chat-messages" id="chatMessages"></div>
 						<div class="no-chat-selected" id="noChatSelected"
-							style="display: block;">채팅방을 선택하세요.</div>
+							 style="display: block;"><span>채팅방을 선택하세요.</span></div>
 						<div class="chat-input-area" id="chatInputArea"
 							style="display: none;">
 							<div class="input-group">
 								<input type="text" id="messageInput" class="form-control"
 									placeholder="메시지를 입력하세요" required />
 								<button id="sendButton" class="btn btn-primary">전송</button>
-								<button id="fileButton" class="btn btn-primary"
-									style="background-color: blue;">파일</button>
+								<button id="fileButton" class="btn btn-primary">파일</button>
 								<input type="file" id="fileInput" style="display: none;" />
 							</div>
 						</div>
@@ -122,7 +121,7 @@
 					<option th:each="contact : ${contacts}" th:value="${contact.id}"
 						th:text="${contact.name}"></option>
 				</select>
-				<button type="submit" class="btn btn-primary">초대하기</button>
+				<button type="submit" class="btn btn-primary" style="background-color: #fa7000;border: 1px solid #fa7000">초대하기</button>
 			</div>
 			<div>
 				<span>초대할 그룹: </span> <span id="inviteGroupName"></span>
@@ -162,7 +161,7 @@
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-secondary"
-							data-bs-dismiss="modal">취소</button>
+							data-bs-dismiss="modal" >취소</button>
 						<button type="submit" class="btn btn-primary">생성</button>
 					</div>
 				</form>
