@@ -32,6 +32,17 @@
                 <button class="btnwhite" onclick="checkAllAlarm()">
                     <div class="div5">알람 확인</div>
                 </button>
+                <select id="type-list">
+                    <option selected value="">전체</option>
+                    <option value="SCHEDULE">일정</option>
+                    <option value="MESSAGE">쪽지</option>
+                    <option value="BOARD">게시판</option>
+                    <option value="APPROVAL">전자결재</option>
+                    <option value="SYSTEM">시스템</option>
+                </select>
+                <button class="btnwhite" id="deletebtn">
+                    <div class="div5">선택 삭제</div>
+                </button>
             </div>
             <div class="tableset">
                 <div class="tabletitle">
@@ -66,6 +77,7 @@
 </div>
 <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
 <script>
+    var type = "";
     $(document).ready(function () {
 
         // 현재 탭 상태 저장
@@ -87,11 +99,11 @@
         }
 
         // 알람 목록 불러오기
-        function loadAlarmList(pageNum = 1) {
+        function loadAlarmList(pageNum = 1, type = "") {
             $.ajax({
                 url: currentTabUrl,
                 method: 'GET',
-                data: {pageNum: pageNum},
+                data: {pageNum: pageNum, type: type},
                 success: function (res) {
                     if (res.status === "ok") {
                         renderAlarmTable(res.result);
@@ -183,16 +195,20 @@
                 $pagination.append(pageBtn);
             }
         }
+        $(document).on("change", "#type-list", function () {
+            type = $(this).val();
+            loadAlarmList(1, type)
+        })
 
         // 좌/우 화살표 이벤트 추가
         $(document).on("click", ".leftbtn", function () {
             if (lastPagingData && lastPagingData.currentPage > 1) {
-                loadAlarmList(lastPagingData.currentPage - 1);
+                loadAlarmList(lastPagingData.currentPage - 1, type);
             }
         });
         $(document).on("click", ".rightbtn", function () {
             if (lastPagingData && lastPagingData.currentPage < lastPagingData.totalPage) {
-                loadAlarmList(lastPagingData.currentPage + 1);
+                loadAlarmList(lastPagingData.currentPage + 1, type);
             }
         });
 
@@ -210,6 +226,25 @@
                         location.reload();
                     } else {
                         alert("알람 상태 업데이트 실패: " + res.result);
+                    }
+                },
+                error: function () {
+                    alert("서버 오류 발생");
+                }
+            });
+        }
+
+        function deleteAlarms(ids) {
+            const idParam = Array.isArray(ids) ? ids.join(",") : ids;
+            $.ajax({
+                url: '/alarm/delete',
+                method: 'GET',
+                data: {id: idParam},
+                success: function (res) {
+                    if (res.status === "ok") {
+                        location.reload();
+                    } else {
+                        alert("알람 삭제 실패: " + res.result);
                     }
                 },
                 error: function () {
@@ -236,11 +271,6 @@
                     selectedIds.push(id);
                 }
             });
-
-            if (hasAlreadyRead) {
-                alert("확인 완료 된 목록이 포함되어 있습니다");
-                return;
-            }
 
             if (selectedIds.length == 0) {
                 alert("선택된 알람이 없습니다.");
@@ -269,6 +299,8 @@
             e.preventDefault();
             const url = $(this).attr("href");
             currentTabUrl = url;
+            $("#type-list").val(""); // type초기화
+            type = "";
 
             updateTabClass(url); //탭 스타일 업데이트
 
@@ -279,6 +311,16 @@
                 }
             });
         });
+
+        $("#deletebtn").on("click", function () {
+            let selectedIds = [];
+            $(".checkbox:checked").each(function () {
+                const id = $(this).data("id");
+                if (!id) return; // 헤더 체크박스 무시
+                selectedIds.push(id);
+            });
+            deleteAlarms(selectedIds);
+        })
 
         // 헤더 체크박스 클릭 시 전체 체크
         $(document).on("change", ".tabletitle .checkbox", function () {
@@ -309,7 +351,7 @@
         });
         // 초기 로딩
         updateTabClass(currentTabUrl); // 초기 탭 class 적용
-        loadAlarmList();
+        loadAlarmList(1, type);
     });
 </script>
 
