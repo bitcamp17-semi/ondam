@@ -226,6 +226,8 @@ public class ObjectStorageService {
 
     public InputStream downloadFile(String objectKey) {
         try {
+
+
             S3Object s3Object = s3Client.getObject(new GetObjectRequest(bucketName, objectKey));
             InputStream inputStream = s3Object.getObjectContent();
             if (inputStream == null) {
