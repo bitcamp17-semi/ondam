@@ -225,6 +225,8 @@ mark {
     border: 1px solid #ddd;
     box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
     font-size: 14px;
+    max-height: 200px;
+    overflow-y: auto;
 }
 
 .dropdown-menu a {
