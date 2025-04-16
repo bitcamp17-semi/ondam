@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <title>일정 관리</title>
     <link rel="stylesheet" th:href="@{/style/header.css}"/>
     <link rel="stylesheet" th:href="@{/style/schedetail.css}"/>
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Gaegu&family=Jua&family=Nanum+Pen+Script&family=Playwrite+AU+SA:wght@100..400&family=Single+Day&display=swap"
@@ -17,7 +18,7 @@
 <div id="scheduleDetailContent" th:fragment="scheduleDetailContent">
 	<div data-writer-id="[[${dto.writerId}]]" style="display: none;"></div>
     <!-- 일정 수정 모달 -->
-    <div class="modal" id="scheUpdateModal">
+    <div class="modal fade" id="scheUpdateModal">
         <div class="modal-dialog">
             <div class="modal-content">
 
@@ -59,7 +60,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <th>내용</th>
+                                <th>내용&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
                                 <td colspan="3">
                                     <textarea class="form-control" id="content" name="content" rows="2">[[${dto.content}]]</textarea>
                                 </td>
@@ -200,11 +201,14 @@
     // });
 
     //수정 모달 > 저장 버튼 이벤트
-    $("#updateForm").submit(function (e) {
+    $(document).on("submit", ".scheUpdatebtn", function (e) {
         e.preventDefault();//서브밋의 기본이벤트를 무효화(action호출)
+        
         let form = new FormData();
-        let isAlltimeChecked = document.querySelector("#isAlltime").checked;
-        let isAlltimeValue = isAlltimeChecked ? 1 : 0;
+        let isAlltimeChecked = $("#isAlltime").is(":checked") ? 1 : 0;
+        form.set("isAlltime", isAlltimeChecked); // 이미 있는 키라서 set으로 처리
+        //let isAlltimeChecked = document.querySelector("#isAlltime").checked;
+        //let isAlltimeValue = isAlltimeChecked ? 1 : 0;
 
         form.append("id", '[[${dto.id}]]');
         form.append("isAlltime", isAlltimeValue);
@@ -249,4 +253,10 @@
             });
         }
     }
+    $(document).on('click', '[data-bs-dismiss="modal"]', function(e){
+        let targetModal = $(this).closest('.modal');
+        if(targetModal.length > 0 && bootstrap.Modal.getInstance(targetModal)){
+            bootstrap.Modal.getInstance(targetModal).hide();
+        }
+    });
 </script>

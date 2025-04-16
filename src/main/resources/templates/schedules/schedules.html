@@ -180,7 +180,7 @@
                     <input type="hidden" name="groupId">
                     <!-- 이부분은 로그인 기능 구현되면 활성화시켜서 로그인된 아이디를 받아서 저장할 예정-->
                     <tr>
-                        <th>그룹장</th>
+                        <th>그룹장&nbsp;&nbsp;&nbsp;&nbsp;</th>
                         <th hidden>부서ID</th>
                         <td>
                             <!-- 추후에 로그인되어있는 사용자 이름을 출력시킬 예정 -->
@@ -569,7 +569,7 @@
                 success: function (response) {
                     alert('일정이 등록되었습니다!');
                     console.log(response);
-                    //location.reload();//등록 시 페이지 새로고침
+                    location.reload();//등록 시 페이지 새로고침
                 },
                 error: function (xhr, status, error) {
                     console.error('에러 발생:', error);
@@ -611,7 +611,7 @@
 
             $.ajax({
                 type: "post",
-                dataType: "text",
+                dataType: "json",
                 url: "./scheGroupInsert",
                 data: JSON.stringify(requestData),
                 contentType: "application/json",

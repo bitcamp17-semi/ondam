@@ -54,6 +54,16 @@ public class ScheduleGroupController {
 	       
 	       System.out.println("그룹 생성 후 반환된 groupId: " + groupMap.get("id"));
 	       
+	       // 디버깅 출력
+	        System.out.println("groupMap keys: " + groupMap.keySet());
+	        System.out.println("groupMap id: " + groupMap.get("id"));
+	       
+	        // ID 꺼내기 (null 체크 포함)
+	        Object idObj = groupMap.get("id");
+	        if (idObj == null) {
+	            throw new IllegalStateException("그룹 생성 실패: 반환된 ID 없음");
+	        }
+	        
 	       //위에서 그룹 아이디를 생성하고 그걸 받아서 그룹 멤버를 저장해야함
 	       //근데 이게 그룹 아이디가 auto_increment로 지정되어 있어서 BigInteger로 형변환을 해주는게 안전함
 	       //만약 bigInteger를 사용하지 않는 경우 지금은 오류 발생하면서 등록되지 않음
@@ -66,7 +76,9 @@ public class ScheduleGroupController {
             }
 	        
 	        // 멤버 리스트 변환 후 삽입
-	        List<Map<String, Object>> memberList = new ArrayList<>();
+	        List<ScheGroupMemberInserDto> members = body.getMembers();
+	        if (members != null && !members.isEmpty()) {
+	            List<Map<String, Object>> memberList = new ArrayList<>();
 	        for (ScheGroupMemberInserDto member : body.getMembers()) {
 	            Map<String, Object> memberMap = new HashMap<>();
 	            memberMap.put("userId", member.getUserId());
@@ -74,9 +86,12 @@ public class ScheduleGroupController {
 	            memberMap.put("color", member.getColor());
 	            memberList.add(memberMap);
 	        }
-
-	        scheduleGroupMemberService.scheGroupMemberInsert(memberList);
+	        // mapper에서 memberList 받아야 하므로 Map에 담아서 넘기기
+            Map<String, Object> paramMap = new HashMap<>();
+            paramMap.put("memberList", memberList);
 	        
+	        scheduleGroupMemberService.scheGroupMemberInsert(paramMap);
+	        }
 	        response.put("status", "ok");
             response.put("result", groupId);
             return new ResponseEntity<>(response, HttpStatus.OK);
@@ -118,8 +133,13 @@ public class ScheduleGroupController {
 	            map.put("color", m.getColor());
 	            members.add(map);
 	        }
-	        scheduleGroupMemberService.scheGroupMemberInsert(members);
 	        
+	        //멤버가 있을 때만 insert 실행
+	        if (!members.isEmpty()) {
+	        	Map<String, Object> paramMap = new HashMap<>();
+	        	paramMap.put("memberList", members);
+	        	scheduleGroupMemberService.scheGroupMemberInsert(paramMap);
+	        }
 	        
 	        response.put("status", "ok");
             response.put("resuilt", dto);
