@@ -1,7 +1,9 @@
 package data.service;
 
+import java.io.File;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -190,6 +192,51 @@ public class ObjectStorageService {
         return filePath;
     }
 
+    public String uploadTempZipAndGetUrl(File zipFile) {
+        String objectKey = "temp/" + UUID.randomUUID() + ".zip";
+
+        try {
+            // zip 파일 업로드
+            PutObjectRequest putRequest = new PutObjectRequest(bucketName, objectKey, zipFile);
+            s3Client.putObject(putRequest);
+
+            // presigned URL 생성 (예: 10분 유효)
+            Date expiration = new Date();
+            long expTimeMillis = expiration.getTime();
+            expTimeMillis += 1000 * 60 * 10;
+            expiration.setTime(expTimeMillis);
+
+            GeneratePresignedUrlRequest urlRequest =
+                    new GeneratePresignedUrlRequest(bucketName, objectKey)
+                            .withMethod(HttpMethod.GET)
+                            .withExpiration(expiration);
+
+
+            System.out.println("zip 파일 경로: " + zipFile.getAbsolutePath());
+            System.out.println("zip 파일 크기: " + zipFile.length());
+
+            URL url = s3Client.generatePresignedUrl(urlRequest);
+            return url.toString();
+
+        } catch (Exception e) {
+            throw new RuntimeException("ZIP 업로드 또는 URL 생성 중 오류 발생", e);
+        }
+    }
+
+
+    public InputStream downloadFile(String objectKey) {
+        try {
+            S3Object s3Object = s3Client.getObject(new GetObjectRequest(bucketName, objectKey));
+            InputStream inputStream = s3Object.getObjectContent();
+            if (inputStream == null) {
+                System.out.println("파일이 존재하지 않거나 다운로드할 수 없습니다: " + objectKey);
+            }
+            return inputStream;
+        } catch (AmazonS3Exception e) {
+            System.out.println("S3 객체 다운로드 중 오류 발생: " + e.getMessage());
+            return null; // 파일이 없으면 null 반환
+        }
+    }
 
 
 

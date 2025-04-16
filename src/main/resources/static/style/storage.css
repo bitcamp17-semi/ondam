@@ -514,3 +514,10 @@ li.open > .folder > .sub-folder-icon {
     color: #007bff;
     text-decoration: underline;
 }
+
+.checkmark {
+    margin-left: 10px;
+    color: green;
+    font-weight: bold;
+}
+

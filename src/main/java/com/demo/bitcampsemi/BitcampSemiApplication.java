@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
-@ComponentScan({"data.*", "config","com.demo.bitcampsemi","websocket"})
+@ComponentScan({"data.*", "config","com.demo.bitcampsemi","websocket","util"})
 @MapperScan("data.mapper")
 public class BitcampSemiApplication {
 

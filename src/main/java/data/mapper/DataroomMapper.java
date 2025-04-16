@@ -43,5 +43,13 @@ public interface DataroomMapper {
 
     String readUserNameById(@Param("id") int id);
 
+    List<FilesDto> readFilesByIds(@Param("ids") List<Integer> ids);
+
+
+    int readDepartmentOwnerId(@Param("id") int departmentId);
+
+    String readTeamNameById(@Param("id") int teamId);
+
+    String readTeamNameByFolderId(@Param("folderId") int folderId);
 
 }

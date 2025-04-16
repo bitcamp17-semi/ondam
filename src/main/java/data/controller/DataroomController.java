@@ -98,10 +98,23 @@ public class DataroomController {
 
     // ✅ 파일 목록 조회: 특정 roomId 에 속한 파일들 반환
     @GetMapping("/files")
-    public ResponseEntity<List<FilesDto>> getFiles(@RequestParam(value = "teamId", required = false) Integer teamId) {
-        List<FilesDto> files = dataroomService.getFilesByTeam(teamId);
+    public ResponseEntity<List<FilesDto>> getFiles(
+            @RequestParam(value = "departmentId", required = false) Integer departmentId,
+            @RequestParam(value = "teamId", required = false) Integer teamId
+    ) {
+        List<FilesDto> files;
+
+        if (teamId != null) {
+            files = dataroomService.getFilesByTeam(teamId);
+        } else if (departmentId != null) {
+            files = dataroomService.getFilesByDepartment(departmentId);
+        } else {
+            files = Collections.emptyList(); // 또는 예외 처리
+        }
+
         return ResponseEntity.ok(files);
     }
+
 
     /*@ResponseBody
     @GetMapping("/files")
@@ -187,6 +200,42 @@ public class DataroomController {
                 .build();
     }
 
+    @PostMapping("/downloadMultiple")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> downloadMultipleFiles(@RequestParam("ids") List<Integer> ids) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            String zipUrl = dataroomService.createZipAndGetUrl(ids); // zip 생성 후 URL 반환
+            response.put("status", "ok");
+            response.put("downloadUrl", zipUrl);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("status", "fail");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    @PostMapping("/deleteMultiple")
+    @ResponseBody
+    public ResponseEntity<?> deleteMultipleFiles(@RequestParam("ids") List<Integer> ids) {
+        Map<String, Object> response = new LinkedHashMap<>();
+        try {
+            for (int id : ids) {
+                FilesDto dto = dataroomService.readDataroomById(id);
+                objectStorageService.deleteFile(objectStorageService.getBucketName(), "dataroom", dto.getPath());
+                dataroomService.deleteFiles(id);
+            }
+            response.put("status", "ok");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("status", "fail");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 
 
 
@@ -195,12 +244,21 @@ public class DataroomController {
 
     @PostMapping("/deleteFiles")
     @ResponseBody
-    public ResponseEntity<?> deleteFiles(@RequestParam(value = "id") int id) {
+    public ResponseEntity<?> deleteFiles(@RequestParam("id") int id) {
         Map<String, Object> response = new LinkedHashMap<>();
         try {
             FilesDto dto = dataroomService.readDataroomById(id);
-            objectStorageService.deleteFile(objectStorageService.getBucketName(),"dataroom", dto.getPath());
+
+            // 스토리지에서 파일 삭제
+            objectStorageService.deleteFile(
+                    objectStorageService.getBucketName(),
+                    "dataroom",
+                    dto.getPath()
+            );
+
+            // DB에서 파일 정보 삭제
             dataroomService.deleteFiles(id);
+
             response.put("status", "ok");
             response.put("result", "delete success");
             return new ResponseEntity<>(response, HttpStatus.OK);
@@ -210,6 +268,31 @@ public class DataroomController {
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+
+    @GetMapping("/accessFolder")
+    public String checkAccessFolder(Model model, @RequestParam int folderId, HttpSession session) {
+        // 로그인한 사용자 ID 확인
+        Integer userId = (Integer) session.getAttribute("userId");
+        if (userId == null) {
+            return "redirect:/login"; // 로그인 안 되어 있으면 로그인 페이지로 리다이렉트
+        }
+
+        // 폴더에 대한 팀 이름 및 부서장 확인
+        String folderTeamName = dataroomService.readTeamNameByFolderId(folderId);
+        boolean isDepartmentHead = dataroomService.isDepartmentHead(userId, folderId);
+        boolean isTeamMember = dataroomService.isTeamMember(userId, folderId);
+
+        // 접근 권한 확인
+        if (isDepartmentHead || isTeamMember) {
+            model.addAttribute("hasAccess", true);
+            return "dataroom/folderView"; // 폴더 보기 페이지로 이동
+        } else {
+            model.addAttribute("hasAccess", false);
+            return "error/noAccess"; // 접근 권한 없음 페이지로 이동
+        }
+    }
+
 
 
 

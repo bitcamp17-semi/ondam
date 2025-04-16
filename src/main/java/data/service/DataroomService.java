@@ -2,12 +2,17 @@ package data.service;
 
 import data.dto.DataRoomDto;
 import data.dto.FilesDto;
+import data.dto.UsersDto;
 import data.mapper.DataroomMapper;
 import data.mapper.UsersMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import util.ZipUtility;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 @Service
@@ -15,11 +20,15 @@ public class DataroomService {
     private final DataroomMapper dataroomMapper;
     private final ObjectStorageService objectStorageService;
     private final UsersMapper usersMapper;
+    private final ZipUtility zipUtility;
 
-    public DataroomService(DataroomMapper dataroomMapper, ObjectStorageService objectStorageService, UsersMapper usersMapper) {
+
+
+    public DataroomService(DataroomMapper dataroomMapper, ObjectStorageService objectStorageService, UsersMapper usersMapper, ZipUtility zipUtility) {
         this.dataroomMapper = dataroomMapper;
         this.objectStorageService = objectStorageService;
         this.usersMapper = usersMapper;
+        this.zipUtility = zipUtility;
     }
 
     // 폴더 목록 조회 (상위 폴더)
@@ -126,6 +135,28 @@ public class DataroomService {
         return result;
     }
 
+    public String createZipAndGetUrl(List<Integer> ids) throws IOException {
+        List<FilesDto> files = dataroomMapper.readFilesByIds(ids);
+        System.out.println("압축할 파일 개수: " + files.size());
+        for (FilesDto file : files) {
+            System.out.println("파일 path: " + file.getPath() + ", name: " + file.getName());
+        }
+        if (files == null || files.isEmpty()) {
+            throw new RuntimeException("선택된 파일이 없습니다.");
+        }
+
+        System.out.println("파일 목록: " + files.size() + "개 파일 반환");
+
+        String zipFileName = "download_" + System.currentTimeMillis() + ".zip";
+        try {
+            File zipFile = zipUtility.createZip(files, zipFileName); // 유틸에서 zip 생성
+            return objectStorageService.uploadTempZipAndGetUrl(zipFile);
+        } catch (Exception e) {
+            e.printStackTrace(); // 예외 출력
+            throw new RuntimeException("파일 다운로드 처리 중 오류가 발생했습니다.", e);
+        }
+    }
+
 
 
     public void deleteFiles(int id) {
@@ -165,6 +196,33 @@ public class DataroomService {
     public List<FilesDto> getFilesByTeam(Integer teamId) {
         return dataroomMapper.readFilesByTeamId(teamId);
     }
+
+    public boolean isDepartmentHead(int userId, int folderId) {
+        // 폴더가 속한 department의 userId 가져옴
+        Integer departmentOwnerId = dataroomMapper.readDepartmentOwnerId(folderId);
+        return departmentOwnerId != null && departmentOwnerId == userId;
+    }
+
+    public boolean isTeamMember(int userId, int folderId) {
+        // 폴더가 속한 팀 이름 가져오기
+        String folderTeamName = dataroomMapper.readTeamNameByFolderId(folderId);
+        UsersDto user = usersMapper.readUserById(userId);
+        return folderTeamName != null && folderTeamName.equals(user.getTeam());
+    }
+
+
+    public String readTeamNameByFolderId(int folderId) {
+        String teamName = dataroomMapper.readTeamNameByFolderId(folderId);
+        if (teamName == null) {
+            throw new RuntimeException("팀 이름을 찾을 수 없습니다. 폴더 ID: " + folderId);  // 예외 처리
+        }
+        return teamName;
+    }
+
+
+
+
+
 
 
 }
