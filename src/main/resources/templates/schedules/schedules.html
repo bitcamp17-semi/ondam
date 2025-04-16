@@ -399,15 +399,48 @@
             //일정 클릭 시 상세 페이지 이동
             eventClick: function (info) {
                 var event = info.event;
-                var id = event.id;
+                var id = info.event.id;
                 //상세페이지 이동
                 // window.location.href = '/schedules/scheDetail?id=' + id;
                 $.ajax({
-                    url: "/schedules/scheDetail?id="+id,
-                    data: { id },
+                    url: "/schedules/scheDetail?id=" + id,
                     success: function (html) {
-                        $('#schedule-sidebar').html(html); // ✅ 비동기 삽입
-                        $('#schedule-sidebar').addClass('visible'); // ✅ 튀어나오기
+                        $('#schedule-sidebar').html(html);
+                        $('#schedule-sidebar').addClass('visible');
+
+                        // ✅ 모달 저장 버튼 이벤트 재바인딩
+                        $('#schedule-sidebar').on("click", ".scheUpdatebtn", function (e) {
+                            e.preventDefault();
+                            const form = new FormData();
+                            const isAlltimeChecked = $('#schedule-sidebar #isAlltime').is(":checked");
+                            const isAlltimeValue = isAlltimeChecked ? 1 : 0;
+
+                            form.append("id", $('#schedule-sidebar input[name="id"]').val());
+                            form.append("isAlltime", isAlltimeValue);
+                            form.append("groupId", $('#schedule-sidebar select[name="groupId"]').val());
+                            form.append("name", $('#schedule-sidebar input[name="name"]').val());
+                            form.append("content", $('#schedule-sidebar textarea[name="content"]').val());
+                            form.append("startDate", $('#schedule-sidebar input[name="startDate"]').val());
+                            form.append("startTime", $('#schedule-sidebar input[name="startTime"]').val());
+                            form.append("endDate", $('#schedule-sidebar input[name="endDate"]').val());
+                            form.append("endTime", $('#schedule-sidebar input[name="endTime"]').val());
+
+                            $.ajax({
+                                type: "post",
+                                dataType: "text",
+                                data: form,
+                                url: "/schedules/scheUpdate",
+                                processData: false,
+                                contentType: false,
+                                success: function () {
+                                    alert("수정 완료되었습니다.");
+                                    location.reload();
+                                },
+                                error: function () {
+                                    alert("수정 중 오류 발생!");
+                                }
+                            });
+                        });
                     },
                     error: function () {
                         alert("일정 정보를 불러오지 못했습니다.");
