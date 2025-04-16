@@ -76,6 +76,7 @@
     flex-direction: column;
     flex: 4;
     overflow-y: auto;
+    padding-right: 20px;
 }
 .rightarticle{
     display: flex;
@@ -96,6 +97,11 @@
     margin: 20px;
     overflow-y: auto;
 }
+.main-container{
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
 
 #boardfrm{
     display: flex;
@@ -103,12 +109,29 @@
     flex: 1;
     gap: 20px;
 }
-
+.form-group{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+.writer-group{
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    width: 100%;
+    color: rgba(0,0,0,0.5);
+    padding-top: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
 #title{
     font-size: 20px;
     font-weight: bold;
     color: #3f3f3f;
 }
+
+
 #createdAt{
     font-size: 14px;
 }
@@ -117,7 +140,7 @@
     display: flex;
     flex-direction: row;
     align-self: stretch;
-    height: 50px;
+
     gap: 20px;
     width: 100%;
     position: relative;
@@ -191,4 +214,22 @@
 .icons span {
     margin-left: 12px;
     cursor: pointer;
+}
+
+.toptitle{
+    font-size: 20px;
+    color: #3f3f3f;
+    font-weight: bold;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+}
+
+.me-2{
+    background-color: #fa7000;
+    border: 1px solid rgba(0,0,0,0.15);
+}
+.me-2:hover {
+    background-color: #fa7000;
+    border: 1px solid rgba(0,0,0,0.15);
 }

@@ -94,8 +94,13 @@ public class BoardController {
 		
 	    BoardDto board = boardService.getBoardDetailById(id);
 
-		String authorName = userService.readUserById(board.getAuthorId()).getName();
-		board.setAuthorName(authorName);
+		// 작성자 이름 설정 (익명 처리 포함)
+		if ("ANONYMITY".equals(board.getCategory())) {
+			board.setAuthorName("익명");
+		} else {
+			String authorName = userService.readUserById(board.getAuthorId()).getName();
+			board.setAuthorName(authorName);
+		}
 
 	    model.addAttribute("board", board);
 	    model.addAttribute("isAuthorOrAdmin", true);

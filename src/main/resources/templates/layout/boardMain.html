@@ -20,7 +20,7 @@
     <div class="main">
         <div class="nav">
             <div class="navtitle">
-                전사게시판
+                게시판
             </div>
             <div class="mainnavbar">
                 <div class="navlistnone" id="navlist1" onclick="location.href='/board/boardMain'">전체게시판</div>
@@ -37,29 +37,33 @@
                 </div>
 
                 <!-- 게시글 리스트 -->
-				<div class="card" th:each="board : ${boardList}" th:if="${board.category} != 'ANONYMITY'">
-					<div class="card-title">
-						<a href="javascript:void(0);"
-						   th:text="${board.title}"
-						   th:attr="data-id=${board.id}"
-						   class="board-title-link"
-						   style="text-decoration: none; color: #3f3f3f;">
-						</a>
-					</div>
-					<div class="card-content" th:text="${board.content}">내용</div>
-					<div class="card-footer">
-						<div class="writer-info">
-							<span th:text="${writerMap[board.authorId]}">작성자</span>
-							<span th:text="${#dates.format(board.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
-						</div>
-					</div>
-				</div>
+                <div class="card" th:each="board : ${boardList}" th:if="${board.category} != 'ANONYMITY'">
+                    <div class="card-title">
+                        <a href="javascript:void(0);"
+                           th:text="${board.title}"
+                           th:attr="data-id=${board.id}"
+                           class="board-title-link"
+                           style="text-decoration: none; color: #3f3f3f;">
+                        </a>
+                    </div>
+                    <div class="card-content" th:text="${board.content}">내용</div>
+                    <div class="card-footer">
+                        <div class="writer-info">
+                            <span th:text="${writerMap[board.authorId]}">작성자</span>
+                            <span th:text="${#dates.format(board.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
+                        </div>
+                        <div class="icons">
+                            <span>♥ <span>0</span></span>
+                            <span>💬 <span>0</span></span>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="rightarticle">
-				<div class="righttitle">
-					게시글 상세보기
-				</div>
-				<div id="detail"></div>
+                <div class="righttitle">
+                    게시글 상세보기
+                </div>
+                <div id="detail"></div>
             </div>
             <!--			<div class="container mt-3 d-flex justify-content-center">-->
             <!--				<ul class="pagination">-->
@@ -77,19 +81,19 @@
 </html>
 
 <script>
-	$(document).ready(function () {
-		$(".board-title-link").on("click", function () {
-			const id = $(this).data("id");
+    $(document).ready(function () {
+        $(".board-title-link").on("click", function () {
+            const id = $(this).data("id");
 
-			$.ajax({
-				url: "/board/boardDetail/" + id, //이 URL은 컨트롤러에서 fragment만 반환하도록 처리된 상태
-				success: function (html) {
-					$("#detail").html(html); //오른쪽에 삽입
-				},
-				error: function () {
-					alert("게시글 상세 내용을 불러오지 못했습니다.");
-				}
-			});
-		});
-	});
+            $.ajax({
+                url: "/board/boardDetail/" + id, //이 URL은 컨트롤러에서 fragment만 반환하도록 처리된 상태
+                success: function (html) {
+                    $("#detail").html(html); //오른쪽에 삽입
+                },
+                error: function () {
+                    alert("게시글 상세 내용을 불러오지 못했습니다.");
+                }
+            });
+        });
+    });
 </script>
