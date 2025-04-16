@@ -82,8 +82,8 @@
 
 <script>
     $(document).ready(function () {
-        $(".board-title-link").on("click", function () {
-            const id = $(this).data("id");
+        $(".card").on("click", function () {
+            const id = $(this).find(".board-title-link").data("id");
 
             $.ajax({
                 url: "/board/boardDetail/" + id, //이 URL은 컨트롤러에서 fragment만 반환하도록 처리된 상태
