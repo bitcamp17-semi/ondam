@@ -22,7 +22,9 @@ import config.NaverConfig;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @Slf4j
@@ -67,14 +69,14 @@ public class ChatController {
 	        boolean hasAccess = chatService.hasAccessToChat(userId, chatId);
 	        if (!hasAccess) {
 	            redirectAttributes.addFlashAttribute("error", "접근 권한이 없는 채팅방입니다.");
-	            return "redirect:/chat/main?activeTab=chats";
+	            return "redirect:/chat/main?activeTab=" + activeTab; // activeTab 유지
 	        }
 
 	        // 2. 세션의 openChats 기반 추가 검증
 	        List<Integer> openChats = getOpenChats(session);
 	        if (!openChats.contains(chatId)) {
 	            redirectAttributes.addFlashAttribute("error", "열리지 않은 채팅방입니다. 먼저 채팅방을 열어주세요.");
-	            return "redirect:/chat/main?activeTab=chats";
+	            return "redirect:/chat/main?activeTab=" + activeTab; // activeTab 유지
 	        }
 	    }
 
@@ -387,4 +389,70 @@ public class ChatController {
 				"/topic/group/" + roomId : "/user/queue/private";
 		messagingTemplate.convertAndSend(destination, chatLogDto);
 	}
+	
+	@GetMapping("/unreadMessagesExist")
+	@ResponseBody
+	public Map<String, Object> unreadMessagesExist(HttpSession session) {
+	    Integer userId = (Integer) session.getAttribute("userId");
+	    Map<String, Object> response = new HashMap<>();
+	    
+	    if (userId == null) {
+	        response.put("status", "error");
+	        response.put("message", "로그인이 필요합니다.");
+	        return response;
+	    }
+
+	    // 사용자가 속한 모든 채팅방에서 읽지 않은 메시지 확인
+	    List<ChatGroupsDto> chatGroups = chatService.readAllGroupsWithLastMessages(userId);
+	    Map<Integer, Boolean> unreadStatus = new HashMap<>();
+	    boolean hasUnread = false;
+
+	    for (ChatGroupsDto group : chatGroups) {
+	        List<ChatLogDto> messages = "GROUP".equals(group.getRoomType())
+	                ? chatService.readGroupMessages(group.getId())
+	                : chatService.readPrivateMessages(userId, group.getId());
+	        boolean hasUnreadMessages = messages.stream()
+	                .anyMatch(msg -> !msg.isRead() && !msg.getSenderId().equals(userId));
+	        unreadStatus.put(group.getId(), hasUnreadMessages);
+	        if (hasUnreadMessages) {
+	            hasUnread = true;
+	        }
+	    }
+
+	    response.put("status", "ok");
+	    response.put("hasUnread", hasUnread);
+	    response.put("unreadStatus", unreadStatus); // 각 채팅방별 미확인 상태
+	    return response;
+	}
+	
+	// ChatController.java
+	@PostMapping("/markMessagesAsRead")
+	@ResponseBody
+	public Map<String, Object> markMessagesAsRead(@RequestParam("chatId") Integer chatId, HttpSession session) {
+	    Integer userId = (Integer) session.getAttribute("userId");
+	    Map<String, Object> response = new HashMap<>();
+
+	    if (userId == null) {
+	        response.put("status", "error");
+	        response.put("message", "로그인이 필요합니다.");
+	        return response;
+	    }
+
+	    // chatId에 해당하는 메시지들을 읽음 처리
+	    ChatGroupsDto group = chatService.readGroupById(chatId);
+	    List<ChatLogDto> messages = "GROUP".equals(group.getRoomType())
+	            ? chatService.readGroupMessages(chatId)
+	            : chatService.readPrivateMessages(userId, chatId);
+
+	    messages.stream()
+	            .filter(msg -> !msg.isRead() && !msg.getSenderId().equals(userId))
+	            .forEach(msg -> {
+	                msg.setRead(true);
+	                chatService.updateChatLog(msg); // DB에 읽음 상태 업데이트
+	            });
+
+	    response.put("status", "ok");
+	    return response;
+	}
+	
 }

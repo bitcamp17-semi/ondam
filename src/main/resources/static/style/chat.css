@@ -93,8 +93,10 @@
     border-bottom: 1px solid #f0f0f0;
     display: flex;
     align-items: center;
-    cursor: pointer;
+    cursor: pointer; 
+    position: relative;   /*추가*/
 }
+
 
 .contact-item {
     padding: 12px 15px;
@@ -134,7 +136,9 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    max-width: 200px;  /*추가*/
 }
+
 
 .chat-time {
     font-size: 11px;
@@ -396,4 +400,16 @@
     background-color: white;
     color: #3f3f3f;
     border: 1px solid rgba(0,0,0,0.15);
+}
+
+/*추가*/
+.chat-unread-indicator {
+        width: 10px;
+        height: 10px;
+        background-color: red;
+        border-radius: 50%;
+        position: absolute;
+        top: 10px;
+        right: 315px;
+        display: none;
 }

@@ -154,3 +154,21 @@
     background-color: #ff5e5e;
     border-radius: 4px;
 }
+
+
+
+.chat-ellipse {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 10px;
+    height: 10px;
+    background-color: #ff0000;
+    border-radius: 50%;
+}
+.group {
+    position: relative;
+}
+.overlap-group {
+    position: relative;
+}

@@ -331,4 +331,14 @@ public class ChatService {
         }
         return hasAccess;
     }
+    
+    public void updateChatLog(ChatLogDto chatLogDto) {
+        if (chatLogDto == null || chatLogDto.getId() == null) {
+            logger.error("ChatLogDto or ID is null: {}", chatLogDto);
+            throw new IllegalArgumentException("ChatLogDto or ID cannot be null");
+        }
+        logger.info("Updating ChatLogDto: {}", chatLogDto);
+        chatLogMapper.updateChatLog(chatLogDto);
+        logger.info("ChatLogDto updated successfully: id={}", chatLogDto.getId());
+    }
 }
