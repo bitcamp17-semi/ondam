@@ -92,11 +92,16 @@ public class BoardController {
 		//세션에 저장된 사용자 id 받기
 		int userId=(Integer)session.getAttribute("userId");
 		
-	    BoardDto board = boardService.getBoardDetailById(id); 
+	    BoardDto board = boardService.getBoardDetailById(id);
+
+		String authorName = userService.readUserById(board.getAuthorId()).getName();
+		board.setAuthorName(authorName);
+
 	    model.addAttribute("board", board);
 	    model.addAttribute("isAuthorOrAdmin", true);
 
-	    return "layout/boardDetail"; 
+//	    return "layout/boardDetail";
+		return "layout/boardDetail :: #boardDetail";
 	}
 	
 //	// 글 상세보기
