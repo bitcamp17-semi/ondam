@@ -156,7 +156,7 @@
 .my-custom-btn:hover{
     background-color: #fa7000 !important;
     color: white !important;
-    border: 1px solid rgba(0,0,0,0.15); !important;
+    border: 1px solid rgba(0,0,0,0.15) !important;
     font-weight: bold;
 }
 .my-custom2-btn{
@@ -224,7 +224,6 @@
     border: none;
 }
 
-
 /*그룹 추가 모달 > 멤버 셀렉트 목록에서 마우스 따라 다니는 영역 css*/
 .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable {
 
@@ -238,6 +237,14 @@
 .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
     color:white;
 }
+
+/*모달(공통) 푸터 보더 컬러 수정*/
+div.modal-footer {
+	--bs-modal-footer-border-color : white;
+}
+
+
+
 #scheGroupList>a, .groupCheckItem {
     margin-bottom: 5px;
     padding: 2px;
