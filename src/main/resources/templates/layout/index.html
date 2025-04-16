@@ -2,13 +2,22 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Drive Storage</title>
+    <title>Ondam</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css"/>
     <link rel="stylesheet" th:href="@{/style/globals.css}"/>
     <link rel="stylesheet" th:href="@{/style/index.css}"/>
     <link rel="stylesheet" th:href="@{/style/header.css}"/>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
     <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+
+    <!-- FullCalendar CSS -->
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css' rel='stylesheet' />
+
+    <!-- FullCalendar JS -->
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js'></script>
+    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.15/locales/ko.global.js"></script>
+
 </head>
 <body>
 <div class="fullbox">
@@ -16,7 +25,7 @@
     <div class="main">
         <div class="nav">
             <div class="navtitle">안녕하세요 <span id="userName">name</span>님!</div>
-            <div class="navbar">
+            <div class="mainnavbar">
                 <div id="navlist2">오늘은 <span id="todayDate">date</span> <span id="todayWeekday">요일</span> 입니다!</div>
             </div>
         </div>
@@ -26,13 +35,13 @@
                     <img id="profileImage"
                          th:src="@{/images/Rectangle53.png}"
                          onerror="this.onerror=null; this.src='/images/Rectangle53.png';"
-                         alt="프로필 이미지" />
+                         alt="프로필 이미지"/>
 
                     <div class="profileinfo" id="profileInfo">
-                        <div><span>이름</span><span id="infoName">홍길동</span></div>
-                        <div><span>직급</span><span id="infoPosition">대리</span></div>
-                        <div><span>부서</span><span id="infoDepartment">개발팀</span></div>
-                        <div><span>번호</span><span id="infoPhone">010-1234-5678</span></div>
+                        <div><span>이름</span><span id="infoName">이름</span></div>
+                        <div><span>직급</span><span id="infoPosition">직급</span></div>
+                        <div><span>부서</span><span id="infoDepartment">부서</span></div>
+                        <div><span>번호</span><span id="infoPhone"></span></div>
                     </div>
 
                     <button class="whitebtn" id="editUserBtn">개인정보 수정하기</button>
@@ -53,29 +62,32 @@
                     <div class="approvalmini">
                         <div class="approvalcontent" th:data-url="@{/draft/approvalInbox}">
                             <span>결재할 문서</span>
-                            <a>7</a>
-                        </div>
-                        <div class="approvalcontent" th:data-url="@{/draft/approvalOutBox}">
-                            <span>진행중 문서</span>
-                            <a>7</a>
-                        </div>
-                        <div class="approvalcontent" th:data-url="@{/draft/approvalOutBox}">
-                            <span>진행중 문서</span>
-                            <a>7</a>
+                            <a>0</a>
                         </div>
                         <div class="approvalcontent" th:data-url="@{/draft/approvalOutBox}">
                             <span>대기중 문서</span>
-                            <a>7</a>
+                            <a>0</a>
+                        </div>
+                        <div class="approvalcontent" th:data-url="@{/draft/approvalDone}">
+                            <span>완료된 문서</span>
+                            <a>0</a>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="middle">
-                달력
+                <!-- 캘린더 출력 영역 -->
+                <div id="calendar"></div>
             </div>
             <div class="right">
-                <div id="weather-today" class="weather-today"></div>
-                <div id="weather-week" class="weather-cards"></div>
+                <div class="weather-widget" id="weatherWidget">
+                    <div class="current-weather">
+                        <div class="weather-icon"><img id="currentIcon" src="" alt="날씨 아이콘"/></div>
+                        <div class="temperature" id="currentTemp">--°C</div>
+                        <div class="description" id="currentDesc">날씨 정보</div>
+                    </div>
+                    <div class="daily-forecast" id="forecastContainer"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -108,9 +120,9 @@
 </div>
 <!-- 비밀번호 확인 모달 -->
 <div id="passwordCheckModal" class="modal-overlay">
-    <div class="modal-content">
+    <div class="modal-contents">
         <h2>비밀번호 확인</h2>
-        <input type="password" id="checkPasswordInput" placeholder="현재 비밀번호 입력" class="modaltitlebox" />
+        <input type="password" id="checkPasswordInput" placeholder="현재 비밀번호 입력" class="modaltitlebox"/>
         <div class="buttonset">
             <button class="submit-password">확인</button>
             <button class="close-password">취소</button>
@@ -127,6 +139,7 @@
             url: "/api/users/readUserBySession",
             method: "GET",
             success: function (res) {
+                let storageUrl = "https://kr.object.ncloudstorage.com/bitcamp-semi/";
                 if (res.status === "ok") {
                     currentUser = res.result;
 
@@ -136,14 +149,16 @@
                     $("#todayWeekday").text(getWeekday());
                     $("#infoName").text(currentUser.name);
                     $("#infoPosition").text(currentUser.position);
-                    $("#infoDepartment").text(currentUser.department);
+                    $("#infoDepartment").text(currentUser.departmentName);
                     $("#infoPhone").text(currentUser.phone);
                     if (currentUser.profileImage) {
-                        $("#profileImage").attr("src", "/images/" + currentUser.profileImage);
+                        $("#profileImage").attr("src", storageUrl + "users/" + currentUser.profileImage);
                     }
                 }
             }
         });
+        renderDraftCnt();
+        renderNotice();
 
         // 비밀번호 입력창에서 Enter 키 입력 시 자동 제출
         $("#checkPasswordInput").on("keypress", function (e) {
@@ -175,7 +190,7 @@
             $.ajax({
                 url: "/api/users/checkPassword",
                 method: "POST",
-                data: { password: pw },
+                data: {password: pw},
                 success: function (res) {
                     if (res.status === "ok") {
                         // 인증 성공 시 → 수정 모달 열기
@@ -207,7 +222,7 @@
         }
     });
 
-        // 저장 버튼 클릭
+    // 저장 버튼 클릭
     $(".submit-modal").on("click", function () {
         const email = $("#modalEmail").val().trim();
         const phone = $("#modalPhone").val().trim();
@@ -247,27 +262,183 @@
         });
     });
 
-        // 닫기 버튼 클릭 시 모달 닫기
-        $(".close-modal").on("click", function () {
-            closeModal();
-        });
+    // 닫기 버튼 클릭 시 모달 닫기
+    $(".close-modal").on("click", function () {
+        closeModal();
+    });
 
-        // 공통 모달 닫기 함수
-        function closeModal() {
-            $("#modalOverlay").fadeOut(200);
-        }
+    // 공통 모달 닫기 함수
+    function closeModal() {
+        $("#modalOverlay").fadeOut(200);
+    }
 
-        function getToday() {
-            const now = new Date();
-            return `${now.getFullYear()}년 ${String(now.getMonth() + 1).padStart(2, "0")}월 ${String(now.getDate()).padStart(2, "0")}일`;
-        }
-        function getWeekday() {
-            return new Date().toLocaleDateString("ko-KR", { weekday: 'long' });
-        }
+    function getToday() {
+        const now = new Date();
+        return `${now.getFullYear()}년 ${String(now.getMonth() + 1).padStart(2, "0")}월 ${String(now.getDate()).padStart(2, "0")}일`;
+    }
+
+    function getWeekday() {
+        return new Date().toLocaleDateString("ko-KR", {weekday: 'long'});
+    }
 
     $(".approvalcontent").on("click", function () {
         const url = $(this).data("url");
         window.location.href = url;
     });
+
+    function renderDraftCnt() {
+        $.ajax({
+            url: "/index/draftCnt",
+            type: "get",
+            success: function (res) {
+                if (res.status === "ok") {
+                    const {received, sent, done} = res.result;
+
+                    const numbers = [received, sent, done];
+
+                    $('.approvalcontent').each(function (index) {
+                        const cnt = numbers[index];
+                        const display = cnt > 99 ? "99+" : cnt;
+                        $(this).find("a").text(display);
+                    });
+                }
+            },
+            error: function () {
+                console.error("전자결재 수치 불러오기 실패");
+            }
+        });
+    }
+    const API_KEY = "f53a3ce7ed05c1360e18559855cdc023"; // OpenWeatherMap API Key
+    const CITY = "Seoul";
+    const KELVIN_TO_C = k => (k - 273.15).toFixed(1);
+
+    fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${CITY}&appid=${API_KEY}&lang=kr`)
+        .then(res => res.json())
+        .then(data => {
+            // 현재 날씨
+            const current = data.list[0];
+            document.getElementById('currentTemp').textContent = `${KELVIN_TO_C(current.main.temp)}°C`;
+            document.getElementById('currentDesc').textContent = current.weather[0].description;
+            document.getElementById('currentIcon').src = `https://openweathermap.org/img/wn/${current.weather[0].icon}@2x.png`;
+
+            // 예보 요일별로 그룹화
+            const dailyData = {};
+            data.list.forEach(item => {
+                const date = new Date(item.dt_txt);
+                const day = date.toLocaleDateString('ko-KR', { weekday: 'short' });
+
+                if (!dailyData[day]) {
+                    dailyData[day] = item;
+                }
+            });
+
+            // 요일별 예보 출력
+            const forecastEl = document.getElementById("forecastContainer");
+            Object.entries(dailyData).slice(1, 6).forEach(([day, forecast]) => {
+                const temp = KELVIN_TO_C(forecast.main.temp);
+                const icon = forecast.weather[0].icon;
+                const el = document.createElement("div");
+                el.className = "day";
+                el.innerHTML = `
+          <div>${day}</div>
+          <img src="https://openweathermap.org/img/wn/${icon}.png" alt=""/>
+          <div>${temp}°C</div>
+        `;
+                forecastEl.appendChild(el);
+            });
+        })
+        .catch(err => {
+            console.error("날씨 정보를 불러오는 중 오류 발생:", err);
+            document.getElementById("weatherWidget").innerHTML = "<p>날씨 정보를 불러올 수 없습니다.</p>";
+        });
+    function renderNotice() {
+        $.ajax({
+            url: "/index/noticeTop3",
+            type: "get",
+            success: function (res) {
+                const noticeContainer = $(".leftmiddle");
+                noticeContainer.find(".notice").remove(); // 기존 공지 제거
+                res.result.forEach(notice => {
+                    const createdDate = notice.createdAt?.split(' ')[0] ?? '';
+                        const $notice = $(`
+                    <div class="notice">
+                        <span>[공지] ${notice.title}</span>
+                        <a>${createdDate}</a>
+                    </div>
+                    `);
+                        $notice.click(() => {
+                            window.location.href = `/board/boardDetail/${notice.id}`;
+                        });
+
+                        noticeContainer.append($notice);
+                    }
+                )
+            }
+        })
+    }
+
 </script>
 
+<script th:inline="javascript">
+    fetch('/index/calendar-data')
+        .then(res => {
+            if (!res.ok) {
+                throw new Error("서버 오류 또는 인증 실패");
+            }
+            return res.json();
+        })
+        .then(data => {
+            if (data.status !== 'ok') {
+                alert("일정 데이터를 불러오지 못했습니다.");
+                return;
+            }
+
+            const events = data.result.map(s => ({
+                id: s.id,
+                title: s.name,
+                groupId: s.groupId,
+                start: s.startTime.replace(' ', 'T'),
+                end: s.endTime.replace(' ', 'T'),
+                allDay: s.alltime,
+                content: s.content,
+                writer: s.writer,
+                color: s.color
+            }));
+
+            const calendarEl = document.getElementById('calendar');
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                locale: 'ko',
+                editable: false,
+                selectable: false,
+                dayMaxEvents: true,
+                events: events,
+                headerToolbar: {
+                    left: '',
+                    center: 'title',
+                    right: ''
+                },
+                dayCellContent: function (info) {
+                    const number = document.createElement("a");
+                    number.classList.add("fc-day-number");
+                    number.innerHTML = info.dayNumberText.replace("일", "").replace("日", "");
+                    if (info.view.type == "dayGridMonth") {
+                        return { html: number.outerHTML };
+                    }
+                    return { domNodes: [] };
+                },
+                eventDidMount: function (info) {
+                    let writer = info.event.extendedProps.writer || '작성자 없음';
+                    let content = info.event.extendedProps.content || '내용 없음';
+                    let tooltipHtml = `작성자 : ${writer}<br>내용 : ${content}`;
+                    info.el.setAttribute('title', tooltipHtml);
+                    info.el.setAttribute('data-bs-toggle', 'tooltip');
+                    info.el.setAttribute('data-bs-html', 'true');
+                    info.el.setAttribute('data-bs-placement', 'bottom');
+                    new bootstrap.Tooltip(info.el);
+                }
+            });
+
+            calendar.render();
+        });
+</script>

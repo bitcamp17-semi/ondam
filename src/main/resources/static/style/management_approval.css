@@ -1,12 +1,13 @@
 /*all*/
 
-.fullbox {
+.fullbox{
     display: flex;
     flex-direction: row;
-    width: 96vw;
+    width: calc(100vw - 75px);
     height: 100dvh;
     color: #686868;
     position: relative;
+    white-space: nowrap;
 }
 
 .main {
@@ -37,7 +38,7 @@
     color: #3f3f3f;
 }
 
-.navbar {
+.mainnavbar {
     display: flex;
     align-items: flex-start;
     gap: 30px;

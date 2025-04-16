@@ -13,4 +13,6 @@ public interface ChatLogMapper {
     ChatLogDto readLastPrivateMessage(Map<String, Integer> params); // 1:1 채팅의 마지막 메시지 조회
     List<ChatLogDto> readAllPrivateChatsWithLastMessages(Long userId); // 사용자의 모든 1:1 채팅과 마지막 메시지 조회
     List<ChatLogDto> readAllPrivateLogs(Map<String, Integer> params); // 1:1 채팅 메시지 전체 조회
+    List<ChatLogDto> readAllPrivateLogsByChatId(Long chatId);
+    void updateChatLog(ChatLogDto chatLogDto);
 }

@@ -2,6 +2,8 @@
 <html>
 <head>
     <meta charset="utf-8"/>
+    <title>관리페이지</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css"/>
     <link rel="stylesheet" th:href="@{/style/globals.css}"/>
     <link rel="stylesheet" th:href="@{/style/management.css}"/>
     <link rel="stylesheet" th:href="@{/style/header.css}"/>
@@ -16,7 +18,7 @@
             <div class="navtitle">
                 관리페이지
             </div>
-            <div class="navbar">
+            <div class="mainnavbar">
                 <div id="navlist1" class="navlistnone">인사관리</div>
                 <div id="navlist2" class="navlistnone">부서관리</div>
                 <div id="navlist3" class="navlistnone">전자결재관리</div>
@@ -306,6 +308,7 @@
     // 모달 닫기 함수
     function closeModal() {
         $("#myModal").css("display", "none");
+        $(".frame-50").removeClass('disabled');
     }
 
     // 파일 입력 초기화
@@ -447,6 +450,8 @@
     }
 
     function createUser() {
+        const btn = $(".frame-50");
+        btn.addClass("disabled");
         let formData = new FormData();
 
         // 입력 값 가져오기
@@ -459,10 +464,10 @@
         let gender = $("input[name='gender']:checked").val();
         let address = $("input[placeholder='주소를 입력하세요']").val().trim();
         let profileImage = $("#fileInput")[0].files[0];
-        console.log(departmentId)
 
         // 필수값 검증
         if (!name || !departmentId || !position || !phone || !email) {
+            btn.removeClass('disabled');
             alert("필수 정보를 입력하세요.");
             return;
         }
@@ -494,11 +499,17 @@
                     location.reload(); // 페이지 새로고침
                 } else {
                     alert("등록 실패: " + (res.error || "알 수 없는 오류"));
+                    btn.removeClass('disabled');
                 }
             },
             error: function (xhr, status, error) {
                 console.error("에러 발생:", error);
                 alert("서버 오류 발생");
+                btn.removeClass('disabled');
+            },
+            complete: function () {
+                // 다시 활성화
+                btn.removeClass('disabled');
             }
         });
     }
@@ -562,6 +573,7 @@
             }
         });
     }
+
     function checkAdmin() {
         $.ajax({
             url: "/api/users/checkAdmin",

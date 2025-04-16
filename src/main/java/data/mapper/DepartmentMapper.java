@@ -6,10 +6,11 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface DepartmentMapper {
-    public void createDep(int userId, String name);
+    public void createDep(DepartmentDto dto);
 
     public List<DepartmentDto> readAllDeps();
 
@@ -20,4 +21,6 @@ public interface DepartmentMapper {
     public DepartmentDto readDepById(int id);
 
     List<TeamDto> readTeamsByDepartmentId(@Param("deptId") int deptId);
+
+    public void updateDepLeader(int userId, int departmentId);
 }

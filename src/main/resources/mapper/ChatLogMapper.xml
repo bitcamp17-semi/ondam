@@ -17,7 +17,8 @@
 		resultType="ChatLogDto">
 		SELECT id, senderid, message, file, filetype,
 		createdat
-		FROM chat_log
+		FROM
+		chat_log
 		WHERE groupid = #{groupId}
 		ORDER BY createdat ASC
 	</select>
@@ -74,4 +75,29 @@
 		ORDER BY createdat
 		ASC
 	</select>
+	<select id="readAllPrivateLogsByChatId" parameterType="long"
+		resultType="ChatLogDto">
+		SELECT id, senderid AS senderId, receiverid AS receiverId,
+		isread AS isRead,
+		message, groupid AS groupId,
+		createdat AS createdAt,
+		room_type AS roomType, room_id AS roomId,
+		target_user_id AS
+		targetUserId,
+		time, sender_name AS senderName, file, file_url AS
+		fileUrl, file_name AS
+		fileName, file_type AS fileType
+		FROM chat_logs
+		WHERE room_type = 'PRIVATE' AND room_id = #{chatId}
+		ORDER BY createdat
+		ASC
+	</select>
+	<select id="readPrivateChatById" resultType="ChatLogDto">
+		SELECT * FROM chat_log
+		WHERE groupid = #{chatId} AND room_type = 'PRIVATE'
+		LIMIT 1
+	</select>
+	<update id="updateChatLog" parameterType="ChatLogDto">
+        UPDATE chat_log SET isread = #{isRead} WHERE id = #{id}
+    </update>
 </mapper>

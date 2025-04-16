@@ -105,4 +105,10 @@ public class DraftService {
         logDto.setReason(reason);
         approvalsService.createApprovalLog(logDto);
     }
+    
+    //기안자의 userId 조회
+    public int readDrafterIdByDraftId(int id)
+    {
+    	return draftMapper.readDrafterIdByDraftId(id);
+    }
 }

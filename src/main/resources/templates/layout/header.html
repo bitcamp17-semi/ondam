@@ -1,80 +1,90 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8"/>
-    <link rel="stylesheet" th:href="@{/style/globals.css}"/>
-    <link rel="stylesheet" th:href="@{/style/header.css}"/>
-    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+<meta charset="utf-8" />
+<link rel="stylesheet"
+	href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" />
+<link rel="stylesheet" th:href="@{/style/globals.css}" />
+<link rel="stylesheet" th:href="@{/style/header.css}" />
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+<link rel="stylesheet"
+	href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
 </head>
 <body>
-<div th:fragment="header">
-    <div class="header-layout">
-        <div class="frame">
-            <div class="logo"><img class="ondam-w" th:src="@{/images/ondam_W.png}"/></div>
-        </div>
-        <div class="div">
-            <div class="div-2" id="header-home" th:data-url="@{/}">
-                <i class="bi bi-house"></i>
-                <span class="label">메인화면</span>
-            </div>
-            <div class="div-2" id="header-note" th:data-url="@{/messages/inbox}">
-                <i class="bi bi-send"></i>
-                <span class="label">쪽지</span>
-            </div>
-            <div class="div-2" id="header-orgchart" th:data-url="@{/organization}">
-                <i class="bi bi-diagram-3"></i>
-                <span class="label">조직도</span>
-            </div>
-            <div class="div-2" id="header-calendar" th:data-url="@{/schedules}">
-                <i class="bi bi-calendar4-week"></i>
-                <span class="label">일정관리</span>
-            </div>
-            <div class="div-2" id="header-approval" th:data-url="@{/draft/approvalInbox}">
-                <i class="bi bi-clipboard-check"></i>
-                <span class="label">전자결재</span>
-            </div>
-            <div class="div-2" id="header-board" th:data-url="@{/}">
-                <i class="bi bi-list-task"></i>
-                <span class="label">게시판</span>
-            </div>
-            <div class="div-2" id="header-storage" th:data-url="@{/api/dataroom}">
-                <i class="bi bi-cloud-download"></i>
-                <span class="label">드라이브</span>
-            </div>
-            <div class="div-2" id="header-chat" th:data-url="@{/chat/main}">
-                <i class="bi bi-chat-text"></i>
-                <span class="label">채팅</span>
-            </div>
-            <div class="div-2" id="header-info" th:data-url="@{/admin/management}">
-                <i class="bi bi-gear"></i>
-                <span class="label">관리자</span>
-            </div>
-        </div>
-        <div class="div">
-            <div class="div-2" id="header-alarm">
-                <div class="group">
-                    <div class="overlap-group">
-                        <i class="bi bi-bell"></i>
-                        <div class="ellipse"></div>
-                    </div>
-                </div>
-            </div>
-            <div class="profileimage" id="header-profileImage">
-                <img class="img"
-                     th:src="@{/images/Rectangle53.png}"
-                     onerror="this.src='/images/Rectangle53.png'"/>
-            </div>
-            <div class="div-2" id="header-logout">
-                <i class="bi bi-box-arrow-right"></i>
-            </div>
-
-        </div>
-    </div>
-    <script>
+	<div th:fragment="header">
+		<div class="header-layout">
+			<div class="frame">
+				<div class="logo">
+					<img class="ondam-w" th:src="@{/images/ondam_W.png}" />
+				</div>
+			</div>
+			<div class="div">
+				<div class="pagemove" id="header-home" th:data-url="@{/}">
+					<i class="bi bi-house"></i> <span class="label">메인화면</span>
+				</div>
+				<div class="pagemove" id="header-note"
+					th:data-url="@{/messages/inbox}">
+					<i class="bi bi-send"></i> <span class="label">쪽지</span>
+				</div>
+				<div class="pagemove" id="header-orgchart"
+					th:data-url="@{/organization}">
+					<i class="bi bi-diagram-3"></i> <span class="label">조직도</span>
+				</div>
+				<div class="pagemove" id="header-calendar"
+					th:data-url="@{/schedules}">
+					<i class="bi bi-calendar4-week"></i> <span class="label">일정관리</span>
+				</div>
+				<div class="pagemove" id="header-approval"
+					th:data-url="@{/draft/approvalInbox}">
+					<i class="bi bi-clipboard-check"></i> <span class="label">전자결재</span>
+				</div>
+				<div class="pagemove" id="header-board"
+					th:data-url="@{/board/boardMain}">
+					<i class="bi bi-list-task"></i> <span class="label">게시판</span>
+				</div>
+				<div class="pagemove" id="header-storage"
+					th:data-url="@{/api/dataroom}">
+					<i class="bi bi-cloud-download"></i> <span class="label">드라이브</span>
+				</div>
+				<div class="pagemove" id="header-chat" th:data-url="@{/chat/main}">
+					<div class="group">
+						<div class="overlap-group">
+							<i class="bi bi-chat-text"></i>
+							<div class="chat-ellipse" style="display: none;"></div>
+							<span class="label">채팅</span>
+						</div>
+					</div>
+				</div>
+				<div class="pagemove" id="header-info"
+					th:data-url="@{/admin/management}">
+					<i class="bi bi-gear"></i> <span class="label">관리자</span>
+				</div>
+			</div>
+			<div class="div">
+				<div class="pagemove" id="header-alarm" th:data-url="@{/alarm}">
+					<div class="group">
+						<div class="overlap-group">
+							<i class="bi bi-bell"></i>
+							<div class="ellipse"></div>
+							<span class="label">알림</span>
+						</div>
+					</div>
+				</div>
+				<div class="profileimage" id="header-profileImage">
+					<img class="img" th:src="@{/images/Rectangle53.png}"
+						onerror="this.src='/images/Rectangle53.png'" />
+				</div>
+				<div class="pagemove" id="header-logout">
+					<i class="bi bi-box-arrow-right"></i> <span class="label">로그아웃</span>
+				</div>
+			</div>
+		</div>
+		<script>
         $(document).ready(function () {
             getProfile();
             checkLoginStatus();
+            updateAlarmIndicator();
         });
         $("#header-logout").click(function () { // ✅ 중첩 제거
             $.ajax({
@@ -94,9 +104,11 @@
             });
         });
 
-        $(".div-2").on("click", function () {
+        $(document).on("click", ".pagemove", function () {
             const url = $(this).data("url");
-            window.location.href = url;
+            if (url) {
+                window.location.href = url;
+            }
         });
 
         function checkLoginStatus() {
@@ -106,7 +118,7 @@
                     alert("로그인이 필요합니다.");
                     location.href = "/login";
                 }
-            }).error(function () {
+            }).fail(function () {
                 alert("로그인이 필요합니다.");
                 location.href = "/login";
             });
@@ -130,12 +142,33 @@
                 }
             })
         }
+
+      	//알람 목록에 '미확인' 알람이 하나라도 있으면 .ellipse 표시 아니면 숨김
+        function updateAlarmIndicator() {
+    		$.ajax({
+        		url: "/alarm/unreadExist", // 여기 맞게 경로 조정됨
+        		type: "GET",
+        		success: function (res) {
+        			console.log("알림 상태 응답:", res);
+            		if (res.status == "ok" && res.hasUnread) {
+             		   $(".header-layout .ellipse").show();
+            		} else {
+            		    $(".header-layout .ellipse").hide();
+            		}
+        		},
+        		error: function () {
+            		console.error("알림 상태 확인 실패");
+        		}
+    		});
+		}
     </script>
 
-<!-- 토스트 노출-->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script th:src="@{/js/alarm.js}"></script>
-
-</div>
+		<!-- 토스트 노출-->
+		<script
+			src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+		<!--<script th:src="@{/js/alarm.js}"></script>-->
+	</div>
 </body>
 </html>
+
+

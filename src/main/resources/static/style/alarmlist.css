@@ -1,7 +1,11 @@
-.alarmlist,
-.alarmlist * {
-    box-sizing: border-box;
-    text-decoration:none;
+.fullbox{
+    display: flex;
+    flex-direction: row;
+    width: calc(100vw - 75px);
+    height: 100dvh;
+    color: #686868;
+    position: relative;
+    white-space: nowrap;
 }
 .management {
     background: #ffffff;
@@ -10,55 +14,34 @@
     overflow: hidden;
 }
 .main {
-    background: #ffffff;
     display: flex;
     flex-direction: column;
-    gap: 0px;
+    width: 95%;
+    margin-left: 80px;
     align-items: flex-start;
-    justify-content: flex-start;
-    width: 98%;/*1840px*/
-    position: absolute;
-    left: 80px;
-    top: 0px;
-}
-.top {
-    background: #ffffff;
-    padding: 1px 60px 1px 60px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    align-items: flex-start;
-    justify-content: flex-end;
-    align-self: stretch;
-    flex-shrink: 0;
-    height: 150px;
     position: relative;
-    overflow: hidden;
+    background-color: #fff;
+    height: 100%;
 }
+
 .nav {
     display: flex;
     flex-direction: column;
-    gap: 30px;
+    height: 200px;
+    width: 100%;
     align-items: flex-start;
-    justify-content: flex-start;
-    align-self: stretch;
-    flex-shrink: 0;
-    position: relative;
+    justify-content: flex-end;
+    margin-left: 70px;
+    gap: 25px;
 }
-.title {
-    display: flex;
-    flex-direction: row;
-    gap: 10px;
-    align-items: flex-start;
-    justify-content: flex-start;
-    align-self: stretch;
-    flex-shrink: 0;
-    position: relative;
+.navtitle{
+    font-size: 30px;
+    font-weight: bold;
+    color: #3f3f3f;
 }
 .div {
     color: #3f3f3f;
     text-align: left;
-    font-family: "NotoSans-Bold", sans-serif;
     font-size: 30px;
     line-height: 30px;
     font-weight: 700;
@@ -80,7 +63,6 @@
 .div2 {
     color: #3f3f3f;
     text-align: left;
-    font-family: "NotoSans-Bold", sans-serif;
     font-size: 16px;
     line-height: 22px;
     font-weight: 700;
@@ -92,7 +74,6 @@
 .div3 {
     color: rgba(238, 238, 238, 0.8);
     text-align: left;
-    font-family: "NotoSans-Regular", sans-serif;
     font-size: 16px;
     line-height: 22px;
     font-weight: 400;
@@ -104,7 +85,6 @@
 .div4 {
     color: #686868;
     text-align: left;
-    font-family: "NotoSans-Regular", sans-serif;
     font-size: 16px;
     line-height: 22px;
     font-weight: 400;
@@ -113,38 +93,20 @@
     align-items: center;
     justify-content: flex-start;
 }
-.section {
-    background: #ffffff;
-    padding: 50px 60px 50px 60px;
+.section{
     display: flex;
-    flex-direction: column;
-    gap: 10px;
-    align-items: center;
-    justify-content: center;
-    align-self: stretch;
-    flex-shrink: 0;
-    height: 830px;
-    position: relative;
-    overflow: hidden;
-}
-.article {
-    background: #ffffff;
+    padding: 20px;
+    border: rgba(0, 0, 0, 0.05) 1px solid;
     border-radius: 15px;
-    border-style: solid;
-    border-color: rgba(0, 0, 0, 0.05);
-    border-width: 1px;
-    padding: 30px;
-    display: flex;
+    width: 96%;
+    height: 100%;
+    margin: 50px 50px 50px 70px;
     flex-direction: column;
-    gap: 20px;
-    align-items: center;
-    justify-content: center;
-    align-self: stretch;
-    flex-shrink: 0;
-    height: 750px;
+    gap: 15px;
+    min-height: 0;
     position: relative;
-    overflow: hidden;
 }
+
 .btnframe {
     display: flex;
     flex-direction: row;
@@ -176,7 +138,6 @@
 .div5 {
     color: #686868;
     text-align: center;
-    font-family: "NotoSans-Regular", sans-serif;
     font-size: 16px;
     line-height: 22px;
     font-weight: 400;
@@ -188,7 +149,7 @@
 .tableset {
     display: flex;
     flex-direction: column;
-    gap: 0px;
+    gap: 0;
     align-items: flex-start;
     justify-content: flex-start;
     flex: 1;
@@ -210,6 +171,7 @@
     height: 55px;
     position: relative;
 }
+
 .checkbox {
     flex-shrink: 0;
     width: 15px;
@@ -219,7 +181,6 @@
 .div6 {
     color: rgba(238, 238, 238, 0.8);
     text-align: left;
-    font-family: "NotoSans-Regular", sans-serif;
     font-size: 16px;
     line-height: 22px;
     font-weight: 400;
@@ -232,12 +193,11 @@
 .div7 {
     color: #686868;
     text-align: left;
-    font-family: "NotoSans-Regular", sans-serif;
     font-size: 16px;
     line-height: 22px;
     font-weight: 400;
     position: relative;
-    width: 100px;
+    width: 150px;
     display: flex;
     align-items: center;
     justify-content: flex-start;
@@ -245,7 +205,6 @@
 .div8 {
     color: #686868;
     text-align: left;
-    font-family: "NotoSans-Regular", sans-serif;
     font-size: 16px;
     line-height: 22px;
     font-weight: 400;
@@ -258,7 +217,6 @@
 .div10 {
     color: #686868;
     text-align: center;
-    font-family: "NotoSans-Regular", sans-serif;
     font-size: 16px;
     line-height: 22px;
     font-weight: 400;
@@ -279,13 +237,12 @@
     justify-content: space-between;
     align-self: stretch;
     flex-shrink: 0;
-    height: 55px;
+    height: 50px;
     position: relative;
 }
 ._2024-10-11 {
     color: #686868;
     text-align: left;
-    font-family: "NotoSans-Regular", sans-serif;
     font-size: 16px;
     line-height: 22px;
     font-weight: 400;
@@ -314,14 +271,39 @@
     position: relative;
     cursor: pointer;
 }
+
+#userTableBody {
+    display: grid;
+    grid-template-rows: repeat(10, 1fr);
+    width: 100%;
+}
 .pagenumset {
     display: flex;
     flex-direction: row;
-    gap: 45px;
+    /*gap: 45px;*/
     align-items: center;
     justify-content: center;
-    flex-shrink: 0;
-    position: relative;
+    height: 50px;
+    width: 100%;
+}
+.pagenumset > * {
+    cursor: pointer;
+}
+.page-arrow {
+    padding: 6px 12px;
+    border-radius: 6px;
+    transition: background-color 0.2s;
+}
+.page-arrow:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+.pagenum > * {
+    padding: 6px 12px;
+    border-radius: 6px;
+    transition: background-color 0.2s;
+}
+.pagenum > *:hover {
+    background-color: rgba(0, 0, 0, 0.1);
 }
 .before {
     flex-shrink: 0;
@@ -331,23 +313,19 @@
     overflow: visible;
     aspect-ratio: 2/1;
 }
-
-#userTableBody {
-	display:contents;
-}
 .pagenum {
     display: flex;
     flex-direction: row;
-    gap: 20px;
+    /*gap: 20px;*/
     align-items: center;
     justify-content: flex-start;
     flex-shrink: 0;
     position: relative;
+    user-select: none;
 }
-.page-btn.active {
-    color: #3f3f3f;
+.currentPage {
+    /*color: #3f3f3f;*/
     text-align: left;
-    font-family: "NotoSans-Bold", sans-serif;
     font-size: 16px;
     line-height: 22px;
     font-weight: 700;
@@ -355,11 +333,13 @@
     display: flex;
     align-items: center;
     justify-content: flex-start;
+    background-color: #fa7000;
+    color: white;
+    border-radius: 4px;
 }
-.page-btn {
+.otherPage {
     color: #686868;
     text-align: left;
-    font-family: "NotoSans-Regular", sans-serif;
     font-size: 16px;
     line-height: 22px;
     font-weight: 400;
@@ -368,6 +348,15 @@
     align-items: center;
     justify-content: flex-start;
 }
+.next {
+    flex-shrink: 0;
+    width: 8px;
+    height: 4px;
+    position: relative;
+    overflow: visible;
+    aspect-ratio: 2/1;
+}
+
 .next {
     flex-shrink: 0;
     width: 8px;
@@ -387,4 +376,15 @@
     left: 0px;
     top: 0px;
     overflow: hidden;
+}
+#type-list {
+    border: rgba(0, 0, 0, 0.15) 1px solid;
+    border-radius: 5px;
+    height: 40px;
+    padding: 0 20px 0 10px;
+    background-color: white;
+    color: #686868;
+    cursor: pointer;
+    margin-left: 10px;
+    margin-right: auto;
 }

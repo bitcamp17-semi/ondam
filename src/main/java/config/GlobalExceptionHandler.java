@@ -29,6 +29,6 @@ public class GlobalExceptionHandler {
         }
         model.addAttribute("code", code);
         model.addAttribute("message", message);
-        return "error/error"; // templates/error/error.html
+        return "error"; // templates/error/error.html
     }
 }

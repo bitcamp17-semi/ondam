@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>게시글 작성</title>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
+	<link rel="stylesheet" th:href="@{/style/globals.css}" />
+	<link rel="stylesheet" th:href="@{/style/header.css}" />
+	<link rel="stylesheet" th:href="@{/style/boardMain.css}" />
+	<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+</head>
+<body>
+<div class="fullbox">
+	<div th:replace="~{layout/header :: header}"></div>
+	<div class="main">
+		<div class="nav">
+			<div class="navtitle">
+				게시판
+			</div>
+			<div class="mainnavbar">
+				<div class="navlistnone" onclick="location.href='/board/boardMain'">전체게시판</div>
+				<div class="navlistnone" onclick="location.href='/board/boardBlind'">익명게시판</div>
+				<div class="navlistnone" onclick="location.href='/board/boardNoti'">공지사항</div>
+				<div class="navlistnone" onclick="location.href='/board/boardDepartment'">부서게시판</div>
+			</div>
+		</div>
+		<div class="section">
+			<div class="leftarticle" style="justify-content: center;">
+				<div class="toptitle">작성하기</div>
+				<form id="boardfrm" method="post" action="/board/boardInsert"
+					  enctype="multipart/form-data" th:object="${board}">
+					<!-- 카테고리 선택 -->
+					<div class="mb-3">
+						<label for="selectCategory" class="form-label fw-bold">카테고리</label>
+						<select th:field="*{category}" id="selectCategory" class="form-select" required>
+							<option value="">-- 카테고리 선택 --</option>
+							<option value="NORMAL">전체게시판</option>
+							<option value="ANONYMITY">익명게시판</option>
+							<option value="NOTICE">공지사항</option>
+							<option value="DEPARTMENT">부서게시판</option>
+						</select>
+						<p id="anon-notice" class="text-danger mt-1" style="display: none;">※ 익명으로 게시됩니다.</p>
+					</div>
+
+					<!-- 제목 -->
+					<div class="mb-3">
+						<label for="title" class="form-label fw-bold">제목</label>
+						<input type="text" th:field="*{title}" id="title" style="font-size: 16px;font-weight: normal"
+							   class="form-control" placeholder="제목을 입력하세요" required />
+					</div>
+
+					<!-- 내용 -->
+					<div class="mb-3">
+						<label for="content" class="form-label fw-bold">내용</label>
+						<textarea th:field="*{content}" id="content" rows="8" class="form-control" placeholder="내용을 입력하세요" required></textarea>
+					</div>
+
+					<!-- hidden 필드 -->
+					<input type="hidden" name="hidden" id="hidden" th:value="${board.hidden}" />
+
+					<!-- 버튼 -->
+					<div class="text-center mt-4">
+						<button type="submit" class="btn btn-primary px-4 me-2">작성 완료</button>
+						<button type="button" onclick="history.back()" class="btn btn-secondary px-4"
+						style="background-color: white;border: 1px solid rgba(0,0,0,0.15);color: #686868">취소</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+	// 익명 게시판 처리
+	$("#selectCategory").on("change", function () {
+		const isAnon = $(this).val() === "ANONYMITY";
+		$("#hidden").val(isAnon ? "true" : "false");
+		$("#anon-notice").toggle(isAnon);
+	});
+
+	// AJAX로 폼 전송
+	$(function () {
+		$('#boardfrm').on("submit", function (e) {
+			e.preventDefault();
+			const category = $("#selectCategory").val();
+			$("#hidden").val(category === "ANONYMITY" ? "true" : "false");
+
+			const formData = new FormData(this);
+			$.ajax({
+				type: 'POST',
+				url: "/board/boardInsert",
+				data: formData,
+				contentType: false,
+				processData: false,
+				success: function (res) {
+					if (res.result > 0) {
+						alert("게시글이 업로드 되었습니다.");
+						location.href = "/board/boardMain";
+					} else {
+						alert("다시 시도해주세요.");
+					}
+				},
+				error: function () {
+					alert("서버 오류가 발생했습니다.");
+				}
+			});
+		});
+	});
+</script>
+</body>
+</html>

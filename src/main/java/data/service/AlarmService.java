@@ -4,11 +4,15 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import data.dto.AlarmDto;
 import data.mapper.AlarmMapper;
@@ -42,39 +46,39 @@ public class AlarmService {
     }
     
     //모든 알람 조회
-  	public List<AlarmDto> allAlarm(int userId, int startNum, int perPage)
+  	public List<AlarmDto> allAlarm(int userId, String type,int startNum, int perPage)
   	{
-  		return alarmMapper.allAlarm(userId, startNum,perPage);
+  		return alarmMapper.allAlarm(userId, type, startNum,perPage);
   	}
   	
   	//읽지 않은 알람 조회
-  	public List<AlarmDto> unreadAlarm(int userId, int startNum, int perPage)
+  	public List<AlarmDto> unreadAlarm(int userId, String type, int startNum, int perPage)
   	{
-  		return alarmMapper.unreadAlarm(userId, startNum,perPage);
+  		return alarmMapper.unreadAlarm(userId, type, startNum,perPage);
   	}
   	
   	//읽은 알람 조회
-  	public List<AlarmDto> readAlarm(int userId, int startNum, int perPage)
+  	public List<AlarmDto> readAlarm(int userId, String type, int startNum, int perPage)
   	{
-  		return alarmMapper.readAlarm(userId, startNum,perPage);
+  		return alarmMapper.readAlarm(userId, type, startNum,perPage);
   	}
   	
   	//모든 알람 개수 조회
-  	public int countAllAlarm(int userId)
+  	public int countAllAlarm(int userId, String type)
   	{
-  		return alarmMapper.countAllAlarm(userId);
+  		return alarmMapper.countAllAlarm(userId, type);
   	}
   	
   	//읽지 않은 알람 개수 조회
-  	public int countUnreadAlarm(int userId)
+  	public int countUnreadAlarm(int userId, String type)
   	{
-  		return alarmMapper.countUnreadAlarm(userId);
+  		return alarmMapper.countUnreadAlarm(userId, type);
   	}
   	
   	//읽은 알람 개수 조회
-  	public int countReadAlarm(int userId)
+  	public int countReadAlarm(int userId, String type)
   	{
-  		return alarmMapper.countReadAlarm(userId);
+  		return alarmMapper.countReadAlarm(userId, type);
   	}
   	
   	//알림 상태 읽음으로 변경
@@ -85,52 +89,46 @@ public class AlarmService {
   	
   	
   	//일정 등록 시 선택된 그룹의 멤버들(본인포함)한테 알람전송
-  	public void sendScheduleAlarmGroupMem(List<Integer> groupMems, int causedBy, String content)
+  	public void sendScheduleAlarmGroupMem(List<Integer> groupMems, int groupOwnerId, int causedBy)
   	{
-  		content = "일정이 등록되었습니다.";
+  		String content = "일정이 등록되었습니다.";
   		
-  		for(int groupMem : groupMems)
+  		// 중복 제거: groupMems + groupOwnerId
+  	    Set<Integer> allTargets = new HashSet<>(groupMems);
+  	    allTargets.add(groupOwnerId); // owner도 알림 대상에 추가
+  		
+  		for(int userId : allTargets)
   		{
   			//알람 dto 생성
   			AlarmDto dto =new AlarmDto();
   	    	dto.setType(AlarmDto.AlarmType.SCHEDULE);
-  	    	dto.setUserId(groupMem);//그룹에 멤버로 있는 사람들
-  	    	dto.setCausedBy(causedBy);//등록한 사람
+  	    	dto.setUserId(userId); // 알림 받을 사람
+  	        dto.setCausedBy(causedBy); // 알림 발생자 (일정 등록자)
   	    	dto.setContent(content);
   	    	dto.setCreatedAt(new Timestamp(System.currentTimeMillis()));
-  	    	dto.setIsRead('0'); //기본으로 읽지않은 상태 저장
+  	    	dto.setIsRead(0); //기본으로 읽지않은 상태 저장
   	    	
   			//alarm DB 저장
   			insertAlarm(dto);
   			
   			//SSE 전송
-  			SseEmitter emitter = emitterRepository.get((long) groupMem);
-  			if(emitter !=null) {
-  				try {
-  					//토스트로 알람 노출 시키는 부분
-  					Map<String, Object> alarmData = new HashMap<>();
-  					alarmData.put("type", "SCHEDULE");
-  					alarmData.put("content", content);
-  					alarmData.put("causedBy", causedBy);
-  					
-  					//System.out.println("SSE 전송 시도: userId = " + groupMem);
-  				  	emitter.send(SseEmitter.event().name("alarm").data(content));
-  				  	//System.out.println(" SSE 전송 성공: " + content);
-				} catch (Exception e) {
-					// TODO: handle exception
-					//System.out.println("SSE 전송 실패: userId = " + groupMem);
-					emitter.completeWithError(e);//명시적으로 연결종료
-					emitterRepository.remove((long) groupMem, emitter);
-			        e.printStackTrace();
-				}
+  			SseEmitter emitter = emitterRepository.get((long) userId);
+  	        if (emitter != null) {
+  	            try {
+  	                emitter.send(SseEmitter.event().name("alarm").data(content));
+  	            } catch (Exception e) {
+  	                emitter.completeWithError(e);
+  	                emitterRepository.remove((long) userId, emitter);
+  	                e.printStackTrace();
+  	            }
   			} 
   		}
   	}
   	
   	//쪽지 받으면 받는 사람한테만 알람 발생하도록하기
-  	public void receivedMessageAlarm(int userId, int causedBy, String content)
+  	public void receivedMessageAlarm(int userId, int causedBy)
   	{
-  			content = "쪽지가 도착했습니다.";//알람 문구 지정 > 수정해도 됨		
+  			String content = "쪽지가 도착했습니다.";//알람 문구 지정 > 수정해도 됨		
   			
   			//알람 dto 생성
   			AlarmDto dto =new AlarmDto();
@@ -139,7 +137,7 @@ public class AlarmService {
   	    	dto.setCausedBy(causedBy);//보낸 사람 저장해야함
   	    	dto.setContent(content);//알람 내용
   	    	dto.setCreatedAt(new Timestamp(System.currentTimeMillis()));//쪽지 받은 시간 저장하기
-  	    	dto.setIsRead('0'); //기본으로 읽지않은 상태 저장
+  	    	dto.setIsRead(0); //기본으로 읽지않은 상태 저장
   	    	
   			//alarm DB 저장
   			insertAlarm(dto);
@@ -168,9 +166,9 @@ public class AlarmService {
   	}
   	
   	//내가 작성한 게시글에 댓글이 달린경우 알람 발생
-  	public void addRepleMyBoard(int userId, int causedBy, String content)
+  	public void addRepleMyBoard(int userId, int causedBy)
   	{
-  			content = "댓글이 달렸습니다.";//알람 문구 지정 > 수정해도 됨		
+  			String content = "댓글이 달렸습니다.";//알람 문구 지정 > 수정해도 됨		
   			
   			//알람 dto 생성
   			AlarmDto dto =new AlarmDto();
@@ -179,7 +177,7 @@ public class AlarmService {
   	    	dto.setCausedBy(causedBy);//댓글 작성한 사람 id 저장
   	    	dto.setContent(content);//알람 내용
   	    	dto.setCreatedAt(new Timestamp(System.currentTimeMillis()));//쪽지 받은 시간 저장하기
-  	    	dto.setIsRead('0'); //기본으로 읽지않은 상태 저장
+  	    	dto.setIsRead(0); //기본으로 읽지않은 상태 저장
   	    	
   			//alarm DB 저장
   			insertAlarm(dto);
@@ -208,21 +206,24 @@ public class AlarmService {
   	}
   	
   	//내가 해야할 결제가 생긴(내 차례가 된) 경우 알람 발생
-  	public void approvalTurnAlarm(int userId, int causedBy, String content)
+  	public void approvalTurnAlarm(int userId, int causedBy)
   	{
-  			content = "확인 할 결제가 생겼습니다.";//알람 문구 지정 > 수정해도 됨		
+  			String content = "확인 할 결재가 생겼습니다.";//알람 문구 지정 > 수정해도 됨
   			
   			//알람 dto 생성
   			AlarmDto dto =new AlarmDto();
   	    	dto.setType(AlarmDto.AlarmType.APPROVAL);
   	    	dto.setUserId(userId); //결제를 해야하는 사람의 id
-  	    	dto.setCausedBy(causedBy);//이전에 결제한 사람 or 결제를 기안한 사람
+  	    	dto.setCausedBy(causedBy);//결제를 올린사람
   	    	dto.setContent(content);//알람 내용
   	    	dto.setCreatedAt(new Timestamp(System.currentTimeMillis()));//쪽지 받은 시간 저장하기
-  	    	dto.setIsRead('0'); //기본으로 읽지않은 상태 저장
-  	    	
+  	    	dto.setIsRead(0); //기본으로 읽지않은 상태 저장
+
+  	    	System.out.println("알림 발생 시도: userId=" + userId + ", causedBy=" + causedBy + ", type=" + dto.getType());
   			//alarm DB 저장
   			insertAlarm(dto);
+  			System.out.println("insertAlarm 호출 완료");
+  			
   			
   			//SSE 전송
   			SseEmitter emitter = emitterRepository.get((long) userId);
@@ -248,18 +249,18 @@ public class AlarmService {
   	}
   	
   	//결제가 최종 승인된 경우 알람 발생
-  	public void confirmedApprovalAlarm(int userId, int causedBy, String content)
+  	public void confirmedApprovalAlarm(int userId, int causedBy)
   	{
-  			content = "결제가 최종 승인되었습니다.";//알람 문구 지정 > 수정해도 됨		
+  			String content = "결재가 최종 승인되었습니다.";//알람 문구 지정 > 수정해도 됨
   			
   			//알람 dto 생성
   			AlarmDto dto =new AlarmDto();
-  	    	dto.setType(AlarmDto.AlarmType.APPROVAL);
+  	    	dto.setType(AlarmDto.AlarmType.SYSTEM);
   	    	dto.setUserId(userId); //결제올린 사람의 id
   	    	dto.setCausedBy(causedBy);//최종 승인한 사람 id
   	    	dto.setContent(content);//알람 내용
   	    	dto.setCreatedAt(new Timestamp(System.currentTimeMillis()));//쪽지 받은 시간 저장하기
-  	    	dto.setIsRead('0'); //기본으로 읽지않은 상태 저장
+  	    	dto.setIsRead(0); //기본으로 읽지않은 상태 저장
   	    	
   			//alarm DB 저장
   			insertAlarm(dto);
@@ -270,7 +271,7 @@ public class AlarmService {
   				try {
   					//토스트로 알람 노출 시키는 부분
   					Map<String, Object> alarmData = new HashMap<>();
-  					alarmData.put("type", "APPROVAL");
+  					alarmData.put("type", "SYSTEM");
   					alarmData.put("content", content);
   					alarmData.put("causedBy", causedBy);
   					
@@ -288,9 +289,9 @@ public class AlarmService {
   	}
   	
   	//결제가 반려된 경우 알람 발생
-  	public void rejectedApprovalAlarm(int userId, int causedBy, String content)
+  	public void rejectedApprovalAlarm(int userId, int causedBy)
   	{
-  			content = "올린 결제가 반려되었습니다.";//알람 문구 지정 > 수정해도 됨		
+  			String content = "결재가 반려되었습니다.";//알람 문구 지정 > 수정해도 됨
   			
   			//알람 dto 생성
   			AlarmDto dto =new AlarmDto();
@@ -299,7 +300,7 @@ public class AlarmService {
   	    	dto.setCausedBy(causedBy);//결제 올린 사람 id
   	    	dto.setContent(content);//알람 내용
   	    	dto.setCreatedAt(new Timestamp(System.currentTimeMillis()));//반려한 사람의 id 저장
-  	    	dto.setIsRead('0'); //기본으로 읽지않은 상태 저장
+  	    	dto.setIsRead(0); //기본으로 읽지않은 상태 저장
   	    	
   			//alarm DB 저장
   			insertAlarm(dto);
@@ -324,7 +325,10 @@ public class AlarmService {
 					emitterRepository.remove((long) userId, emitter);
 			        e.printStackTrace();
 				}
-  			} 
+  			}
   	}
+	  public void deleteAlarm(List<Integer> ids) {
+		alarmMapper.deleteAlarm(ids);
+	  }
 
 }

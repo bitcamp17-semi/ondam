@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import data.dto.AlarmDto;
 import data.repository.AlarmEmitterRepository;
 import data.service.AlarmService;
 import data.service.UsersService;
@@ -50,7 +51,7 @@ public class AlarmController {
             emitter.send(SseEmitter.event()
                     .name("connect")
                     .data("SSE 연결됨"));
-            log.info("✅ SSE 연결 성공: userId = {}", userId);
+            log.info("SSE 연결 성공: userId = {}", userId);
         } catch (IOException e) {
             log.error("SSE 연결 초기 전송 실패", e);
         }
@@ -60,6 +61,7 @@ public class AlarmController {
     //알람 전체 목록 호출
     @GetMapping("/all")
     public ResponseEntity<Object> readAllAlarms(
+            @RequestParam(value = "type", required = false) String type,
     		@RequestParam(value = "pageNum",defaultValue = "1") int pageNum,
     		HttpSession session
     		) {
@@ -67,21 +69,17 @@ public class AlarmController {
     	int userId=(Integer)session.getAttribute("userId");
     	
     	//userId가 가진 이름 받기
-    	String userName=userService.readUserById(userId).getName();
+    	// userName=userService.readUserById(userId).getName();
     	
     	//페이징처리
-        int perPage=5;//한페이지당 출력할 글의 갯수
+        int perPage=10;//한페이지당 출력할 글의 갯수
         int perBlock=10;//한 블럭당 출력할 페이지 갯수
-        int totalCount;//전체 게시글 갯수
-        int totalPage;//총 페이지수
+        int totalCount=alarmService.countAllAlarm(userId, type);//전체 게시글 갯수
+        int totalPage=(int)Math.ceil((double)totalCount/perPage);;//총 페이지수
         int startNum;//각 페이지에서 가져올 시작번호 (mysql은 첫 데이타가 0번,오라클은 1번)
         int startPage;//각 블럭에서 출력할 시작페이지
         int endPage;//각 블럭에서 출력할 끝 페이지
         int no;//각 페이지에서 출력할 시작번호
-    	
-        //전체 알람 개수
-        totalCount=alarmService.countAllAlarm(userId);
-        totalPage=(int)Math.ceil((double)totalCount/perPage);
         
         //시작페이지
         startPage=(pageNum-1)/perBlock*perBlock+1;//예) 현재페이지가 7일 경우 startPage 가 (6) (perBlock이 5일경우)
@@ -99,16 +97,33 @@ public class AlarmController {
         
         Map<String, Object> response = new LinkedHashMap<>();
         try {
-        	//response.put("userName", userName);
+        	List<AlarmDto> alarms = alarmService.allAlarm(userId, type, startNum, perPage);
+        	
+        	//causedBy → causedName 변환 (중복 조회 방지용 캐시 Map)
+        	 Map<Integer, String> userCache = new HashMap<>();
+             for (AlarmDto alarm : alarms) {
+                 int causedBy = alarm.getCausedBy();
+                 if (causedBy != 0) {
+                     String name = userCache.computeIfAbsent(causedBy, id -> {
+                         try {
+                             return userService.readUserById(id).getName();
+                         } catch (Exception e) {
+                             return "알 수 없음";
+                         }
+                     });
+                     alarm.setCausedName(name);
+                 }
+             }
+        	
         	response.put("totalCount", totalCount);
         	response.put("totalPage", totalPage);
         	response.put("currentPage", pageNum);
         	response.put("startPage", startPage);
         	response.put("endPage", endPage);
         	response.put("no", no);
-        	
             response.put("status", "ok");
-            response.put("result", alarmService.allAlarm(userId,startNum,perPage));
+            response.put("result", alarms);
+           
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
         	e.printStackTrace();
@@ -121,28 +136,23 @@ public class AlarmController {
     //읽은 알람 목록 호출
     @GetMapping("/read")
     public ResponseEntity<Object> readAlarms(
+            @RequestParam(value = "type", required = false) String type,
     		@RequestParam(value = "pageNum",defaultValue = "1") int pageNum,
     		HttpSession session
     		) {
     	//로그인된 userId 받기
     	int userId=(Integer)session.getAttribute("userId");
-    	//userId가 가진 이름 받기
-    	String userName=userService.readUserById(userId).getName();
     	
     	//페이징처리
         int perPage=10;//한페이지당 출력할 글의 갯수
         int perBlock=10;//한 블럭당 출력할 페이지 갯수
-        int totalCount;//전체 게시글 갯수
-        int totalPage;//총 페이지수
+        int totalCount=alarmService.countReadAlarm(userId, type);//전체 게시글 갯수
+        int totalPage=(int)Math.ceil((double)totalCount/perPage);//총 페이지수
         int startNum;//각 페이지에서 가져올 시작번호 (mysql은 첫 데이타가 0번,오라클은 1번)
         int startPage;//각 블럭에서 출력할 시작페이지
         int endPage;//각 블럭에서 출력할 끝 페이지
         int no;//각 페이지에서 출력할 시작번호
-    	
-        //전체 알람 개수
-        totalCount=alarmService.countReadAlarm(userId);
-        totalPage=(int)Math.ceil((double)totalCount/perPage);
-        
+    	        
         //시작페이지
         startPage=(pageNum-1)/perBlock*perBlock+1;//예) 현재페이지가 7일 경우 startPage 가 (6) (perBlock이 5일경우)
         endPage=startPage+perBlock-1;//끝페이지
@@ -159,16 +169,33 @@ public class AlarmController {
     	
         Map<String, Object> response = new LinkedHashMap<>();
         try {
-        	response.put("userName", userName);
+        	List<AlarmDto> alarms = alarmService.readAlarm(userId, type, startNum,perPage);
+        	
+        	//causedBy → causedName 변환 (중복 조회 방지용 캐시 Map)
+        	Map<Integer, String> userCache = new HashMap<>();
+            for (AlarmDto alarm : alarms) {
+                int causedBy = alarm.getCausedBy();
+                if (causedBy != 0) {
+                    String name = userCache.computeIfAbsent(causedBy, id -> {
+                        try {
+                            return userService.readUserById(id).getName();
+                        } catch (Exception e) {
+                            return "알 수 없음";
+                        }
+                    });
+                    alarm.setCausedName(name);
+                }
+            }
+        	
         	response.put("totalCount", totalCount);
         	response.put("totalPage", totalPage);
         	response.put("currentPage", pageNum);
         	response.put("startPage", startPage);
         	response.put("endPage", endPage);
         	response.put("no", no);
-        	
             response.put("status", "ok");
-            response.put("result", alarmService.readAlarm(userId, startNum,perPage));
+            response.put("result", alarms);
+            
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             response.put("status", "error");
@@ -180,27 +207,22 @@ public class AlarmController {
     //읽지않은 알람 목록 호출
     @GetMapping("/unread")
     public ResponseEntity<Object> unreadAlarms(
+            @RequestParam(value = "type", required = false) String type,
     		@RequestParam(value = "pageNum",defaultValue = "1") int pageNum,
     		HttpSession session
     		) {
     	//로그인된 userId 받기
     	int userId=(Integer)session.getAttribute("userId");
-    	//userId가 가진 이름 받기
-    	String userName=userService.readUserById(userId).getName();
     	
     	//페이징처리
         int perPage=10;//한페이지당 출력할 글의 갯수
         int perBlock=10;//한 블럭당 출력할 페이지 갯수
-        int totalCount;//전체 게시글 갯수
-        int totalPage;//총 페이지수
+        int totalCount=alarmService.countUnreadAlarm(userId, type);//전체 게시글 갯수
+        int totalPage=(int)Math.ceil((double)totalCount/perPage);//총 페이지수
         int startNum;//각 페이지에서 가져올 시작번호 (mysql은 첫 데이타가 0번,오라클은 1번)
         int startPage;//각 블럭에서 출력할 시작페이지
         int endPage;//각 블럭에서 출력할 끝 페이지
         int no;//각 페이지에서 출력할 시작번호
-    	
-        //전체 알람 개수
-        totalCount=alarmService.countUnreadAlarm(userId);
-        totalPage=(int)Math.ceil((double)totalCount/perPage);
         
         //시작페이지
         startPage=(pageNum-1)/perBlock*perBlock+1;//예) 현재페이지가 7일 경우 startPage 가 (6) (perBlock이 5일경우)
@@ -218,7 +240,25 @@ public class AlarmController {
     	
         Map<String, Object> response = new LinkedHashMap<>();
         try {
-        	response.put("userName", userName);
+        	List<AlarmDto> alarms = alarmService.unreadAlarm(userId, type, startNum,perPage);
+        	
+        	//causedBy → causedName 변환 (중복 조회 방지용 캐시 Map)
+        	Map<Integer, String> userCache = new HashMap<>();
+            for (AlarmDto alarm : alarms) {
+                int causedBy = alarm.getCausedBy();
+                if (causedBy != 0) {
+                    String name = userCache.computeIfAbsent(causedBy, id -> {
+                        try {
+                            return userService.readUserById(id).getName();
+                        } catch (Exception e) {
+                            return "알 수 없음";
+                        }
+                    });
+                    alarm.setCausedName(name);
+                }
+            }
+        	
+        	
         	response.put("totalCount", totalCount);
         	response.put("totalPage", totalPage);
         	response.put("currentPage", pageNum);
@@ -227,7 +267,7 @@ public class AlarmController {
         	response.put("no", no);
         	
             response.put("status", "ok");
-            response.put("result", alarmService.unreadAlarm(userId, startNum,perPage));
+            response.put("result", alarms);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             response.put("status", "error");
@@ -252,5 +292,37 @@ public class AlarmController {
         }
     }
     
-    
+    //읽지 않은 알람있는지 확인용(헤더 아이콘 표시)
+    @GetMapping("/unreadExist")
+    public ResponseEntity<Object> hasUnreadAlarm(HttpSession session) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            int userId = (Integer) session.getAttribute("userId");
+            String type = "";
+            boolean hasUnread = alarmService.countUnreadAlarm(userId, type) > 0;
+
+            response.put("status", "ok");
+            response.put("hasUnread", hasUnread);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("result", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/delete")
+    public ResponseEntity<Object> deleteAlarm(@RequestParam(value = "id") List<Integer> ids) {
+        Map<String, Object> response = new LinkedHashMap<>();
+        try {
+            alarmService.deleteAlarm(ids);
+            response.put("status", "ok");
+            response.put("result", "success");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("result", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

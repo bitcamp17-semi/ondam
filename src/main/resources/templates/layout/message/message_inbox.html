@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Messages</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" />
     <link rel="stylesheet" th:href="@{/style/globals.css}"/>
     <link rel="stylesheet" th:href="@{/style/message_inbox.css}"/>
     <link rel="stylesheet" th:href="@{/style/header.css}"/>
@@ -17,7 +18,7 @@
     <div th:replace="~{layout/header :: header}"></div>
     <div id="modal-overlay">
         <form id="modal-form">
-            <div id="modal-content">
+            <div id="modal-contents">
                 <h2>쪽지쓰기</h2>
                 <div class="selectset">
                     <div class="dropdown" id="modaldepartment">
@@ -33,9 +34,6 @@
                         <span>이름</span>
                         <button class="dropdown-btn">이름을 선택하세요</button>
                         <div class="dropdown-menu">
-                            <a href="#">옵션 3-1</a>
-                            <a href="#">옵션 3-2</a>
-                            <a href="#">옵션 3-3</a>
                         </div>
                     </div>
                 </div>
@@ -59,7 +57,7 @@
             <div class="navtitle">
                 쪽지 보관함
             </div>
-            <div class="navbar">
+            <div class="mainnavbar">
                 <div id="navlist1">+ 쪽지쓰기</div>
                 <div id="navlist2">받은 쪽지함</div>
                 <div id="navlist3">보낸 쪽지함</div>
@@ -129,9 +127,7 @@
     let currentFilter = "all";
     $(document).ready(function () {
         const receiverId = $("#receiverId").val();
-        console.log("receiverId:", receiverId);
         const userId = $("#userId").val();
-        console.log("userId: " + userId);
         loadMessages("all", receiverId);
         $("#rightmaintitle .title-text").text("");
         $("#rightmaincontents").text("");
@@ -252,14 +248,14 @@
                      data-content="${msg.content}"
                      data-important="${isImportant}">
                     <div class="getmessage_first" style="display: flex; justify-content: space-between; align-items: center;">
-                        <div style="font-weight: normal; font-size: 16px;">${title}</div>
+                        <div style="font-weight: normal; font-size: 16px; overflow: hidden; text-overflow: ellipsis;">${title}</div>
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <i class="bi ${starIcon} important-icon" data-id="${msg.id}" style="cursor: pointer;"></i>
                             <div style="font-size: 12px; color: gray;">${date}</div>
                         </div>
                     </div>
                     <div style="font-size: 13px; color: #444;">To. ${receiver}</div>
-                    <div style="font-size: 13px; color: #666;">${content}</div>
+                    <div style="font-size: 13px; color: #666; overflow: hidden; text-overflow: ellipsis;">${content}</div>
                 </div>
                 `;
         }
@@ -293,15 +289,12 @@
             let category = $(".dropdown-menu a.selected").data("filter") || "all";
             const userId = $("#userId").val();
             const isSentTab = $("#navlist3").attr("data-active") === "true";
-            console.log("🟡 검색 시작", { keyword, category, userId, isSentTab });
 
             resetMessageDetailPanel();
 
             if (keyword === "") {
                 if (isSentTab) {
-                    console.log("🔵 전체 보낸 쪽지 로딩");
                     $.get("/messages/sent", { senderId: userId }, function (res) {
-                        console.log("🟢 보낸 쪽지 응답:", res);
 
                         $(".messages").empty();
                         if (res.status === "ok") {
@@ -309,7 +302,6 @@
                                 $(".messages").append(`<div class="no-result">보낸 쪽지가 없습니다.</div>`);
                             } else {
                                 res.result.forEach(msg => {
-                                    console.log("📨 보낸 쪽지 메시지:", msg);
                                     $(".messages").append(createSentMessageHTML(msg));
                                 });
                             }
@@ -319,7 +311,6 @@
                         }
                     });
                 } else {
-                    console.log("🔵 전체 받은 쪽지 로딩");
                     loadMessages(category, userId);
                 }
                 return;
@@ -328,22 +319,17 @@
             const url = isSentTab ? "/messages/search/sent" : "/messages/search";
             const paramKey = isSentTab ? "senderId" : "receiverId";
 
-            console.log("🟣 검색 API 호출", { url, paramKey, keyword });
-
             $.get(url, {
                 keyword,
                 category: category === "important" ? "IMPORTANT" : "LATEST",
                 [paramKey]: userId
             }, function (res) {
-                console.log("🟢 검색 응답:", res);
-
                 $(".messages").empty();
                 if (res.status === "ok") {
                     if (res.result.length === 0) {
                         $(".messages").append(`<div class="no-result">검색 결과가 없습니다.</div>`);
                     } else {
                         res.result.forEach(msg => {
-                            console.log("📩 검색 메시지:", msg);
                             const html = isSentTab
                                 ? createSentMessageHTML(msg)
                                 : createMessageHTML(msg, true);
@@ -534,8 +520,6 @@
             const title = $("#modaltitle").val();
             const content = $("#modalsection").val();
 
-            console.log(receiverId, title, content);
-
             if (!receiverId || !title || !content) {
                 alert("모든 항목을 작성해주세요.");
                 return;
@@ -559,7 +543,7 @@
                     /*$("#receiverId").val("");*/
                     $("#modalname .dropdown-btn").text("이름 선택");
 
-                    loadMessages("all", receiverId); // ✅ 새로고침
+                    loadMessages("all", senderId); // ✅ 새로고침
                 },
                 error: function () {
                     alert("쪽지 보내기에 실패했습니다.");
@@ -632,10 +616,6 @@
                                 $.get("/api/dep/readDeps", function (depRes) {
                                     if (depRes.status === "ok") {
                                         const dept = depRes.result.find(dep => dep.id == user.departmentId);
-                                        console.log("🔍 user.departmentId:", user.departmentId);
-                                        console.log("🧾 사용자 정보:", user);
-                                        console.log("🧾 부서 전체:", depRes.result);
-                                        console.log("🧾 매칭된 부서:", dept);
                                         if (user.position === "admin") {
                                             $("#profileteam").text("관리자");
                                         } else if (dept) {
@@ -744,14 +724,14 @@
                      data-content="${msg.content}"
                      data-important="${isImportant}">
                     <div class="getmessage_first" style="display: flex; justify-content: space-between; align-items: center;">
-                        <div style="font-weight: ${readClass === "unread" ? "bold" : "normal"}; font-size: 16px;">${title}</div>
+                        <div style="font-weight: ${readClass === "unread" ? "bold" : "normal"}; font-size: 16px; overflow: hidden; text-overflow: ellipsis;">${title}</div>
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <i class="bi ${starIcon} important-icon" data-id="${msg.id}" style="cursor: pointer;"></i>
                             <div style="font-size: 12px; color: gray;">${date}</div>
                         </div>
                     </div>
                     <div style="font-size: 13px; color: #444;">${sender}</div>
-                    <div style="font-size: 13px; color: #666;">${content}</div>
+                    <div style="font-size: 13px; color: #666; overflow: hidden; text-overflow: ellipsis;">${content}</div>
                 </div>
             `;
         }
@@ -766,9 +746,10 @@
 
         // ✅ 무한 스크롤 및 필터링 처리
         function loadMoreMessages(filter, userId) {
-            if (loading) return;
+            if (loading) {
+                return;
+            }
             loading = true;
-
             $.ajax({
                 url: "/messages/list",
                 method: "GET",
@@ -782,11 +763,10 @@
                     const container = $(".messages");
 
                     let filtered = filter === "important" ? data.filter(m => m.isImportant) : data;
-
-                    if (filtered.length === 0) return;
-
                     // 쪽지 개수 업데이트
                     $("#totalcount").text(`총 ${filtered.length} 개의 쪽지가 있습니다.`);
+                    if (filtered.length === 0) return;
+
 
                     filtered.forEach(msg => {
                         container.append(createMessageHTML(msg));
@@ -800,6 +780,7 @@
                     loading = false;
                 }
             });
+            loading = false;
         }
 
         // ⬅ 이전 메시지
@@ -808,7 +789,6 @@
 
             const receiverId = $("#receiverId").val();
             const currentMessageId = $("#rightmaintitle").data("message-id");
-            console.log("⬅️ LEFT BTN CLICK - currentMessageId:", currentMessageId); // 🔍
 
             if (!currentMessageId) return;
 
@@ -830,7 +810,6 @@
 
             const receiverId = $("#receiverId").val();
             const currentMessageId = $("#rightmaintitle").data("message-id");
-            console.log("➡️ RIGHT BTN CLICK - currentMessageId:", currentMessageId); // 🔍
             if (!currentMessageId) return;
 
             $.get("/messages/nextById", {
@@ -861,8 +840,6 @@
 
             const $heart = $(this);
             const messageId = $heart.attr("data-id") || $heart.data("id");
-
-            console.log("🧪 messageId:", messageId);
 
             if (!messageId) return alert("❌ 메시지 ID가 없습니다!");
 
@@ -899,9 +876,6 @@
             const messageItem = $(this).closest(".message-item");
             const messageId = $("#rightmaintitle").data("message-id");  // rightmaintitle에서 메시지 ID 찾기
 
-            console.log("messageItem:", messageItem);  // messageItem 확인
-            console.log("삭제할 메시지 ID:", messageId);  // 메시지 ID 확인
-
             // messageId가 undefined일 경우 경고하고 종료
             if (messageId === undefined) {
                 console.error("메시지 ID가 없습니다. 'data-id'가 설정되어 있는지 확인하세요.");
@@ -910,25 +884,18 @@
             }
 
             if (confirm("정말로 이 메시지를 삭제하시겠습니까?")) {
-                console.log("삭제 확인됨");
-
                 // YES! 삭제 요청d
                 $.ajax({
                     url: `/messages/${messageId}`,
                     method: "DELETE",
                     success: function (response) {
-                        console.log("삭제 성공 응답:", response);  // 2. 삭제 성공 응답 확인
                         if (response.status === "ok") {
                             // 삭제된 메시지 항목을 화면에서 제거
                             messageItem.remove();
-                            console.log("메시지 항목 삭제 완료");
 
                             // 메시지 목록을 다시 불러옴
                             const currentFilter = $(".dropdown-btn").text().toLowerCase(); // 현재 필터 가져오기
                             const receiverId = $("#receiverId").val(); // 받는 사람 ID 가져오기
-
-                            console.log("현재 필터:", currentFilter);
-                            console.log("받는 사람 ID:", receiverId);
 
                             if (currentFilter && receiverId) {
                                 loadMessages(currentFilter, receiverId);  // 목록을 새로 불러오기
@@ -938,11 +905,9 @@
 
                             // 만약 현재 보고 있는 메시지가 삭제된 메시지라면, 화면 초기화
                             const currentMessageId = $("#rightmaintitle").data("message-id");
-                            console.log("현재 보고 있는 메시지 ID:", currentMessageId);
 
                             if (currentMessageId == messageId) {
                                 // 메시지가 삭제되었으므로 화면 초기화
-                                console.log("현재 보고 있는 메시지가 삭제된 메시지입니다. 화면 초기화...");
                                 $("#rightmaintitle .title-text").text('');
                                 $("#rightmaincontents").text('');
                                 $("#profilename").text('');
@@ -955,12 +920,10 @@
 
                             alert(response.message);  // 삭제 완료 메시지
                         } else {
-                            console.log("삭제 실패 메시지:", response.message);
                             alert("삭제 실패: " + response.message);
                         }
                     },
                     error: function (err) {
-                        console.log("삭제 실패 오류:", err);  // 3. 삭제 실패 오류 확인
                         alert("삭제에 실패했습니다");
                     }
                 });

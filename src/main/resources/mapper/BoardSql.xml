@@ -1,4 +1,93 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="data.mapper.BoardMapper">
+
+	<!-- 전체 글 개수 -->
+	<select id="getTotalCount" resultType="int">
+		SELECT COUNT(*) FROM board
+	</select>
+
+	<!-- 최대 id -->
+	<select id="getMaxidx" resultType="int">
+		SELECT MAX(id) FROM board
+	</select>
+
+	<!-- 글쓰기 저장 -->
+	<insert id="insertWrite" parameterType="data.dto.BoardDto">
+		INSERT INTO board (
+				id, category, title, content, authorId,hidden,createdAt)
+		VALUES (
+			#{id}, #{category}, #{title}, #{content}, #{authorId},#{hidden},NOW()
+		)
+	</insert>
+
+	<!-- 글 상세보기 -->
+	<select id="boardDetailById" parameterType="int" resultType="BoardDto">
+	    SELECT * FROM board
+	    WHERE id = #{id}
+	</select>
+
+	<!-- 페이징된 게시글 목록 -->
+	<select id="getPagingList" resultType="data.dto.BoardDto">
+		SELECT * FROM board
+		ORDER BY id DESC
+		LIMIT #{start}, #{perpage}
+	</select>
+
+	<!-- 사용자 ID 기준 게시글 조회 -->
+	<select id="getSelectById" resultType="data.dto.BoardDto">
+		SELECT * FROM board
+		WHERE authorId = #{myId}
+	</select>
+
+	<!-- 게시글 수정 -->
+	<update id="updateBoard" parameterType="data.dto.BoardDto">
+		UPDATE board
+		SET title = #{title},
+			content = #{content}
+		WHERE id = #{id}
+	</update>
+
+	<!-- 게시글 삭제 -->
+	<delete id="deleteBoard">
+		DELETE FROM board
+		WHERE id= #{id}
+	</delete>
+
+	<!-- 익명게시판 글 목록 조회 -->
+	<select id="selectHiddenPosts" resultType="data.dto.BoardDto">
+		SELECT * FROM board
+		WHERE hidden = true
+		ORDER BY id DESC
+	</select>
+
+	<!-- 전체 글 목록 -->
+	<select id="getAllBoards" resultType="data.dto.BoardDto">
+		SELECT * FROM board
+		ORDER BY id DESC
+	</select>
+
+	<!-- 카테고리별 게시글 목록 -->
+	<select id="findByCategory" resultType="data.dto.BoardDto">
+		SELECT * FROM board
+		WHERE category = #{category}
+		ORDER BY createdAt DESC
+	</select>
+	
+	<update id="updatePost" parameterType="BoardDto">
+    	UPDATE board
+    	SET title = #{title}, content = #{content}, update_date = NOW()
+    	WHERE id = #{id}
+	</update>
+	
+	<!-- 게시글 넘기기 -->
+	<select id="selectPagedBoardList" resultType="BoardDto">
+    	SELECT * FROM board
+    	ORDER BY created_at DESC
+    	LIMIT #{limit} OFFSET #{offset}
+	</select>
+
+	<select id="selectBoardCount" resultType="int">
+    	SELECT COUNT(*) FROM board
+	</select>
 </mapper>

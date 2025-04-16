@@ -6,6 +6,8 @@ import data.service.FileStorageService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -20,7 +22,9 @@ import config.NaverConfig;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @Slf4j
@@ -43,20 +47,41 @@ public class ChatController {
 	private final FileStorageService fileStorageService;
 	private final SimpMessagingTemplate messagingTemplate;
 	private final NaverConfig naverConfig;
+	
+	private String bucketName="bitcamp-semi";//각자 자기꺼 써야함
 
 	/**
 	 * 채팅 메인 페이지 렌더링
 	 */
 	@GetMapping("/main")
 	public String chatMain(HttpSession session, Model model,
-			@RequestParam(name = "activeTab", defaultValue = DEFAULT_TAB) String activeTab,
-			RedirectAttributes redirectAttributes) {
-		Integer userId = validateSession(session, redirectAttributes);
-		if (userId == null) {
-			return LOGIN_REDIRECT;
-		}
-		initializeChatMainModel(session, model, userId, activeTab);
-		return MAIN_PAGE;
+	        @RequestParam(name = "activeTab", defaultValue = DEFAULT_TAB) String activeTab,
+	        @RequestParam(name = "chatId", required = false) Integer chatId,
+	        RedirectAttributes redirectAttributes) {
+	    Integer userId = validateSession(session, redirectAttributes);
+	    if (userId == null) {
+	        return LOGIN_REDIRECT;
+	    }
+
+	    // chatId가 제공된 경우 접근 권한 확인
+	    if (chatId != null) {
+	        // 1. 데이터베이스 기반 권한 확인
+	        boolean hasAccess = chatService.hasAccessToChat(userId, chatId);
+	        if (!hasAccess) {
+	            redirectAttributes.addFlashAttribute("error", "접근 권한이 없는 채팅방입니다.");
+	            return "redirect:/chat/main?activeTab=" + activeTab; // activeTab 유지
+	        }
+
+	        // 2. 세션의 openChats 기반 추가 검증
+	        List<Integer> openChats = getOpenChats(session);
+	        if (!openChats.contains(chatId)) {
+	            redirectAttributes.addFlashAttribute("error", "열리지 않은 채팅방입니다. 먼저 채팅방을 열어주세요.");
+	            return "redirect:/chat/main?activeTab=" + activeTab; // activeTab 유지
+	        }
+	    }
+
+	    initializeChatMainModel(session, model, userId, activeTab, chatId);
+	    return MAIN_PAGE;
 	}
 
 	/**
@@ -120,11 +145,13 @@ public class ChatController {
 			HttpSession session, RedirectAttributes redirectAttributes) {
 		return handleSessionAction(session, redirectAttributes, () -> {
 			validateSelfChat(session, targetUserId);
+			Integer newChatId = null;
 			Integer userId = getUserIdFromSession(session);
 			Integer chatId = chatService.createPrivateChat(Long.valueOf(userId), Long.valueOf(targetUserId));
 			addChatToSession(session, chatId);
 			redirectAttributes.addFlashAttribute("message", "개인 채팅이 생성되었습니다.");
 			redirectAttributes.addAttribute("activeTab", activeTab);
+			redirectAttributes.addAttribute("chatId", newChatId);
 		});
 	}
 
@@ -151,44 +178,116 @@ public class ChatController {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
 		}
 	}
+	
+	@GetMapping("/loadChat")
+	@ResponseBody
+	public ChatRoomData loadChat(@RequestParam("chatId") Integer chatId, HttpSession session) {
+	    Integer userId = (Integer) session.getAttribute("userId");
+	    if (userId == null) {
+	        throw new IllegalStateException("로그인이 필요합니다.");
+	    }
+	    log.info("Loading chat with chatId: {}, userId: {}", chatId, userId);
+
+	    ChatGroupsDto chatGroup = chatService.readGroupById(chatId);
+	    if (chatGroup == null) {
+	        throw new IllegalArgumentException("채팅방을 찾을 수 없습니다.");
+	    }
+
+	    ChatRoomData chatRoomData = new ChatRoomData();
+	    chatRoomData.setRoomId(chatId);
+
+	    if ("GROUP".equals(chatGroup.getRoomType())) {
+	        chatRoomData.setRoomName(chatGroup.getName());
+	        chatRoomData.setRoomType("GROUP");
+	        chatRoomData.setMessages(chatService.readGroupMessages(chatId));
+	    } else if ("PRIVATE".equals(chatGroup.getRoomType())) {
+	        Long targetUserId = chatGroup.getTargetUserId();
+	        if (targetUserId == null) {
+	            throw new IllegalStateException("개인 채팅방의 상대방 ID를 찾을 수 없습니다.");
+	        }
+	        UsersDto targetUser = chatService.readUserById(targetUserId.intValue());
+	        String roomName = targetUser != null ? targetUser.getName() : "알 수 없는 사용자";
+	        chatRoomData.setRoomName(roomName);
+	        chatRoomData.setRoomType("PRIVATE");
+	        chatRoomData.setTargetUserId(targetUserId.intValue());
+	        chatRoomData.setMessages(chatService.readPrivateMessages(userId, chatId));
+	    }
+
+	    List<ChatLogDto> messages = chatRoomData.getMessages();
+	    if (messages == null) {
+	        messages = new ArrayList<>();
+	        chatRoomData.setMessages(messages);
+	        log.warn("Messages list is null for chatId: {}", chatId);
+	    }
+	    messages.forEach(msg -> {
+	        msg.setMyMessage(msg.getSenderId().equals(userId));
+	        msg.setFormattedCreatedAt(msg.getCreatedAt() != null ?
+	                new SimpleDateFormat("yyyy-MM-dd HH:mm").format(msg.getCreatedAt()) : "");
+	    });
+
+	    log.info("Returning chatRoomData with {} messages", messages.size());
+	    return chatRoomData;
+	}
 
 	// ===== Private Methods =====
 
-	private void initializeChatMainModel(HttpSession session, Model model, Integer userId, String activeTab) {
-		model.addAttribute("chatGroupsList", chatService.readAllGroupsWithLastMessages(userId));
-		model.addAttribute("contacts", chatService.readAllUsersExceptCurrent(userId));
-		model.addAttribute("openChats", getOpenChats(session));
-		model.addAttribute("firstChatData", prepareFirstChatData(getOpenChats(session), userId));
-		model.addAttribute("userId", userId);
-		model.addAttribute("activeTab", activeTab);
+	private void initializeChatMainModel(HttpSession session, Model model, Integer userId, String activeTab, Integer chatId) {
+        List<UsersDto> contacts = chatService.readAllUsersExceptCurrent(userId);
+        for (UsersDto contact : contacts) {
+            if (contact.getProfileImage() != null && !contact.getProfileImage().isEmpty()) {
+                String imageUrl = "https://kr.object.ncloudstorage.com/" + bucketName + "/users/" + contact.getProfileImage();
+                contact.setProfileImage(imageUrl);
+            }
+        }
 
-		UsersDto user = chatService.readUserById(userId);
-		session.setAttribute("user", user);
-	}
+        model.addAttribute("chatGroupsList", chatService.readAllGroupsWithLastMessages(userId));
+        model.addAttribute("contacts", contacts);
+        model.addAttribute("userId", userId);
+        model.addAttribute("activeTab", activeTab);
 
-	private ChatRoomData prepareFirstChatData(List<Integer> openChats, Integer userId) {
-		if (openChats.isEmpty()) {
-			return null;
-		}
-		Integer firstChatId = openChats.get(0);
-		ChatGroupsDto firstChat = chatService.readGroupById(firstChatId);
-		if (firstChat == null) {
-			return null;
-		}
+        // chatId가 있을 때만 firstChatData 설정
+        if (chatId != null) {
+            model.addAttribute("firstChatData", prepareFirstChatData(chatId, userId));
+        } else {
+            model.addAttribute("firstChatData", null);
+        }
 
-		ChatRoomData chatRoomData = new ChatRoomData();
-		chatRoomData.setRoomId(firstChatId);
-		chatRoomData.setRoomName(firstChat.getName());
-		chatRoomData.setRoomType(GROUP_ROOM_TYPE);
+        UsersDto user = chatService.readUserById(userId);
+        session.setAttribute("user", user);
+    }
 
-		List<ChatLogDto> messages = chatService.readGroupMessages(firstChatId);
-		messages.forEach(msg -> {
-			msg.setMyMessage(msg.getSenderId().equals(userId));
-			msg.setFormattedCreatedAt(msg.getCreatedAt() != null ?
-					DATE_FORMATTER.format(msg.getCreatedAt()) : "");
-		});
-		chatRoomData.setMessages(messages);
-		return chatRoomData;
+	private ChatRoomData prepareFirstChatData(Integer chatId, Integer userId) {
+	    ChatGroupsDto firstChat = chatService.readGroupById(chatId);
+	    if (firstChat == null) {
+	        return null;
+	    }
+
+	    ChatRoomData chatRoomData = new ChatRoomData();
+	    chatRoomData.setRoomId(chatId);
+
+	    if ("GROUP".equals(firstChat.getRoomType())) {
+	        chatRoomData.setRoomName(firstChat.getName());
+	        chatRoomData.setRoomType(GROUP_ROOM_TYPE);
+	        chatRoomData.setMessages(chatService.readGroupMessages(chatId));
+	    } else if ("PRIVATE".equals(firstChat.getRoomType())) {
+	        Long targetUserId = firstChat.getTargetUserId();
+	        if (targetUserId == null) {
+	            throw new IllegalStateException("개인 채팅방의 상대방 ID를 찾을 수 없습니다.");
+	        }
+	        UsersDto targetUser = chatService.readUserById(targetUserId.intValue());
+	        String roomName = targetUser != null ? targetUser.getName() : "알 수 없는 사용자";
+	        chatRoomData.setRoomName(roomName);
+	        chatRoomData.setRoomType(PRIVATE_ROOM_TYPE);
+	        chatRoomData.setTargetUserId(targetUserId.intValue());
+	        chatRoomData.setMessages(chatService.readPrivateMessages(userId, chatId));
+	    }
+
+	    chatRoomData.getMessages().forEach(msg -> {
+	        msg.setMyMessage(msg.getSenderId().equals(userId));
+	        msg.setFormattedCreatedAt(msg.getCreatedAt() != null ?
+	                DATE_FORMATTER.format(msg.getCreatedAt()) : "");
+	    });
+	    return chatRoomData;
 	}
 
 	private String handleSessionAction(HttpSession session, RedirectAttributes redirectAttributes, Runnable action) {
@@ -290,4 +389,70 @@ public class ChatController {
 				"/topic/group/" + roomId : "/user/queue/private";
 		messagingTemplate.convertAndSend(destination, chatLogDto);
 	}
+	
+	@GetMapping("/unreadMessagesExist")
+	@ResponseBody
+	public Map<String, Object> unreadMessagesExist(HttpSession session) {
+	    Integer userId = (Integer) session.getAttribute("userId");
+	    Map<String, Object> response = new HashMap<>();
+	    
+	    if (userId == null) {
+	        response.put("status", "error");
+	        response.put("message", "로그인이 필요합니다.");
+	        return response;
+	    }
+
+	    // 사용자가 속한 모든 채팅방에서 읽지 않은 메시지 확인
+	    List<ChatGroupsDto> chatGroups = chatService.readAllGroupsWithLastMessages(userId);
+	    Map<Integer, Boolean> unreadStatus = new HashMap<>();
+	    boolean hasUnread = false;
+
+	    for (ChatGroupsDto group : chatGroups) {
+	        List<ChatLogDto> messages = "GROUP".equals(group.getRoomType())
+	                ? chatService.readGroupMessages(group.getId())
+	                : chatService.readPrivateMessages(userId, group.getId());
+	        boolean hasUnreadMessages = messages.stream()
+	                .anyMatch(msg -> !msg.isRead() && !msg.getSenderId().equals(userId));
+	        unreadStatus.put(group.getId(), hasUnreadMessages);
+	        if (hasUnreadMessages) {
+	            hasUnread = true;
+	        }
+	    }
+
+	    response.put("status", "ok");
+	    response.put("hasUnread", hasUnread);
+	    response.put("unreadStatus", unreadStatus); // 각 채팅방별 미확인 상태
+	    return response;
+	}
+	
+	// ChatController.java
+	@PostMapping("/markMessagesAsRead")
+	@ResponseBody
+	public Map<String, Object> markMessagesAsRead(@RequestParam("chatId") Integer chatId, HttpSession session) {
+	    Integer userId = (Integer) session.getAttribute("userId");
+	    Map<String, Object> response = new HashMap<>();
+
+	    if (userId == null) {
+	        response.put("status", "error");
+	        response.put("message", "로그인이 필요합니다.");
+	        return response;
+	    }
+
+	    // chatId에 해당하는 메시지들을 읽음 처리
+	    ChatGroupsDto group = chatService.readGroupById(chatId);
+	    List<ChatLogDto> messages = "GROUP".equals(group.getRoomType())
+	            ? chatService.readGroupMessages(chatId)
+	            : chatService.readPrivateMessages(userId, chatId);
+
+	    messages.stream()
+	            .filter(msg -> !msg.isRead() && !msg.getSenderId().equals(userId))
+	            .forEach(msg -> {
+	                msg.setRead(true);
+	                chatService.updateChatLog(msg); // DB에 읽음 상태 업데이트
+	            });
+
+	    response.put("status", "ok");
+	    return response;
+	}
+	
 }

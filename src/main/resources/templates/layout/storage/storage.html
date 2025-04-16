@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Drive Storage</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" />
     <link rel="stylesheet" th:href="@{/style/globals.css}"/>
     <link rel="stylesheet" th:href="@{/style/storage.css}"/>
     <link rel="stylesheet" th:href="@{/style/header.css}"/>
@@ -17,7 +18,7 @@
     <div class="main">
         <div class="nav">
             <div class="navtitle">공유문서함</div>
-            <div class="navbar">
+            <div class="mainnavbar">
                 <div id="navlist2">문서함</div>
             </div>
         </div>
@@ -58,8 +59,8 @@
                                     <option value="인사">인사</option>
                                     <option value="재무">재무</option>
                                 </select>
-                                <button id="file-select-btn" type="button" class="btn btn-secondary">파일 선택</button>
-                                <button id="upload-btn" class="btn btn-primary">업로드</button>
+                                <button id="file-select-btn" type="button" class="whitebtn">파일 선택</button>
+                                <button id="upload-btn" class="whitebtn">업로드</button>
                                 <input type="file" id="file-input" class="file-input" style="display: none;">
                             </form>
                         </div>

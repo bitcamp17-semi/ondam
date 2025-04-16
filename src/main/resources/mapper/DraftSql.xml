@@ -145,4 +145,10 @@
         WHERE d.status IN ('APPROVED', 'REJECTED')
           AND a.userId = #{userId}
     </select>
+    <!-- 기안자의 userId 조회 -->
+    <select id="readDrafterIdByDraftId" parameterType="int" resultType="int">
+    	SELECT authorId
+    	FROM drafts
+    	WHERE id = #{id}
+	</select>
 </mapper>

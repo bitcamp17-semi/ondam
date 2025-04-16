@@ -3,21 +3,11 @@
 .fullbox{
     display: flex;
     flex-direction: row;
-    width: 96vw;
+    width: calc(100vw - 75px);
     height: 100dvh;
-    font-family: "Noto Sans-Bold", Helvetica, "Noto Sans-Regular";
     color: #686868;
     position: relative;
-}
-.header {
-    width: 80px;
-    height: 100%;
-    display: flex;
-    position: absolute;
-    left: 0;
-    top: 0;
-    overflow: hidden;
-    z-index: 10000;
+    white-space: nowrap;
 }
 
 .main {
@@ -45,7 +35,7 @@
     font-weight: bold;
     color: #3f3f3f;
 }
-.navbar {
+.mainnavbar {
     display: flex;
     align-items: flex-start;
     gap: 30px;
@@ -210,6 +200,7 @@
     justify-content: flex-start;
     flex-shrink: 0;
     position: relative;
+    user-select: none;
 }
 .currentPage {
     /*color: #3f3f3f;*/
