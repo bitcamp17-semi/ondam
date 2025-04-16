@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html>
 <head>
@@ -19,32 +20,34 @@
 				</div>
 			</div>
 			<div class="div">
-				<div class="div-2" id="header-home" th:data-url="@{/}">
+				<div class="pagemove" id="header-home" th:data-url="@{/}">
 					<i class="bi bi-house"></i> <span class="label">메인화면</span>
 				</div>
-				<div class="div-2" id="header-note" th:data-url="@{/messages/inbox}">
+				<div class="pagemove" id="header-note"
+					th:data-url="@{/messages/inbox}">
 					<i class="bi bi-send"></i> <span class="label">쪽지</span>
 				</div>
-				<div class="div-2" id="header-orgchart"
+				<div class="pagemove" id="header-orgchart"
 					th:data-url="@{/organization}">
 					<i class="bi bi-diagram-3"></i> <span class="label">조직도</span>
 				</div>
-				<div class="div-2" id="header-calendar" th:data-url="@{/schedules}">
+				<div class="pagemove" id="header-calendar"
+					th:data-url="@{/schedules}">
 					<i class="bi bi-calendar4-week"></i> <span class="label">일정관리</span>
 				</div>
-				<div class="div-2" id="header-approval"
+				<div class="pagemove" id="header-approval"
 					th:data-url="@{/draft/approvalInbox}">
 					<i class="bi bi-clipboard-check"></i> <span class="label">전자결재</span>
 				</div>
-				<div class="div-2" id="header-board"
+				<div class="pagemove" id="header-board"
 					th:data-url="@{/board/boardMain}">
 					<i class="bi bi-list-task"></i> <span class="label">게시판</span>
 				</div>
-				<div class="div-2" id="header-storage"
+				<div class="pagemove" id="header-storage"
 					th:data-url="@{/api/dataroom}">
 					<i class="bi bi-cloud-download"></i> <span class="label">드라이브</span>
 				</div>
-				<div class="div-2" id="header-chat" th:data-url="@{/chat/main}">
+				<div class="pagemove" id="header-chat" th:data-url="@{/chat/main}">
 					<div class="group">
 						<div class="overlap-group">
 							<i class="bi bi-chat-text"></i>
@@ -53,13 +56,13 @@
 						</div>
 					</div>
 				</div>
-				<div class="div-2" id="header-info"
+				<div class="pagemove" id="header-info"
 					th:data-url="@{/admin/management}">
 					<i class="bi bi-gear"></i> <span class="label">관리자</span>
 				</div>
 			</div>
 			<div class="div">
-				<div class="div-2" id="header-alarm" th:data-url="@{/alarm}">
+				<div class="pagemove" id="header-alarm" th:data-url="@{/alarm}">
 					<div class="group">
 						<div class="overlap-group">
 							<i class="bi bi-bell"></i>
@@ -72,10 +75,9 @@
 					<img class="img" th:src="@{/images/Rectangle53.png}"
 						onerror="this.src='/images/Rectangle53.png'" />
 				</div>
-				<div class="div-2" id="header-logout">
+				<div class="pagemove" id="header-logout">
 					<i class="bi bi-box-arrow-right"></i> <span class="label">로그아웃</span>
 				</div>
-
 			</div>
 		</div>
 		<script>
@@ -102,9 +104,11 @@
             });
         });
 
-        $(".div-2").on("click", function () {
+        $(document).on("click", ".pagemove", function () {
             const url = $(this).data("url");
-            window.location.href = url;
+            if (url) {
+                window.location.href = url;
+            }
         });
 
         function checkLoginStatus() {
@@ -163,7 +167,8 @@
 		<script
 			src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 		<!--<script th:src="@{/js/alarm.js}"></script>-->
-
 	</div>
 </body>
 </html>
+
+

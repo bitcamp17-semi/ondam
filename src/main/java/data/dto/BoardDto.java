@@ -17,6 +17,7 @@ public class BoardDto {
 	private String title;
 	private String content;
 	private int authorId;
+	private String authorName;
 	private boolean hidden;
 	private boolean important;
 	private int replyCount;
