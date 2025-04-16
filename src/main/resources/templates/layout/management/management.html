@@ -307,6 +307,7 @@
     // 모달 닫기 함수
     function closeModal() {
         $("#myModal").css("display", "none");
+        $(".frame-50").removeClass('disabled');
     }
 
     // 파일 입력 초기화
@@ -448,6 +449,8 @@
     }
 
     function createUser() {
+        const btn = $(".frame-50");
+        btn.addClass("disabled");
         let formData = new FormData();
 
         // 입력 값 가져오기
@@ -463,6 +466,7 @@
 
         // 필수값 검증
         if (!name || !departmentId || !position || !phone || !email) {
+            btn.removeClass('disabled');
             alert("필수 정보를 입력하세요.");
             return;
         }
@@ -494,11 +498,17 @@
                     location.reload(); // 페이지 새로고침
                 } else {
                     alert("등록 실패: " + (res.error || "알 수 없는 오류"));
+                    btn.removeClass('disabled');
                 }
             },
             error: function (xhr, status, error) {
                 console.error("에러 발생:", error);
                 alert("서버 오류 발생");
+                btn.removeClass('disabled');
+            },
+            complete: function () {
+                // 다시 활성화
+                btn.removeClass('disabled');
             }
         });
     }

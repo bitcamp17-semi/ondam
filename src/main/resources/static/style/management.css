@@ -781,6 +781,11 @@
     position: relative;
     cursor: pointer;
 }
+.frame-50.disabled {
+    pointer-events: none;
+    opacity: 0.6;
+    cursor: not-allowed;
+}
 .div14 {
     color: #ffffff;
     text-align: center;
