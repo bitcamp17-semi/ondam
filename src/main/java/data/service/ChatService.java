@@ -308,6 +308,27 @@ public class ChatService {
         // 4. 첫 번째 채팅방 선택용 값도 세션에 저장 (처음 열었을 때만)
         if (session.getAttribute("firstChatId") == null) {
             session.setAttribute("firstChatId", chatId);
+    
+        }        
+    }
+    public boolean hasAccessToChat(Integer userId, Integer chatId) {
+        if (userId == null || chatId == null) {
+            logger.warn("userId or chatId is null: userId={}, chatId={}", userId, chatId);
+            return false;
         }
+
+        // 사용자가 속한 그룹 ID 목록 조회
+        List<Long> joinedGroupIds = chatGroupsMapper.readJoinedGroupIds(Long.valueOf(userId));
+        if (joinedGroupIds == null || joinedGroupIds.isEmpty()) {
+            logger.warn("User {} is not part of any group", userId);
+            return false;
+        }
+
+        // chatId가 사용자가 속한 그룹 ID 목록에 포함되어 있는지 확인
+        boolean hasAccess = joinedGroupIds.contains(Long.valueOf(chatId));
+        if (!hasAccess) {
+            logger.warn("User {} does not have access to chatId {}", userId, chatId);
+        }
+        return hasAccess;
     }
 }

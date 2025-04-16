@@ -52,17 +52,35 @@ public class ChatController {
 	 * 채팅 메인 페이지 렌더링
 	 */
 	@GetMapping("/main")
-    public String chatMain(HttpSession session, Model model,
-            @RequestParam(name = "activeTab", defaultValue = DEFAULT_TAB) String activeTab,
-            @RequestParam(name = "chatId", required = false) Integer chatId,
-            RedirectAttributes redirectAttributes) {
-        Integer userId = validateSession(session, redirectAttributes);
-        if (userId == null) {
-            return LOGIN_REDIRECT;
-        }
-        initializeChatMainModel(session, model, userId, activeTab, chatId);
-        return MAIN_PAGE;
-    }
+	public String chatMain(HttpSession session, Model model,
+	        @RequestParam(name = "activeTab", defaultValue = DEFAULT_TAB) String activeTab,
+	        @RequestParam(name = "chatId", required = false) Integer chatId,
+	        RedirectAttributes redirectAttributes) {
+	    Integer userId = validateSession(session, redirectAttributes);
+	    if (userId == null) {
+	        return LOGIN_REDIRECT;
+	    }
+
+	    // chatId가 제공된 경우 접근 권한 확인
+	    if (chatId != null) {
+	        // 1. 데이터베이스 기반 권한 확인
+	        boolean hasAccess = chatService.hasAccessToChat(userId, chatId);
+	        if (!hasAccess) {
+	            redirectAttributes.addFlashAttribute("error", "접근 권한이 없는 채팅방입니다.");
+	            return "redirect:/chat/main?activeTab=chats";
+	        }
+
+	        // 2. 세션의 openChats 기반 추가 검증
+	        List<Integer> openChats = getOpenChats(session);
+	        if (!openChats.contains(chatId)) {
+	            redirectAttributes.addFlashAttribute("error", "열리지 않은 채팅방입니다. 먼저 채팅방을 열어주세요.");
+	            return "redirect:/chat/main?activeTab=chats";
+	        }
+	    }
+
+	    initializeChatMainModel(session, model, userId, activeTab, chatId);
+	    return MAIN_PAGE;
+	}
 
 	/**
 	 * 채팅방 열기

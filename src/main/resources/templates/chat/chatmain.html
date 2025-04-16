@@ -49,7 +49,7 @@
 									<div class="chat-preview"
 										th:text="${group.lastMessage} ?: '메시지 없음'"></div>
 								</div>
-							</div>
+							</div>	
 							<button class="invite-button"
 								th:attr="data-group-id=${group.id},data-group-name=${group.displayName}"
 								onclick="showInviteForm(event)">초대</button>
