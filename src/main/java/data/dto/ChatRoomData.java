@@ -1,6 +1,8 @@
 package data.dto;
 
 import lombok.Data;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -9,6 +11,6 @@ public class ChatRoomData {
     private String roomName;
     private String roomType;
     private Integer targetUserId;
-    private List<ChatLogDto> messages;
+    private List<ChatLogDto> messages = new ArrayList<>();
     private Integer memberCount;
 }
