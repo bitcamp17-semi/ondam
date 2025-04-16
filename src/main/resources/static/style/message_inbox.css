@@ -1,13 +1,15 @@
 /*all*/
 
-.fullbox{
+.fullbox {
     display: flex;
     flex-direction: row;
     width: calc(100vw - 75px);
     height: 100dvh;
     color: #686868;
     position: relative;
+    white-space: nowrap;
 }
+
 .header {
     width: 80px;
     height: 100%;
@@ -29,10 +31,11 @@
     background-color: #fff;
     height: 100%;
 }
+
 /*따로 추가한것 */
 .disabled {
     pointer-events: none; /* 클릭 막기 */
-    opacity: 0.4;         /* 흐릿하게 */
+    opacity: 0.4; /* 흐릿하게 */
 }
 
 /* 📦 예: message_inbox.css */
@@ -50,16 +53,25 @@
 .rightarticle.show-detail #messagearticle {
     opacity: 1;
 }
+
 #profilename, #profileteam, #profilephoto, .heart {
     display: none;
 }
 
 .getmessage {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100px;
+    border-bottom: rgba(0, 0, 0, 0.05) 1px solid;
     border-radius: 8px;
     padding: 12px 16px;
     margin-bottom: 10px;
     transition: background-color 0.2s ease;
+    cursor: pointer;
+    justify-content: space-between;
 }
+
 
 .getmessage:hover {
     background-color: #e9effa;
@@ -70,6 +82,7 @@
     background-color: #eef3fa;
     border-left: 4px solid #4a90e2;
 }
+
 mark {
     background-color: #fff9c4;
     padding: 0 2px;
@@ -98,11 +111,13 @@ mark {
     margin-left: 70px;
     gap: 25px;
 }
-.navtitle{
+
+.navtitle {
     font-size: 30px;
     font-weight: bold;
     color: #3f3f3f;
 }
+
 .mainnavbar {
     display: flex;
     align-items: flex-start;
@@ -112,24 +127,28 @@ mark {
     width: 100%;
     font-size: 16px;
 }
-#navlist1{
+
+#navlist1 {
     color: #fa7000;
     font-weight: bold;
     cursor: pointer;
 }
-#navlist2{
+
+#navlist2 {
     font-weight: bold;
     color: #3f3f3f;
     border-left: rgba(0, 0, 0, 0.15) 1px solid;
     padding-left: 30px;
     cursor: pointer;
 }
-#navlist3{
+
+#navlist3 {
     border-left: rgba(0, 0, 0, 0.15) 1px solid;
     padding-left: 30px;
     cursor: pointer;
 }
-.section{
+
+.section {
     display: flex;
     padding: 20px;
     border: rgba(0, 0, 0, 0.05) 1px solid;
@@ -141,22 +160,25 @@ mark {
 
 /*inbox left*/
 
-.leftarticle{
+.leftarticle {
     display: flex;
     flex-direction: column;
     height: 100%;
     max-height: 610px;
-    width: 600px;
+    width: 400px;
+    white-space: nowrap;
 }
 
-#totalcount{
+#totalcount {
     font-size: 14px;
 }
-.searchbox{
+
+.searchbox {
     margin-top: 13px;
     width: 100%;
 }
-#searchinsert{
+
+#searchinsert {
     width: 85%;
     border: rgba(0, 0, 0, 0.15) 1px solid;
     padding: 10px;
@@ -164,7 +186,8 @@ mark {
     height: 35px;
     margin-right: 2px;
 }
-#searchbtn{
+
+#searchbtn {
     border: rgba(0, 0, 0, 0.15) 1px solid;
     border-radius: 5px;
     height: 35px;
@@ -173,15 +196,15 @@ mark {
     color: #686868;
     cursor: pointer;
 }
-.dropdown{
 
+.dropdown {
     position: relative;
     display: inline-block;
     width: 120px;
 }
 
-.dropdown-btn{
-    margin-top: 5px;
+.dropdown-btn {
+    margin: 5px 0 10px 0;
     width: 100%;
     padding: 5px 5px 5px 10px;
     background-color: white;
@@ -191,7 +214,8 @@ mark {
     border-radius: 5px;
     color: #686868;
 }
-.dropdown-menu{
+
+.dropdown-menu {
     display: none;
     position: absolute;
     top: 100%;
@@ -202,6 +226,7 @@ mark {
     box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
     font-size: 14px;
 }
+
 .dropdown-menu a {
     display: block;
     padding: 10px;
@@ -209,6 +234,7 @@ mark {
     cursor: pointer;
     color: #686868;
 }
+
 /* 기본적으로 전체보기 항목을 선택된 상태로 표시 */
 .dropdown-menu a.selected {
     font-weight: bold;
@@ -220,30 +246,26 @@ mark {
     background-color: #fa7000;
     color: white;
 }
-.messages{
+
+.messages {
     overflow-y: auto;
     flex-grow: 1;
-}
-.getmessage{
-    display: inline-flex;
+    display: flex;
     flex-direction: column;
-    width: 100%;
-    height: 100px;
-    border-bottom: rgba(0, 0, 0, 0.05) 1px solid;
-    margin-top: 30px;
-    gap: 15px;
-    cursor: pointer;
 }
-.getmessage_first{
+
+.getmessage_first {
     display: inline-flex;
     align-items: flex-start;
     width: 100%;
 }
-#messagedate{
+
+#messagedate {
     font-size: 12px;
     margin-left: auto;
 }
-#messagetitle{
+
+#messagetitle {
     font-weight: bold;
     font-size: 20px;
     color: #3f3f3f;
@@ -252,14 +274,14 @@ mark {
     white-space: nowrap;
 }
 
-#messagearticle{
+#messagearticle {
     font-size: 12px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
-#messagename{
+#messagename {
     font-size: 16px;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -268,7 +290,7 @@ mark {
 
 /*inbox right*/
 
-.rightarticle{
+.rightarticle {
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -278,32 +300,37 @@ mark {
     padding-left: 20px;
 }
 
-.righttop{
+.righttop {
     display: flex;
     height: 40px;
     border-bottom: rgba(0, 0, 0, 0.05) 1px solid;
     align-items: flex-start;
     justify-content: flex-end;
 }
-.leftbtn{
+
+.leftbtn {
     cursor: pointer;
 
 }
-.rightbtn{
+
+.rightbtn {
     cursor: pointer;
 }
-.trashbox{
+
+.trashbox {
     margin-left: auto;
     cursor: pointer;
 }
-.rightmiddle{
+
+.rightmiddle {
     display: flex;
     height: 100px;
     border-bottom: rgba(0, 0, 0, 0.05) 1px solid;
     padding: 20px;
     align-items: center;
 }
-#profilephoto{
+
+#profilephoto {
     width: 50px;
     height: 50px;
     border: rgba(0, 0, 0, 0.05) 1px solid;
@@ -311,56 +338,72 @@ mark {
     margin-right: 10px;
     cursor: pointer;
 }
-.profileset{
+
+.profileset {
     display: flex;
     align-items: flex-start;
     flex-direction: column;
     margin-right: auto;
 }
-#profileteam{
+
+#profileteam {
     font-size: 12px;
     margin-top: 5px;
 }
-#writedate{
+
+#writedate {
     font-size: 12px;
 }
 
-.rightmain{
+.rightmain {
     display: flex;
     margin: 20px;
     flex-grow: 1;
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
     flex-direction: column;
+    word-break: break-word;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
 }
-#rightmaintitle{
+
+#rightmaintitle {
     font-size: 30px;
     color: #3f3f3f;
     margin-bottom: 10px;
     display: flex;
     align-items: center;
-    width:100%;
+    width: 100%;
 }
-#rightmaintitle .title-text{
+
+#rightmaintitle .title-text {
     margin-right: auto;
+    word-break: break-word;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
 }
-.heart{
+
+.heart {
     cursor: pointer;
     color: rgba(0, 0, 0, 0.15);
-    margin-left:10px;
+    margin-left: 10px;
 }
-.heart.bi-suit-heart-fill{
+
+.heart.bi-suit-heart-fill {
     color: #fa7000;
 }
 
-#rightmaincontents{
-    font-size:16px;
-    color:#666;
+#rightmaincontents {
+    font-size: 16px;
+    color: #666;
     line-height: 1.5;
-    margin-top:15px;
+    margin-top: 15px;
     padding: 0;
-
+    word-break: break-word;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    overflow-x: hidden;
+    max-width: 100%;
 }
 
 #modal-overlay {
@@ -385,34 +428,43 @@ mark {
     display: flex;
     flex-direction: column;
 }
-#modal-contents span{
+
+#modal-contents span {
     font-size: 12px;
 }
+
 #modal-contents h2 {
     font-size: 20px;
     font-weight: bold;
     color: #3f3f3f;
     margin-bottom: 15px;
 }
+
 .selectset {
     display: flex;
     justify-content: flex-start;
 }
-#modalname{
+
+#modalname {
     margin-left: auto;
     width: 165px;
 }
-#modaldepartment{
+
+#modaldepartment ,#modalname{
     width: 165px;
+    flex-direction: column;
+    display: flex;
 }
-.modalmessagetitle{
+
+.modalmessagetitle {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     width: 100%;
     margin-top: 10px;
 }
-#modaltitle{
+
+#modaltitle {
     margin-top: 5px;
     width: 100%;
     border: rgba(0, 0, 0, 0.15) 1px solid;
@@ -420,7 +472,8 @@ mark {
     border-radius: 5px;
     height: 30px;
 }
-.modalmessagesection{
+
+.modalmessagesection {
 
     display: flex;
     flex-direction: column;
@@ -428,7 +481,8 @@ mark {
     width: 100%;
     margin-top: 10px;
 }
-#modalsection{
+
+#modalsection {
     margin-top: 5px;
     width: 100%;
     border: rgba(0, 0, 0, 0.15) 1px solid;
@@ -437,7 +491,7 @@ mark {
     height: 180px;
 }
 
-#buttonset{
+#buttonset {
     margin-top: 15px;
     display: flex;
     justify-content: center;
@@ -445,7 +499,7 @@ mark {
     gap: 10px;
 }
 
-#submit-modal{
+#submit-modal {
     width: 150px;
     height: 35px;
     background-color: #fa7000;
@@ -455,7 +509,8 @@ mark {
     font-size: 14px;
     cursor: pointer;
 }
-#close-modal{
+
+#close-modal {
     width: 100px;
     height: 35px;
     background-color: white;

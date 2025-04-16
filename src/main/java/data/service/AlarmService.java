@@ -46,39 +46,39 @@ public class AlarmService {
     }
     
     //모든 알람 조회
-  	public List<AlarmDto> allAlarm(int userId, int startNum, int perPage)
+  	public List<AlarmDto> allAlarm(int userId, String type,int startNum, int perPage)
   	{
-  		return alarmMapper.allAlarm(userId, startNum,perPage);
+  		return alarmMapper.allAlarm(userId, type, startNum,perPage);
   	}
   	
   	//읽지 않은 알람 조회
-  	public List<AlarmDto> unreadAlarm(int userId, int startNum, int perPage)
+  	public List<AlarmDto> unreadAlarm(int userId, String type, int startNum, int perPage)
   	{
-  		return alarmMapper.unreadAlarm(userId, startNum,perPage);
+  		return alarmMapper.unreadAlarm(userId, type, startNum,perPage);
   	}
   	
   	//읽은 알람 조회
-  	public List<AlarmDto> readAlarm(int userId, int startNum, int perPage)
+  	public List<AlarmDto> readAlarm(int userId, String type, int startNum, int perPage)
   	{
-  		return alarmMapper.readAlarm(userId, startNum,perPage);
+  		return alarmMapper.readAlarm(userId, type, startNum,perPage);
   	}
   	
   	//모든 알람 개수 조회
-  	public int countAllAlarm(int userId)
+  	public int countAllAlarm(int userId, String type)
   	{
-  		return alarmMapper.countAllAlarm(userId);
+  		return alarmMapper.countAllAlarm(userId, type);
   	}
   	
   	//읽지 않은 알람 개수 조회
-  	public int countUnreadAlarm(int userId)
+  	public int countUnreadAlarm(int userId, String type)
   	{
-  		return alarmMapper.countUnreadAlarm(userId);
+  		return alarmMapper.countUnreadAlarm(userId, type);
   	}
   	
   	//읽은 알람 개수 조회
-  	public int countReadAlarm(int userId)
+  	public int countReadAlarm(int userId, String type)
   	{
-  		return alarmMapper.countReadAlarm(userId);
+  		return alarmMapper.countReadAlarm(userId, type);
   	}
   	
   	//알림 상태 읽음으로 변경
@@ -208,7 +208,7 @@ public class AlarmService {
   	//내가 해야할 결제가 생긴(내 차례가 된) 경우 알람 발생
   	public void approvalTurnAlarm(int userId, int causedBy)
   	{
-  			String content = "확인 할 결제가 생겼습니다.";//알람 문구 지정 > 수정해도 됨		
+  			String content = "확인 할 결재가 생겼습니다.";//알람 문구 지정 > 수정해도 됨
   			
   			//알람 dto 생성
   			AlarmDto dto =new AlarmDto();
@@ -251,7 +251,7 @@ public class AlarmService {
   	//결제가 최종 승인된 경우 알람 발생
   	public void confirmedApprovalAlarm(int userId, int causedBy)
   	{
-  			String content = "결제가 최종 승인되었습니다.";//알람 문구 지정 > 수정해도 됨		
+  			String content = "결재가 최종 승인되었습니다.";//알람 문구 지정 > 수정해도 됨
   			
   			//알람 dto 생성
   			AlarmDto dto =new AlarmDto();
@@ -291,7 +291,7 @@ public class AlarmService {
   	//결제가 반려된 경우 알람 발생
   	public void rejectedApprovalAlarm(int userId, int causedBy)
   	{
-  			String content = "결제가 반려되었습니다.";//알람 문구 지정 > 수정해도 됨		
+  			String content = "결재가 반려되었습니다.";//알람 문구 지정 > 수정해도 됨
   			
   			//알람 dto 생성
   			AlarmDto dto =new AlarmDto();
@@ -325,7 +325,10 @@ public class AlarmService {
 					emitterRepository.remove((long) userId, emitter);
 			        e.printStackTrace();
 				}
-  			} 
+  			}
   	}
+	  public void deleteAlarm(List<Integer> ids) {
+		alarmMapper.deleteAlarm(ids);
+	  }
 
 }
