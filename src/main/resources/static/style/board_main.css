@@ -1,4 +1,5 @@
 /* Layout */
+
 .fullbox{
     display: flex;
     flex-direction: row;
@@ -17,13 +18,14 @@
     background-color: #fff;
     height: 100%;
     min-height: 0;
+    white-space: nowrap;
 }
 
 .nav {
     display: flex;
     flex-direction: column;
     height: 200px;
-    width: 100%;
+
     align-items: flex-start;
     justify-content: flex-end;
     margin-left: 70px;
@@ -35,93 +37,61 @@
     font-weight: bold;
     color: #3f3f3f;
 }
+
 .mainnavbar {
     display: flex;
-    align-items: flex-start;
     gap: 30px;
-    position: relative;
-    align-self: stretch;
-    width: 100%;
     font-size: 16px;
+    white-space: nowrap;
 }
-#navlist1{
+
+#navlist2 {
     color: #3f3f3f;
-    font-weight: bold;
     cursor: pointer;
 }
 
-.navlistnone{
-    border-left: rgba(0, 0, 0, 0.15) 1px solid;
-    padding-left: 30px;
-    cursor: pointer;
-}
-.navlistnone:first-child{
-    padding-left: 0;
-    border-left: none;
-}
 .section {
     display: flex;
-    padding: 20px;
-    border: 1px solid rgba(0, 0, 0, 0.05);
     border-radius: 15px;
     width: 96%;
     height: 100%;
     margin: 50px 50px 50px 70px;
-    min-height: 0;
     flex-direction: row;
+    gap: 20px;
     min-height: 0;
-}
-.leftarticle{
-    display: flex;
-    flex-direction: column;
-    flex: 4;
-    overflow-y: auto;
-}
-.rightarticle{
-    display: flex;
-    flex-direction: column;
-    flex: 3;
-}
-.righttitle{
-    font-size: 20px;
-    font-weight: bold;
-    border-bottom: rgba(0, 0, 0, 0.05) 1px solid;
-    margin-left: 20px;
-    padding-bottom: 20px;
-}
-#detail{
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    margin: 20px;
-    overflow-y: auto;
+    min-width: 600px;
 }
 
-#boardfrm{
+.container {
     display: flex;
-    flex-direction: column;
-    flex: 1;
-    gap: 20px;
+    min-height: 100vh;
 }
 
-#title{
-    font-size: 20px;
-    font-weight: bold;
-    color: #3f3f3f;
-}
-#createdAt{
-    font-size: 14px;
+.sidebar {
+    width: 220px;
+    background-color: #ffffff;
+    border-right: 1px solid #dee2e6;
+    padding: 20px;
 }
 
-.btnframe {
-    display: flex;
-    flex-direction: row;
-    align-self: stretch;
-    height: 50px;
-    gap: 20px;
-    width: 100%;
-    position: relative;
-    margin-bottom: 10px;
+.sidebar h2 {
+    font-size: 18px;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.menu-item {
+    margin-bottom: 12px;
+    padding: 10px;
+    border-radius: 6px;
+    color: #495057;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.menu-item.active, .menu-item:hover {
+    background-color: #0d6efd;
+    color: white;
 }
 
 .main-content {
@@ -129,24 +99,26 @@
     padding: 30px;
 }
 
-.whitebtn{
-    padding: 10px;
-    color: white;
-    background-color: #fa7000;
-    border: 1px solid rgba(0,0,0,0.15);
-    border-radius: 5px;
-}
-
-.header2 {
+.header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 30px;
 }
 
-.header2 h1 {
+.header h1 {
     font-size: 24px;
     color: #343a40;
+}
+
+.header .buttons button {
+    background-color: #0d6efd;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-left: 10px;
 }
 
 .card-list {
@@ -161,7 +133,6 @@
     padding: 20px;
     border-radius: 8px;
     transition: box-shadow 0.2s;
-    margin-bottom: 10px;
 }
 
 .card:hover {

@@ -31,36 +31,65 @@
         </div>
         <!-- 본문 -->
         <div class="section">
-            <div class="btnframe">
-                <button class="whitebtn" onclick="location.href='/board/boardWrite'">글쓰기</button>
-            </div>
-
-            <!-- 게시글 리스트 -->
-            <div class="card" th:each="board : ${boardList}" th:if="${board.category} != 'ANONYMITY'">
-                <div class="card-title">
-                    <a th:href="@{'/board/boardDetail/' + ${board.id}}" th:text="${board.title}" style="text-decoration: none;color: #3f3f3f"></a>
+            <div class="leftarticle">
+                <div class="btnframe">
+                    <button class="whitebtn" onclick="location.href='/board/boardWrite'">글쓰기</button>
                 </div>
 
-                <div class="card-content" th:text="${board.content}">내용</div>
-
-                <div class="card-footer">
-                    <div class="writer-info">
-                        <span th:text="${writerMap[board.authorId]}">작성자</span>
-                        <span th:text="${#dates.format(board.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
-                    </div>
-                </div>
+                <!-- 게시글 리스트 -->
+				<div class="card" th:each="board : ${boardList}" th:if="${board.category} != 'ANONYMITY'">
+					<div class="card-title">
+						<a href="javascript:void(0);"
+						   th:text="${board.title}"
+						   th:attr="data-id=${board.id}"
+						   class="board-title-link"
+						   style="text-decoration: none; color: #3f3f3f;">
+						</a>
+					</div>
+					<div class="card-content" th:text="${board.content}">내용</div>
+					<div class="card-footer">
+						<div class="writer-info">
+							<span th:text="${writerMap[board.authorId]}">작성자</span>
+							<span th:text="${#dates.format(board.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
+						</div>
+					</div>
+				</div>
             </div>
-<!--			<div class="container mt-3 d-flex justify-content-center">-->
-<!--				<ul class="pagination">-->
-<!--					<li class="page-item"><a class="page-link" href="#">이전</a></li>-->
-<!--					<li class="page-item"><a class="page-link" href="#">1</a></li>-->
-<!--					<li class="page-item active"><a class="page-link" href="#">2</a></li>-->
-<!--					<li class="page-item"><a class="page-link" href="#">3</a></li>-->
-<!--					<li class="page-item"><a class="page-link" href="#">다음</a></li>-->
-<!--				</ul>-->
-<!--			</div>-->
+            <div class="rightarticle">
+				<div class="righttitle">
+					게시글 상세보기
+				</div>
+				<div id="detail"></div>
+            </div>
+            <!--			<div class="container mt-3 d-flex justify-content-center">-->
+            <!--				<ul class="pagination">-->
+            <!--					<li class="page-item"><a class="page-link" href="#">이전</a></li>-->
+            <!--					<li class="page-item"><a class="page-link" href="#">1</a></li>-->
+            <!--					<li class="page-item active"><a class="page-link" href="#">2</a></li>-->
+            <!--					<li class="page-item"><a class="page-link" href="#">3</a></li>-->
+            <!--					<li class="page-item"><a class="page-link" href="#">다음</a></li>-->
+            <!--				</ul>-->
+            <!--			</div>-->
         </div>
     </div>
 </div>
 </body>
 </html>
+
+<script>
+	$(document).ready(function () {
+		$(".board-title-link").on("click", function () {
+			const id = $(this).data("id");
+
+			$.ajax({
+				url: "/board/boardDetail/" + id, //이 URL은 컨트롤러에서 fragment만 반환하도록 처리된 상태
+				success: function (html) {
+					$("#detail").html(html); //오른쪽에 삽입
+				},
+				error: function () {
+					alert("게시글 상세 내용을 불러오지 못했습니다.");
+				}
+			});
+		});
+	});
+</script>

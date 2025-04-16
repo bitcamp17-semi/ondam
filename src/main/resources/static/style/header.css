@@ -48,7 +48,7 @@
     flex: 0 0 auto;
 }
 
-.header-layout .div-2 {
+.header-layout .pagemove {
     position: relative;
     align-self: stretch;
     width: 100%;
@@ -59,13 +59,13 @@
     overflow: hidden;
 }
 
-.header-layout .div-2:hover {
+.header-layout .pagemove:hover {
     background-color: #fa7000;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
     cursor: pointer;
 }
 
-.header-layout .div-2 i {
+.header-layout .pagemove i {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -75,12 +75,12 @@
     z-index: 1;
 }
 
-.header-layout .div-2:hover i {
+.header-layout .pagemove:hover i {
     transform: translate(-50%, -80%);
     color: white;
 }
 
-.header-layout .div-2 .label {
+.header-layout .pagemove .label {
     position: absolute;
     top: 60%;
     left: 50%;
@@ -94,17 +94,17 @@
     pointer-events: none;
 }
 
-.header-layout .div-2:hover .label {
+.header-layout .pagemove:hover .label {
     opacity: 1;
     transform: translate(-50%, 0);
 }
 
-.header-layout .div-2 i,
-.header-layout .div-2 .label {
+.header-layout .pagemove i,
+.header-layout .pagemove .label {
     vertical-align: middle; /* or just remove it if position:absolute */
 }
 
-.header-layout .div-2 img {
+.header-layout .pagemove img {
     user-select: none;
 }
 

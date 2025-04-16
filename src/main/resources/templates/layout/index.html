@@ -11,11 +11,13 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
     <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
 
-    <!-- 풀캘린더 사용하기위한 script -->
-    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css' rel='stylesheet'/>
+    <!-- FullCalendar CSS -->
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css' rel='stylesheet' />
+
+    <!-- FullCalendar JS -->
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js'></script>
-    <!-- 풀캘린더 상단 버튼 한글로 변경하기위한 스크립트-->
     <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.15/locales/ko.global.js"></script>
+
 </head>
 <body>
 <div class="fullbox">
@@ -74,7 +76,8 @@
                 </div>
             </div>
             <div class="middle">
-                <div id='calendar'></div>
+                <!-- 캘린더 출력 영역 -->
+                <div id="calendar"></div>
             </div>
             <div class="right">
                 <div class="weather-widget" id="weatherWidget">
@@ -374,4 +377,68 @@
         })
     }
 
+</script>
+
+<script th:inline="javascript">
+    fetch('/index/calendar-data')
+        .then(res => {
+            if (!res.ok) {
+                throw new Error("서버 오류 또는 인증 실패");
+            }
+            return res.json();
+        })
+        .then(data => {
+            if (data.status !== 'ok') {
+                alert("일정 데이터를 불러오지 못했습니다.");
+                return;
+            }
+
+            const events = data.result.map(s => ({
+                id: s.id,
+                title: s.name,
+                groupId: s.groupId,
+                start: s.startTime.replace(' ', 'T'),
+                end: s.endTime.replace(' ', 'T'),
+                allDay: s.alltime,
+                content: s.content,
+                writer: s.writer,
+                color: s.color
+            }));
+
+            const calendarEl = document.getElementById('calendar');
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                locale: 'ko',
+                editable: false,
+                selectable: false,
+                dayMaxEvents: true,
+                events: events,
+                headerToolbar: {
+                    left: '',
+                    center: 'title',
+                    right: ''
+                },
+                dayCellContent: function (info) {
+                    const number = document.createElement("a");
+                    number.classList.add("fc-day-number");
+                    number.innerHTML = info.dayNumberText.replace("일", "").replace("日", "");
+                    if (info.view.type == "dayGridMonth") {
+                        return { html: number.outerHTML };
+                    }
+                    return { domNodes: [] };
+                },
+                eventDidMount: function (info) {
+                    let writer = info.event.extendedProps.writer || '작성자 없음';
+                    let content = info.event.extendedProps.content || '내용 없음';
+                    let tooltipHtml = `작성자 : ${writer}<br>내용 : ${content}`;
+                    info.el.setAttribute('title', tooltipHtml);
+                    info.el.setAttribute('data-bs-toggle', 'tooltip');
+                    info.el.setAttribute('data-bs-html', 'true');
+                    info.el.setAttribute('data-bs-placement', 'bottom');
+                    new bootstrap.Tooltip(info.el);
+                }
+            });
+
+            calendar.render();
+        });
 </script>

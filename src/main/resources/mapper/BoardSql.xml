@@ -23,8 +23,7 @@
 
 	<!-- 글 상세보기 -->
 	<select id="boardDetailById" parameterType="int" resultType="BoardDto">
-	    SELECT id, title, content
-	    FROM board
+	    SELECT * FROM board
 	    WHERE id = #{id}
 	</select>
 
