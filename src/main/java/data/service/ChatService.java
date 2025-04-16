@@ -80,6 +80,9 @@ public class ChatService {
     // 그룹 채팅 메시지 조회
     public List<ChatLogDto> readGroupMessages(Integer firstChatId) {
         List<ChatLogDto> messages = chatLogMapper.readAllLogsByGroupId(Long.valueOf(firstChatId));
+        if (messages == null) {
+            messages = new ArrayList<>();
+        }
         for (ChatLogDto msg : messages) {
             UsersDto sender = usersMapper.readUserById(msg.getSenderId());
             if (sender != null) {
@@ -95,6 +98,9 @@ public class ChatService {
         params.put("userId", userId);
         params.put("chatId", chatId);
         List<ChatLogDto> messages = chatLogMapper.readAllPrivateLogs(params);
+        if (messages == null) {
+            messages = new ArrayList<>();
+        }
         for (ChatLogDto msg : messages) {
             UsersDto sender = usersMapper.readUserById(msg.getSenderId());
             if (sender != null) {
@@ -182,6 +188,7 @@ public class ChatService {
         ChatGroupsDto group = new ChatGroupsDto();
         group.setName(groupName);
         group.setCreatedBy(createdBy);
+        group.setRoomType("GROUP"); // roomType을 GROUP으로 설정
         logger.info("Inserting group with name: {}", groupName);
         chatGroupsMapper.createGroup(group); // 그룹 삽입
 

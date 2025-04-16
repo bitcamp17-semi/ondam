@@ -160,44 +160,54 @@ public class ChatController {
 	}
 	
 	@GetMapping("/loadChat")
-    @ResponseBody
-    public ChatRoomData loadChat(@RequestParam("chatId") Integer chatId, HttpSession session) {
-        Integer userId = (Integer) session.getAttribute("userId");
-        if (userId == null) {
-            throw new IllegalStateException("로그인이 필요합니다.");
-        }
-        ChatGroupsDto chatGroup = chatService.readGroupById(chatId);
-        if (chatGroup == null) {
-            throw new IllegalArgumentException("채팅방을 찾을 수 없습니다.");
-        }
+	@ResponseBody
+	public ChatRoomData loadChat(@RequestParam("chatId") Integer chatId, HttpSession session) {
+	    Integer userId = (Integer) session.getAttribute("userId");
+	    if (userId == null) {
+	        throw new IllegalStateException("로그인이 필요합니다.");
+	    }
+	    log.info("Loading chat with chatId: {}, userId: {}", chatId, userId);
 
-        ChatRoomData chatRoomData = new ChatRoomData();
-        chatRoomData.setRoomId(chatId);
+	    ChatGroupsDto chatGroup = chatService.readGroupById(chatId);
+	    if (chatGroup == null) {
+	        throw new IllegalArgumentException("채팅방을 찾을 수 없습니다.");
+	    }
 
-        if ("GROUP".equals(chatGroup.getRoomType())) {
-            chatRoomData.setRoomName(chatGroup.getName());
-            chatRoomData.setRoomType("GROUP");
-            chatRoomData.setMessages(chatService.readGroupMessages(chatId));
-        } else if ("PRIVATE".equals(chatGroup.getRoomType())) {
-            Long targetUserId = chatGroup.getTargetUserId();
-            if (targetUserId == null) {
-                throw new IllegalStateException("개인 채팅방의 상대방 ID를 찾을 수 없습니다.");
-            }
-            UsersDto targetUser = chatService.readUserById(targetUserId.intValue());
-            String roomName = targetUser != null ? targetUser.getName() : "알 수 없는 사용자";
-            chatRoomData.setRoomName(roomName);
-            chatRoomData.setRoomType("PRIVATE");
-            chatRoomData.setTargetUserId(targetUserId.intValue());
-            chatRoomData.setMessages(chatService.readPrivateMessages(userId, chatId));
-        }
+	    ChatRoomData chatRoomData = new ChatRoomData();
+	    chatRoomData.setRoomId(chatId);
 
-        chatRoomData.getMessages().forEach(msg -> {
-            msg.setMyMessage(msg.getSenderId().equals(userId));
-            msg.setFormattedCreatedAt(msg.getCreatedAt() != null ?
-                    new SimpleDateFormat("yyyy-MM-dd HH:mm").format(msg.getCreatedAt()) : "");
-        });
-        return chatRoomData;
-    }
+	    if ("GROUP".equals(chatGroup.getRoomType())) {
+	        chatRoomData.setRoomName(chatGroup.getName());
+	        chatRoomData.setRoomType("GROUP");
+	        chatRoomData.setMessages(chatService.readGroupMessages(chatId));
+	    } else if ("PRIVATE".equals(chatGroup.getRoomType())) {
+	        Long targetUserId = chatGroup.getTargetUserId();
+	        if (targetUserId == null) {
+	            throw new IllegalStateException("개인 채팅방의 상대방 ID를 찾을 수 없습니다.");
+	        }
+	        UsersDto targetUser = chatService.readUserById(targetUserId.intValue());
+	        String roomName = targetUser != null ? targetUser.getName() : "알 수 없는 사용자";
+	        chatRoomData.setRoomName(roomName);
+	        chatRoomData.setRoomType("PRIVATE");
+	        chatRoomData.setTargetUserId(targetUserId.intValue());
+	        chatRoomData.setMessages(chatService.readPrivateMessages(userId, chatId));
+	    }
+
+	    List<ChatLogDto> messages = chatRoomData.getMessages();
+	    if (messages == null) {
+	        messages = new ArrayList<>();
+	        chatRoomData.setMessages(messages);
+	        log.warn("Messages list is null for chatId: {}", chatId);
+	    }
+	    messages.forEach(msg -> {
+	        msg.setMyMessage(msg.getSenderId().equals(userId));
+	        msg.setFormattedCreatedAt(msg.getCreatedAt() != null ?
+	                new SimpleDateFormat("yyyy-MM-dd HH:mm").format(msg.getCreatedAt()) : "");
+	    });
+
+	    log.info("Returning chatRoomData with {} messages", messages.size());
+	    return chatRoomData;
+	}
 
 	// ===== Private Methods =====
 
