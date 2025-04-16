@@ -1,10 +1,13 @@
 package data.controller;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -109,14 +112,21 @@ public class BoardController {
 //	}
 
 	@GetMapping("/boardList")
-	public String boardList(Model model,HttpSession session) {
-		//세션에 저장된 사용자 id 받기
-		int userId=(Integer)session.getAttribute("userId");
-		
-		List<BoardDto> list = boardService.getAllBoards();
-		model.addAttribute("boardList", list);
-		return "layout/boardMain";
+	public String boardList(@RequestParam(defaultValue = "1") int page, Model model) {
+	    int pageSize = 10;
+	    int offset = (page - 1) * pageSize;
+
+	    List<BoardDto> list = boardService.getPagedBoardList(offset, pageSize);
+	    int totalCount = boardService.getBoardCount();
+	    int totalPages = (int) Math.ceil((double) totalCount / pageSize);
+
+	    model.addAttribute("boardList", list);
+	    model.addAttribute("currentPage", page);
+	    model.addAttribute("totalPages", totalPages);
+
+	    return "layout/boardMain";
 	}
+
 
 	@GetMapping("/boardBlind")
 	public String boardBlind(Model model,HttpSession session) {
@@ -170,9 +180,18 @@ public class BoardController {
 		return "layout/boardDepartment";
 	}
 	
-	@GetMapping("/board/top-notices")
-	@ResponseBody
-	public List<BoardDto> getTopNotices() {
-	    return boardService.getTopNotices();
+	@GetMapping("/noticeTop3")
+	public ResponseEntity<Object> homeNoticeTop3() {
+	    Map<String, Object> response = new LinkedHashMap<>();
+	    try {
+	        List<BoardDto> list = boardService.readNoticeTop3(); // ← 여기 수정!
+	        response.put("status", "ok");
+	        response.put("result", list);
+	        return new ResponseEntity<>(response, HttpStatus.OK);
+	    } catch (Exception e) {
+	        response.put("status", "error");
+	        response.put("message", e.getMessage());
+	        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+	    }
 	}
 }

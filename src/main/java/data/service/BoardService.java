@@ -85,7 +85,7 @@ public class BoardService {
 		return 0;
 	}	
 	
-	public List<BoardDto> getTopNotices() {
-	    return boardMapper.getTopNotices();
+	public List<BoardDto> readNoticeTop3() {
+	    return boardMapper.readNoticeTop3();
 	}
 }

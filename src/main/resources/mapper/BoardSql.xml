@@ -93,11 +93,19 @@
     	SELECT COUNT(*) FROM board
 	</select>
 	
-	<select id="getTopNotices" resultType="data.dto.BoardDto">
-    SELECT *
-    FROM board
-    WHERE category = '공지사항' AND is_hidden = 0
-    ORDER BY writeday DESC
-    LIMIT 3
+	<select id="readNoticeTop3" resultType="data.dto.BoardDto">
+    	SELECT *
+    	FROM board
+    	WHERE category = 'NOTICE' AND is_hidden = 0
+    	ORDER BY writeday DESC
+    	LIMIT 3
+	</select>
+
+	<select id="getBoardListWithNoticeTop" resultType="data.dto.BoardDto">
+    	SELECT *
+    	FROM board
+    	WHERE category = #{category}
+    	ORDER BY is_notice DESC, createdAt DESC
+    	LIMIT #{limit} OFFSET #{offset}
 </select>
 </mapper>

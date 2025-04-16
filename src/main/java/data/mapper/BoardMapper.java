@@ -37,5 +37,5 @@ public interface BoardMapper {
 	List<BoardDto> selectNotiPosts();
 	List<BoardDto> selectPagedBoardList(@Param("offset") int offset, @Param("limit") int limit);
 	int selectBoardCount();
-	List<BoardDto> getTopNotices();
+	List<BoardDto> readNoticeTop3();
 }
