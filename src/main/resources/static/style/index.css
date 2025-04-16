@@ -203,15 +203,17 @@
 }
 
 .middle {
-    overflow-y: auto;
     background-color: white;
     flex:5;
-    padding: 30px;
     border-radius: 10px;
     border: 1px solid rgba(0, 0, 0, 0.05);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
-
+#calendar{
+    margin: 50px;
+    flex: 1;
+    min-width: 300px;
+}
 
 .right {
     background-color: white;
@@ -309,12 +311,6 @@
     cursor: pointer;
 }
 
-#calendar{
-    display: flex;
-    flex: 1;
-    padding: 20px;
-}
-
 .weather-widget {
     display: flex;
     flex-direction: column;
@@ -370,3 +366,54 @@
     height: 30px;
 }
 
+/*  캘린더 css */
+.fc-day-today {
+    background-color: white !important;
+}
+
+th.fc-col-header-cell .fc-col-header-cell-cushion {
+    font-weight: bold;
+}
+
+/*  토요일 색상 */
+.fc-day-sat {
+    background-color: rgba(238, 247, 255, 0.7);
+    color: #0044cc;
+}
+
+/*  일요일 색상 */
+.fc-day-sun {
+    background-color: rgba(255, 234, 234, 0.7);
+    color: #cc0000;
+}
+
+/*  날짜 숫자 스타일 */
+.fc-daygrid-day-number {
+    font-size: 14px;
+    font-weight: 500;
+    color: #555;
+}
+
+/*title*/
+.fc-toolbar-title{
+    color: #3f3f3f;
+    font-weight: bold;
+}
+
+.fc .fc-button:disabled{
+    opacity: 1;
+    font-weight: bold;
+}
+
+.fc-timeGridDay-view .fc-timegrid-event {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 20px;
+    font-weight: bold;
+    padding-top: 20px;
+}
+
+.fc-day-today {
+    border: 8px solid rgba(255, 142, 19, 0.5) !important;
+}
