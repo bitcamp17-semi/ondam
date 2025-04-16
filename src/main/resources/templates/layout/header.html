@@ -39,7 +39,7 @@
                 <i class="bi bi-list-task"></i>
                 <span class="label">게시판</span>
             </div>
-            <div class="div-2" id="header-storage" th:data-url="@{/draft/storage}">
+            <div class="div-2" id="header-storage" th:data-url="@{/api/dataroom}">
                 <i class="bi bi-cloud-download"></i>
                 <span class="label">드라이브</span>
             </div>
@@ -53,11 +53,12 @@
             </div>
         </div>
         <div class="div">
-            <div class="div-2" id="header-alarm">
+            <div class="div-2" id="header-alarm" th:data-url="@{/alarm}">
                 <div class="group">
                     <div class="overlap-group">
                         <i class="bi bi-bell"></i>
                         <div class="ellipse"></div>
+                        <span class="label">알림</span>
                     </div>
                 </div>
             </div>
@@ -68,6 +69,7 @@
             </div>
             <div class="div-2" id="header-logout">
                 <i class="bi bi-box-arrow-right"></i>
+                <span class="label">로그아웃</span>
             </div>
 
         </div>
@@ -132,7 +134,7 @@
                 }
             })
         }
-        
+
       	//알람 목록에 '미확인' 알람이 하나라도 있으면 .ellipse 표시 아니면 숨김
         function updateAlarmIndicator() {
     		$.ajax({
@@ -155,7 +157,7 @@
 
 <!-- 토스트 노출-->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script th:src="@{/js/alarm.js}"></script>
+<!--<script th:src="@{/js/alarm.js}"></script>-->
 
 </div>
 </body>

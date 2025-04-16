@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8"/>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css"/>
     <link rel="stylesheet" th:href="@{/style/globals.css}"/>
     <link rel="stylesheet" th:href="@{/style/management.css}"/>
     <link rel="stylesheet" th:href="@{/style/header.css}"/>
@@ -460,7 +460,6 @@
         let gender = $("input[name='gender']:checked").val();
         let address = $("input[placeholder='주소를 입력하세요']").val().trim();
         let profileImage = $("#fileInput")[0].files[0];
-        console.log(departmentId)
 
         // 필수값 검증
         if (!name || !departmentId || !position || !phone || !email) {
@@ -563,6 +562,7 @@
             }
         });
     }
+
     function checkAdmin() {
         $.ajax({
             url: "/api/users/checkAdmin",

@@ -3,13 +3,13 @@
 .fullbox{
     display: flex;
     flex-direction: row;
-    width: 96vw;
+    width: calc(100vw - 75px);
     height: 100dvh;
-    font-family: "Noto Sans-Bold", Helvetica, "Noto Sans-Regular";
     color: #686868;
     position: relative;
-    min-height: 0;
+    white-space: nowrap;
 }
+
 .header {
     width: 80px;
     height: 100%;
@@ -81,12 +81,12 @@
     cursor: pointer;
 }
 .section{
-    display: flex;
+    width: 96%;
     padding: 20px;
     border: rgba(0, 0, 0, 0.05) 1px solid;
     border-radius: 15px;
-    width: 96%;
     height: 100%;
+    display: flex;
     margin: 50px 50px 50px 70px;
     min-height: 0;
 }
@@ -113,14 +113,20 @@
     border-bottom: rgba(0, 0, 0, 0.05) 1px solid;
     white-space: nowrap;
 }
-.addbtn{
+.whitebtn {
     border: rgba(0, 0, 0, 0.15) 1px solid;
     border-radius: 5px;
     height: 35px;
-    width: 100px;
+    padding: 0 20px 0 20px;
     background-color: white;
     color: #686868;
     cursor: pointer;
+    font-size: 15px;
+}
+#dephead{
+    color: white;
+    background-color: #fa7000;
+    border: rgba(0, 0, 0, 0.15) 1px solid;
 }
 #deletebtn{
     border: rgba(0, 0, 0, 0.15) 1px solid;
@@ -136,6 +142,7 @@
 .orgchart{
     flex-grow: 1;
     color: #3f3f3f;
+    overflow-y: auto;
 }
 .orgchart ul {
     list-style-type: none;
@@ -200,16 +207,6 @@
     border-bottom: rgba(0, 0, 0, 0.05) 1px solid;
 }
 
-#rightdeletebtn{
-    border: rgba(0, 0, 0, 0.15) 1px solid;
-    border-radius: 5px;
-    height: 35px;
-    width: 13%;
-    background-color: white;
-    color: #686868;
-    cursor: pointer;
-}
-
 .rightmain{
     display: flex;
     width: 100%;
@@ -258,10 +255,11 @@
     background-color: white;
 }
 .teamsawonprofile{
-    gap: 2px;
+    gap: 3px;
 }
 .sawonprofile h3{
     color: #3f3f3f;
+    font-size: 16px;
 }
 .sawonprofile b{
     font-size: 12px;
@@ -272,7 +270,6 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-
 }
 .sawon{
     width: 100%;
@@ -320,7 +317,7 @@
 .sawoninfo{
     width: 30%;
     height: 100%;
-    gap: 15px;
+    gap: 10px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -332,7 +329,7 @@
 .sawonphone,
 .sawonmail{
     display: flex;
-    gap: 5px;
+    gap: 3px;
     flex-direction: column;
 }
 .sawonname span,
@@ -343,6 +340,7 @@
 .sawonmail span{
     font-size: 12px;
     color: #686868;
+    font-weight: normal;
 }
 #name,
 #phone,
@@ -355,6 +353,7 @@
     border: rgba(0, 0, 0, 0.15) 1px solid;
     border-radius: 5px;
     color: #686868;
+    font-size: 16px;
 }
 
 /*드롭다운 css*/
@@ -385,6 +384,8 @@
     box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
     font-size: 14px;
     z-index: 1;
+    overflow-y: auto;
+    height: 150px;
 }
 .dropdown-menu a {
     display: block;
@@ -406,38 +407,6 @@
     justify-content: center;
 }
 
-.sawonupdatebtn {
-    border: rgba(0, 0, 0, 0.15) 1px solid;
-    border-radius: 5px;
-    height: 35px;
-    width: 130px;
-    background-color: #fa7000;
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
-    text-align: left;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    flex-direction: row;
-}
-.sawondeletebtn {
-    border: rgba(0, 0, 0, 0.15) 1px solid;
-    border-radius: 5px;
-    height: 35px;
-    width: 130px;
-    background-color: white;
-    color: #686868;
-    cursor: pointer;
-    text-align: left;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    flex-direction: row;
-}
-
 /* 모달 css*/
 .modal-overlay {
     position: fixed;
@@ -453,7 +422,7 @@
     z-index: 10000;
 }
 
-.modal-content {
+.modal-contents {
     background-color: white;
     padding: 30px;
     border-radius: 10px;
@@ -461,10 +430,10 @@
     display: flex;
     flex-direction: column;
 }
-.modal-content span{
+.modal-contents span{
     font-size: 12px;
 }
-.modal-content h2 {
+.modal-contents h2 {
     font-size: 20px;
     font-weight: bold;
     color: #3f3f3f;
@@ -492,7 +461,7 @@
 }
 
 .buttonset{
-    margin-top: 15px;
+    margin-top: 25px;
     display: flex;
     justify-content: center;
     align-items: center;

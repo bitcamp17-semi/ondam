@@ -3,64 +3,92 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="data.mapper.ChatGroupsMapper">
+	
+	<!-- Result Map -->
+    <resultMap id="ChatGroupsResultMap" type="data.dto.ChatGroupsDto">
+        <id property="id" column="id" />
+        <result property="name" column="name" />
+        <result property="createdAt" column="createdat" />
+        <result property="createdBy" column="createdby" />
+        <result property="roomType" column="roomtype" />
+        <result property="lastMessage" column="last_message" />
+        <result property="memberCount" column="member_count" />
+        <result property="opponentName" column="opponent_name" />
+        <result property="targetUserId" column="target_user_id" />
+    </resultMap>
+	
 	<insert id="createGroup" parameterType="ChatGroupsDto"
 		useGeneratedKeys="true" keyProperty="id">
-		insert into chat_groups (name,
-		createdby)
-		values (#{name}, #{createdBy})
+		insert into chat_groups (name, createdby, roomtype)
+		values (#{name}, #{createdBy}, #{roomType})
 	</insert>
 
-	<select id="readAllGroupsWithLastMessages"
-		resultType="ChatGroupsDto">
+	<select id="readAllGroupsWithLastMessages" resultMap="ChatGroupsResultMap">
 		SELECT
-		cg.id,
-		cg.name,
-		cg.createdat,
-		cg.createdby,
-		cg.roomtype,
-		(SELECT cl.message
-		FROM chat_log cl
-		WHERE cl.groupid = cg.id
-		ORDER BY cl.createdat DESC
-		LIMIT 1) AS last_message,
-		(SELECT COUNT(*)
-		FROM junction_chat_users_groups j
-		WHERE j.groupid = cg.id) AS member_count,
-		(CASE
-		WHEN cg.roomtype = 'PRIVATE' THEN (
-		SELECT u.name
-		FROM users u
-		JOIN junction_chat_users_groups j ON u.id = j.userid
-		WHERE j.groupid = cg.id
-		AND j.userid != #{userId}
-		LIMIT 1
-		)
-		ELSE cg.name
-		END) AS opponent_name
+			cg.id,
+			cg.name,
+			cg.createdat,
+			cg.createdby,
+			cg.roomtype,
+			cl.message AS last_message,
+			(SELECT COUNT(*) FROM junction_chat_users_groups j WHERE j.groupid = cg.id) AS member_count,
+			CASE 
+				WHEN cg.roomtype = 'PRIVATE' THEN (
+					SELECT u.name 
+					FROM users u 
+					JOIN junction_chat_users_groups j ON u.id = j.userid 
+					WHERE j.groupid = cg.id AND u.id != #{userId}
+					LIMIT 1
+				)
+				ELSE NULL 
+			END AS opponent_name,
+			CASE 
+				WHEN cg.roomtype = 'PRIVATE' THEN (
+					SELECT u.id 
+					FROM users u 
+					JOIN junction_chat_users_groups j ON u.id = j.userid 
+					WHERE j.groupid = cg.id AND u.id != #{userId}
+					LIMIT 1
+				)
+				ELSE NULL 
+			END AS target_user_id
 		FROM chat_groups cg
+		LEFT JOIN chat_log cl ON cg.id = cl.groupid
 		JOIN junction_chat_users_groups j ON cg.id = j.groupid
 		WHERE j.userid = #{userId}
+		GROUP BY cg.id
+		ORDER BY cl.createdat DESC
 	</select>
 
 	<select id="readGroupById" parameterType="int"
 		resultType="ChatGroupsDto">
-		select * from chat_groups where id = #{id} <!-- groupid -> id, #{Id} -> 
-			#{id} -->
+		SELECT
+            cg.id,
+            cg.name,
+            cg.createdat,
+            cg.createdby,
+            cg.roomtype,
+            (SELECT j.userid
+             FROM junction_chat_users_groups j
+             WHERE j.groupid = cg.id
+             AND j.userid != cg.createdby
+             LIMIT 1) AS targetUserId
+        FROM chat_groups cg
+        WHERE cg.id = #{id}
 	</select>
 
 	<update id="updateGroup" parameterType="ChatGroupsDto">
 		update chat_groups
-		set name = #{name} <!-- groupname -> name -->
-		where id = #{id} <!-- groupid -> id -->
+		set name = #{name}
+		where id = #{id}
 	</update>
 
 	<delete id="deleteGroup" parameterType="long">
-		delete from chat_groups where id = #{groupId} <!-- groupid -> id -->
+		delete from chat_groups where id = #{groupId}
 	</delete>
 
 	<insert id="createGroupUser">
-		insert into junction_chat_users_groups (userid,
-		groupid)
+		insert into junction_chat_users_groups (userid, groupid)
 		values (#{param1}, #{param2})
 	</insert>
 
@@ -81,22 +109,28 @@
 		resultType="ChatGroupsDto">
 		select cg.*
 		from chat_groups cg
-		join
-		junction_chat_users_groups j on cg.id = j.groupid
-		where j.userid =
-		#{userId}
+		join junction_chat_users_groups j on cg.id = j.groupid
+		where j.userid = #{userId}
 	</select>
+
 	<select id="readPrivateChatBetweenUsers"
 		resultType="ChatGroupsDto">
-		select cg.*
-		from chat_groups cg
-		join
-		junction_chat_users_groups j1 on cg.id = j1.groupid
-		join
-		junction_chat_users_groups j2 on cg.id = j2.groupid
-		where cg.roomtype =
-		'PRIVATE'
-		and j1.userid = #{param1}
-		and j2.userid = #{param2}
+		SELECT
+            cg.id,
+            cg.name,
+            cg.createdat,
+            cg.createdby,
+            cg.roomtype,
+            (SELECT j2.userid
+             FROM junction_chat_users_groups j2
+             WHERE j2.groupid = cg.id
+             AND j2.userid != #{param1}
+             LIMIT 1) AS targetUserId
+        FROM chat_groups cg
+        JOIN junction_chat_users_groups j1 ON cg.id = j1.groupid
+        JOIN junction_chat_users_groups j2 ON cg.id = j2.groupid
+        WHERE cg.roomtype = 'PRIVATE'
+        AND j1.userid = #{param1}
+        AND j2.userid = #{param2}
 	</select>
 </mapper>

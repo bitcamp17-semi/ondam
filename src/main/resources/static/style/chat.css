@@ -1,12 +1,13 @@
 /* Layout */
-.fullbox {
+.fullbox{
     display: flex;
-    width: 96vw;
+    flex-direction: row;
+    width: calc(100vw - 75px);
     height: 100dvh;
+    color: #686868;
     position: relative;
-    white-space: nowrap
+    white-space: nowrap;
 }
-
 .main {
     display: flex;
     flex-direction: column;
@@ -20,7 +21,7 @@
 .nav {
     display: flex;
     flex-direction: column;
-    height: 200px;
+    height: 135px;
     width: 100%;
     align-items: flex-start;
     justify-content: flex-end;
@@ -30,21 +31,6 @@
 
 .navtitle {
     font-size: 30px;
-    font-weight: bold;
-    color: #3f3f3f;
-}
-
-.mainnavbar {
-    display: flex;
-    align-items: flex-start;
-    position: relative;
-    align-self: stretch;
-    width: 100%;
-    font-size: 16px;
-    white-space: nowrap;
-}
-
-#navlist2 {
     font-weight: bold;
     color: #3f3f3f;
 }
@@ -72,7 +58,7 @@
 
 .lefttop {
     padding: 15px;
-    background-color: #f8f9fa;
+    background-color: white;
     border-bottom: 1px solid #e0e0e0;
     font-weight: bold;
 }
@@ -94,8 +80,7 @@
 
 .tab-button.active {
     font-weight: bold;
-    border-bottom: -2px solid #3c7eff;
-    color: #3c7eff;
+    color: #fa7000;
 }
 
 .chat-list, .contact-list {
@@ -205,27 +190,28 @@
     flex-direction: column;
     position: relative;
     height: 100%;
+    min-height: 0; 
 }
 
 .chat-messages {
-    flex: 1 1 auto;
-    padding: 20px;
+    flex: 1;
+    padding: 20px 0 20px 20px;
     overflow-y: auto;
-    max-height: calc(100% - 70px - 44px);
-    height: calc(100% - 70px - 44px);
 }
 
 .message {
     display: flex;
     margin-bottom: 15px;
+    justify-content: flex-start;
 }
 
 .message.my-message {
     justify-content: flex-end;
+    padding-right: 0;    
 }
 
 .message-content {
-    max-width: 70%;
+    max-width: 100%;
 }
 
 .message-sender {
@@ -240,6 +226,9 @@
     border-radius: 18px;
     font-size: 14px;
     display: inline-block;
+    max-width: 100%; 
+    word-wrap: break-word; 
+    white-space: normal; 
 }
 
 .message-time {
@@ -250,7 +239,7 @@
 }
 
 .my-message .message-text {
-    background-color: #3c7eff;
+    background-color: #fa7000;
     color: #fff;
 }
 
@@ -269,8 +258,12 @@
     display: flex;
     justify-content: center;
     align-items: center;
+
+}
+.no-chat-selected>span{
     color: #999;
     font-size: 16px;
+    margin-left: 50px;
 }
 
 #connection-status {
@@ -286,7 +279,7 @@
 .invite-button {
     font-size: 12px;
     padding: 5px 10px;
-    background-color: #3c7eff;
+    background-color: #959595;
     color: #fff;
     border: none;
     border-radius: 5px;
@@ -294,7 +287,7 @@
 }
 
 .invite-button:hover {
-    background-color: #2a5cd6;
+    background-color: #fa7000;
 }
 
 .invite-form {
@@ -337,11 +330,19 @@
 }
 
 .groupbtn {
-    margin-left: 80px;
+    margin-left: 50px;
 }
 
 .onechat {
-    margin-left: 180px;
+    margin-left: 170px;
+    background-color: white;
+    border: 1px solid rgba(0,0,0,0.15);
+    color: #686868;
+}
+.onechat:hover {
+    background-color: #fa7000;
+    border: 1px solid rgba(0,0,0,0.15);
+    color: white;
 }
 
 /* 모달 스타일 추가 */
@@ -357,4 +358,42 @@
 
 #imageModal .modal-footer {
     justify-content: space-between;
+}
+
+.chat-header {
+    padding: 10px;
+    border-bottom: 1px solid rgba(0,0,0,0.15);
+    background-color: white;
+}
+.chat-header h5 {
+    margin: 0;
+    font-size: 1.25rem;
+}
+.groupbtn{
+    background-color: white;
+    color: #fa7000;
+    border: 1px solid #fa7000;
+    border-radius: 10px;
+}
+.groupbtn:hover{
+    background-color: #fa7000;
+    border: 1px solid rgba(0,0,0,0.15);
+    border-radius: 10px;
+}
+#sendButton{
+    background-color: #fa7000;
+    border: 1px solid rgba(0,0,0,0.15);
+}
+#fileButton{
+    background-color: #686868;
+    border: 1px solid rgba(0,0,0,0.15);
+}
+.modal-footer>.btn-primary{
+    background-color: #fa7000;
+    border: 1px solid rgba(0,0,0,0.15);
+}
+.modal-footer>.btn-secondary{
+    background-color: white;
+    color: #3f3f3f;
+    border: 1px solid rgba(0,0,0,0.15);
 }
