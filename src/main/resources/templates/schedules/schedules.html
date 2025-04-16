@@ -40,8 +40,8 @@
             <div class="modal-body">
                 <table class="form-control">
                     <tr>
-                        <th>하루종일</th>
-                        <td>
+                        <th>하루종일&nbsp;&nbsp;</th>
+                        <td style="margin: 5px;">
                             <input class="form-check-input isAlltime" name="isAlltime" type="checkbox">
                         </td>
                     </tr>
@@ -59,14 +59,14 @@
                     </tr>
                     <tr>
                         <th>일정 제목</th>
-                        <td colspan="3">
+                        <td>
                             <input class="form-control name" name="name" type="text">
                         </td>
                     </tr>
                     <tr>
-                        <th>내용</th>
-                        <td colspan="3">
-                            <textarea class="form-control content" name="content" rows="2"></textarea>
+                        <th>내용&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+                        <td>
+                            <textarea class="form-control content" name="content" ></textarea>
                         </td>
                     </tr>
                     <tr>
@@ -119,7 +119,7 @@
                 <table class="form-control">
                     <!-- 이부분은 로그인 기능 구현되면 활성화시켜서 로그인된 아이디를 받아서 저장할 예정-->
                     <tr>
-                        <th>그룹장</th>
+                        <th>그룹장&nbsp;&nbsp;&nbsp;&nbsp;</th>
                         <td>
                             <input type="hidden" class="form-control ownerId" name="ownerId" th:value="${userId}"
                                    disabled="disabled">
@@ -141,7 +141,7 @@
                     </tr>
                     <tr>
                         <th>인원 추가</th>
-                        <td width="85%">
+                        <td>
                             <select class="groupMembers" name="groupMembers" multiple="multiple" >
                                 <option th:each="user : ${userList}"
                                         th:value="${user.id}"
@@ -181,7 +181,7 @@
                     <input type="hidden" name="groupId">
                     <!-- 이부분은 로그인 기능 구현되면 활성화시켜서 로그인된 아이디를 받아서 저장할 예정-->
                     <tr>
-                        <th>그룹장</th>
+                        <th>그룹장&nbsp;&nbsp;&nbsp;&nbsp;</th>
                         <th hidden>부서ID</th>
                         <td>
                             <!-- 추후에 로그인되어있는 사용자 이름을 출력시킬 예정 -->
@@ -569,7 +569,7 @@
                 success: function (response) {
                     alert('일정이 등록되었습니다!');
                     console.log(response);
-                    //location.reload();//등록 시 페이지 새로고침
+                    location.reload();//등록 시 페이지 새로고침
                 },
                 error: function (xhr, status, error) {
                     console.error('에러 발생:', error);
@@ -611,7 +611,7 @@
 
             $.ajax({
                 type: "post",
-                dataType: "text",
+                dataType: "json",
                 url: "./scheGroupInsert",
                 data: JSON.stringify(requestData),
                 contentType: "application/json",

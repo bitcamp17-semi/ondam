@@ -76,7 +76,9 @@ public class UsersController {
                             //memberList.add(memberMap);
                             //멤버 등록	
                             //scheduleGroupMemberService.scheGroupMemberInsert(memberList);
-                            scheduleGroupMemberService.scheGroupMemberInsert(List.of(companyMap));
+                            Map<String, Object> companyParamMap = new HashMap<>();
+                            companyParamMap.put("memberList", List.of(companyMap));
+                            scheduleGroupMemberService.scheGroupMemberInsert(companyParamMap);
                             System.out.println("회사일정 그룹에 멤버 자동 추가 완료");
                         } else {
                             System.out.println("'회사일정' 그룹이 존재하지 않습니다.");
@@ -101,7 +103,10 @@ public class UsersController {
 
                                 //List<Map<String, Object>> buseoList = new ArrayList<>();
                                 //buseoList.add(buseoMap);
-                                scheduleGroupMemberService.scheGroupMemberInsert(List.of(buseoMap));
+                                Map<String, Object> buseoParamMap = new HashMap<>();
+                                buseoParamMap.put("memberList", List.of(buseoMap));
+
+                                scheduleGroupMemberService.scheGroupMemberInsert(buseoParamMap); 
                                 System.out.println("부서일정 그룹에 멤버 자동 추가 완료");
                             }
                         } else {
