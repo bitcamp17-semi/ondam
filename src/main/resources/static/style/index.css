@@ -179,7 +179,7 @@
     flex: 1;
     flex-direction: row;
     justify-content: space-between;
-    padding: 20px;
+    padding: 10px;
 }
 .approvalcontent{
     display: flex;
@@ -187,15 +187,18 @@
     align-items: center;
     text-align: center;
     justify-content: center;
-    gap: 20px;
-    border-left: rgba(0,0,0,0.05) solid 1px;
-    padding-left: 45px;
     cursor: pointer;
+    flex: 1;
+    gap: 10px;
 }
-.approvalcontent:first-child{
-    border-left:none;
-    padding-left: 0;
+.approvalcontent:nth-child(2){
+    border-left: 1px solid rgba(0, 0, 0, 0.05);
+    border-right: 1px solid rgba(0, 0, 0, 0.05);
 }
+.approvalcontent:hover{
+    background-color: #eee;
+}
+
 .approvalcontent>a{
     font-weight: bold;
     font-size: 40px;
